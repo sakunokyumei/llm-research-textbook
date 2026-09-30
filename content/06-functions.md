@@ -12,6 +12,8 @@
 
 `y=x²`なら、xが0,1,2のときyは0,1,4。増え方が一定ではありません。機械学習では、このような直線で表せない関係も扱います。ただし複雑な関係を学べることと、未知の入力へ正しく答えられることは別です。
 
+<figure class="learning-figure"><svg viewBox="0 0 340 200" role="img" aria-labelledby="linear-title linear-desc"><title id="linear-title">y=2x+3のグラフ</title><desc id="linear-desc">横軸はx、縦軸はy。点(0,3)、(1,5)、(2,7)が一直線に並ぶ。</desc><path d="M40 175 H315 M40 175 V15" fill="none" stroke="currentColor"/><path d="M40 115 L260 35" fill="none" stroke="#245da8" stroke-width="3"/><g fill="#245da8"><circle cx="40" cy="115" r="5"/><circle cx="150" cy="75" r="5"/><circle cx="260" cy="35" r="5"/></g><g font-size="13" fill="currentColor"><text x="45" y="194">0</text><text x="146" y="194">1</text><text x="256" y="194">2</text><text x="320" y="178">x</text><text x="18" y="18">y</text><text x="49" y="111">(0,3)</text><text x="158" y="71">(1,5)</text><text x="265" y="31">(2,7)</text></g></svg><figcaption>横へ1進むと縦へ2増えます。軸の目盛りの間隔は横と縦で異なります。</figcaption></figure>
+
 ## 関数をつなぐ
 
 g(x)=x+1、f(u)=2uなら、まずgで1を足し、その結果をfで2倍できます。`f(g(x))=2(x+1)`です。x=3ならg(3)=4、f(4)=8。順番を逆にするとg(f(3))=7で違います。この「つなぐ」という考えが、ニューラルネットワークや微分の連鎖律につながります。

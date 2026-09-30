@@ -18,6 +18,13 @@ for path in sorted((ROOT / 'content').glob('*.md')):
     chapters.append(record)
 groups = list(dict.fromkeys(c['part'] for c in chapters))
 
+def prerequisite_links(value):
+    def link(match):
+        first = int(match[1]); last = int(match[2] or first)
+        found = [c for c in chapters if first <= int(c['title'][:2]) <= last]
+        return '・'.join(f'<a href="{c["slug"]}.html">{escape(c["title"])}</a>' for c in found) or match[0]
+    return re.sub(r'(\d{2})(?:[〜～–-](\d{2}))?', link, escape(value))
+
 def render(body):
     def exercise(match):
         title, question, answer = match.groups()
@@ -66,7 +73,11 @@ for i,c in enumerate(chapters):
     if i: pager+=f'<a href="{chapters[i-1]["slug"]}.html"><small>前の講義</small>{escape(chapters[i-1]["title"])}</a>'
     if i+1<len(chapters): pager+=f'<a href="{chapters[i+1]["slug"]}.html"><small>次の講義</small>{escape(chapters[i+1]["title"])}</a>'
     pager+='</nav>'
-    body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(c["title"])}</h1><p class="lesson-goal">到達目標：{escape(c.get("goal",""))}</p><div class="lesson-meta">前提：{escape(c.get("prereq","なし"))} <span>演習 {c["body"].count(":::exercise ")} 問</span></div>{html}{pager}</article>'
+    count = c['body'].count(':::exercise ')
+    reading = max(5, round(len(c['body']) / 350))
+    timing = c.get('time', f'読む目安 {reading}〜{reading+5}分／演習 {count*3}〜{count*6}分。実装・到達課題は別の回に分けられます')
+    support = '<p class="study-support">時間は編集上の目安です。見出し一つで休憩しても大丈夫。<a href="learning-help.html">中断・再開と補習の手引き</a>も使ってください。</p>'
+    body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(c["title"])}</h1><p class="lesson-goal">到達目標：{escape(c.get("goal",""))}</p><div class="lesson-meta">前提：{prerequisite_links(c.get("prereq","なし"))} <span>演習 {count} 問</span></div><p class="lesson-time">{escape(timing)}</p>{support}{html}{pager}</article>'
     (OUT/(c['slug']+'.html')).write_text(page(c['title'],body,c['slug'],toc),encoding='utf-8')
 for path in (ROOT/'pages').glob('*.md'):
     title,body=path.read_text(encoding='utf-8').split('\n',1)

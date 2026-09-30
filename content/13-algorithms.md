@@ -25,6 +25,8 @@ print(unique)
 
 実験ID、手法、損失を表に保存すると「手法ごとの平均を見たい」という要求が出ます。SQLは表に対する問い合わせを書く言語です。SELECTは出す列、FROMは対象の表、WHEREは行の条件、GROUP BYはまとめる単位を指定します。
 
+下のsqlite3はPythonに付属する、表を保存・検索する道具です。connectで作業先を開き、":memory:"は今回は保存ファイルを作らず作業中だけ表を持つ指定です。executeは命令を一つ実行し、executemanyは複数のデータを順に渡します。CREATE TABLEは表を作り、TEXTとREALは文字列と実数の列、INSERT INTOは行を追加します。AVGは平均、COUNT(*)は行数。fetchallは結果の全行を取り出し、closeは接続を閉じます。この小節は、表の作成→行の追加→集計の三回に分けて読めます。
+
 ```python
 import sqlite3
 db = sqlite3.connect(":memory:")
@@ -65,6 +67,26 @@ O(n²)の処理で入力を3倍にすると、主な操作量は何倍になり�
 :::answer
 なくなりません。文字列が違えば別の値です。近い文章の検出には別の類似度や検証が必要です。
 :::
+
+## 時間を測る小さな練習
+
+`time`は時間を扱うモジュールです。`time.perf_counter()`で前後の時計の値を取り、その差を秒で読みます。絶対的な日時ではなく、処理の前後の差だけを使います。
+
+```python
+import time
+items = list(range(1000))
+start = time.perf_counter()
+seen = set()
+unique = []
+for item in items:
+    if item not in seen:
+        seen.add(item)
+        unique.append(item)
+elapsed = time.perf_counter() - start
+print(len(unique), elapsed)
+```
+
+`list(range(1000))`は0〜999の並びをリストにします。最初の出力は1000、次は経過秒数で、機器や実行ごとに変わります。1000を2000、4000へ変えて各5回記録してください。短い処理では他のアプリの影響も大きいので、一回だけの秒数から増え方を決めません。[時計の仕様](https://docs.python.org/3/library/time.html#time.perf_counter)を参照しています。
 
 ## 到達課題と出典
 

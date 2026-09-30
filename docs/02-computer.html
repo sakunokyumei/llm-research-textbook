@@ -1,33 +1,65 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>02 パソコンの中で何が起きるか | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<title>02 作業する場所と、保存する場所 | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
 <meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
 <body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
-<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" open><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a aria-current=page href="02-computer.html">02 パソコンの中で何が起きるか</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><p class="eyebrow">学ぶ準備</p><h1>02 パソコンの中で何が起きるか</h1><p class="lesson-goal">到達目標：ファイル・メモリ・プログラムの役割を説明する</p><div class="lesson-meta">前提：01 <span>演習 4 問</span></div><h2 id="section-1">保存したのに、なぜ消えるのか</h2>
-<p>メモを書いている途中にアプリが止まり、未保存の文字が消えたことはありませんか。作業中の情報と、保存した情報は、違う場所にあります。この区別は、モデルの学習を中断して再開するときにも必要です。</p>
-<p>ストレージはファイルを長く保存する場所、RAMは動作中のプログラムが使う作業場所です。CPUは命令を実行します。OS（オペレーティングシステム）は、これらの資源やファイル、複数のプログラムを管理します。GPUは同種の計算を大量に処理するのに向きますが、どんな仕事でもCPUより速いわけではありません。</p>
-<p>机をRAM、本棚をストレージと考えると、作業場所と保管場所の違いを想像できます。ただし、これはたとえです。RAMもストレージも実物は電子的な装置であり、速度・容量・電源を切ったときの性質が違います。</p>
-<h2 id="section-2">フォルダとパス</h2>
-<p>ファイルは名前の付いたデータです。フォルダはそれらを整理する入れ物です。パスは目的のファイルにたどり着くための住所に相当します。<code>study/data/train.txt</code> は、studyの中のdataの中にあるtrain.txtを表す書き方です。Windowsでは区切りにバックスラッシュも使います。</p>
-<p>拡張子は名前の末尾の種類を表す部分です。<code>.txt</code>は文章、<code>.py</code>はPythonプログラムによく使います。名前を変えるだけで内容の形式が変換されるわけではありません。画像を<code>.txt</code>に改名しても文章にはなりません。</p>
-<p>ブラウザはWebページを表示するアプリです。ターミナルは文字で操作を入力するアプリです。Pythonはプログラムを書く言語であり、そのプログラムを実行する処理系の名前としても使います。この三つは別のものです。</p>
-<h2 id="section-3">データの大きさを数える</h2>
-<p>ビットは0または1を表す単位です。8ビットを1バイトと呼びます。ここでは1 GBを10億バイトとして概算します。GiBは2の30乗バイトで、GBとは異なります。</p>
-<p>100万個の値を、1個4バイトで保存するなら400万バイト、約4 MBです。機械学習では重み以外にも中間結果、勾配、最適化の状態が必要になります。「重みが入る」ことと「学習できる」ことは同じではありません。</p>
-<h2 id="section-4">演習</h2>
-<section class="exercise"><h3>1・役割を分ける</h3><p>学習途中の結果を後で再開するためにファイルへ保存します。主にRAMとストレージのどちらを使う操作ですか。</p>
-<details><summary>解答と考え方を読む</summary><p>保存先はストレージです。計算中の状態は主にRAMやGPUメモリ上にあり、再開に必要な状態をファイルへ書き出します。この保存物をチェックポイントと呼びます。</p>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" open><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a aria-current=page href="02-computer.html">02 作業する場所と、保存する場所</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><p class="eyebrow">学ぶ準備</p><h1>02 作業する場所と、保存する場所</h1><p class="lesson-goal">到達目標：メモを保存して開き直し、作業中と保存後の違いを説明する</p><div class="lesson-meta">前提：<a href="01-start.html">01 学び方を、実験にする</a> <span>演習 4 問</span></div><p class="lesson-time">読む目安 5〜8分／演習 5〜10分。保存して開き直せたら休憩できます</p><p class="study-support">時間は編集上の目安です。見出し一つで休憩しても大丈夫。<a href="learning-help.html">中断・再開と補習の手引き</a>も使ってください。</p><h2 id="section-1">メモが消えないようにしたい</h2>
+<p>文章を書いている途中にアプリが止まり、書いたものが消えたことはありませんか。作業中の情報と、保存した情報は違う場所にあります。この違いを知ると、後で長い計算をするときにも、どこまで保存できたかを確認できます。</p>
+<p>机の上で手紙を書き、書き終わったら本棚へしまう場面を考えましょう。</p>
+<figure class="learning-figure"><div class="visual-row"><span>机：今、広げて作業する</span><span>→ 保存する →</span><span>本棚：後で取り出せるように置く</span></div><figcaption>机と本棚は役割のたとえ。実際には電子的な装置が情報を扱います。</figcaption></figure>
+<p>机に当たる作業場所をRAM（ラム）、本棚に当たる保存場所をストレージと呼びます。通常、RAMの内容は電源を切ると失われます。ストレージは電源を切っても保存した内容を保ちます。ただし装置の故障まで防げるわけではありません。</p>
+<section class="exercise"><h3>1・どこに残す？</h3><p>明日も使いたいメモは、作業場所にあるだけでよいでしょうか。</p>
+<details><summary>解答と考え方を読む</summary><p>保存したことを確認します。RAMにあるだけでは電源を切ると失われます。ストレージへ保存し、開き直せるか確かめます。</p>
 </details></section>
-<section class="exercise"><h3>2・単位を付けて計算する</h3><p>500万個の値を1個2バイトで保存すると何MBですか。1 MBは100万バイトとします。</p>
-<details><summary>解答と考え方を読む</summary><p>5,000,000個 × 2バイト/個 = 10,000,000バイト = 10 MBです。「個」が打ち消され、バイトが残ることも確認しましょう。</p>
+<h2 id="section-2">名前を付けて、しまう</h2>
+<p>保存するひとまとまりのデータをファイルと呼びます。文章や写真もファイルとして保存できます。ファイルを整理する入れ物がフォルダです。「学習」フォルダに「今日のメモ」というファイルを入れると探しやすくなります。</p>
+<table>
+<thead>
+<tr>
+<th>身近なたとえ</th>
+<th>コンピュータでの名前</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>作業机</td>
+<td>RAM</td>
+</tr>
+<tr>
+<td>保存する棚</td>
+<td>ストレージ</td>
+</tr>
+<tr>
+<td>一通の手紙</td>
+<td>ファイル</td>
+</tr>
+<tr>
+<td>手紙をまとめる入れ物</td>
+<td>フォルダ</td>
+</tr>
+</tbody>
+</table>
+<p>ここで新しく覚える名前は、この四つです。装置の速さや容量の単位は、必要になる章で説明します。</p>
+<section class="exercise"><h3>2・入れ物と中身</h3><p>「学習」という入れ物へ「今日のメモ」を保存しました。ファイルとフォルダはそれぞれどちらですか。</p>
+<details><summary>解答と考え方を読む</summary><p>「今日のメモ」がファイル、「学習」がフォルダです。フォルダを作るだけでは、メモの内容を保存したことにはなりません。</p>
 </details></section>
-<section class="exercise"><h3>3・ファイルを探す</h3><p>作業フォルダに<code>data</code>というフォルダがあり、その中に<code>sample.txt</code>があります。作業フォルダからの相対パスを書いてください。</p>
-<details><summary>解答と考え方を読む</summary><p><code>data/sample.txt</code>です。相対パスは現在の作業場所を基準にします。同じ文字列でも作業場所が違うと目的のファイルに届かないことがあります。</p>
+<h2 id="section-3">保存して、開き直す</h2>
+<p>スマートフォンでは普段使うメモアプリで試せます。自動保存するアプリには保存ボタンがない場合もあります。</p>
+<ol>
+<li>新しいメモに「今日は保存を確かめた」と書きます。</li>
+<li>名前を付けられる場合は「学習メモ」にします。</li>
+<li>保存ボタンがあれば押します。自動保存なら保存済みになったことを確認します。</li>
+<li>メモ一覧へ戻り、同じメモを開きます。</li>
+<li>さっきの一文があるか確認します。</li>
+</ol>
+<p>パソコンでは文章を書くアプリで同じ確認をします。Windowsのメモ帳なら「ファイル」から「名前を付けて保存」を選び、保存先と名前を確認して保存します。画面の名称はアプリや版によって異なります。</p>
+<section class="exercise"><h3>3・見つからないとき</h3><p>メモが見つかりません。すぐ書き直す前に何を確認しますか。</p>
+<details><summary>解答と考え方を読む</summary><p>保存した名前、保存先のフォルダ、使ったアプリを一つずつ確認します。別の場所を見ている可能性があります。</p>
 </details></section>
-<section class="exercise"><h3>4・研究につなげる</h3><p>16 GBのGPUに重みだけで14 GBのモデルが入ります。このGPUで学習できると断定できない理由を二つ挙げてください。</p>
-<details><summary>解答と考え方を読む</summary><p>勾配や最適化器の状態も必要であり、さらに学習時の中間結果にもメモリを使うためです。実際の必要量はデータ型、バッチサイズ、系列長、学習方法で変わります。</p>
+<section class="exercise"><h3>4・役割の違い</h3><p>「作業机を広くしたら、本棚に保存できる手紙も必ず増える」と言えますか。</p>
+<details><summary>解答と考え方を読む</summary><p>言えません。作業場所と保存場所は別です。RAMの大きさとストレージの大きさも区別します。</p>
 </details></section>
-<h2 id="section-5">到達課題</h2>
-<p>手元に<code>study</code>フォルダを作り、その中に<code>notes.txt</code>を保存し、一度閉じて再び開いてください。ファイルが保存された場所と、作業中に使われるRAMの違いを説明します。既存のファイルを削除する必要はありません。</p>
-<h2 id="section-6">出典</h2>
-<p>単位は <a href="https://physics.nist.gov/cuu/Units/binary.html">NISTの二進接頭語の説明</a> を参照。プログラムの実行とファイル操作は、後のPython講義で実際に確かめます。</p>
-<nav class="pager" aria-label="前後の講義"><a href="01-start.html"><small>前の講義</small>01 学び方を、実験にする</a><a href="03-arithmetic.html"><small>次の講義</small>03 数・分数・割合を量として考える</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">保存したのに、なぜ消えるのか</a><a href="#section-2">フォルダとパス</a><a href="#section-3">データの大きさを数える</a><a href="#section-4">演習</a><a href="#section-5">到達課題</a><a href="#section-6">出典</a></aside></div></body></html>
+<h2 id="section-4">次へ進む目印</h2>
+<p>メモを開き直し、「RAMは作業場所、ストレージは保存場所」と言えたら次へ進めます。操作で止まったら、使ったアプリと止まった手順を一行残し、休んで大丈夫です。<a href="08-python.html">第8章</a>では計算用のファイルを保存して動かします。</p>
+<h2 id="section-5">出典と位置づけ</h2>
+<p>机と本棚は役割のたとえです。容量の単位は<a href="04-powers.html">第4章</a>で、二進接頭語は<a href="https://physics.nist.gov/cuu/Units/binary.html">NIST</a>に基づいて補足します。外部資料を今読む必要はありません。</p>
+<nav class="pager" aria-label="前後の講義"><a href="01-start.html"><small>前の講義</small>01 学び方を、実験にする</a><a href="03-arithmetic.html"><small>次の講義</small>03 数・分数・割合を量として考える</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">メモが消えないようにしたい</a><a href="#section-2">名前を付けて、しまう</a><a href="#section-3">保存して、開き直す</a><a href="#section-4">次へ進む目印</a><a href="#section-5">出典と位置づけ</a></aside></div></body></html>
