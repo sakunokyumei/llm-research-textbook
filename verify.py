@@ -48,9 +48,10 @@ snippets = 0
 scratch = ROOT / ".sites-runtime" / "snippet-checks"
 scratch.mkdir(parents=True, exist_ok=True)
 env = dict(os.environ, PYTHONIOENCODING="utf-8")
-for file in sorted((ROOT / "content").glob("*.md")):
+for file in sorted(list((ROOT / "content").glob("*.md")) + list((ROOT / "pages").glob("*.md"))):
     source = file.read_text(encoding="utf-8")
-    json.loads(source.splitlines()[0])
+    if file.parent.name == "content":
+        json.loads(source.splitlines()[0])
     assert source.count(":::exercise ") == source.count(":::answer"), file.name
     for i, code in enumerate(re.findall(r"```python\n(.*?)\n```", source, re.S)):
         snippets += 1

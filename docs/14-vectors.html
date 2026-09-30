@@ -12,7 +12,7 @@
 <p>(1,0)と(2,0)は長さが違いますが向きは同じです。0でない二つのベクトルについて、コサイン類似度は<code>(x·y)/(||x||₂||y||₂)</code>。同じ向きは1、直交する向きは0、逆向きは−1です。どちらかがゼロベクトルなら分母が0になり、この式のままでは定義できません。</p>
 <p>言葉を数の並びで表したものを埋め込みと呼びます。検索では方向の似た埋め込みを探すことがあります。ただし類似度が高いことは、二つの文章が事実として同じだという保証ではありません。また重さと甘さのように単位の違う値をそのまま入れると、大きな尺度の成分が結果を支配します。</p>
 <h2 id="section-4">手計算を、一行ずつコードにする</h2>
-<p>Σや平方根が読めないときは<a href="06-functions.html">第6章の記号</a>と<a href="04-powers.html">第4章の平方根</a>へ、for文なら<a href="09-control.html">第9章</a>へ戻れます。まず短縮した書き方を使わず、対応する位置の値を掛けて足します。</p>
+<p>Σや平方根が読めないときは<a href="06-functions.html">第6章の記号</a>と<a href="04d-roots.html">第4章の平方根</a>へ、for文なら<a href="09-control.html">第9章</a>へ戻れます。まず短縮した書き方を使わず、対応する位置の値を掛けて足します。</p>
 <table>
 <thead>
 <tr>
@@ -107,4 +107,4 @@ print(sum(a * b for a, b in zip(x, y)))
 <h2 id="section-7">到達課題と出典</h2>
 <p>基本の到達目標は、[3,4]と[4,3]の内積24、長さ5、類似度0.96を手計算とコードで一致させ、長さの不一致とゼロの入力で止める理由を説明することです。短縮構文は保留しても、この基本課題を確認できます。</p>
 <p>発展課題は三つの架空の文書ベクトルと一つの検索ベクトルで類似度を計算することです。まず各値を紙に書いて大きい順に並べれば十分です。並べ替えの新しいPython構文はまだ必要ありません。ゼロベクトルは今回のコードと同じくエラーにする、と決めて記録してください。<a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/">MIT 18.06 Linear Algebra</a> の内積・直交の考えにつながります。</p>
-<nav class="pager" aria-label="前後の講義"><a href="13-algorithms.html"><small>前の講義</small>13 計算量・検索・SQLの入口</a><a href="15-matrices.html"><small>次の講義</small>15 行列は、まとめて変換する道具</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">一つの数では表せないもの</a><a href="#section-2">内積は、対応を掛けて足す</a><a href="#section-3">大きさと方向を分ける</a><a href="#section-4">手計算を、一行ずつコードにする</a><a href="#section-5">短い書き方へ進む橋（今日は保留してよい）</a><a href="#section-6">演習</a><a href="#section-7">到達課題と出典</a></aside></div></body></html>
+<nav class="pager" aria-label="前後の講義"><a href="13-algorithms.html"><small>前の学習ページ</small>13 計算量・検索・SQLの入口</a><a href="15-matrices.html"><small>次の学習ページ</small>15 行列は、まとめて変換する道具</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">一つの数では表せないもの</a><a href="#section-2">内積は、対応を掛けて足す</a><a href="#section-3">大きさと方向を分ける</a><a href="#section-4">手計算を、一行ずつコードにする</a><a href="#section-5">短い書き方へ進む橋（今日は保留してよい）</a><a href="#section-6">演習</a><a href="#section-7">到達課題と出典</a></aside></div></body></html>

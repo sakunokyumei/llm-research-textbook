@@ -15,14 +15,18 @@
 
 |困ったこと|練習する場所|
 |---|---|
-|分数や割合|[第3章](03-arithmetic.html)|
-|右上の数字や√|[第4章](04-powers.html)|
+|分数の計算|[分数を足す・掛ける](03b-fractions.html)|
+|割合の変化|[基準をそろえて比べる](03c-percent.html)|
+|負の数と絶対値|[外れの大きさを読む](03d-negative.html)|
+|右上の数字|[指数と文字への置き換え](04-powers.html)|
+|√と平方根|[掛け算を逆にたどる](04d-roots.html)|
 |文字を使った式|[第5章](05-algebra.html)|
 |Σや添字|[第6章](06-functions.html)|
 |コードの保存・実行|[第8章の番号付き手順とエラー対応](08-python.html)|
 |forやreturn|[第9章](09-control.html)|
 |sumやabs、クラス|[第11章](11-debug.html)|
 |式の中のfor|[第14章](14-vectors.html)|
+|対角行列やSVD|[第16章の表・分解例・再構成コード](16-tensors.html)|
 
 ## スマートフォンとパソコンを使い分ける
 

@@ -7,13 +7,13 @@
 <p>入力に許される範囲を定義域、実際に出てくる出力の範囲を値域と呼びます。<code>f(x)=1/x</code>はx=0を入力できません。式だけでなく、どの範囲で使うかも読む必要があります。</p>
 <h2 id="section-2">グラフは対応の見取り図</h2>
 <p>横軸に入力x、縦軸に出力yを取ります。<code>y=2x+3</code>なら(0,3)、(1,5)、(2,7)を点として置きます。直線になり、xが1増えるたびyが2増えます。この増え方2が傾き、x=0のときの値3が切片です。</p>
-<p><code>y=x²</code>なら、xが0,1,2のときyは0,1,4。増え方が一定ではありません。機械学習では、このような直線で表せない関係も扱います。ただし複雑な関係を学べることと、未知の入力へ正しく答えられることは別です。</p>
+<p><code>y=x²</code>なら、xが0,1,2のときyは0,1,4。増え方が一定ではありません。後で作る文章の予測の仕組みでも、このような直線で表せない関係を扱います。ただし複雑な関係を学べることと、未知の入力へ正しく答えられることは別です。</p>
 <figure class="learning-figure"><svg viewBox="0 0 340 200" role="img" aria-labelledby="linear-title linear-desc"><title id="linear-title">y=2x+3のグラフ</title><desc id="linear-desc">横軸はx、縦軸はy。点(0,3)、(1,5)、(2,7)が一直線に並ぶ。</desc><path d="M40 175 H315 M40 175 V15" fill="none" stroke="currentColor"/><path d="M40 115 L260 35" fill="none" stroke="#245da8" stroke-width="3"/><g fill="#245da8"><circle cx="40" cy="115" r="5"/><circle cx="150" cy="75" r="5"/><circle cx="260" cy="35" r="5"/></g><g font-size="13" fill="currentColor"><text x="45" y="194">0</text><text x="146" y="194">1</text><text x="256" y="194">2</text><text x="320" y="178">x</text><text x="18" y="18">y</text><text x="49" y="111">(0,3)</text><text x="158" y="71">(1,5)</text><text x="265" y="31">(2,7)</text></g></svg><figcaption>横へ1進むと縦へ2増えます。軸の目盛りの間隔は横と縦で異なります。</figcaption></figure>
 <h2 id="section-3">関数をつなぐ</h2>
-<p>g(x)=x+1、f(u)=2uなら、まずgで1を足し、その結果をfで2倍できます。<code>f(g(x))=2(x+1)</code>です。x=3ならg(3)=4、f(4)=8。順番を逆にするとg(f(3))=7で違います。この「つなぐ」という考えが、ニューラルネットワークや微分の連鎖律につながります。</p>
+<p>g(x)=x+1、f(u)=2uなら、まずgで1を足し、その結果をfで2倍できます。<code>f(g(x))=2(x+1)</code>です。x=3ならg(3)=4、f(4)=8。順番を逆にするとg(f(3))=7で違います。後で複雑な計算を作るときも、小さな関数をつなぎます。今は、一つ目の出力を二つ目の入力にする順序を説明できれば十分です。</p>
 <h2 id="section-4">たくさんの数に名前を付ける</h2>
 <p>三つの値をx₁=2、x₂=4、x₃=6と書きます。右下の数字は添字で、どの値かを示します。二乗ではありません。Σは指定した範囲を足し合わせる記号です。<code>Σᵢ₌₁³ xᵢ</code>ならx₁+x₂+x₃=12。平均はこれを個数3で割って4です。Πは同じように掛け合わせる記号で、2×4×6=48になります。</p>
-<p>数学の添字が1から始まる例でも、Pythonのリストでは最初が0番です。論文のiと配列の何番目が対応するかを決めずに実装すると、一つずれる誤りが起きます。</p>
+<p>番号を1から付ける約束と0から付ける約束は違います。この章では上の三つの値へ1、2、3という番号を付けています。後でプログラムを書くときにも、どの番号がどの値かを確認します。</p>
 <h2 id="section-5">演習</h2>
 <section class="exercise"><h3>1・関数へ代入する</h3><p>f(x)=3x−2のとき、f(0)、f(4)、f(−1)を求めてください。</p>
 <details><summary>解答と考え方を読む</summary><p>それぞれ−2、10、−5です。関数名fは掛け算の係数ではありません。</p>
@@ -31,8 +31,8 @@
 <details><summary>解答と考え方を読む</summary><p>x=2です。分母が0になるため、通常の実数の割り算としては定義できません。</p>
 </details></section>
 <section class="exercise"><h3>6・平均の式を読む</h3><p>三回の誤差が2,−1,5でした。平均誤差と、誤差の二乗の平均を求めてください。</p>
-<details><summary>解答と考え方を読む</summary><p>平均誤差は(2−1+5)/3=2。二乗の平均は(4+1+25)/3=10です。二乗すると正負の打ち消しがなくなります。これは後の平均二乗誤差につながります。</p>
+<details><summary>解答と考え方を読む</summary><p>平均誤差は(2−1+5)/3=2。二乗の平均は(4+1+25)/3=10です。二乗すると正負の打ち消しがなくなります。後で予測の外れ具合を比べるとき、この計算を使います。</p>
 </details></section>
 <h2 id="section-6">到達課題と参照</h2>
 <p>x=0から4までについてy=x²の点を紙に打ち、隣り合う点の増加量が1,3,5,7になることを確認してください。<a href="https://openstax.org/details/books/college-algebra-2e">OpenStax College Algebra 2e</a> の関数・グラフが関連します。</p>
-<nav class="pager" aria-label="前後の講義"><a href="05-algebra.html"><small>前の講義</small>05 文字式は、条件を書いた文章</a><a href="07-logarithms.html"><small>次の講義</small>07 指数と対数は、行きと帰り</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">同じ機械に違う入力を入れる</a><a href="#section-2">グラフは対応の見取り図</a><a href="#section-3">関数をつなぐ</a><a href="#section-4">たくさんの数に名前を付ける</a><a href="#section-5">演習</a><a href="#section-6">到達課題と参照</a></aside></div></body></html>
+<nav class="pager" aria-label="前後の講義"><a href="05-algebra.html"><small>前の学習ページ</small>05 文字式は、条件を書いた文章</a><a href="07-logarithms.html"><small>次の学習ページ</small>07 指数と対数は、行きと帰り</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">同じ機械に違う入力を入れる</a><a href="#section-2">グラフは対応の見取り図</a><a href="#section-3">関数をつなぐ</a><a href="#section-4">たくさんの数に名前を付ける</a><a href="#section-5">演習</a><a href="#section-6">到達課題と参照</a></aside></div></body></html>
