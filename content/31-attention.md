@@ -24,6 +24,20 @@ Q=(1,0)、K₁=(1,0)、K₂=(0,1)、V₁=(2,0)、V₂=(0,4)、d_k=2とします�
 
 三位置なら、位置0は0だけ、位置1は0と1、位置2は0と1と2を見ます。未来への重みが0になるようsoftmaxの前にmaskします。softmax後に未来だけ0にすると、再正規化しない限り行の和が1でなくなります。
 
+## 未来を隠す表をコードにする
+
+|queryの位置＼keyの位置|0|1|2|
+|---|---|---|---|
+|0|許可|隠す|隠す|
+|1|許可|許可|隠す|
+|2|許可|許可|許可|
+
+次のbool表では「隠す」がTrueです。`torch.ones(3,3,dtype=torch.bool)` は全位置Trueの表を作り、`triu(...,diagonal=1)` は対角の一つ上からの上三角だけを残します。`masked_fill(mask, -inf)` はTrueの位置へ負の無限大を入れる操作。`float("-inf")` がその値です。有限な点数が一つ以上あれば、指数の `exp(-inf)=0` に対応して隠した候補の確率は0になります。
+
+`q.clone()` は別の保存領域へコピーします。二次元の `k.T` は転置、`q.shape[-1]` の−1は末尾の軸を指します。`softmax(dim=-1)` はキーが並ぶ末尾軸で正規化します。三つの位置の全てを混ぜて一つの確率にする操作ではありません。記法の仕様は[triu](https://docs.pytorch.org/docs/stable/generated/torch.triu.html)・[masked_fill](https://docs.pytorch.org/docs/stable/generated/torch.Tensor.masked_fill.html)で確認できます。
+
+maskを紙に書けなければ表へ、softmaxが分からなければ[第28章](28-numerics.html)、積が合わなければ[第15章](15-matrices.html)へ戻ります。コードの前に、位置0の出力が必ず(2,0)と予想してください。
+
 ```python
 import torch, math
 q = torch.tensor([[1., 0.], [0., 1.], [1., 1.]])

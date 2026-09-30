@@ -18,6 +18,28 @@ denseモデルと比べる際は、総パラメータ数、活性化計算量、
 
 MoEのablationにはexpert数、top-k、routerの温度、負荷分散の強さなどがあります。一つを変えると他の予算も変わる可能性があるため、効果の原因を慎重に解釈します。
 
+## 二人のexpertを紙とコードで呼ぶ
+
+まずrouterは「入力が0以上なら0番、負なら1番」と固定します。expert0は2x、expert1は−x。これは学習するMoE全体の再現ではなく、選択した部品だけを計算する最小例です。
+
+```python
+inputs = [-2., -1., 1., 2.]
+counts = [0, 0]
+outputs = []
+for x in inputs:
+    if x >= 0:
+        expert = 0
+        value = 2 * x
+    else:
+        expert = 1
+        value = -x
+    counts[expert] = counts[expert] + 1
+    outputs.append(value)
+print(counts, outputs)
+```
+
+割り当ては2件ずつ、出力は[2,1,2,4]です。入力を全て正にするとexpert0へ集中します。横に入力、縦に出力を描き、各expertを色分けします。学習するrouterへ進むには第27章の線形層で点数を作り、第34章のtop-kで選ぶ計算へ置き換えます。offloadは重みなどをGPU以外へ置き、必要時に転送する方法、denseはこの文脈では選択せず通常の密な計算を行うモデルです。比較する予算は[第42章](42-distributed.html)で確認します。
+
 ## 演習
 
 :::exercise 1・総数と使用数

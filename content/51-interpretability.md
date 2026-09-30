@@ -42,6 +42,14 @@ cleanのlogit差が4、corruptが0、patch後が3。線形な回復率は？
 未使用の色名で活性化するか、色でない似た語で誤活性化しないか、介入で色の回答だけが変わるか。命名を結論にせず予測として試します。
 :::
 
+## L1と層の出力を確認する
+
+L1ノルムは成分の絶対値の和です。第14章の二乗和の平方根であるL2ノルムとは違い、[0,−2,0,3]なら0+2+0+3=5。SAEの式のDは特徴から元の幅へ戻す行列、f(x)は特徴を作る関数です。再構成だけよくても、介入で意味が確かめられたことにはしません。
+
+hookは、層が計算されたときに指定した観測関数を呼ぶPyTorchの仕組みです。Tiny Transformerを使うスクリプトで、`model.blocks[0].register_forward_hook(capture)` として最初の層を観測できます。captureは三つの引数 `(module, inputs, output)` を受け取り、たとえば事前に作った辞書cacheへ `cache["activation"] = output.detach().clone()` と保存します。detachは勾配追跡から切り離す操作、cloneは値を別にコピーする操作です。戻ったhandleの `remove()` で観測を解除します。
+
+観測手順は①evalとno_grad、②同じ長さの二文書を用意、③一文書ずつforward、④各回のcacheを別に保存、⑤同じ位置・同じ特徴を比較、⑥hookを解除、です。コピー対象のIDを2から3へ変えるなら、文書の最初の対象とコピー先の両方を変え、残りは固定します。まず差を観察し、どの成分を置換すれば予測が変わるかは別の介入実験として書きます。[Pythonの橋](python-reading.html)・[コード解説](lab-guide.html)へ戻り、実装の位置を確認できます。仕様：[forward hook](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook)。
+
 ## 到達課題
 
 Tiny Transformerの一つの層の出力を保存し、copy対象が異なる二例を比較してください。観察した相関を一文、次に必要な介入実験を一文で分けて書きます。

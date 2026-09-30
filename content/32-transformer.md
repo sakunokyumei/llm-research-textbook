@@ -32,6 +32,12 @@ Bはバッチの例数、Tは系列長、dは特徴数です。最後の語彙�
 
 2017年の元のTransformerはencoder-decoder構成で翻訳などを扱いました。本教材の小モデルは未来を隠すdecoder-onlyです。原論文のモデルそのものを完全に再現したという意味ではありません。BERT系の双方向encoderや、encoder-decoderと用途・maskの違いを整理します。
 
+## 名前とコードをつなぐ
+
+encoderは入力の表現を作る部分、decoderは出力を作る部分です。双方向encoderは左右両側を参照し、自己回帰decoderは既知の過去だけから次を予測します。encoder-decoderでは入力側の表現を出力側から参照するcross-attentionも使います。本教材のdecoder-onlyではその入力用encoderを別に持ちません。
+
+ここから完成コードへ移る前に、[Pythonの橋](python-reading.html)でModuleの継承・chunk・軸交換・reshapeを、[段階ごとの解説](lab-guide.html)でID→Embedding→Attention→損失の対応を確認します。B=2,T=3,d=8,H=2ならQは(2,2,3,4)、点数は(2,2,3,3)、ヘッド結合後は(2,3,8)。紙に各軸の名前を残してからコードへ進んでください。
+
 ## 演習
 
 :::exercise 1・ヘッド幅

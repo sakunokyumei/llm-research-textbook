@@ -6,6 +6,8 @@
 
 見たことのない組へ確率0を付けると、評価時の負対数損失が無限大になります。各候補へα個分を足す加算平滑化なら、`P(y|x)=(count(x,y)+α)/(count(x)+αV)`。Vは候補数です。αは予測を均等分布側へ寄せる強さで、評価用データで最適化しません。
 
+`collections.Counter` は出現回数を数える辞書に似た道具です。`Counter(zip(...))` で隣接組を数え、未登場の組を読むと0になります。`tokens[:-1]` は最後を除く並び、`tokens[1:]` は最初を除く並びなので、対応させると隣接組です。`sorted(set(tokens))` は重複を除いた後、昇順に並べる操作。出力の辞書も、まず普通のfor文で作ります。添字は[第10章](10-data.html)、zipは[第14章](14-vectors.html)へ。
+
 ```python
 from collections import Counter
 tokens = ["a", "b", "a", "b", "a", "c"]
@@ -13,7 +15,10 @@ pairs = Counter(zip(tokens[:-1], tokens[1:]))
 vocab = sorted(set(tokens))
 alpha = 1.0
 denom = sum(pairs[("a", y)] for y in vocab) + alpha * len(vocab)
-print({y: (pairs[("a", y)] + alpha) / denom for y in vocab})
+probabilities = {}
+for y in vocab:
+    probabilities[y] = (pairs[("a", y)] + alpha) / denom
+print(probabilities)
 ```
 
 ここではaの後はbが2回、cが1回。平滑化後はaが1/6、bが3/6、cが2/6です。実データの文書境界を無視して最後と次の文書の最初を接続すると、意図しない組も学習するため、境界を明示します。

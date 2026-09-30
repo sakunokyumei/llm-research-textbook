@@ -1,6 +1,6 @@
 # Tiny Transformerのコードを読む
 
-[実装ラボへ戻る](labs.html)。このページでは、完成したコードの各段階がなぜ必要かを追います。先に32・33章を読み、[ソース](downloads/tiny_transformer.py)を並べてください。
+[実装ラボへ戻る](labs.html)。このページでは、完成したコードの各段階がなぜ必要かを追います。先に32・33章を読み、[ソース](downloads/tiny_transformer.py)を並べてください。クラスの継承、dataclass、chunk、辞書を引数へ展開する記法は[研究コードのPythonの橋](python-reading.html)で具体例へ戻せます。
 
 ## 1．データを一行で追う
 

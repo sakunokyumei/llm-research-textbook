@@ -21,16 +21,40 @@ Windowsでは`.venv\Scripts\python.exe`、macOS/Linuxでは`.venv/bin/python`が
 
 pipはライブラリを管理する道具です。`>`は出力をファイルへ保存するターミナルの記法で、既存の同名ファイルを上書きします。実験ごとに別フォルダを作って保存してください。requirements.txtから復元するときは`python -m pip install -r requirements.txt`を使います。OSやGPUドライバーまではこのファイルだけで固定されません。
 
+## 用意するものと、今回は用意しないもの
+
+READMEは、実行手順や期待する結果を書く説明ファイルです。名前を `README.md` にして、メモ帳などで本文を書けます。APIキーは外部サービスを利用するための認証情報、秘密鍵は本人や操作の正当性を確かめるための秘密の情報です。この教材のCPUラボではどちらも使いません。
+
+「分割」はデータを学習用・検証用などへ分けること。詳しくは[第24章](24-learning.html)で練習します。「乱数」はくじのようなばらつきを計算で模擬する数で、seedからの再現は[第22章の具体例](22-statistics.html)へ進みます。今は語の意味を確認し、研究の記録から省かないことを覚えれば区切れます。
+
+Windowsで上のライブラリ導入を行うなら、置き換えた形は `.venv\Scripts\python.exe -m pip install numpy` です。`No module named numpy` なら、実行時にも同じ `.venv\Scripts\python.exe` を使っているか確認します。別のPythonへ入れたライブラリは自動で共有されません。[第8章のパスと実行](08-python.html)へ戻れます。
+
 ## Gitは変化の記録
 
 Gitはファイルの変更履歴を管理します。GitHubはGitのリポジトリを共有するサービスです。両者は別です。リポジトリは履歴を含むプロジェクトの単位。commitは変更内容を区切って記録する操作です。
 
+最初の記録は、次の小さな手順に分けます。ここではまだGitHubへアップロードしません。
+
+1. ターミナルで `git --version` を入力します。版番号が出れば使えます。`git` が見つからないという表示なら、[公式のWindows導入案内](https://git-scm.com/install/windows)から導入し、ターミナルを開き直します。
+2. 第8章で作った `first.py` を入れた新しい練習用フォルダへ `cd` で移動し、`git init` を実行します。作業場所が分からなければ[第8章のファイルとパス](08-python.html)へ戻ります。
+3. 記録に残す作者名とメールを、このフォルダだけに設定します。以下の二つの引用符の中身は、実行前に自分の公開方針に合う値へ置き換えます。公開名に本名を使う必要はありません。
+
 ```text
-git init
+git config --local user.name "公開用の名前"
+git config --local user.email "GitHubで確認したnoreply値"
+```
+
+GitHubアカウントがある場合は、GitHubの **Settings → Emails** で **Keep my email addresses private** を選ぶと、個人メールを公開せずに使えるnoreplyアドレスを確認できます。表示された値をそのまま写します。「noreply値」という文字をそのまま登録する手順ではありません。アカウントがなければ、Gitの記録は次の学習回へ分けてもよく、CPUラボには影響しません。メール設定は過去のcommitにはさかのぼって適用されません。[GitHub公式のcommitメール設定](https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address)を参照してください。
+
+4. `git config --local --get user.name` と `git config --local --get user.email` で設定値を確認します。その後、以下の三行を順番に実行します。
+
+```text
 git status
 git add first.py
 git commit -m "Add first calculation"
 ```
+
+`Author identity unknown` は作者設定が足りないという意味です。手順3・4へ戻ります。`pathspec ... did not match any files` は指定したファイルが見つからないという意味です。フォルダとファイル名を確認します。`nothing to commit` は新しく記録する変更がないという意味で、直前の記録が消えたわけではありません。`git log -1` で最後の記録を確認できます。
 
 これは新しい練習用フォルダだけで実行します。statusで対象を確認し、addで次の記録に含めるファイルを選びます。commitの前に、メールアドレス等の作者設定を自分の公開方針に合わせます。秘密鍵、APIキー、個人データ、巨大な学習結果を安易に追加しません。`.gitignore`に書くと追跡対象から外せますが、既に記録した秘密を消したことにはなりません。
 

@@ -22,6 +22,28 @@ Gradient checkpointingは中間結果を全て保存せず、逆伝播時に再�
 
 一装置あたりバッチb、装置数g、蓄積回数aなら、均等な設定で一更新に使う例数はbgaです。b=4、g=2、a=8なら64例。各装置の有効トークン数が違う場合、各装置の平均損失を単純平均すると、全トークン平均と一致しないことがあります。合計損失と総有効数の重みを合わせます。
 
+## 二つの装置を、CPU上の二つの計算で模擬する
+
+processは実行中のプログラムです。ここでは通信をまだ行わず、二つの同数バッチの平均勾配が結合バッチと一致することだけを確かめます。重みw=0、予測wx、二乗誤差を使います。
+
+```python
+import torch
+w = torch.tensor(0., requires_grad=True)
+x = torch.tensor([1., 2., 3., 4.])
+y = 2 * x
+loss_all = ((w * x - y) ** 2).mean()
+grad_all = torch.autograd.grad(loss_all, w)[0]
+loss_a = ((w * x[:2] - y[:2]) ** 2).mean()
+loss_b = ((w * x[2:] - y[2:]) ** 2).mean()
+grad_a = torch.autograd.grad(loss_a, w)[0]
+grad_b = torch.autograd.grad(loss_b, w)[0]
+combined = (grad_a + grad_b) / 2
+print(grad_all.item(), combined.item())
+assert torch.allclose(grad_all, combined)
+```
+
+`torch.autograd.grad(loss,w)` は指定したwの微分を戻り値で受け取り、w.gradへ蓄積するbackwardとは使い方が違います。`[0]` は最初の対象の微分。両方−30です。バッチが2例ずつなので単純平均できました。1例と3例なら各勾配を1/4、3/4で重み付けします。通信・速度・複数GPUはこの試験では未検証です。勾配なら[第26章](26-pytorch.html)、実際のDDPは[追加実習](systems-lab.html)へ戻れます。
+
 ## 演習
 
 :::exercise 1・バッチ数

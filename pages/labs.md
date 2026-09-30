@@ -126,4 +126,6 @@ python labs/bandit.py
 
 ## 6．独自実験へ
 
+[卒業研究の実行ガイド](capstone-guide.html)では、noise4・6で学習し未学習のnoise8を評価する専用ラボを使えます。データ長に合わせて位置Embeddingと採点位置を扱い、文書重複・未来参照・採点のテストを先に通します。3条件×3seedの全結果から、図表と[報告書](downloads/capstone_template.md)を作ります。これを大規模論文の完全な再現とは扱いません。
+
 [研究計画テンプレート](downloads/research_template.md)を先に埋め、[53章](53-research-design.html)から[56章](56-capstone.html)に沿って、距離・語彙・データ量など一つの条件を変えます。GPUのTritonや分散学習へ進む際は、[追加実習](systems-lab.html)で前提と未検証の範囲を確認してください。

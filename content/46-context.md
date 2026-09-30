@@ -18,6 +18,27 @@ RoPEはQとKの成分を二つずつ組にし、位置mに応じた角度mθで�
 
 同じ根拠を先頭・中央・末尾へ移動し、長さを変えます。根拠が複数ある問題、紛らわしい文書、答えがない場合も含めます。短い文脈での性能が悪化していないか、KV容量・遅延・コストがどう変わるかを併記します。
 
+## 回転の二つの性質をコードで比較する
+
+```python
+import numpy as np
+def R(angle):
+    c, s = np.cos(angle), np.sin(angle)
+    return np.array([[c, -s], [s, c]])
+q = np.array([2., 3.])
+k = np.array([1., -1.])
+theta = 0.2
+m, n = 5, 8
+left = (R(m * theta) @ q) @ (R(n * theta) @ k)
+right = q @ (R((n - m) * theta) @ k)
+print(np.linalg.norm(q), np.linalg.norm(R(theta) @ q))
+print(left, right)
+assert np.allclose(left, right)
+assert np.allclose(np.linalg.norm(q), np.linalg.norm(R(theta) @ q))
+```
+
+`np.cos`と`np.sin`はラジアンの角度から三角関数を計算します。ベクトル同士の `@` は内積。Rは上で定義した回転行列、allcloseは丸めの差を許した一致確認です。長さと回転内積の二つを別々に確認します。三角関数は本章冒頭の円の例へ、行列は[第15章](15-matrices.html)へ戻れます。sparse attentionは全位置を比較せず一部の組だけを参照する方式。needle-in-a-haystackは大量の文中に一つの探す対象を埋める試験です。
+
 ## 演習
 
 :::exercise 1・四分の一回転

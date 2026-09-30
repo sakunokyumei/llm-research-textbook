@@ -6,6 +6,12 @@
 
 インストールは [PyTorch公式の選択画面](https://pytorch.org/get-started/locally/) でOSとCPU/GPU環境に合うコマンドを選びます。まずCPUで本章を実行できます。実装ラボには、この教材で検証した版と再現コマンドを記載します。
 
+## NumPyから持ち込めるもの
+
+`torch.tensor(2.0)` はPythonの数からテンソルを作る操作です。表から作る点は第15章の `np.array` に似ていますが、別のライブラリの型です。整数IDは整数型、微分する重みは浮動小数点型で扱います。`dtype=torch.float64` は数を64bitの浮動小数点として保存する指定で、ここでいうdouble精度です。[第17章の数値精度](17-calculus.html)へ戻れます。
+
+導入後に `python -c "import torch; print(torch.__version__)"` で版を表示します。`No module named torch` は今のPythonに導入されていないという意味です。[実装ラボの準備](labs.html)に従い、インストールと実行に同じ仮想環境のPythonを使います。GPUを使えない場合も本章のCPUコードを進められます。
+
 ## 一つの値で確かめる
 
 ```python
@@ -17,6 +23,8 @@ print(loss.item(), w.grad.item())
 ```
 
 損失1、勾配−2です。`requires_grad=True`で微分を追跡し、`backward()`で出力から入力へたどります。`grad`が計算された勾配、`item()`は一要素のテンソルからPythonの値を取り出す操作です。整数の添字テンソル自体へ通常の勾配を計算するわけではありません。
+
+`with` は、字下げした処理の間だけ指定した管理を適用する書き方です。`with torch.no_grad():` の中では通常の演算で新しい勾配追跡を作りません。`None` は値がないことを表すPythonの値で、`w.grad = None` は古い勾配を空にします。0という勾配が計算された場合とは区別します。`w -= ...` は値をその場で更新するため、追跡中の重みを更新するこの部分をno_gradで囲みます。[公式のno_grad](https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html)も参照できます。
 
 ## 更新の順番
 
@@ -35,6 +43,8 @@ print(w.item())
 値は3へ近づきます。PyTorchの勾配は基本的に加算されるため、次の独立な更新の前に消します。`no_grad()`は更新の操作を新しい計算グラフへ追加しないために使っています。通常のモデルではoptimizerの`zero_grad()`と`step()`がこの役割をまとめます。
 
 バッチは複数の例をまとめたものです。損失をバッチ平均にするか合計にするかで勾配の大きさが変わります。複数バッチの勾配を蓄積して一回更新する場合は、意図した平均になるよう重み付けをそろえます。
+
+optimizerは重みをどう更新するかを管理する道具です。`torch.optim.AdamW(model.parameters(), lr=0.01)` はモデルの調整する値を渡し、歩幅を指定して作ります。`zero_grad()`で前回の勾配を消し、損失を作って `backward()`、`step()`で値を更新します。具体的なMLPは次章、更新式の違いは第28章で確認します。Dropoutは学習中に一部の成分をくじで0にする方法で、詳しい倍率は次章です。
 
 ## CPUとGPU、学習と評価
 

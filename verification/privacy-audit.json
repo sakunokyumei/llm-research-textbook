@@ -1,8 +1,8 @@
 {
   "date": "2026-09-30",
   "passed": true,
-  "scanned_files": 192,
-  "content_manifest_sha256": "5a1cfa6b4d3be23ff0086dd86d51dd44cc82e298536736277f074b030dec3c91",
+  "scanned_files": 210,
+  "content_manifest_sha256": "5f516dad3a8fd672cea0ebfed195db3fd9478183fe576c38fde85ca68e804eeb",
   "line_endings_for_manifest": "LF normalized",
   "findings": [],
   "scope": [

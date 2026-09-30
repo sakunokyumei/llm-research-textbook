@@ -20,6 +20,29 @@ packingは短い文章をまとめて空き領域を減らす方法です。文�
 
 密なTransformerの学習FLOPsをおおまかに6NDと見積もる近似は、仮定を置いた資源会計の目安です。Attentionの系列長依存、Embedding、実装、再計算などを精密に扱った式ではありません。小規模な複数点を測り、当てはめに使わなかった規模で予測を検証します。
 
+## 自作の四文書で処理の順番を確認する
+
+pipelineは、入力から出力へ処理を段階的につなぐ流れです。品質フィルタは用途に合わない文書を除く規則で、packingは長さの違う文書を一つの列へ詰める操作です。block diagonalなmaskは、同じ文書の範囲内だけを見られる表。二文書が各2位置なら、左上2×2と右下2×2を許し、文書をまたぐ右上・左下を隠します。
+
+この確認ではまだpackingせず、空文書と完全一致の重複だけを除きます。
+
+```python
+docs = ["猫が寝る", "", "猫が寝る", "犬が走る"]
+nonempty = []
+for doc in docs:
+    if doc.strip():
+        nonempty.append(doc)
+unique = []
+seen = set()
+for doc in nonempty:
+    if doc not in seen:
+        seen.add(doc)
+        unique.append(doc)
+print(len(docs), len(nonempty), len(unique))
+```
+
+件数は4→3→2。`if doc.strip()` は空白を除いた文字列が空でなければ進むという条件です。空文字は条件としてFalse、空でない文字列はTrueです。除いた理由と件数を別に記録し、train/validation/testへ分ける前に一致を調べます。近い言い換えの除去まではこのコードでできません。FLOPsは浮動小数点の演算回数で、秒数ではありません。[第13章の集合](13-algorithms.html)、[第24章の分割](24-learning.html)へ戻れます。
+
 ## 演習
 
 :::exercise 1・来歴

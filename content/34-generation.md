@@ -20,6 +20,20 @@ MQAは複数のQヘッドで一組のK/Vヘッドを共有し、GQAはQヘッド
 
 EOSを出したときに止める、最大生成数で止める、複数系列を個別に終了するなどを設計します。seed、温度、top-p、最大生成数、promptの整形が違えば評価結果も変わり得ます。生成物はモデルの確率的な出力であり、その内容の出典や正確さを別に確認します。
 
+## 一回のくじをコードで確かめる
+
+次の確率は合計1です。`torch.multinomial` は重みに比例して候補の位置番号を選びます。`generator` が使う乱数列を指定し、`argmax` は最大値の位置番号を返します。同じseed・同じ版・同じ呼び出し順で比較します。
+
+```python
+import torch
+probs = torch.tensor([0.5, 0.3, 0.2])
+rng = torch.Generator().manual_seed(42)
+print(probs.argmax().item())
+print(torch.multinomial(probs, 10, replacement=True, generator=rng).tolist())
+```
+
+最初は0。次は同じ候補を何回も選んでよい十回のくじです。replacement=Trueが復元抽出を指定します。十回の割合が厳密に0.5,0.3,0.2になる意味ではありません。生成モデルではこの一回ごとに次の確率を作り直します。[第22章の再抽出](22-statistics.html)と[Pythonの橋](python-reading.html)へ戻れます。
+
 ## 演習
 
 :::exercise 1・温度
