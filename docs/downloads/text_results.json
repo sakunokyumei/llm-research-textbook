@@ -1,0 +1,57 @@
+{
+  "config": {
+    "seed": 0,
+    "variant": "attention",
+    "width": 48,
+    "heads": 4,
+    "layers": 2,
+    "batch": 16,
+    "lr": 0.003,
+    "vocab": 259,
+    "context": 96
+  },
+  "steps": 300,
+  "torch": "2.13.0+cpu",
+  "device": "cpu",
+  "data_sha256": "e99d46709c2219223ddeac7556aa38c945378a292f0681eecde66e654d6cc78a",
+  "unit": "byte plus EOS",
+  "validation_before": 5.678738594055176,
+  "validation_after": 0.1490722894668579,
+  "curve": [
+    {
+      "step": 50,
+      "train_nll": 0.5836905837059021,
+      "validation_nll": 0.5738905072212219
+    },
+    {
+      "step": 100,
+      "train_nll": 0.1989016830921173,
+      "validation_nll": 0.2092437893152237
+    },
+    {
+      "step": 150,
+      "train_nll": 0.16409339010715485,
+      "validation_nll": 0.16780585050582886
+    },
+    {
+      "step": 200,
+      "train_nll": 0.15116813778877258,
+      "validation_nll": 0.15259680151939392
+    },
+    {
+      "step": 250,
+      "train_nll": 0.14220847189426422,
+      "validation_nll": 0.14756281673908234
+    },
+    {
+      "step": 300,
+      "train_nll": 0.1441258043050766,
+      "validation_nll": 0.1490722894668579
+    }
+  ],
+  "sample": {
+    "text": "ねこは川で小さな花を見つけた。",
+    "valid_utf8": true
+  },
+  "test_nll": 0.15121155977249146
+}

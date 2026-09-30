@@ -1,0 +1,13 @@
+.sites-runtime/
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.env*
+.openai/
+private/
+tmp/
+*.tar
+*.pdf
+labs/runs/
+dist/

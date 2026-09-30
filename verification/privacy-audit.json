@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-30",
+  "passed": true,
+  "scanned_files": 170,
+  "content_manifest_sha256": "405903b058a762b0f88e9a4dd6c0a55b97b8849dd81800c290ce0734614a75c7",
+  "line_endings_for_manifest": "LF normalized",
+  "findings": [],
+  "scope": [
+    "allowlisted publication files",
+    "known private identity strings",
+    "contact addresses",
+    "credential patterns",
+    "local paths",
+    "source profile text",
+    "Git author and committer identities"
+  ],
+  "excluded": [
+    "source PDF",
+    "extracted source text",
+    "private task workspace",
+    "model checkpoints",
+    "credentials"
+  ],
+  "public_identity": "sakunokyumei / GitHub noreply"
+}

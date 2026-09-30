@@ -1,0 +1,1009 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原資料との対応と補完範囲 | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 パソコンの中で何が起きるか</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>原資料との対応と補完範囲</h1><p>原資料の135 Module、26 Bridge、30 Upgradeを、学ぶ順番に合わせて再編しました。以下は<strong>テーマの対応表</strong>です。項目が対応していることは、全テーマを同じ深さで扱い、全実装を再現したという意味ではありません。</p>
+<p>基礎からTransformerまでは講義・手計算・実行コードを中心に、研究領域は主要な考え方・演習・一次資料を中心に構成しています。Tritonと分散の実習は<a href="systems-lab.html">追加実習</a>、実行済みの範囲は<a href="labs.html">ラボ</a>をご覧ください。</p>
+<h2>補完・修正した点</h2>
+<ul>
+<li>原資料のAttentionの尺度を標準の√dₖへ修正しました。</li>
+<li>一般的な繰り返し問題を、数字・条件・解答のある演習へ置き換えました。</li>
+<li>因果性・データ分割・checkpoint再開を検証する実装と、3条件×3seedの実測を追加しました。</li>
+<li>byte BPE、検索の評価、方策勾配、対応bootstrap、LoRAの勾配を試すコードを追加しました。</li>
+<li>SSM・拡散言語モデル、2026年の技術報告、toolの権限境界、評価の反証条件を追加しました。</li>
+<li>個人向けの記述を除き、AI利用、出典、実験済みと未検証の境界を明記しました。</li>
+</ul>
+<h2>深さと到達の確認</h2>
+<p>GPU専用kernelの実装・巨大モデルの事前学習・全最新論文の独立再現は、この公開版の実測範囲に含みません。対応先の課題と一次資料まで取り組み、<a href="56-capstone.html">卒業研究の提出物</a>で技能を確かめます。資料の監査ガイド・解答集・Mastery試験は、各章の解答と到達課題、卒業研究の判定基準へ統合しました。付録の言語ガイドは08–13章、数式表は<a href="reference.html">早見表</a>へ対応します。</p>
+<h2>Module対応</h2>
+<table>
+<thead>
+<tr>
+<th>原資料ID</th>
+<th>テーマ</th>
+<th>主な対応先</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Module 01</td>
+<td>この本の使い方と到達基準</td>
+<td><a href="01-start.html">01章</a></td>
+</tr>
+<tr>
+<td>Module 02</td>
+<td>現在地診断とスキップ判定</td>
+<td><a href="01-start.html">01章</a></td>
+</tr>
+<tr>
+<td>Module 03</td>
+<td>コンピュータの超基礎</td>
+<td><a href="02-computer.html">02章</a></td>
+</tr>
+<tr>
+<td>Module 04</td>
+<td>数式と英語記号の読み方</td>
+<td><a href="06-functions.html">06章</a></td>
+</tr>
+<tr>
+<td>Module 05</td>
+<td>数と四則演算</td>
+<td><a href="03-arithmetic.html">03章</a></td>
+</tr>
+<tr>
+<td>Module 06</td>
+<td>分数</td>
+<td><a href="03-arithmetic.html">03章</a></td>
+</tr>
+<tr>
+<td>Module 07</td>
+<td>小数と割合・百分率</td>
+<td><a href="03-arithmetic.html">03章</a></td>
+</tr>
+<tr>
+<td>Module 08</td>
+<td>負の数と絶対値</td>
+<td><a href="03-arithmetic.html">03章</a></td>
+</tr>
+<tr>
+<td>Module 09</td>
+<td>べき乗と平方根</td>
+<td><a href="04-powers.html">04章</a></td>
+</tr>
+<tr>
+<td>Module 10</td>
+<td>比・比例・反比例</td>
+<td><a href="04-powers.html">04章</a></td>
+</tr>
+<tr>
+<td>Module 11</td>
+<td>科学記数法と桁</td>
+<td><a href="04-powers.html">04章</a></td>
+</tr>
+<tr>
+<td>Module 12</td>
+<td>近似・丸め・有効数字</td>
+<td><a href="04-powers.html">04章</a></td>
+</tr>
+<tr>
+<td>Module 13</td>
+<td>文字式と代入</td>
+<td><a href="05-algebra.html">05章</a></td>
+</tr>
+<tr>
+<td>Module 14</td>
+<td>一次方程式</td>
+<td><a href="05-algebra.html">05章</a></td>
+</tr>
+<tr>
+<td>Module 15</td>
+<td>不等式</td>
+<td><a href="05-algebra.html">05章</a></td>
+</tr>
+<tr>
+<td>Module 16</td>
+<td>座標とグラフ</td>
+<td><a href="06-functions.html">06章</a></td>
+</tr>
+<tr>
+<td>Module 17</td>
+<td>一次関数</td>
+<td><a href="06-functions.html">06章</a></td>
+</tr>
+<tr>
+<td>Module 18</td>
+<td>二次関数</td>
+<td><a href="06-functions.html">06章</a></td>
+</tr>
+<tr>
+<td>Module 19</td>
+<td>指数関数</td>
+<td><a href="07-logarithms.html">07章</a></td>
+</tr>
+<tr>
+<td>Module 20</td>
+<td>対数</td>
+<td><a href="07-logarithms.html">07章</a></td>
+</tr>
+<tr>
+<td>Module 21</td>
+<td>総和 Σ・総積 Π・添字</td>
+<td><a href="06-functions.html">06章</a></td>
+</tr>
+<tr>
+<td>Module 22</td>
+<td>関数と合成関数</td>
+<td><a href="06-functions.html">06章</a></td>
+</tr>
+<tr>
+<td>Module 23</td>
+<td>極限の直感</td>
+<td><a href="17-calculus.html">17章</a></td>
+</tr>
+<tr>
+<td>Module 24</td>
+<td>微分 = 瞬間の変化率</td>
+<td><a href="17-calculus.html">17章</a></td>
+</tr>
+<tr>
+<td>Module 25</td>
+<td>微分公式</td>
+<td><a href="17-calculus.html">17章</a></td>
+</tr>
+<tr>
+<td>Module 26</td>
+<td>偏微分</td>
+<td><a href="18-chain.html">18章</a></td>
+</tr>
+<tr>
+<td>Module 27</td>
+<td>連鎖律と計算グラフ</td>
+<td><a href="18-chain.html">18章</a></td>
+</tr>
+<tr>
+<td>Module 28</td>
+<td>勾配と方向微分</td>
+<td><a href="18-chain.html">18章</a></td>
+</tr>
+<tr>
+<td>Module 29</td>
+<td>積分の直感</td>
+<td><a href="19-integration.html">19章</a></td>
+</tr>
+<tr>
+<td>Module 30</td>
+<td>ベクトル</td>
+<td><a href="14-vectors.html">14章</a></td>
+</tr>
+<tr>
+<td>Module 31</td>
+<td>内積・ノルム・cos 類似度</td>
+<td><a href="14-vectors.html">14章</a></td>
+</tr>
+<tr>
+<td>Module 32</td>
+<td>行列</td>
+<td><a href="15-matrices.html">15章</a></td>
+</tr>
+<tr>
+<td>Module 33</td>
+<td>行列積</td>
+<td><a href="15-matrices.html">15章</a></td>
+</tr>
+<tr>
+<td>Module 34</td>
+<td>連立一次方程式</td>
+<td><a href="15-matrices.html">15章</a></td>
+</tr>
+<tr>
+<td>Module 35</td>
+<td>線形変換・基底・次元</td>
+<td><a href="15-matrices.html">15章</a></td>
+</tr>
+<tr>
+<td>Module 36</td>
+<td>固有値・固有ベクトル</td>
+<td><a href="16-tensors.html">16章</a></td>
+</tr>
+<tr>
+<td>Module 37</td>
+<td>SVD・低ランク近似</td>
+<td><a href="16-tensors.html">16章</a></td>
+</tr>
+<tr>
+<td>Module 38</td>
+<td>テンソルと shape 設計</td>
+<td><a href="16-tensors.html">16章</a></td>
+</tr>
+<tr>
+<td>Module 39</td>
+<td>場合の数と確率</td>
+<td><a href="20-probability.html">20章</a></td>
+</tr>
+<tr>
+<td>Module 40</td>
+<td>条件付き確率と Bayes</td>
+<td><a href="20-probability.html">20章</a></td>
+</tr>
+<tr>
+<td>Module 41</td>
+<td>確率変数</td>
+<td><a href="21-distributions.html">21章</a></td>
+</tr>
+<tr>
+<td>Module 42</td>
+<td>代表的な分布</td>
+<td><a href="21-distributions.html">21章</a></td>
+</tr>
+<tr>
+<td>Module 43</td>
+<td>期待値・分散・標準偏差</td>
+<td><a href="21-distributions.html">21章</a></td>
+</tr>
+<tr>
+<td>Module 44</td>
+<td>標本・推定・信頼区間</td>
+<td><a href="22-statistics.html">22章</a></td>
+</tr>
+<tr>
+<td>Module 45</td>
+<td>仮説検定と効果量</td>
+<td><a href="22-statistics.html">22章</a></td>
+</tr>
+<tr>
+<td>Module 46</td>
+<td>共分散・相関</td>
+<td><a href="21-distributions.html">21章</a></td>
+</tr>
+<tr>
+<td>Module 47</td>
+<td>Entropy・Cross Entropy</td>
+<td><a href="23-information.html">23章</a></td>
+</tr>
+<tr>
+<td>Module 48</td>
+<td>KL divergence・Perplexity</td>
+<td><a href="23-information.html">23章</a></td>
+</tr>
+<tr>
+<td>Module 49</td>
+<td>Python 環境・変数・型</td>
+<td><a href="08-python.html">08章</a></td>
+</tr>
+<tr>
+<td>Module 50</td>
+<td>if・for・while</td>
+<td><a href="09-control.html">09章</a></td>
+</tr>
+<tr>
+<td>Module 51</td>
+<td>関数・引数・return</td>
+<td><a href="09-control.html">09章</a></td>
+</tr>
+<tr>
+<td>Module 52</td>
+<td>list・dict・tuple・set</td>
+<td><a href="10-data.html">10章</a></td>
+</tr>
+<tr>
+<td>Module 53</td>
+<td>文字列・ファイル I/O</td>
+<td><a href="10-data.html">10章</a></td>
+</tr>
+<tr>
+<td>Module 54</td>
+<td>例外・テスト・デバッグ</td>
+<td><a href="11-debug.html">11章</a></td>
+</tr>
+<tr>
+<td>Module 55</td>
+<td>class・module・package</td>
+<td><a href="11-debug.html">11章</a></td>
+</tr>
+<tr>
+<td>Module 56</td>
+<td>NumPy</td>
+<td><a href="16-tensors.html">16章</a></td>
+</tr>
+<tr>
+<td>Module 57</td>
+<td>計算量 Big-O</td>
+<td><a href="13-algorithms.html">13章</a></td>
+</tr>
+<tr>
+<td>Module 58</td>
+<td>基本アルゴリズムとデータ構造</td>
+<td><a href="13-algorithms.html">13章</a></td>
+</tr>
+<tr>
+<td>Module 59</td>
+<td>Bash / Linux をゼロから</td>
+<td><a href="12-environment.html">12章</a></td>
+</tr>
+<tr>
+<td>Module 60</td>
+<td>Git / GitHub をゼロから</td>
+<td><a href="12-environment.html">12章</a></td>
+</tr>
+<tr>
+<td>Module 61</td>
+<td>SQL を研究用に使う</td>
+<td><a href="13-algorithms.html">13章</a></td>
+</tr>
+<tr>
+<td>Module 62</td>
+<td>Regex・CSV・JSON</td>
+<td><a href="13-algorithms.html">13章</a></td>
+</tr>
+<tr>
+<td>Module 63</td>
+<td>仮想環境・依存関係・再現性</td>
+<td><a href="12-environment.html">12章</a></td>
+</tr>
+<tr>
+<td>Module 64</td>
+<td>データセットと train/valid/test</td>
+<td><a href="24-learning.html">24章</a></td>
+</tr>
+<tr>
+<td>Module 65</td>
+<td>線形回帰</td>
+<td><a href="25-regression.html">25章</a></td>
+</tr>
+<tr>
+<td>Module 66</td>
+<td>勾配降下法</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Module 67</td>
+<td>ロジスティック回帰</td>
+<td><a href="25-regression.html">25章</a></td>
+</tr>
+<tr>
+<td>Module 68</td>
+<td>分類指標</td>
+<td><a href="24-learning.html">24章</a></td>
+</tr>
+<tr>
+<td>Module 69</td>
+<td>正則化・bias/variance</td>
+<td><a href="24-learning.html">24章</a></td>
+</tr>
+<tr>
+<td>Module 70</td>
+<td>決定木・ensemble</td>
+<td><a href="25-regression.html">25章</a></td>
+</tr>
+<tr>
+<td>Module 71</td>
+<td>Clustering・PCA</td>
+<td><a href="25-regression.html">25章</a></td>
+</tr>
+<tr>
+<td>Module 72</td>
+<td>実験設計と baseline</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+<tr>
+<td>Module 73</td>
+<td>Tensorと PyTorch</td>
+<td><a href="26-pytorch.html">26章</a></td>
+</tr>
+<tr>
+<td>Module 74</td>
+<td>Autograd</td>
+<td><a href="26-pytorch.html">26章</a></td>
+</tr>
+<tr>
+<td>Module 75</td>
+<td>MLP と線形層</td>
+<td><a href="27-networks.html">27章</a></td>
+</tr>
+<tr>
+<td>Module 76</td>
+<td>Backpropagation を自力で追う</td>
+<td><a href="27-networks.html">27章</a></td>
+</tr>
+<tr>
+<td>Module 77</td>
+<td>Activation・初期化</td>
+<td><a href="27-networks.html">27章</a></td>
+</tr>
+<tr>
+<td>Module 78</td>
+<td>Optimizer: SGD ・Adam</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Module 79</td>
+<td>Normalization・Dropout</td>
+<td><a href="27-networks.html">27章</a></td>
+</tr>
+<tr>
+<td>Module 80</td>
+<td>Batching・GPU・mixed precision</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Module 81</td>
+<td>文字列から token へ</td>
+<td><a href="29-tokenization.html">29章</a></td>
+</tr>
+<tr>
+<td>Module 82</td>
+<td>N-gram 言語モデル</td>
+<td><a href="30-language-model.html">30章</a></td>
+</tr>
+<tr>
+<td>Module 83</td>
+<td>Embedding</td>
+<td><a href="29-tokenization.html">29章</a></td>
+</tr>
+<tr>
+<td>Module 84</td>
+<td>Attention</td>
+<td><a href="31-attention.html">31章</a></td>
+</tr>
+<tr>
+<td>Module 85</td>
+<td>Self-Attention・causal mask</td>
+<td><a href="31-attention.html">31章</a></td>
+</tr>
+<tr>
+<td>Module 86</td>
+<td>Multi-Head・位置表現</td>
+<td><a href="32-transformer.html">32章</a></td>
+</tr>
+<tr>
+<td>Module 87</td>
+<td>Transformer block</td>
+<td><a href="32-transformer.html">32章</a></td>
+</tr>
+<tr>
+<td>Module 88</td>
+<td>Decoder-only Language Model</td>
+<td><a href="32-transformer.html">32章</a></td>
+</tr>
+<tr>
+<td>Module 89</td>
+<td>Transformerの学習をデバッグ</td>
+<td><a href="33-training.html">33章</a></td>
+</tr>
+<tr>
+<td>Module 90</td>
+<td>BPE tokenizer を自作する</td>
+<td><a href="29-tokenization.html">29章</a></td>
+</tr>
+<tr>
+<td>Module 91</td>
+<td>Tiny GPT をゼロから実装</td>
+<td><a href="32-transformer.html">32章</a></td>
+</tr>
+<tr>
+<td>Module 92</td>
+<td>事前学習データ pipeline</td>
+<td><a href="35-data-scaling.html">35章</a></td>
+</tr>
+<tr>
+<td>Module 93</td>
+<td>T raining loop・checkpoint</td>
+<td><a href="33-training.html">33章</a></td>
+</tr>
+<tr>
+<td>Module 94</td>
+<td>推論・sampling・KV cache</td>
+<td><a href="34-generation.html">34章</a></td>
+</tr>
+<tr>
+<td>Module 95</td>
+<td>LLM 評価</td>
+<td><a href="50-evaluation.html">50章</a></td>
+</tr>
+<tr>
+<td>Module 96</td>
+<td>SFT・LoRA</td>
+<td><a href="36-adaptation.html">36章</a></td>
+</tr>
+<tr>
+<td>Module 97</td>
+<td>RAG</td>
+<td><a href="37-rag.html">37章</a></td>
+</tr>
+<tr>
+<td>Module 98</td>
+<td>Alignment: preference ・DPO・RLHF</td>
+<td><a href="39-alignment.html">39章</a></td>
+</tr>
+<tr>
+<td>Module 99</td>
+<td>Scaling laws</td>
+<td><a href="35-data-scaling.html">35章</a></td>
+</tr>
+<tr>
+<td>Module 100</td>
+<td>Distributed training ・profiling</td>
+<td><a href="42-distributed.html">42章</a></td>
+</tr>
+<tr>
+<td>Module 101</td>
+<td>FlashAttention ・効率化の考え方</td>
+<td><a href="41-efficiency.html">41章</a></td>
+</tr>
+<tr>
+<td>Module 102</td>
+<td>論文の構造と読み方</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 103</td>
+<td>Literature search ・関連研究</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 104</td>
+<td>再現実験</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 105</td>
+<td>研究質問・仮説・baseline</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+<tr>
+<td>Module 106</td>
+<td>Ablation study</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+<tr>
+<td>Module 107</td>
+<td>統計的比較・複数 seed</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+<tr>
+<td>Module 108</td>
+<td>Error analysis ・data contamination</td>
+<td><a href="50-evaluation.html">50章</a></td>
+</tr>
+<tr>
+<td>Module 109</td>
+<td>Responsible AI ・研究倫理</td>
+<td><a href="52-privacy.html">52章</a></td>
+</tr>
+<tr>
+<td>Module 110</td>
+<td>研究コード・artifact</td>
+<td><a href="56-capstone.html">56章</a></td>
+</tr>
+<tr>
+<td>Module 111</td>
+<td>論文を書く</td>
+<td><a href="55-writing.html">55章</a></td>
+</tr>
+<tr>
+<td>Module 112</td>
+<td>査読への対応</td>
+<td><a href="55-writing.html">55章</a></td>
+</tr>
+<tr>
+<td>Module 113</td>
+<td>新規性を作る</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+<tr>
+<td>Module 114</td>
+<td>卒業研究 Capstone</td>
+<td><a href="56-capstone.html">56章</a></td>
+</tr>
+<tr>
+<td>Module 115</td>
+<td>Quantization: 8bit/4bit と誤差</td>
+<td><a href="44-compression.html">44章</a></td>
+</tr>
+<tr>
+<td>Module 116</td>
+<td>Pruning ・Distillation・Sparsity</td>
+<td><a href="44-compression.html">44章</a></td>
+</tr>
+<tr>
+<td>Module 117</td>
+<td>Mixture of Experts</td>
+<td><a href="45-moe.html">45章</a></td>
+</tr>
+<tr>
+<td>Module 118</td>
+<td>Long Context ・RoPE 拡張</td>
+<td><a href="46-context.html">46章</a></td>
+</tr>
+<tr>
+<td>Module 119</td>
+<td>Speculative Decoding</td>
+<td><a href="43-serving.html">43章</a></td>
+</tr>
+<tr>
+<td>Module 120</td>
+<td>Inference-time Compute と Reasoning</td>
+<td><a href="40-reasoning.html">40章</a></td>
+</tr>
+<tr>
+<td>Module 121</td>
+<td>Synthetic Data ・Self-training</td>
+<td><a href="40-reasoning.html">40章</a></td>
+</tr>
+<tr>
+<td>Module 122</td>
+<td>T ool Use ・Agents</td>
+<td><a href="49-agents.html">49章</a></td>
+</tr>
+<tr>
+<td>Module 123</td>
+<td>LLM-as-a-Judge</td>
+<td><a href="50-evaluation.html">50章</a></td>
+</tr>
+<tr>
+<td>Module 124</td>
+<td>Mechanistic Interpretability 入門</td>
+<td><a href="51-interpretability.html">51章</a></td>
+</tr>
+<tr>
+<td>Module 125</td>
+<td>Memorization ・Privacy・Data Attribution</td>
+<td><a href="52-privacy.html">52章</a></td>
+</tr>
+<tr>
+<td>Module 126</td>
+<td>Multilingual LLM</td>
+<td><a href="48-multimodal.html">48章</a></td>
+</tr>
+<tr>
+<td>Module 127</td>
+<td>Multimodal LLM の入口</td>
+<td><a href="48-multimodal.html">48章</a></td>
+</tr>
+<tr>
+<td>Module 128</td>
+<td>Adversarial Evaluation ・Red T eaming</td>
+<td><a href="50-evaluation.html">50章</a></td>
+</tr>
+<tr>
+<td>Module 129</td>
+<td>Open-weight 研究と Release 設計</td>
+<td><a href="52-privacy.html">52章</a></td>
+</tr>
+<tr>
+<td>Module 130</td>
+<td>数式を英語で読む</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 131</td>
+<td>Abstract を分解して読む</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 132</td>
+<td>Methods 節の動詞</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 133</td>
+<td>Results 節と慎重表現</td>
+<td><a href="54-paper-reading.html">54章</a></td>
+</tr>
+<tr>
+<td>Module 134</td>
+<td>Related Work を書く</td>
+<td><a href="55-writing.html">55章</a></td>
+</tr>
+<tr>
+<td>Module 135</td>
+<td>英語で研究発表・質疑</td>
+<td><a href="55-writing.html">55章</a></td>
+</tr>
+</tbody>
+</table>
+<h2>Bridge対応</h2>
+<table>
+<thead>
+<tr>
+<th>原資料ID</th>
+<th>テーマ</th>
+<th>主な対応先</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bridge 01</td>
+<td>数・分数・割合を「量」として扱う</td>
+<td><a href="03-arithmetic.html">03章</a></td>
+</tr>
+<tr>
+<td>Bridge 02</td>
+<td>文字式・方程式・関数を「入力 → 出力」として読む</td>
+<td><a href="05-algebra.html">05章</a></td>
+</tr>
+<tr>
+<td>Bridge 03</td>
+<td>微分を「傾き」と「感度」として理解する</td>
+<td><a href="17-calculus.html">17章</a></td>
+</tr>
+<tr>
+<td>Bridge 04</td>
+<td>連鎖律と計算グラフ</td>
+<td><a href="18-chain.html">18章</a></td>
+</tr>
+<tr>
+<td>Bridge 05</td>
+<td>ベクトル・内積・ノルム・cos 類似度</td>
+<td><a href="14-vectors.html">14章</a></td>
+</tr>
+<tr>
+<td>Bridge 06</td>
+<td>行列・行列積・線形変換</td>
+<td><a href="15-matrices.html">15章</a></td>
+</tr>
+<tr>
+<td>Bridge 07</td>
+<td>固有値・SVD・低ランク近似の研究直観</td>
+<td><a href="16-tensors.html">16章</a></td>
+</tr>
+<tr>
+<td>Bridge 08</td>
+<td>確率・条件付き確率・Bayes</td>
+<td><a href="20-probability.html">20章</a></td>
+</tr>
+<tr>
+<td>Bridge 09</td>
+<td>期待値・分散・標準偏差</td>
+<td><a href="21-distributions.html">21章</a></td>
+</tr>
+<tr>
+<td>Bridge 10</td>
+<td>標本・標準誤差・信頼区間・検定</td>
+<td><a href="22-statistics.html">22章</a></td>
+</tr>
+<tr>
+<td>Bridge 11</td>
+<td>Entropy・Cross Entropy・KL・Perplexity</td>
+<td><a href="23-information.html">23章</a></td>
+</tr>
+<tr>
+<td>Bridge 12</td>
+<td>Python: 変数・型・条件・loop・関数</td>
+<td><a href="09-control.html">09章</a></td>
+</tr>
+<tr>
+<td>Bridge 13</td>
+<td>Python collections ・文字列・file・例外・test</td>
+<td><a href="10-data.html">10章</a></td>
+</tr>
+<tr>
+<td>Bridge 14</td>
+<td>Bash・Git・環境を「再現性の道具」として学ぶ</td>
+<td><a href="12-environment.html">12章</a></td>
+</tr>
+<tr>
+<td>Bridge 15</td>
+<td>NumPy: array ・shape・broadcast・vectorization</td>
+<td><a href="16-tensors.html">16章</a></td>
+</tr>
+<tr>
+<td>Bridge 16</td>
+<td>計算量 Big‑O と「制約から実装を選ぶ」</td>
+<td><a href="13-algorithms.html">13章</a></td>
+</tr>
+<tr>
+<td>Bridge 17</td>
+<td>train/valid/test・leakage・baseline</td>
+<td><a href="24-learning.html">24章</a></td>
+</tr>
+<tr>
+<td>Bridge 18</td>
+<td>線形回帰・分類・loss・metric</td>
+<td><a href="25-regression.html">25章</a></td>
+</tr>
+<tr>
+<td>Bridge 19</td>
+<td>Gradient Descent ・regularization・bias/variance</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Bridge 20</td>
+<td>PyTorch Tensor・device・autograd</td>
+<td><a href="26-pytorch.html">26章</a></td>
+</tr>
+<tr>
+<td>Bridge 21</td>
+<td>MLP・Backprop・Optimizer を一周する</td>
+<td><a href="27-networks.html">27章</a></td>
+</tr>
+<tr>
+<td>Bridge 22</td>
+<td>数値安定性・shape・debugging の型</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Bridge 23</td>
+<td>Tokenization・Embedding・N‑gram から LM へ</td>
+<td><a href="29-tokenization.html">29章</a></td>
+</tr>
+<tr>
+<td>Bridge 24</td>
+<td>Attention・causal mask ・Transformerの最小導出</td>
+<td><a href="31-attention.html">31章</a></td>
+</tr>
+<tr>
+<td>Bridge 25</td>
+<td>Decoder‑only LM の training loop</td>
+<td><a href="33-training.html">33章</a></td>
+</tr>
+<tr>
+<td>Bridge 26</td>
+<td>研究実験の最小プロトコル</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+</tbody>
+</table>
+<h2>Upgrade対応</h2>
+<table>
+<thead>
+<tr>
+<th>原資料ID</th>
+<th>テーマ</th>
+<th>主な対応先</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Upgrade 01</td>
+<td>Softmax・log-sum-exp・数値安定性</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Upgrade 02</td>
+<td>標本分布・標準誤差・CLT・Bootstrap</td>
+<td><a href="22-statistics.html">22章</a></td>
+</tr>
+<tr>
+<td>Upgrade 03</td>
+<td>仮説検定・effect size ・多重比較</td>
+<td><a href="22-statistics.html">22章</a></td>
+</tr>
+<tr>
+<td>Upgrade 04</td>
+<td>行列微分・Jacobian・VJP/JVP</td>
+<td><a href="18-chain.html">18章</a></td>
+</tr>
+<tr>
+<td>Upgrade 05</td>
+<td>FP16/BF16・Mixed Precision</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Upgrade 06</td>
+<td>AdamW・warmup・schedule・gradient clipping</td>
+<td><a href="28-numerics.html">28章</a></td>
+</tr>
+<tr>
+<td>Upgrade 07</td>
+<td>Pre‑Norm・RMSNorm・SwiGLU</td>
+<td><a href="27-networks.html">27章</a></td>
+</tr>
+<tr>
+<td>Upgrade 08</td>
+<td>Q/K/V・Multi-Head Attention を誤解なく導出</td>
+<td><a href="31-attention.html">31章</a></td>
+</tr>
+<tr>
+<td>Upgrade 09</td>
+<td>RoPE・位置表現・長文脈</td>
+<td><a href="46-context.html">46章</a></td>
+</tr>
+<tr>
+<td>Upgrade 10</td>
+<td>MQA/GQA・KV cache の構造</td>
+<td><a href="34-generation.html">34章</a></td>
+</tr>
+<tr>
+<td>Upgrade 11</td>
+<td>Tokenizer・packing・causal labels</td>
+<td><a href="29-tokenization.html">29章</a></td>
+</tr>
+<tr>
+<td>Upgrade 12</td>
+<td>Pretraining data pipeline・filter・dedup</td>
+<td><a href="35-data-scaling.html">35章</a></td>
+</tr>
+<tr>
+<td>Upgrade 13</td>
+<td>GPU資源会計・FLOPs・memory・bandwidth・arithmetic intensity</td>
+<td><a href="41-efficiency.html">41章</a></td>
+</tr>
+<tr>
+<td>Upgrade 14</td>
+<td>Tritonをゼロから</td>
+<td><a href="41-efficiency.html">41章</a></td>
+</tr>
+<tr>
+<td>Upgrade 15</td>
+<td>FlashAttention</td>
+<td><a href="41-efficiency.html">41章</a></td>
+</tr>
+<tr>
+<td>Upgrade 16</td>
+<td>DDP・FSDP/ZeRO</td>
+<td><a href="42-distributed.html">42章</a></td>
+</tr>
+<tr>
+<td>Upgrade 17</td>
+<td>Tensor/Pipeline/Context/Expert Parallelism</td>
+<td><a href="42-distributed.html">42章</a></td>
+</tr>
+<tr>
+<td>Upgrade 18</td>
+<td>Serving・prefill/decode・continuous batching・PagedAttention</td>
+<td><a href="43-serving.html">43章</a></td>
+</tr>
+<tr>
+<td>Upgrade 19</td>
+<td>GPTQ・AWQ</td>
+<td><a href="44-compression.html">44章</a></td>
+</tr>
+<tr>
+<td>Upgrade 20</td>
+<td>Scaling Laws を経験則として扱う</td>
+<td><a href="35-data-scaling.html">35章</a></td>
+</tr>
+<tr>
+<td>Upgrade 21</td>
+<td>評価不確実性・seed</td>
+<td><a href="50-evaluation.html">50章</a></td>
+</tr>
+<tr>
+<td>Upgrade 22</td>
+<td>Benchmark contamination ・LLM‑as‑a‑Judge</td>
+<td><a href="50-evaluation.html">50章</a></td>
+</tr>
+<tr>
+<td>Upgrade 23</td>
+<td>強化学習をゼロから: policy ・reward・REINFORCE</td>
+<td><a href="38-reinforcement.html">38章</a></td>
+</tr>
+<tr>
+<td>Upgrade 24</td>
+<td>PPO・Advantage・KL 制約</td>
+<td><a href="39-alignment.html">39章</a></td>
+</tr>
+<tr>
+<td>Upgrade 25</td>
+<td>RLHF・DPO・GRPO・RLVRを混同しない</td>
+<td><a href="39-alignment.html">39章</a></td>
+</tr>
+<tr>
+<td>Upgrade 26</td>
+<td>Mechanistic Interpretability</td>
+<td><a href="51-interpretability.html">51章</a></td>
+</tr>
+<tr>
+<td>Upgrade 27</td>
+<td>Memorization・Privacy・Safety</td>
+<td><a href="52-privacy.html">52章</a></td>
+</tr>
+<tr>
+<td>Upgrade 28</td>
+<td>Reproducibility: seed 以上の研究工学</td>
+<td><a href="33-training.html">33章</a></td>
+</tr>
+<tr>
+<td>Upgrade 29</td>
+<td>Research Design: baseline ・ablation・negative result</td>
+<td><a href="53-research-design.html">53章</a></td>
+</tr>
+<tr>
+<td>Upgrade 30</td>
+<td>論文読解・執筆・研究 Capstone</td>
+<td><a href="56-capstone.html">56章</a></td>
+</tr>
+</tbody>
+</table>
+</article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>

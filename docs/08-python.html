@@ -1,0 +1,49 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>08 Pythonで、最初の計算を動かす | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 パソコンの中で何が起きるか</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" open><summary><span>03</span> Pythonと研究の道具</summary><a aria-current=page href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><p class="eyebrow">Pythonと研究の道具</p><h1>08 Pythonで、最初の計算を動かす</h1><p class="lesson-goal">到達目標：プログラムを保存・実行し、変数と型を確かめる</p><div class="lesson-meta">前提：02〜07 <span>演習 5 問</span></div><h2 id="section-1">同じ計算を何度も頼む</h2>
+<p>1000件の正解率を毎日計算するなら、電卓へ同じ手順を入力するのは大変です。コンピュータへ「この順に計算して」と渡す文章がプログラムです。ここではPythonという言語で書きます。初めは高度な開発環境は不要です。</p>
+<p>Python公式のインストーラーを使い、手元でターミナルを開きます。WindowsではPowerShell、macOSやLinuxではターミナルを使えます。下の一行を入力してEnterを押します。Windowsで<code>python</code>が見つからず<code>py</code>が使える場合は、以降の<code>python</code>を<code>py</code>へ読み替えます。</p>
+<pre><code class="language-text">python --version
+</code></pre>
+<p>これはPythonのコードではなく、OSへ実行を頼むコマンドです。バージョンが表示されれば準備ができています。後の実験では使用したバージョンも記録します。インストールは <a href="https://www.python.org/downloads/">Python公式</a> の案内を使ってください。</p>
+<h2 id="section-2">ファイルを実行する</h2>
+<p>テキストエディターで、次の三行を<code>first.py</code>という名前で保存してください。Windowsでは拡張子が隠れていると<code>first.py.txt</code>になりやすいので、ファイル名を確認します。ターミナルの作業場所をそのフォルダに合わせ、<code>python first.py</code>と入力します。</p>
+<pre><code class="language-python">correct = 80
+total = 100
+print(correct / total)
+</code></pre>
+<p>出力は<code>0.8</code>です。<code>print(...)</code>は括弧内の結果を画面へ出す関数です。<code>=</code>は、右側の値へ左側の名前を付ける代入です。数学の「左右が等しいという条件」とは異なります。等しいかを調べるPythonの記号は<code>==</code>です。</p>
+<p><code>correct = 90</code>に変えて再実行すると0.9になります。変数とは、値を参照するために付ける名前です。同じ名前へ別の値を割り当てることもできます。</p>
+<h2 id="section-3">値には種類がある</h2>
+<p><code>3</code>は整数のint、<code>0.5</code>は小数を扱うfloat、<code>&quot;cat&quot;</code>は文字列のstr、<code>True</code>と<code>False</code>は真偽値のboolです。文字列を囲む引用符は、そこがプログラムの命令ではなく文字のデータだと示します。</p>
+<pre><code class="language-python">x = 3
+print(type(x))
+print(3 + 4)
+print(&quot;3&quot; + &quot;4&quot;)
+print(3 == 4)
+</code></pre>
+<p>結果は順に整数の型情報、7、文字列34、Falseです。数の3と文字の&quot;3&quot;は違います。<code>int(&quot;3&quot;)</code>で整数へ変換できますが、<code>int(&quot;cat&quot;)</code>は変換できずエラーになります。</p>
+<p>Pythonの掛け算は<code>*</code>、割り算は<code>/</code>、べき乗は<code>**</code>です。<code>//</code>は床除算、<code>%</code>は剰余を表します。正の整数で7を3で割れば、<code>7//3</code>が2、<code>7%3</code>が1です。</p>
+<h2 id="section-4">エラーは観測結果</h2>
+<p><code>pritn(3)</code>と打つとNameErrorになります。知らない名前が使われたという意味です。英語のエラー表示を全部理解する必要はありません。まず最後の行にあるエラーの種類と、直前のファイル名・行番号を確認します。予想した結果と実際の結果を分けて記録し、一箇所ずつ直します。</p>
+<h2 id="section-5">演習</h2>
+<section class="exercise"><h3>1・実行前に予想する</h3><p><code>print(2 + 3 * 4)</code>と<code>print((2 + 3) * 4)</code>の出力を予想し、動かしてください。</p>
+<details><summary>解答と考え方を読む</summary><p>14と20です。算数で学んだ優先順位と一致します。実行できたことだけでなく、予想と一致したかも記録します。</p>
+</details></section>
+<section class="exercise"><h3>2・代入の意味</h3><p><code>x=3</code>、次に<code>x=x+2</code>、最後に<code>print(x)</code>を実行するとどうなりますか。</p>
+<details><summary>解答と考え方を読む</summary><p>5です。二行目は古いxの値3へ2を足し、その結果5へxという名前を付け直します。数学の方程式x=x+2を解いているのではありません。</p>
+</details></section>
+<section class="exercise"><h3>3・型の区別</h3><p><code>&quot;12&quot; + &quot;3&quot;</code>と<code>int(&quot;12&quot;) + 3</code>の結果はどう違いますか。</p>
+<details><summary>解答と考え方を読む</summary><p>前者は文字列&quot;123&quot;、後者は整数15です。ファイルから読み込んだ数値は文字列であることがあるので、型の確認が必要です。</p>
+</details></section>
+<section class="exercise"><h3>4・研究の計算を実装する</h3><p>正解58件、全体100件の正解率を計算して表示する三行のプログラムを書いてください。</p>
+<details><summary>解答と考え方を読む</summary><p><code>correct = 58</code>、<code>total = 100</code>、<code>print(correct / total)</code>です。結果は0.58。百分率で表示するならさらに100を掛けます。</p>
+</details></section>
+<section class="exercise"><h3>5・エラーを直す</h3><p><code>print(score)</code>だけのファイルでNameErrorが出ました。原因と、最小の修正を書いてください。</p>
+<details><summary>解答と考え方を読む</summary><p>scoreという名前にまだ値を割り当てていません。前に<code>score = 0.8</code>を追加すれば表示できます。実際のプログラムでは値をどこで作るべきかを考えます。</p>
+</details></section>
+<h2 id="section-6">到達課題と出典</h2>
+<p>算数の章の全体正解率を計算するプログラムを作り、数字を変えて再実行してください。言語仕様は <a href="https://docs.python.org/3/tutorial/">Python公式チュートリアル</a> に対応します。同チュートリアル自体はプログラミング経験者向けなので、本章では実行と型から説明しました。</p>
+<nav class="pager" aria-label="前後の講義"><a href="07-logarithms.html"><small>前の講義</small>07 指数と対数は、行きと帰り</a><a href="09-control.html"><small>次の講義</small>09 条件・繰り返し・関数</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">同じ計算を何度も頼む</a><a href="#section-2">ファイルを実行する</a><a href="#section-3">値には種類がある</a><a href="#section-4">エラーは観測結果</a><a href="#section-5">演習</a><a href="#section-6">到達課題と出典</a></aside></div></body></html>

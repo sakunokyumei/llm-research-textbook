@@ -1,0 +1,215 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>研究を読む：基礎から2026年へ | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 パソコンの中で何が起きるか</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>研究を読む：基礎から2026年へ</h1><p>確認日：<strong>2026年9月30日</strong>。まず問いを持ち、前提の講義へ戻り、論文の方法・実験・限界を読みます。以下は学習上重要な系統を選んだ読書地図です。著者の報告を独立再現したと誤解しないよう、最新報告の要約は確認できた提案の範囲に限定しています。</p>
+<h2>土台を作った研究</h2>
+<table>
+<thead>
+<tr>
+<th>読む論文</th>
+<th>前提の章</th>
+<th>読みながら確かめる問い</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>（2017）</td>
+<td>31–32</td>
+<td>なぜ√dₖで割る？原論文のencoder-decoderと本ラボのdecoder-onlyはどこが違う？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/1810.04805">BERT</a>（2018）</td>
+<td>29–32</td>
+<td>mask予測と左からの次token予測で、見える情報はどう違う？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2005.14165">GPT-3</a>（2020）</td>
+<td>30・35</td>
+<td>in-context learningは重みの更新とどう違う？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2001.08361">Scaling Laws</a>（2020）</td>
+<td>07・35</td>
+<td>どの変数を固定し、どの範囲へ当てはめた経験則か？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2203.15556">Chinchilla</a>（2022）</td>
+<td>35</td>
+<td>計算量を固定すると、パラメータとデータの配分はどうなる？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2005.11401">RAG</a>（2020）</td>
+<td>37</td>
+<td>検索失敗と生成失敗をどう切り分ける？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2106.09685">LoRA</a>（2021）</td>
+<td>16・36</td>
+<td>低ランク更新のshapeと学習パラメータ数は？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2305.14314">QLoRA</a>（2023）</td>
+<td>36・44</td>
+<td>基盤重みの量子化とadapterの学習を区別できる？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2203.02155">InstructGPT</a>（2022）</td>
+<td>38–39</td>
+<td>SFT・報酬モデル・方策最適化のデータは何か？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/1707.06347">PPO</a>（2017）</td>
+<td>38–39</td>
+<td>重要度比とclippingは何を抑える？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2305.18290">DPO</a>（2023）</td>
+<td>39</td>
+<td>選好の組からどの対数確率差を学習する？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2402.03300">DeepSeekMath</a>（2024）</td>
+<td>39</td>
+<td>GRPOの群内相対評価はどう作られる？</td>
+</tr>
+</tbody>
+</table>
+<h2>計算資源を研究対象にする</h2>
+<table>
+<thead>
+<tr>
+<th>読む論文</th>
+<th>前提</th>
+<th>比較時に固定する条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>（2022）</td>
+<td>41</td>
+<td>dtype、系列長、入出力、GPU。IO削減と近似を混同しない</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2309.06180">PagedAttention / vLLM</a>（2023）</td>
+<td>43</td>
+<td>request長の分布、batch、メモリ、throughputとtail latency</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2211.17192">Speculative Decoding</a>（2022）</td>
+<td>43</td>
+<td>draftの費用・採択率・targetの分布を保つ補正</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2210.17323">GPTQ</a>（2022）</td>
+<td>44</td>
+<td>校正データ、bit数、重み誤差とタスク性能</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2306.00978">AWQ</a>（2023）</td>
+<td>44</td>
+<td>activationから重みの重要性をどう扱うか</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2101.03961">Switch Transformers</a>（2021）</td>
+<td>45</td>
+<td>総パラメータとactive parameter、通信、load balance</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2104.09864">RoFormer / RoPE</a>（2021）</td>
+<td>46</td>
+<td>相対位置が内積へ入る導出</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2312.00752">Mamba</a>（2023）</td>
+<td>47</td>
+<td>固定状態の効率と情報保持、入力依存性</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2405.21060">Mamba-2</a>（2024）</td>
+<td>47</td>
+<td>構造化状態空間とAttentionの関係</td>
+</tr>
+</tbody>
+</table>
+<h2>推論・生成・評価の広がり</h2>
+<table>
+<thead>
+<tr>
+<th>読む論文</th>
+<th>前提</th>
+<th>確認すること</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3</a>（2024）</td>
+<td>34・42・45</td>
+<td>MoE、cache、学習と推論の資源配分</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2501.12948">DeepSeek-R1</a>（2025、改訂版あり）</td>
+<td>38–40</td>
+<td>RLのみの条件とcold-startを含む条件、評価予算</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2505.09388">Qwen3 Technical Report</a>（2025）</td>
+<td>35・39–40</td>
+<td>thinkingとnon-thinking、学習段階、評価条件</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.09992">LLaDA</a>（2025）</td>
+<td>47</td>
+<td>maskの過程と生成ステップ、自己回帰baselineとの公平性</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2103.00020">CLIP</a>（2021）／<a href="https://arxiv.org/abs/2304.08485">LLaVA</a>（2023）</td>
+<td>48</td>
+<td>対照学習と指示応答の違い</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2210.03629">ReAct</a>（2022）</td>
+<td>49</td>
+<td>toolを使う行動ループの成否をどう測る？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2211.09110">HELM</a>（2022）</td>
+<td>50</td>
+<td>複数指標と評価範囲の明示</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2306.05685">MT-Bench / Chatbot Arena</a>（2023）</td>
+<td>50</td>
+<td>judgeの提示順・長さ・自己選好等の偏り</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2209.10652">Toy Models of Superposition</a>（2022）</td>
+<td>51</td>
+<td>特徴数と表現次元、疎性の役割</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2012.07805">Extracting Training Data</a>（2020）</td>
+<td>52</td>
+<td>記憶・抽出・一般化はどう違う？</td>
+</tr>
+</tbody>
+</table>
+<h2>2026年の主要技術報告と新しい方向</h2>
+<p>ここは<strong>一次資料の書誌と要旨を確認した読書ガイド</strong>です。全文の全実験・全実装を検証済みという意味ではありません。最先端モデルの優劣を、異なる条件のランキングから断定しません。</p>
+<h3>DeepSeek-V4：長文脈の計算構造</h3>
+<p><a href="https://arxiv.org/abs/2606.19348">技術報告</a>はCSAとHCAを組み合わせたAttention、mHC、Muonを取り入れたMoEモデルを報告しています。31・41・45・46章から、cache容量と推論計算を減らす工夫へ進む題材です。読む課題は、圧縮する情報、品質への影響、比較する系列長・モデル・予算を表にすること。原資料の書誌表示には識別子と初回日付の不整合が見られたため、ここでは厳密な初回公開日を断定しません。</p>
+<h3>Gemma 4：複数の規模とマルチモーダル設計</h3>
+<p><a href="https://arxiv.org/abs/2607.02770v2">技術報告 v2</a>（2026年7月）は、denseとMoE、視覚・音声、thinkingを含むモデル群を報告しています。特に12Bモデルのencoder-free設計は、48章の「encoderで特徴へ変換する」方式と比べる題材です。読む課題は、入力表現の違いが計算量・品質・必要データへどう影響するか整理すること。</p>
+<h3>Kimi K3：長い作業とシステム全体</h3>
+<p><a href="https://arxiv.org/abs/2607.24653">技術報告</a>と<a href="https://www.kimi.com/news/kimi-k3-open-source">公式公開案内</a>は、MoE・視覚・長文脈とagenticな作業を扱います。45・48・49章へ接続します。モデル単体とtool・sandbox・推論予算を含むシステム全体の改善を分け、どの比較が何を測ったか調べてください。</p>
+<h3>Qwen3.5-Omni：音声・映像・言語をつなぐ</h3>
+<p><a href="https://arxiv.org/abs/2604.15804v2">技術報告 v2</a>は、ThinkerとTalkerのhybrid attention MoE、および文字と音声単位の整列を扱うARIAを報告しています。48章の先として、入力の時間解像度、streaming、応答遅延と品質の交換関係を読み取ります。</p>
+<h3>Engram：計算に加えて検索型の記憶を考える</h3>
+<p><a href="https://arxiv.org/abs/2601.07372">Conditional Memory via Scalable Lookup</a>は、条件付き計算に対して条件付き記憶という方向を提案します。37・45・47章を読み、外部文書検索、expert routing、学習された記憶へのlookupの違いを図にしてください。方式の新しさと実測の改善を別々に評価します。</p>
+<h3>DualPath：agent推論の保存・転送</h3>
+<p><a href="https://arxiv.org/abs/2602.21548">DualPath</a>は、agenticな推論でのストレージ帯域のボトルネックを扱います。41–43章の先として、計算量だけでは説明できない待ち時間を追います。比較する負荷・cache状態・ネットワーク・storageの条件を抽出するのが読書課題です。</p>
+<h3>RISE：直近のプレプリントを批判的に読む</h3>
+<p><a href="https://arxiv.org/abs/2609.05295v1">RISE v1</a>（2026年9月4日）は、RLVRの学習軌跡から合成teacherを作り、on-policy distillationと組み合わせる提案です。39・40・44章へ接続します。<strong>新着の研究であり、定着した結論として扱いません。</strong> teacher更新、追加計算、RLVRのみとの比較、外部での追試を確認してください。</p>
+<h2>新しい論文を追う手順</h2>
+<p>問いに合う論文の引用文献と被引用研究をたどり、著者の公式リポジトリとarXivの版を確認します。検索結果の要約だけで引用しません。まず一件を<a href="54-paper-reading.html">論文読解の手順</a>で精読し、データ・式・コード・評価を一枚のメモへまとめます。</p>
+</article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>

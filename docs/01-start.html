@@ -1,0 +1,59 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>01 学び方を、実験にする | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" open><summary><span>01</span> 学ぶ準備</summary><a aria-current=page href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 パソコンの中で何が起きるか</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><p class="eyebrow">学ぶ準備</p><h1>01 学び方を、実験にする</h1><p class="lesson-goal">到達目標：予想・観測・説明を分けた学習ノートを作る</p><div class="lesson-meta">前提：なし <span>演習 4 問</span></div><h2 id="section-1">「読めた」と「できた」は違う</h2>
+<p>料理の動画を見て分かったつもりでも、材料を前にすると手が止まることがあります。数学やプログラミングも似ています。説明を読むのは最初の一歩です。その後に、答えを見ないで試す時間が必要です。</p>
+<p>この教材の目的は、文章の続きを予測するモデルを自分で作り、その仕組みを調べることです。さらに、先行研究を読み、「この条件ではどうなるだろう」という問いを立て、他の人が追試できる実験にします。LLMは Large Language Model の略で、日本語では大規模言語モデルと呼びます。</p>
+<p>ここでいう研究は「大きな計算をしたこと」ではありません。比較条件をそろえ、結果が自分の期待に反していても記録し、どこまで言えるかを説明することです。最初は紙と電卓、後で普通のパソコンを使います。GPUという大量の計算を並列に進める装置は、必要な実験に進んでから考えます。</p>
+<h2 id="section-2">最初の小さな実験</h2>
+<p>「答えを先に読むより、先に自分で解く方が翌日も説明できるだろうか」。これは学び方についての問いです。今日、二つの例題を読み、一方だけを答えを隠して解いてみましょう。明日、どちらも別の数字で解き直します。二問だけで普遍的な結論は出ませんが、予想と観測を分ける練習になります。</p>
+<p>ノートには次の四行を作ります。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>記入例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>問い</td>
+<td>分数を足すとき、なぜ分母をそろえるのか</td>
+</tr>
+<tr>
+<td>予想</td>
+<td>同じ大きさの部品を数えるためだと思う</td>
+</tr>
+<tr>
+<td>観測</td>
+<td>1/2を2/4にすると1/4と足せた</td>
+</tr>
+<tr>
+<td>次の確認</td>
+<td>1/3と1/6でも説明できるか</td>
+</tr>
+</tbody>
+</table>
+<p>「分からなかった」は失敗の記録として十分ではありません。「分母という言葉が分からない」「式は追えるが、数字を変えると解けない」と、止まった場所を具体的に書きます。どこへ戻ればよいかが分かるからです。</p>
+<h2 id="section-3">この本を進める単位</h2>
+<p>一回の学習は、講義を読む、例題を紙で追う、演習を答えを隠して解く、自分の言葉で説明する、という順序にします。コードをまだ習っていない章の計算は紙で十分です。Pythonの章に進んだら、以前の例題をコードに直します。</p>
+<p>研究へ進む判定はページ数で行いません。自分でモデルを実装し、再現手順を残し、同じ条件の比較実験を行い、結果の限界を述べる最終課題で確認します。読むだけで研究技能が自動的に身につくわけではありません。</p>
+<h2 id="section-4">演習</h2>
+<section class="exercise"><h3>1・問いと感想を区別する</h3><p>「Transformerはすごい」と「同じ計算時間ならAttentionのヘッド数で検証損失は変わるか」のどちらが実験にしやすいですか。理由も書いてください。専門語の意味は後の章で学びます。</p>
+<details><summary>解答と考え方を読む</summary><p>後者です。変更する条件と測る量が示されているからです。前者は評価基準が決まっていません。「すごい」を測定可能な問いに言い換えるのが出発点です。</p>
+</details></section>
+<section class="exercise"><h3>2・分からない場所を特定する</h3><p>「式が分からない」を、次に行動できる三つの記録へ書き換えてください。</p>
+<details><summary>解答と考え方を読む</summary><p>例：「Σの読み方が分からないので記号の章へ戻る」「代入まではできるが分数の割り算で止まる」「計算結果は合うが、その式で何を測っているか説明できない」。言葉・操作・意味を分けると戻る場所を決めやすくなります。</p>
+</details></section>
+<section class="exercise"><h3>3・証拠に合う結論</h3><p>今日一問が解けました。「この分野を理解した」と結論してよいでしょうか。次に行う確認を二つ挙げてください。</p>
+<details><summary>解答と考え方を読む</summary><p>一問だけでは範囲が狭いです。数字や条件を変えて解くことと、翌日に解答を見ずに説明することを確認します。できなければ、その部分を復習します。</p>
+</details></section>
+<section class="exercise"><h3>4・自分の学習記録を作る</h3><p>この講義から一つ問いを選び、問い・予想・観測・次の確認を各一行で記録してください。</p>
+<details><summary>解答と考え方を読む</summary><p>採点基準は、予想が観測より先にあり、観測に具体的な行動や結果が書かれ、次の確認が実行可能なことです。きれいな文章である必要はありません。</p>
+</details></section>
+<h2 id="section-5">到達課題</h2>
+<p>明日、今日の記録を見ずに「なぜ答えを見る前に解くのか」を説明してください。説明できない部分を一つ選び、再学習する範囲を決めれば合格です。</p>
+<h2 id="section-6">出典と位置づけ</h2>
+<p>本章の学習手順と例題は、この教材のための編集設計です。実装を通じてモデル作成を学ぶ構成は <a href="https://cs336.stanford.edu/">Stanford CS336</a> を参考にしています。同講義はPython等の前提を置いているため、本教材ではその前に算数とプログラミングを配置します。大学による公式教材・認定教材ではありません。</p>
+<nav class="pager" aria-label="前後の講義"><a href="02-computer.html"><small>次の講義</small>02 パソコンの中で何が起きるか</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">「読めた」と「できた」は違う</a><a href="#section-2">最初の小さな実験</a><a href="#section-3">この本を進める単位</a><a href="#section-4">演習</a><a href="#section-5">到達課題</a><a href="#section-6">出典と位置づけ</a></aside></div></body></html>
