@@ -2,11 +2,13 @@
 
 ## 10件で速くても、100万件では
 
-名簿から名前を探す方法を考えます。先頭から順に見るなら、最悪では全件を読みます。件数をnとすると、必要な操作はおおむねnに比例します。これをO(n)と書きます。Oは、入力が大きくなったときの増え方を表す記法で、秒数そのものではありません。
+名簿から名前を探す方法を考えます。先頭から順に見るなら、最悪では全件を読みます。件数をnとすると、必要な操作はおおむねnに[比例](reference.html#term-proportion)します。これをO(n)と書きます。Oは、入力が大きくなったときの増え方を表す記法で、秒数そのものではありません。
 
 全組合せを比較する二重ループならO(n²)。nが10倍になると操作量はおおむね100倍です。整列済みの名簿を半分ずつ絞る二分探索ならO(log n)。ただし並べ替えの費用や、比較の費用は別途考えます。
 
-リストで「既に見た値か」を毎回調べると全体でO(n²)になる場合があります。ハッシュ集合setなら、通常の実装で平均的な一回の検索はO(1)を期待できます。ただし最悪ケースまで常に一定時間という保証ではありません。計算量とメモリ量を両方見ます。
+リストで「既に見た値か」を毎回調べると全体でO(n²)になる場合があります。ハッシュ集合setなら、通常の実装で平均的な一回の検索はO(1)を期待できます。ただし最悪ケースまで常に一定時間という保証ではありません。[計算量](reference.html#term-complexity)とメモリ量を両方見ます。
+
+`item in seen`は「itemがseenに含まれるか」、`item not in seen`は「含まれないか」を調べます。`not in`は二語で一つの判定です。たとえばseenが{"a"}なら、"b" [not in](reference.html#term-membership) seenはTrue、"a" not in seenはFalse。`seen.add(item)`は集合へその値を追加し、既に同じ値があれば二つには増やしません。not in・集合への追加へ戻れます。仕様：[Pythonの所属判定](https://docs.python.org/3/reference/expressions.html#membership-test-operations)。
 
 ```python
 items = ["a", "b", "a", "c"]
@@ -23,9 +25,9 @@ print(unique)
 
 ## 表へ質問する言語
 
-実験ID、手法、損失を表に保存すると「手法ごとの平均を見たい」という要求が出ます。SQLは表に対する問い合わせを書く言語です。SELECTは出す列、FROMは対象の表、WHEREは行の条件、GROUP BYはまとめる単位を指定します。
+実験ID、手法、[損失](reference.html#term-loss)を表に保存すると「手法ごとの平均を見たい」という要求が出ます。[SQL](reference.html#term-sql)は表に対する問い合わせを書く言語です。SELECTは出す列、FROMは対象の表、WHEREは行の条件、GROUP BYはまとめる単位を指定します。
 
-下のsqlite3はPythonに付属する、表を保存・検索する道具です。connectで作業先を開き、":memory:"は今回は保存ファイルを作らず作業中だけ表を持つ指定です。executeは命令を一つ実行し、executemanyは複数のデータを順に渡します。CREATE TABLEは表を作り、TEXTとREALは文字列と実数の列、INSERT INTOは行を追加します。AVGは平均、COUNT(*)は行数。fetchallは結果の全行を取り出し、closeは接続を閉じます。この小節は、表の作成→行の追加→集計の三回に分けて読めます。
+下のsqlite3はPythonに付属する、表を保存・検索する道具です。connectで作業先を開き、":memory:"は今回は保存ファイルを作らず作業中だけ表を持つ指定です。executeは命令を一つ実行し、executemanyは複数のデータを順に渡します。CREATE TABLEは表を作り、TEXTとREALは文字列と[実数](reference.html#term-real)の列、INSERT INTOは行を追加します。AVGは平均、COUNT(*)は行数。fetchallは結果の全行を取り出し、closeは接続を閉じます。この小節は、表の作成→行の追加→集計の三回に分けて読めます。
 
 ```python
 import sqlite3
@@ -70,7 +72,7 @@ O(n²)の処理で入力を3倍にすると、主な操作量は何倍になり�
 
 ## 時間を測る小さな練習
 
-`time`は時間を扱うモジュールです。`time.perf_counter()`で前後の時計の値を取り、その差を秒で読みます。絶対的な日時ではなく、処理の前後の差だけを使います。
+`time`は時間を扱う[モジュール](reference.html#term-module)です。`time.perf_counter()`で前後の時計の値を取り、その差を秒で読みます。絶対的な日時ではなく、処理の前後の差だけを使います。
 
 ```python
 import time

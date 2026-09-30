@@ -2,20 +2,20 @@
 
 原資料の135 Module、26 Bridge、30 Upgradeを、学ぶ順番に合わせて再編しました。以下は**テーマの対応表**です。項目が対応していることは、全テーマを同じ深さで扱い、全実装を再現したという意味ではありません。
 
-基礎からTransformerまでは講義・手計算・実行コードを中心に、研究領域は主要な考え方・演習・一次資料を中心に構成しています。Tritonと分散の実習は[追加実習](systems-lab.html)、実行済みの範囲は[ラボ](labs.html)をご覧ください。
+基礎からTransformerまでは講義・手計算・実行コードを中心に、研究領域は主要な考え方・演習・一次資料を中心に構成しています。Tritonと[分散](reference.html#term-variance)の実習は[追加実習](systems-lab.html)、実行済みの範囲は[ラボ](labs.html)をご覧ください。
 
 ## 補完・修正した点
 
-- 原資料のAttentionの尺度を標準の√dₖへ修正しました。
+- 原資料の[Attention](reference.html#term-attention)の尺度を標準の√dₖへ修正しました。
 - 一般的な繰り返し問題を、数字・条件・解答のある演習へ置き換えました。
 - 因果性・データ分割・checkpoint再開を検証する実装と、3条件×3seedの実測を追加しました。
-- byte BPE、検索の評価、方策勾配、対応bootstrap、LoRAの勾配を試すコードを追加しました。
+- byte BPE、検索の評価、方策[勾配](reference.html#term-gradient)、対応[bootstrap](reference.html#term-bootstrap)、[LoRA](reference.html#term-lora)の勾配を試すコードを追加しました。
 - SSM・拡散言語モデル、2026年の技術報告、toolの権限境界、評価の反証条件を追加しました。
 - 個人向けの記述を除き、AI利用、出典、実験済みと未検証の境界を明記しました。
 
 ## 深さと到達の確認
 
-GPU専用kernelの実装・巨大モデルの事前学習・全最新論文の独立再現は、この公開版の実測範囲に含みません。対応先の課題と一次資料まで取り組み、[卒業研究の提出物](56-capstone.html)で技能を確かめます。資料の監査ガイド・解答集・Mastery試験は、各章の解答と到達課題、卒業研究の判定基準へ統合しました。付録の言語ガイドは08–13章、数式表は[早見表](reference.html)へ対応します。
+GPU専用kernelの実装・巨大モデルの[事前学習](reference.html#term-pretrain)・全最新論文の独立再現は、この公開版の実測範囲に含みません。対応先の課題と一次資料まで取り組み、[卒業研究の提出物](56-capstone.html)で技能を確かめます。資料の監査ガイド・解答集・Mastery試験は、各章の解答と到達課題、卒業研究の判定基準へ統合しました。付録の言語ガイドは08–13章、数式表は[早見表](reference.html)へ対応します。
 
 ## Module対応
 
@@ -222,4 +222,3 @@ GPU専用kernelの実装・巨大モデルの事前学習・全最新論文の�
 |Upgrade 28|Reproducibility: seed 以上の研究工学|[33章](33-training.html)|
 |Upgrade 29|Research Design: baseline ・ablation・negative result|[53章](53-research-design.html)|
 |Upgrade 30|論文読解・執筆・研究 Capstone|[56章](56-capstone.html)|
-

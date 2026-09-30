@@ -35,10 +35,14 @@ def render(body):
 def nav(active):
     result = '<a class="side-title" href="index.html">学習の地図</a>'
     for idx, group in enumerate(groups):
-        result += f'<details class="nav-group" {"open" if active=="index" or any(c["slug"]==active and c["part"]==group for c in chapters) else ""}><summary><span>{idx+1:02}</span> {escape(group)}</summary>'
+        result += f'<details class="nav-group" {"open" if active=="index" or any((c["slug"]==active or active in c.get("subpages",[])) and c["part"]==group for c in chapters) else ""}><summary><span>{idx+1:02}</span> {escape(group)}</summary>'
         for c in chapters:
             if c['part'] == group:
                 result += f'<a {"aria-current=page" if c["slug"]==active else ""} href="{c["slug"]}.html">{escape(c["title"])}</a>'
+                if active == c['slug'] or active in c.get('subpages', []):
+                    for slug in c.get('subpages', []):
+                        title = (ROOT/'pages'/f'{slug}.md').read_text(encoding='utf-8').splitlines()[0].lstrip('# ')
+                        result += f'<a class="sublesson" {"aria-current=page" if slug==active else ""} href="{slug}.html">{escape(title)}</a>'
         result += '</details>'
     result += '<div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div>'
     return result
@@ -89,8 +93,8 @@ search_records = [{k:c[k] for k in ['slug','title','part','goal']} for c in chap
 for path in (ROOT/'pages').glob('*.md'):
     title,body=path.read_text(encoding='utf-8').split('\n',1)
     (OUT/(path.stem+'.html')).write_text(page(title.lstrip('# '),'<article><h1>'+escape(title.lstrip('# '))+'</h1>'+render(body)+'</article>',path.stem),encoding='utf-8')
-    if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in ['cpu-practice','python-reading','capstone-guide']:
-        search_records.append({'slug':path.stem,'title':title.lstrip('# '),'part':'小さな学習ページ','goal':' '.join(re.findall(r'^## (.+)$',body,re.M))+' '+next((line for line in body.splitlines() if line.strip()),'')})
+    if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in ['cpu-practice','python-reading','capstone-guide','reference']:
+        search_records.append({'slug':path.stem,'title':title.lstrip('# '),'part':'小さな学習ページ','goal':' '.join(re.findall(r'^## (.+)$',body,re.M)+re.findall(r'<h2[^>]*>(.*?)</h2>',body))+' '+next((line for line in body.splitlines() if line.strip()),'')})
 for path in (ROOT/'assets').glob('*'):
     shutil.copy2(path,OUT/path.name)
 (OUT/'search.json').write_text(json.dumps(search_records,ensure_ascii=False),encoding='utf-8')

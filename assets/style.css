@@ -3,3 +3,5 @@
 #menu{white-space:nowrap;flex-shrink:0}.resource-nav{display:grid;gap:10px;padding-top:24px}.resource-nav a{text-decoration:none}article{overflow-wrap:anywhere}table{display:block;overflow-x:auto}input[type=range]{max-width:100%}.playground{border:1px solid var(--line);background:var(--soft);padding:24px}.playground label{display:inline-block;margin:8px 0}body.menu-open{overflow:hidden}@media(max-width:360px){.home-intro h1{font-size:31px}.brand small{letter-spacing:.7px}.brand{gap:8px}header{padding:0 12px}.start-row{flex-wrap:wrap}}
 
 .learning-figure{margin:24px 0;padding:20px;background:var(--soft);border:1px solid var(--line)}.visual-row{display:flex;flex-wrap:wrap;gap:16px}.visual-row span{padding:12px;background:white;border:1px solid var(--line)}.learning-figure svg{display:block;width:100%;max-width:480px;margin:auto}.learning-figure figcaption{font-size:14px;color:var(--muted);margin-top:12px}.lesson-time{font-size:14px;font-weight:600}.study-support{font-size:14px;padding:14px 18px;background:var(--soft)}
+
+.nav-group .sublesson{font-size:12px;padding-left:35px;border-left:1px solid var(--line)}

@@ -14,15 +14,15 @@ abstractは論文全体の短い主張です。そこに書かれた改善は、
 
 ## 論文の場所と記号を先に決める
 
-arXivは論文原稿の公開場所で、掲載だけで査読済みとは限りません。版番号と取得日を記録します。Introductionは問題、Related Workは既存研究、Methodは方法、Experimentsは実験、Limitationsは限界、Appendixは付録です。論文によって名前と順番は変わるので、まず目次や見出しを見ます。
+[arXiv](reference.html#term-arxiv)は論文原稿の公開場所で、掲載だけで査読済みとは限りません。版番号と取得日を記録します。Introductionは問題、Related Workは既存研究、Methodは方法、Experimentsは実験、Limitationsは限界、Appendixは付録です。論文によって名前と順番は変わるので、まず目次や見出しを見ます。
 
-太字のxをベクトル、大文字Xを行列として使う慣習がありますが、各論文の定義を優先します。上付きTは転置、添字iは要素番号、Eは期待値、∇は勾配、∂は偏微分。`argmin` は値を最小にする入力を選ぶ記法で、最小値そのもののminとは違います。stop-gradientは値は後へ渡すが、その経路の勾配は戻さない指定です。第51章のdetachが例です。知らない記法は[第14〜18章](14-vectors.html)・[第21章](21-distributions.html)へ戻し、shapeを決めるまで推測で読まないでください。
+太字のxを[ベクトル](reference.html#term-vector)、大文字Xを[行列](reference.html#term-matrix)として使う慣習がありますが、各論文の定義を優先します。上付きTは[転置](reference.html#term-transpose)、[添字](reference.html#term-index)iは要素番号、Eは[期待値](reference.html#term-expectation)、∇は[勾配](reference.html#term-gradient)、∂は[偏微分](reference.html#term-partial)。`argmin` は値を最小にする入力を選ぶ記法で、最小値そのもののminとは違います。stop-gradientは値は後へ渡すが、その経路の勾配は戻さない指定です。第51章のdetachが例です。知らない記法は[第14〜18章](14-vectors.html)・[第21章](21-distributions.html)へ戻し、[shape](reference.html#term-tensor)を決めるまで推測で読まないでください。
 
 ## 一つの式を解剖する
 
-Attention式を読むなら、Q,K,Vの形、転置する軸、softmaxの軸、mask、正規化の係数を書き出します。次に2token・2次元へ縮めて手計算します。最後にコードのreshape、transpose、matmulへ対応させます。行列式の見た目が似ていても、バッチやheadの軸を取り違えると別の計算です。
+[Attention](reference.html#term-attention)式を読むなら、Q,K,Vの形、転置する軸、[softmax](reference.html#term-softmax)の軸、mask、正規化の[係数](reference.html#term-coefficient)を書き出します。次に2token・2次元へ縮めて手計算します。最後にコードのreshape、transpose、matmulへ対応させます。行列式の見た目が似ていても、バッチやheadの軸を取り違えると別の計算です。
 
-損失なら、期待値が何について取られているか、平均と和のどちらか、stop-gradientがあるか、正規化の分母は何かを確認します。省略記法を勝手に補う前に付録と公開コードを探します。
+[損失](reference.html#term-loss)なら、期待値が何について取られているか、平均と和のどちらか、stop-gradientがあるか、正規化の分母は何かを確認します。省略記法を勝手に補う前に付録と公開コードを探します。
 
 ## 再現と追試の範囲
 

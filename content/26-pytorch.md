@@ -2,15 +2,15 @@
 
 ## 微分を手で全部書くのは大変
 
-パラメータが二つなら勾配を手で書けます。しかし百万個になると、式を間違えずに実装するのが難しくなります。PyTorchは、テンソルの演算と計算グラフに基づく自動微分を提供するライブラリです。自動微分は、少しずつ入力を変えて差分を取る数値微分とは異なり、実行した基本演算の微分を連鎖律で組み合わせます。
+パラメータが二つなら[勾配](reference.html#term-gradient)を手で書けます。しかし百万個になると、式を間違えずに実装するのが難しくなります。PyTorchは、[テンソル](reference.html#term-tensor)の演算と計算グラフに基づく[自動微分](reference.html#term-autograd)を提供する[ライブラリ](reference.html#term-library)です。自動微分は、少しずつ入力を変えて差分を取る数値[微分](reference.html#term-derivative)とは異なり、実行した基本演算の微分を[連鎖律](reference.html#term-chain-rule)で組み合わせます。
 
 インストールは [PyTorch公式の選択画面](https://pytorch.org/get-started/locally/) でOSとCPU/GPU環境に合うコマンドを選びます。まずCPUで本章を実行できます。実装ラボには、この教材で検証した版と再現コマンドを記載します。
 
 ## NumPyから持ち込めるもの
 
-`torch.tensor(2.0)` はPythonの数からテンソルを作る操作です。表から作る点は第15章の `np.array` に似ていますが、別のライブラリの型です。整数IDは整数型、微分する重みは浮動小数点型で扱います。`dtype=torch.float64` は数を64bitの浮動小数点として保存する指定で、ここでいうdouble精度です。[第17章の数値精度](17-calculus.html)へ戻れます。
+`torch.tensor(2.0)` はPythonの数からテンソルを作る操作です。表から作る点は第15章の `np.array` に似ていますが、別のライブラリの型です。整数IDは整数型、微分する重みは[浮動小数点](reference.html#term-finite)型で扱います。`dtype=torch.float64` は数を64bitの浮動小数点として保存する指定で、ここでいうdouble精度です。[第17章の数値精度](17-calculus.html)へ戻れます。
 
-導入後に `python -c "import torch; print(torch.__version__)"` で版を表示します。`No module named torch` は今のPythonに導入されていないという意味です。[実装ラボの準備](labs.html)に従い、インストールと実行に同じ仮想環境のPythonを使います。GPUを使えない場合も本章のCPUコードを進められます。
+導入後に `python -c "import torch; print(torch.__version__)"` で版を表示します。`No module named torch` は今のPythonに導入されていないという意味です。[実装ラボの準備](labs.html)に従い、インストールと実行に同じ[仮想環境](reference.html#term-venv)のPythonを使います。GPUを使えない場合も本章のCPUコードを進められます。
 
 ## 一つの値で確かめる
 
@@ -22,7 +22,7 @@ loss.backward()
 print(loss.item(), w.grad.item())
 ```
 
-損失1、勾配−2です。`requires_grad=True`で微分を追跡し、`backward()`で出力から入力へたどります。`grad`が計算された勾配、`item()`は一要素のテンソルからPythonの値を取り出す操作です。整数の添字テンソル自体へ通常の勾配を計算するわけではありません。
+[損失](reference.html#term-loss)1、勾配−2です。`requires_grad=True`で微分を追跡し、`backward()`で出力から入力へたどります。`grad`が計算された勾配、`item()`は一要素のテンソルからPythonの値を取り出す操作です。整数の[添字](reference.html#term-index)テンソル自体へ通常の勾配を計算するわけではありません。
 
 `with` は、字下げした処理の間だけ指定した管理を適用する書き方です。`with torch.no_grad():` の中では通常の演算で新しい勾配追跡を作りません。`None` は値がないことを表すPythonの値で、`w.grad = None` は古い勾配を空にします。0という勾配が計算された場合とは区別します。`w -= ...` は値をその場で更新するため、追跡中の重みを更新するこの部分をno_gradで囲みます。[公式のno_grad](https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html)も参照できます。
 
@@ -40,7 +40,7 @@ for step in range(20):
 print(w.item())
 ```
 
-値は3へ近づきます。PyTorchの勾配は基本的に加算されるため、次の独立な更新の前に消します。`no_grad()`は更新の操作を新しい計算グラフへ追加しないために使っています。通常のモデルではoptimizerの`zero_grad()`と`step()`がこの役割をまとめます。
+値は3へ近づきます。PyTorchの勾配は基本的に加算されるため、次の独立な更新の前に消します。`no_grad()`は更新の操作を新しい計算グラフへ追加しないために使っています。通常のモデルでは[optimizer](reference.html#term-optimizer)の`zero_grad()`と`step()`がこの役割をまとめます。
 
 バッチは複数の例をまとめたものです。損失をバッチ平均にするか合計にするかで勾配の大きさが変わります。複数バッチの勾配を蓄積して一回更新する場合は、意図した平均になるよう重み付けをそろえます。
 
@@ -69,7 +69,7 @@ lossは9、勾配は2×3×2=12です。上のコードの式と初期値を変�
 :::exercise 3・平均と合計
 同じ例を四回複製してバッチにしました。損失を合計する場合と平均する場合で、勾配はどう違いますか。
 :::answer
-合計なら一例の4倍、平均なら一例と同じです。実効学習率が変わる原因になります。
+合計なら一例の4倍、平均なら一例と同じです。実効[学習率](reference.html#term-learning-rate)が変わる原因になります。
 :::
 
 :::exercise 4・evalの意味

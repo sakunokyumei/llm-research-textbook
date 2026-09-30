@@ -32,7 +32,7 @@
 </tbody>
 </table>
 <p>入力の長さはn+4、文書全体はn+5。separatorの位置のlogitから、次のコピー先Aを予測します。最初のAからseparatorまでの距離はn+1、二つのAの距離はn+2です。論文や図で「距離」とだけ書かず、どちらかを定義してください。</p>
-<p>元のTiny Transformerはnoise4個に固定されていました。新しい<a href="downloads/distance_study.py">distance_study.py</a>は長さからseparatorの位置を求め、最長入力に合わせて位置Embeddingの行数も用意します。長さを変えても固定の位置6を採点する誤りを防ぎます。</p>
+<p>元のTiny Transformerはnoise4個に固定されていました。新しい<a href="downloads/distance_study.py">distance_study.py</a>は長さからseparatorの位置を求め、最長入力に合わせて位置<a href="reference.html#term-embedding">Embedding</a>の行数も用意します。長さを変えても固定の位置6を採点する誤りを防ぎます。</p>
 <section class="exercise"><h3>1・位置を先に予想する</h3><p>n=8のとき、文書長・入力長・separator・コピー先の位置を答えてください。</p>
 <details><summary>解答と考え方を読む</summary><p>文書長13、入力長12、separatorは10、コピー先は11です。separatorの出力からコピー先を予測します。</p>
 </details></section>
@@ -41,12 +41,12 @@
 <pre><code class="language-sh">python -m unittest discover -s labs -v
 </code></pre>
 <p>新しい<a href="downloads/test_distance_study.py">test_distance_study.py</a>は、分割間の文書重複、再現可能なデータ、コピー位置の対応、最大系列長、未来を変えても過去が変わらない性質を確認します。正しい答えをseparator位置だけへ置く模型でも採点を確認するので、学習の成否とは独立に採点位置を検査できます。</p>
-<p><code>No module named tiny_transformer</code> なら、distance_study.py、tiny_transformer.py、paired_bootstrap.pyを同じlabsフォルダに置きます。torchの導入は<a href="26-pytorch.html">第26章</a>。<code>index out of range</code> は表の行番号が範囲外という意味で、語彙IDと位置IDを分けて調べます。損失のshapeは<a href="32-transformer.html">第32章</a>へ戻れます。</p>
+<p><code>No module named tiny_transformer</code> なら、distance_study.py、tiny_transformer.py、paired_bootstrap.pyを同じlabsフォルダに置きます。torchの導入は<a href="26-pytorch.html">第26章</a>。<code>index out of range</code> は表の行番号が範囲外という意味で、語彙IDと位置IDを分けて調べます。<a href="reference.html#term-loss">損失</a>の<a href="reference.html#term-tensor">shape</a>は<a href="32-transformer.html">第32章</a>へ戻れます。</p>
 <h2>3．実験票を書いてから九実行を残す</h2>
 <p><a href="downloads/capstone_template.md">報告書テンプレート</a>へ、主仮説と固定条件を書きます。例：「noise4・6で学習したとき、位置Embeddingを外すと未学習のnoise8でcopy正解率が変わる」。改善する方向まで仮説にするなら、結果を見る前に記録します。</p>
 <pre><code class="language-sh">python labs/distance_study.py --steps 300 --out labs/runs/distance-study
 </code></pre>
-<p>3条件（Attentionあり、位置Embeddingなし、Attentionなし）×3seedです。noise4・6の文書だけで学習し、noise4・6・8を別のvalidation文書で測ります。各長さは全256文書、train192、validation32、test32。対象記号の四種類が各分割で同数になるよう作ります。noise8のtrain文書も作りますが、学習関数はその長さを選ばず、未学習の距離として扱います。</p>
+<p>3条件（<a href="reference.html#term-attention">Attention</a>あり、位置Embeddingなし、Attentionなし）×3seedです。noise4・6の文書だけで学習し、noise4・6・8を別のvalidation文書で測ります。各長さは全256文書、train192、validation32、test32。対象記号の四種類が各分割で同数になるよう作ります。noise8のtrain文書も作りますが、学習関数はその長さを選ばず、未学習の距離として扱います。</p>
 <table>
 <thead>
 <tr>
@@ -77,7 +77,7 @@
 </tr>
 </tbody>
 </table>
-<p>同じseedの各条件は同じ更新数・同じ抽出文書・同じ処理トークン数を使います。有効な演算量と実時間は条件で違うため、「計算量まで完全に同じ」とは書きません。32文書の区間は小標本の教材例で、学習seedのばらつきを含みません。九実行を全て報告し、区間を一つの強い結論へまとめないでください。</p>
+<p>同じseedの各条件は同じ更新数・同じ抽出文書・同じ処理<a href="reference.html#term-token">トークン</a>数を使います。有効な演算量と実時間は条件で違うため、「<a href="reference.html#term-complexity">計算量</a>まで完全に同じ」とは書きません。32文書の区間は小標本の教材例で、学習seedのばらつきを含みません。九実行を全て報告し、区間を一つの強い結論へまとめないでください。</p>
 <p>新しいコマンド引数は<a href="python-reading.html">Pythonの橋</a>、データの再抽出は<a href="22-statistics.html">第22章</a>、学習ループは<a href="33-training.html">第33章</a>へ戻れます。コード中の <code>rng.randrange(2,6)</code> は2〜5の整数を選びます。<code>*noise</code> はnoiseの並びを文書の中へ展開する記法。<code>extend(rows)</code> は複数の行をリスト末尾へ追加します。setで重複を除き、sortedで順を固定してからshuffleするので、同じseedの文書が再現できます。</p>
 <section class="exercise"><h3>2・何が公平か</h3><p>Attentionなしを含む三条件で同じトークン数を使いました。実時間の差を測らなくても同じ速度だと言えますか。</p>
 <details><summary>解答と考え方を読む</summary><p>言えません。Attentionなしでは位置間の計算を省いています。同じデータ量は同じ演算量や速度ではありません。</p>
@@ -86,18 +86,18 @@
 <p>保存した自作checkpointは、次のコマンドで文書別の誤答と最初の層の観測を調べられます。</p>
 <pre><code class="language-sh">python labs/inspect_distance.py labs/runs/distance-study/attention-0.pt
 </code></pre>
-<p><a href="downloads/inspect_distance.py">inspect_distance.py</a>は、保存設定から未学習の長さを求め、同じデータhashかを確認して読みます。誤答は文書・正解ID・予測IDを並べます。観測ではコピー対象とコピー先だけを変えた二文書を同じ層で比べ、hookを解除します。平均絶対差があることは因果的な役割の証明ではありません。<a href="51-interpretability.html">第51章</a>へ戻り、観察と次の介入案を別々に書きます。</p>
+<p><a href="downloads/inspect_distance.py">inspect_distance.py</a>は、保存設定から未学習の長さを求め、同じデータhashかを確認して読みます。誤答は文書・正解ID・予測IDを並べます。観測ではコピー対象とコピー先だけを変えた二文書を同じ層で比べ、<a href="reference.html#term-hook">hook</a>を解除します。平均絶対差があることは因果的な役割の証明ではありません。<a href="51-interpretability.html">第51章</a>へ戻り、観察と次の介入案を別々に書きます。</p>
 <p>fで始まる文字列の <code>{variant}</code> は、その変数の値を名前へ埋め込むPythonの書き方です。<code>attention-0.pt</code> は条件attention、seed0の保存物。新しい研究コードの保存・読み込みは<a href="python-reading.html">Pythonの橋</a>へ戻れます。</p>
 <p>結果を見て仮説を変えた場合は、次を探索実験として記録します。たとえば未学習のnoiseを8から10へ変え、他の条件を固定します。</p>
 <pre><code class="language-sh">python labs/distance_study.py --steps 300 --held-out-noise 10 --out labs/runs/distance-10
 </code></pre>
-<p>入力長は14となり、位置Embeddingの行数も自動で14へ変わります。全条件で同じ行数ですが、noise8実験に比べて保存するパラメータ数も増えます。したがって主張は「この実装で長さを延ばした結果」であり、長さだけの純粋な効果だと断定しません。全長さで同じ最大contextを使う対照を次の実験にするなど、交絡を考えます。</p>
+<p>入力長は14となり、位置Embeddingの行数も自動で14へ変わります。全条件で同じ行数ですが、noise8実験に比べて保存するパラメータ数も増えます。したがって主張は「この実装で長さを延ばした結果」であり、長さだけの純粋な効果だと断定しません。全長さで同じ最大contextを使う対照を次の実験にするなど、<a href="reference.html#term-confounding">交絡</a>を考えます。</p>
 <p>「出力先には別の実験票がある」というエラーは、設定の違う実験を同じフォルダへ混ぜないための確認です。新しい <code>--out</code> を指定してください。より長い距離では計算とメモリが増えるため、まず8と10の小さい二点で手順を確認します。</p>
 <h2>5．最終testの前に固定する</h2>
 <p>validationで確認した後、設定と解釈のルールを固定し、最終評価用の新しいフォルダを使います。</p>
 <pre><code class="language-sh">python labs/distance_study.py --steps 300 --evaluate-test --out labs/runs/distance-final
 </code></pre>
-<p>testを見て設定を選び直したら、そのtestを最終的な未知の評価と呼び続けません。全seedの値、平均、標準偏差、同じ文書の対応差を区別します。高い点数が出ない場合も、仮説を支持しなかった結果を記録します。</p>
+<p>testを見て設定を選び直したら、そのtestを最終的な未知の評価と呼び続けません。全seedの値、平均、<a href="reference.html#term-variance">標準偏差</a>、同じ文書の対応差を区別します。高い点数が出ない場合も、仮説を支持しなかった結果を記録します。</p>
 <h2>6．図表と報告を完成させる</h2>
 <p>まずCSVを表として開き、横をnoise個数、縦をcopy正解率として、各条件・各seedを分けて描きます。Excelなどで作っても構いません。全トークンのNLLは別の図にします。正解率100%なのにNLLが0でない理由は、第56章のランダムなnoiseの説明へ戻ります。</p>
 <p>報告書は、問い、原論文と教材実装の違い、式とshape、方法、全結果、失敗分類、限界、次の実験の順に書きます。位置なしがよくても一般のLLMで位置表現が不要とは言えません。既存研究との差は<a href="54-paper-reading.html">第54章</a>で調べ、教材の値を再現する部分と自分の変更を分けます。</p>

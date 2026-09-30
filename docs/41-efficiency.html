@@ -6,10 +6,10 @@
 <p>料理人が速くても材料を運ぶのが遅ければ、厨房全体は速くなりません。GPUも、計算の量だけでなくメモリからの読み書きで速度が決まります。FLOPsは演算回数、FLOP/sは単位時間の演算速度、帯域は単位時間に転送できるbyte数です。</p>
 <p>演算強度は演算数を転送byte数で割ったもの。Rooflineの簡単な模型では、達成可能な性能は「演算の上限」と「帯域×演算強度」の小さい側に制限されます。実際には起動費用、占有率、同期、形の不一致なども効きます。理論上限を実測性能と呼ばないでください。</p>
 <h2 id="section-2">Attentionの大きな中間表</h2>
-<p>T位置が互いを比べる点数表はT×Tで、Tを二倍にすると要素数は四倍です。通常のAttentionをそのまま実装すると、この大きな表の保存や読み書きが負担になります。</p>
-<p>FlashAttentionはタイル分割とonline softmaxなどを使い、巨大な中間表をHBMへ何度も書き出すことを避けます。標準的なFlashAttentionは近似Attentionではなく、同じAttention演算をより効率よく計算するexactな方式です。ただし浮動小数点の演算順序で小さな数値差はあり得ます。「exactだからbitごとに一致」とは言いません。</p>
+<p>T位置が互いを比べる点数表はT×Tで、Tを二倍にすると要素数は四倍です。通常の<a href="reference.html#term-attention">Attention</a>をそのまま実装すると、この大きな表の保存や読み書きが負担になります。</p>
+<p>FlashAttentionはタイル分割とonline <a href="reference.html#term-softmax">softmax</a>などを使い、巨大な中間表をHBMへ何度も書き出すことを避けます。標準的なFlashAttentionは近似Attentionではなく、同じAttention演算をより効率よく計算するexactな方式です。ただし<a href="reference.html#term-finite">浮動小数点</a>の演算順序で小さな数値差はあり得ます。「exactだからbitごとに一致」とは言いません。</p>
 <h2 id="section-3">Online softmaxの更新</h2>
-<p>これまでの最大値m、指数和l、重み付き値の和oを保持します。新しいブロックの最大値と比較してm_newを決め、古いlとoをexp(m−m_new)倍して尺度を合わせ、新しいexp(score−m_new)の寄与を足します。最後にo/lで正規化します。全スコアを同時に保存せず、分母と分子を同じ尺度で更新するのが要点です。</p>
+<p>これまでの最大値m、<a href="reference.html#term-power">指数</a>和l、重み付き値の和oを保持します。新しいブロックの最大値と比較してm_newを決め、古いlとoを<a href="reference.html#term-log">exp</a>(m−m_new)倍して尺度を合わせ、新しいexp(score−m_new)の寄与を足します。最後にo/lで正規化します。全スコアを同時に保存せず、分母と分子を同じ尺度で更新するのが要点です。</p>
 <h2 id="section-4">二つの候補だけでonline更新を追う</h2>
 <p>HBMはGPU側の大きな記憶領域、タイルは表を分けた小さい塊です。kernelはGPUへ実行させる一まとまりの計算。ここではGPUを使う前に、同じ確率計算をCPUで確かめます。</p>
 <p>scoreが0,ln2、値が2,8なら、全体の指数は1,2、分母3、分子18、出力6です。最初の塊だけではm=0,l=1,o=2。次にm_new=ln2となるので古い分母と分子を1/2倍し、新しい寄与を足します。l=0.5+1=1.5、o=1+8=9。9/1.5=6で一致します。</p>
@@ -42,7 +42,7 @@
 <p>保存する値の尺度は違っても、比は同じです。<a href="labs.html">実装ラボのmath_checks.py</a>で通常のsoftmaxとの比較を実行し、その <code>online_weighted_sum</code> のscoresとvaluesへこの二候補を渡して6になるか確認します。関数の入力・更新式・最後の割り算を上の表へ対応づけます。GPUの課題は<a href="systems-lab.html">追加実習</a>へ進む発展で、対応GPUがなければCPU比較を本章の到達課題にします。GPU性能は測ったことにしません。</p>
 <h2 id="section-5">Tritonの位置づけ</h2>
 <p>TritonはGPU用の計算kernelを書くための言語とコンパイラです。Python風に見えても、通常のPythonループと同じ実行模型ではありません。program_idで担当するブロックを決め、arangeでブロック内の位置を作り、load/storeで入出力します。末尾の端数では範囲外をmaskして保護します。</p>
-<p>最初の課題はベクトル加算です。PyTorchを正しさの基準とし、長さ0、1、ブロック幅の前後、割り切れない長さを確認します。その後に速度を測ります。対応GPUが必要なので、CPUラボの成功をGPU kernel検証済みと言い換えません。</p>
+<p>最初の課題は<a href="reference.html#term-vector">ベクトル</a>加算です。PyTorchを正しさの基準とし、長さ0、1、ブロック幅の前後、割り切れない長さを確認します。その後に速度を測ります。対応GPUが必要なので、CPUラボの成功をGPU kernel検証済みと言い換えません。</p>
 <h2 id="section-6">演習</h2>
 <section class="exercise"><h3>1・中間表</h3><p>T=4096のAttention点数表には何要素ありますか。FP32なら概算何byteですか。</p>
 <details><summary>解答と考え方を読む</summary><p>4096²=16777216要素、4byteなら67108864byte、64 MiBです。一つのヘッド・一つの系列の表としての概算です。</p>

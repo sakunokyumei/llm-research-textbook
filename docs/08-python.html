@@ -24,10 +24,11 @@
 total = 100
 print(correct / total)
 </code></pre>
-<p>出力は<code>0.8</code>です。<code>print(...)</code>は括弧内の結果を画面へ出す関数です。<code>=</code>は、右側の値へ左側の名前を付ける代入です。数学の「左右が等しいという条件」とは異なります。等しいかを調べるPythonの記号は<code>==</code>です。</p>
+<p>出力は<code>0.8</code>です。<code>print(...)</code>は括弧内の結果を画面へ出す関数です。<code>=</code>は、右側の値へ左側の名前を付ける<a href="reference.html#term-substitution">代入</a>です。数学の「左右が等しいという条件」とは異なります。等しいかを調べるPythonの記号は<code>==</code>です。</p>
 <p><code>correct = 90</code>に変えて再実行すると0.9になります。変数とは、値を参照するために付ける名前です。同じ名前へ別の値を割り当てることもできます。</p>
 <h2 id="section-3">値には種類がある</h2>
 <p><code>3</code>は整数のint、<code>0.5</code>は小数を扱うfloat、<code>&quot;cat&quot;</code>は文字列のstr、<code>True</code>と<code>False</code>は真偽値のboolです。文字列を囲む引用符は、そこがプログラムの命令ではなく文字のデータだと示します。</p>
+<p><code>type(x)</code>は、xが整数・文字列などのどの型かを調べる操作です。下の出力はPythonの型の名前を表示します。</p>
 <pre><code class="language-python">x = 3
 print(type(x))
 print(3 + 4)
@@ -75,7 +76,7 @@ print(3 == 4)
 <details><summary>解答と考え方を読む</summary><p>14と20です。算数で学んだ優先順位と一致します。実行できたことだけでなく、予想と一致したかも記録します。</p>
 </details></section>
 <section class="exercise"><h3>2・代入の意味</h3><p><code>x=3</code>、次に<code>x=x+2</code>、最後に<code>print(x)</code>を実行するとどうなりますか。</p>
-<details><summary>解答と考え方を読む</summary><p>5です。二行目は古いxの値3へ2を足し、その結果5へxという名前を付け直します。数学の方程式x=x+2を解いているのではありません。</p>
+<details><summary>解答と考え方を読む</summary><p>5です。二行目は古いxの値3へ2を足し、その結果5へxという名前を付け直します。数学の<a href="reference.html#term-equation">方程式</a>x=x+2を解いているのではありません。</p>
 </details></section>
 <section class="exercise"><h3>3・型の区別</h3><p><code>&quot;12&quot; + &quot;3&quot;</code>と<code>int(&quot;12&quot;) + 3</code>の結果はどう違いますか。</p>
 <details><summary>解答と考え方を読む</summary><p>前者は文字列&quot;123&quot;、後者は整数15です。ファイルから読み込んだ数値は文字列であることがあるので、型の確認が必要です。</p>

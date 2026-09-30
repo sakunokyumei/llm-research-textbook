@@ -15,7 +15,7 @@
 
 入力の長さはn+4、文書全体はn+5。separatorの位置のlogitから、次のコピー先Aを予測します。最初のAからseparatorまでの距離はn+1、二つのAの距離はn+2です。論文や図で「距離」とだけ書かず、どちらかを定義してください。
 
-元のTiny Transformerはnoise4個に固定されていました。新しい[distance_study.py](downloads/distance_study.py)は長さからseparatorの位置を求め、最長入力に合わせて位置Embeddingの行数も用意します。長さを変えても固定の位置6を採点する誤りを防ぎます。
+元のTiny Transformerはnoise4個に固定されていました。新しい[distance_study.py](downloads/distance_study.py)は長さからseparatorの位置を求め、最長入力に合わせて位置[Embedding](reference.html#term-embedding)の行数も用意します。長さを変えても固定の位置6を採点する誤りを防ぎます。
 
 :::exercise 1・位置を先に予想する
 n=8のとき、文書長・入力長・separator・コピー先の位置を答えてください。
@@ -33,7 +33,7 @@ python -m unittest discover -s labs -v
 
 新しい[test_distance_study.py](downloads/test_distance_study.py)は、分割間の文書重複、再現可能なデータ、コピー位置の対応、最大系列長、未来を変えても過去が変わらない性質を確認します。正しい答えをseparator位置だけへ置く模型でも採点を確認するので、学習の成否とは独立に採点位置を検査できます。
 
-`No module named tiny_transformer` なら、distance_study.py、tiny_transformer.py、paired_bootstrap.pyを同じlabsフォルダに置きます。torchの導入は[第26章](26-pytorch.html)。`index out of range` は表の行番号が範囲外という意味で、語彙IDと位置IDを分けて調べます。損失のshapeは[第32章](32-transformer.html)へ戻れます。
+`No module named tiny_transformer` なら、distance_study.py、tiny_transformer.py、paired_bootstrap.pyを同じlabsフォルダに置きます。torchの導入は[第26章](26-pytorch.html)。`index out of range` は表の行番号が範囲外という意味で、語彙IDと位置IDを分けて調べます。[損失](reference.html#term-loss)の[shape](reference.html#term-tensor)は[第32章](32-transformer.html)へ戻れます。
 
 ## 3．実験票を書いてから九実行を残す
 
@@ -43,7 +43,7 @@ python -m unittest discover -s labs -v
 python labs/distance_study.py --steps 300 --out labs/runs/distance-study
 ```
 
-3条件（Attentionあり、位置Embeddingなし、Attentionなし）×3seedです。noise4・6の文書だけで学習し、noise4・6・8を別のvalidation文書で測ります。各長さは全256文書、train192、validation32、test32。対象記号の四種類が各分割で同数になるよう作ります。noise8のtrain文書も作りますが、学習関数はその長さを選ばず、未学習の距離として扱います。
+3条件（[Attention](reference.html#term-attention)あり、位置Embeddingなし、Attentionなし）×3seedです。noise4・6の文書だけで学習し、noise4・6・8を別のvalidation文書で測ります。各長さは全256文書、train192、validation32、test32。対象記号の四種類が各分割で同数になるよう作ります。noise8のtrain文書も作りますが、学習関数はその長さを選ばず、未学習の距離として扱います。
 
 |保存物|確認すること|
 |---|---|
@@ -53,7 +53,7 @@ python labs/distance_study.py --steps 300 --out labs/runs/distance-study
 |results.csv|条件・seed・長さ・損失・copy正解率|
 |paired_validation.json|同じ文書の条件差と再抽出区間|
 
-同じseedの各条件は同じ更新数・同じ抽出文書・同じ処理トークン数を使います。有効な演算量と実時間は条件で違うため、「計算量まで完全に同じ」とは書きません。32文書の区間は小標本の教材例で、学習seedのばらつきを含みません。九実行を全て報告し、区間を一つの強い結論へまとめないでください。
+同じseedの各条件は同じ更新数・同じ抽出文書・同じ処理[トークン](reference.html#term-token)数を使います。有効な演算量と実時間は条件で違うため、「[計算量](reference.html#term-complexity)まで完全に同じ」とは書きません。32文書の区間は小標本の教材例で、学習seedのばらつきを含みません。九実行を全て報告し、区間を一つの強い結論へまとめないでください。
 
 新しいコマンド引数は[Pythonの橋](python-reading.html)、データの再抽出は[第22章](22-statistics.html)、学習ループは[第33章](33-training.html)へ戻れます。コード中の `rng.randrange(2,6)` は2〜5の整数を選びます。`*noise` はnoiseの並びを文書の中へ展開する記法。`extend(rows)` は複数の行をリスト末尾へ追加します。setで重複を除き、sortedで順を固定してからshuffleするので、同じseedの文書が再現できます。
 
@@ -71,7 +71,7 @@ Attentionなしを含む三条件で同じトークン数を使いました。�
 python labs/inspect_distance.py labs/runs/distance-study/attention-0.pt
 ```
 
-[inspect_distance.py](downloads/inspect_distance.py)は、保存設定から未学習の長さを求め、同じデータhashかを確認して読みます。誤答は文書・正解ID・予測IDを並べます。観測ではコピー対象とコピー先だけを変えた二文書を同じ層で比べ、hookを解除します。平均絶対差があることは因果的な役割の証明ではありません。[第51章](51-interpretability.html)へ戻り、観察と次の介入案を別々に書きます。
+[inspect_distance.py](downloads/inspect_distance.py)は、保存設定から未学習の長さを求め、同じデータhashかを確認して読みます。誤答は文書・正解ID・予測IDを並べます。観測ではコピー対象とコピー先だけを変えた二文書を同じ層で比べ、[hook](reference.html#term-hook)を解除します。平均絶対差があることは因果的な役割の証明ではありません。[第51章](51-interpretability.html)へ戻り、観察と次の介入案を別々に書きます。
 
 fで始まる文字列の `{variant}` は、その変数の値を名前へ埋め込むPythonの書き方です。`attention-0.pt` は条件attention、seed0の保存物。新しい研究コードの保存・読み込みは[Pythonの橋](python-reading.html)へ戻れます。
 
@@ -81,7 +81,7 @@ fで始まる文字列の `{variant}` は、その変数の値を名前へ埋め
 python labs/distance_study.py --steps 300 --held-out-noise 10 --out labs/runs/distance-10
 ```
 
-入力長は14となり、位置Embeddingの行数も自動で14へ変わります。全条件で同じ行数ですが、noise8実験に比べて保存するパラメータ数も増えます。したがって主張は「この実装で長さを延ばした結果」であり、長さだけの純粋な効果だと断定しません。全長さで同じ最大contextを使う対照を次の実験にするなど、交絡を考えます。
+入力長は14となり、位置Embeddingの行数も自動で14へ変わります。全条件で同じ行数ですが、noise8実験に比べて保存するパラメータ数も増えます。したがって主張は「この実装で長さを延ばした結果」であり、長さだけの純粋な効果だと断定しません。全長さで同じ最大contextを使う対照を次の実験にするなど、[交絡](reference.html#term-confounding)を考えます。
 
 「出力先には別の実験票がある」というエラーは、設定の違う実験を同じフォルダへ混ぜないための確認です。新しい `--out` を指定してください。より長い距離では計算とメモリが増えるため、まず8と10の小さい二点で手順を確認します。
 
@@ -93,7 +93,7 @@ validationで確認した後、設定と解釈のルールを固定し、最終�
 python labs/distance_study.py --steps 300 --evaluate-test --out labs/runs/distance-final
 ```
 
-testを見て設定を選び直したら、そのtestを最終的な未知の評価と呼び続けません。全seedの値、平均、標準偏差、同じ文書の対応差を区別します。高い点数が出ない場合も、仮説を支持しなかった結果を記録します。
+testを見て設定を選び直したら、そのtestを最終的な未知の評価と呼び続けません。全seedの値、平均、[標準偏差](reference.html#term-variance)、同じ文書の対応差を区別します。高い点数が出ない場合も、仮説を支持しなかった結果を記録します。
 
 ## 6．図表と報告を完成させる
 

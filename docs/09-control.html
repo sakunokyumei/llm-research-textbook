@@ -13,7 +13,7 @@ else:
 for value in [2, 4, 6]:
     print(value * 2)
 </code></pre>
-<p>出力は「合格」、4、8、12です。<code>&gt;=</code>は以上、<code>[]</code>で囲んだ値の並びはリストです。コロンの次に続く行は空白4個分だけ下げます。この字下げ、つまりインデントが同じ処理のまとまりを示します。見た目だけの飾りではありません。</p>
+<p>出力は「合格」、4、8、12です。<code>&gt;=</code>は以上、<code>[]</code>で囲んだ値の並びはリストです。コロンの次に続く行は空白4個分だけ下げます。この字下げ、つまり<a href="reference.html#term-indent">インデント</a>が同じ処理のまとまりを示します。見た目だけの飾りではありません。</p>
 <h2 id="section-2">足し合わせる処理を追う</h2>
 <pre><code class="language-python">total = 0
 for value in [2, 4, 6]:
@@ -33,7 +33,7 @@ result = accuracy(8, 10)
 print(result)
 </code></pre>
 <p>結果は0.8です。<code>raise</code>は不適切な入力をエラーとして知らせます。<code>print</code>は表示、<code>return</code>は呼び出し元へ値を返す操作です。表示しただけでは、別の計算へ結果を渡せません。</p>
-<p>機械学習の実験も、小さな関数を組み合わせます。データを読む、予測する、誤差を測る、保存する。役割を分けると、どこで間違ったかを調べやすくなります。</p>
+<p><a href="reference.html#term-ml">機械学習</a>の実験も、小さな関数を組み合わせます。データを読む、予測する、誤差を測る、保存する。役割を分けると、どこで間違ったかを調べやすくなります。</p>
 <h2 id="section-4">演習</h2>
 <section class="exercise"><h3>1・境界を試す</h3><p>上の合格判定でscore=60と59の場合を予想してください。</p>
 <details><summary>解答と考え方を読む</summary><p>60は合格、59はもう一度練習です。境界そのものと、そのすぐ隣を試すと<code>&gt;</code>と<code>&gt;=</code>の取り違えを見つけやすくなります。</p>
@@ -51,5 +51,6 @@ print(result)
 <details><summary>解答と考え方を読む</summary><p>xが変わらず、条件x&lt;3がずっと真だからです。ループ内に<code>x = x + 1</code>を加えるか、<code>for x in range(3)</code>を使います。</p>
 </details></section>
 <h2 id="section-5">到達課題と出典</h2>
+<p>空かどうかは <code>len(values) == 0</code> で確認できます。lenは値の並びの個数で、空リストなら0です。第10章でも練習します。</p>
 <p>リスト[1,2,3,4]の二乗の平均を返す関数を書き、手計算の7.5と一致させてください。空リストには明示的にエラーを出します。構文の参照：<a href="https://docs.python.org/3/tutorial/controlflow.html">Python 制御フロー</a>。</p>
 <nav class="pager" aria-label="前後の講義"><a href="08-python.html"><small>前の学習ページ</small>08 Pythonで、最初の計算を動かす</a><a href="10-data.html"><small>次の学習ページ</small>10 文字列・データ構造・ファイル</a></nav></article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main><aside class="toc"><strong>この講義で学ぶこと</strong><a href="#section-1">人が毎回判断しなくてよいように</a><a href="#section-2">足し合わせる処理を追う</a><a href="#section-3">処理へ名前を付ける</a><a href="#section-4">演習</a><a href="#section-5">到達課題と出典</a></aside></div></body></html>

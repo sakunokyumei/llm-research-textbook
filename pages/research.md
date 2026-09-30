@@ -10,13 +10,13 @@
 |[BERT](https://arxiv.org/abs/1810.04805)（2018）|29–32|mask予測と左からの次token予測で、見える情報はどう違う？|
 |[GPT-3](https://arxiv.org/abs/2005.14165)（2020）|30・35|in-context learningは重みの更新とどう違う？|
 |[Scaling Laws](https://arxiv.org/abs/2001.08361)（2020）|07・35|どの変数を固定し、どの範囲へ当てはめた経験則か？|
-|[Chinchilla](https://arxiv.org/abs/2203.15556)（2022）|35|計算量を固定すると、パラメータとデータの配分はどうなる？|
+|[Chinchilla](https://arxiv.org/abs/2203.15556)（2022）|35|[計算量](reference.html#term-complexity)を固定すると、パラメータとデータの配分はどうなる？|
 |[RAG](https://arxiv.org/abs/2005.11401)（2020）|37|検索失敗と生成失敗をどう切り分ける？|
-|[LoRA](https://arxiv.org/abs/2106.09685)（2021）|16・36|低ランク更新のshapeと学習パラメータ数は？|
-|[QLoRA](https://arxiv.org/abs/2305.14314)（2023）|36・44|基盤重みの量子化とadapterの学習を区別できる？|
-|[InstructGPT](https://arxiv.org/abs/2203.02155)（2022）|38–39|SFT・報酬モデル・方策最適化のデータは何か？|
+|[LoRA](https://arxiv.org/abs/2106.09685)（2021）|16・36|低[ランク](reference.html#term-rank)更新の[shape](reference.html#term-tensor)と学習パラメータ数は？|
+|[QLoRA](https://arxiv.org/abs/2305.14314)（2023）|36・44|基盤重みの[量子化](reference.html#term-quantization)とadapterの学習を区別できる？|
+|[InstructGPT](https://arxiv.org/abs/2203.02155)（2022）|38–39|SFT・[報酬](reference.html#term-reward)モデル・方策最適化のデータは何か？|
 |[PPO](https://arxiv.org/abs/1707.06347)（2017）|38–39|重要度比とclippingは何を抑える？|
-|[DPO](https://arxiv.org/abs/2305.18290)（2023）|39|選好の組からどの対数確率差を学習する？|
+|[DPO](https://arxiv.org/abs/2305.18290)（2023）|39|選好の組からどの[対数](reference.html#term-log)確率差を学習する？|
 |[DeepSeekMath](https://arxiv.org/abs/2402.03300)（2024）|39|GRPOの群内相対評価はどう作られる？|
 
 ## 計算資源を研究対象にする
@@ -29,15 +29,15 @@
 |[GPTQ](https://arxiv.org/abs/2210.17323)（2022）|44|校正データ、bit数、重み誤差とタスク性能|
 |[AWQ](https://arxiv.org/abs/2306.00978)（2023）|44|activationから重みの重要性をどう扱うか|
 |[Switch Transformers](https://arxiv.org/abs/2101.03961)（2021）|45|総パラメータとactive parameter、通信、load balance|
-|[RoFormer / RoPE](https://arxiv.org/abs/2104.09864)（2021）|46|相対位置が内積へ入る導出|
+|[RoFormer / RoPE](https://arxiv.org/abs/2104.09864)（2021）|46|相対位置が[内積](reference.html#term-dot)へ入る導出|
 |[Mamba](https://arxiv.org/abs/2312.00752)（2023）|47|固定状態の効率と情報保持、入力依存性|
-|[Mamba-2](https://arxiv.org/abs/2405.21060)（2024）|47|構造化状態空間とAttentionの関係|
+|[Mamba-2](https://arxiv.org/abs/2405.21060)（2024）|47|構造化状態空間と[Attention](reference.html#term-attention)の関係|
 
 ## 推論・生成・評価の広がり
 
 |読む論文|前提|確認すること|
 |---|---|---|
-|[DeepSeek-V3](https://arxiv.org/abs/2412.19437)（2024）|34・42・45|MoE、cache、学習と推論の資源配分|
+|[DeepSeek-V3](https://arxiv.org/abs/2412.19437)（2024）|34・42・45|[MoE](reference.html#term-moe)、cache、学習と推論の資源配分|
 |[DeepSeek-R1](https://arxiv.org/abs/2501.12948)（2025、改訂版あり）|38–40|RLのみの条件とcold-startを含む条件、評価予算|
 |[Qwen3 Technical Report](https://arxiv.org/abs/2505.09388)（2025）|35・39–40|thinkingとnon-thinking、学習段階、評価条件|
 |[LLaDA](https://arxiv.org/abs/2502.09992)（2025）|47|maskの過程と生成ステップ、自己回帰baselineとの公平性|
@@ -82,4 +82,4 @@
 
 ## 新しい論文を追う手順
 
-問いに合う論文の引用文献と被引用研究をたどり、著者の公式リポジトリとarXivの版を確認します。検索結果の要約だけで引用しません。まず一件を[論文読解の手順](54-paper-reading.html)で精読し、データ・式・コード・評価を一枚のメモへまとめます。
+問いに合う論文の引用文献と被引用研究をたどり、著者の公式リポジトリと[arXiv](reference.html#term-arxiv)の版を確認します。検索結果の要約だけで引用しません。まず一件を[論文読解の手順](54-paper-reading.html)で精読し、データ・式・コード・評価を一枚のメモへまとめます。

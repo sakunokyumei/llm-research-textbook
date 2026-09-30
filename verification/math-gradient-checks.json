@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-01",
+  "passed": true,
+  "environment": {
+    "torch": "2.13.0+cpu",
+    "device": "CPU",
+    "dtype": "float64"
+  },
+  "checks": [
+    "matrix gradient hand values vs autograd",
+    "central difference independently verifies all four weight gradients",
+    "JVP and VJP vs hand values"
+  ],
+  "weight_gradient": [
+    [
+      5.0,
+      8.0
+    ],
+    [
+      0.0,
+      2.0
+    ]
+  ],
+  "input_gradient": [
+    [
+      9.0,
+      12.0
+    ],
+    [
+      19.0,
+      26.0
+    ]
+  ],
+  "bias_gradient": [
+    4.0,
+    6.0
+  ],
+  "finite_difference_max_error": 8.223651093430817e-09,
+  "jvp": [
+    4.0,
+    1.0
+  ],
+  "vjp": [
+    11.0,
+    2.0
+  ]
+}

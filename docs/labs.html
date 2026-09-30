@@ -13,7 +13,7 @@
 <input id="temperature" type="range" min="0.1" max="3" step="0.1" value="1">
 <div id="softmax-output" aria-live="polite"></div>
 </div>
-<p>同じ数を足してもsoftmaxは変わりません。温度を下げると最大scoreの候補へ集中します。温度は正解率を直接表す値ではありません。<a href="28-numerics.html">28章</a>・<a href="34-generation.html">34章</a></p>
+<p>同じ数を足しても<a href="reference.html#term-softmax">softmax</a>は変わりません。温度を下げると最大scoreの候補へ集中します。温度は正解率を直接表す値ではありません。<a href="28-numerics.html">28章</a>・<a href="34-generation.html">34章</a></p>
 <h2>0．実行の準備</h2>
 <p><a href="https://github.com/sakunokyumei/llm-research-textbook">GitHubリポジトリ</a>を取得します。WindowsではPowerShell、macOS/Linuxではterminalを開きます。コマンドは一行ずつ入力します。<code>cd</code>は作業フォルダを移る命令です。</p>
 <pre><code class="language-sh">git clone https://github.com/sakunokyumei/llm-research-textbook.git
@@ -28,7 +28,7 @@ python -m unittest discover -s labs -v
 <h2>1．数式と自動微分</h2>
 <pre><code class="language-sh">python labs/math_checks.py
 </code></pre>
-<p><a href="downloads/math_checks.py">math_checks.py</a>は、通常のsoftmaxとonline計算、有限差分と自動微分、LoRAの凍結と勾配を比較します。制作時には全assertが通り、重み付き和は約5.056113、微分は約5.337499でした。</p>
+<p><a href="downloads/math_checks.py">math_checks.py</a>は、通常のsoftmaxとonline計算、有限差分と<a href="reference.html#term-autograd">自動微分</a>、<a href="reference.html#term-lora">LoRA</a>の凍結と<a href="reference.html#term-gradient">勾配</a>を比較します。制作時には全assertが通り、重み付き和は約5.056113、<a href="reference.html#term-derivative">微分</a>は約5.337499でした。</p>
 <p>変更課題：scoreをすべて1000増やしても結果が変わらないか。有限差分のhを極端に小さくすると、誤差は必ず減るか。LoRAのBをゼロ以外で初期化するとAの最初の勾配はどうなるか。</p>
 <h2>2．byte BPEを自作する</h2>
 <pre><code class="language-sh">python labs/bpe.py
@@ -39,17 +39,17 @@ python -m unittest discover -s labs -v
 <pre><code class="language-sh">python labs/tiny_transformer.py --steps 300 --seed 0 --out labs/runs/attention-0
 </code></pre>
 <p><a href="downloads/tiny_transformer.py">tiny_transformer.py</a>はtoken embedding、位置embedding、multi-head causal attention、MLP、残差、LayerNorm、AdamW、学習・評価・生成・checkpointを含みます。<a href="lab-guide.html">コードを一行ずつ読む</a>と並べて学びます。</p>
-<p>文書は<code>[BOS, A, noise, noise, noise, noise, separator, A, EOS]</code>。2〜5の四種類の記号から全1,024文書を作り、固定seedで文書単位に768/128/128へ分割します。separatorの後で最初のAをコピーするには、離れた情報が必要です。これは自然言語の巨大な事前学習モデルではなく、その計算と実験管理を学ぶモデルです。</p>
-<p>保存先にはmetrics.jsonとcheckpoint.ptができます。前者は設定・版・データhash・指標、後者はモデル・optimizer・乱数・stepを含みます。自分で作成したcheckpointを読みます。</p>
+<p>文書は<code>[BOS, A, noise, noise, noise, noise, separator, A, EOS]</code>。2〜5の四種類の記号から全1,024文書を作り、固定seedで文書単位に768/128/128へ分割します。separatorの後で最初のAをコピーするには、離れた情報が必要です。これは自然言語の巨大な<a href="reference.html#term-pretrain">事前学習</a>モデルではなく、その計算と実験管理を学ぶモデルです。</p>
+<p>保存先にはmetrics.jsonとcheckpoint.ptができます。前者は設定・版・データhash・指標、後者はモデル・<a href="reference.html#term-optimizer">optimizer</a>・乱数・stepを含みます。自分で作成したcheckpointを読みます。</p>
 <h3>保存と再開</h3>
 <pre><code class="language-sh">python labs/tiny_transformer.py --steps 100 --out labs/runs/resume-demo
 python labs/tiny_transformer.py --steps 300 --resume labs/runs/resume-demo/checkpoint.pt --out labs/runs/resumed
 </code></pre>
-<p><code>--steps</code>は追加回数ではなく最終的な合計です。resume時はcheckpointの設定を引き継ぎます。因果性・分割・連続学習との一致・学習成立を<a href="downloads/test_labs.py">test_labs.py</a>で確認しています。同一CPU環境内の一致を確認したテストであり、別の機種やライブラリ版までbit単位で同じという保証ではありません。</p>
+<p><code>--steps</code>は追加回数ではなく最終的な合計です。resume時はcheckpointの設定を引き継ぎます。因果性・分割・連続学習との一致・学習成立を<a href="downloads/test_labs.py">test_labs.py</a>で確認しています。同一CPU環境内の一致を確認したテストであり、別の機種や<a href="reference.html#term-library">ライブラリ</a>版までbit単位で同じという保証ではありません。</p>
 <h3>日本語の文章でも学習する</h3>
 <pre><code class="language-sh">python labs/text_lm.py --steps 300 --evaluate-test
 </code></pre>
-<p><a href="downloads/text_lm.py">text_lm.py</a>は同じTransformerを使い、「ねこは公園で赤い箱を見つけた。」のような512種類の合成文をbyteの列として学習します。384/64/64文書へ分割し、paddingの位置を損失から除きます。ダウンロードだけで実行する場合はtiny_transformer.pyも同じフォルダへ置いてください。</p>
+<p><a href="downloads/text_lm.py">text_lm.py</a>は同じTransformerを使い、「ねこは公園で赤い箱を見つけた。」のような512種類の合成文をbyteの列として学習します。384/64/64文書へ分割し、paddingの位置を<a href="reference.html#term-loss">損失</a>から除きます。ダウンロードだけで実行する場合はtiny_transformer.pyも同じフォルダへ置いてください。</p>
 <p>制作時の固定したseed0・300更新では、validation NLLが5.6787から0.1491、最終test NLLは0.1512でした。生成例は「ねこは川で小さな花を見つけた。」です。<a href="downloads/text_results.json">設定・学習曲線・実測値</a>を配布します。単位はbyteとEOSであり、別のtokenizerのPPLとは直接比較しません。非常に限定された合成文法を学ぶ実験で、一般的な会話能力の証拠ではありません。</p>
 <p>変更課題：場所や対象を増やす、学習時に一部の組合せを除く、文を長くする、の一つを選び、検証条件を先に決めます。byteを自由に生成すると不正なUTF-8になる可能性もあるため、コードはvalid_utf8を記録します。</p>
 <h2>4．ablationと複数seed</h2>
@@ -82,7 +82,7 @@ python labs/tiny_transformer.py --steps 300 --resume labs/runs/resume-demo/check
 </tr>
 </tbody>
 </table>
-<p><strong>位置embeddingを外しても、この短い固定位置課題は解けました。</strong> 予想と違う結果も隠さず、課題の容易さやcausal maskによる構造を考えます。これは位置表現が一般に不要だという証明ではありません。Attentionなしではtoken間の情報交換がなく、copyが難しくなります。外した部品のパラメータは保持しているため、総パラメータ数は同じでも有効な計算量は異なります。</p>
+<p><strong>位置embeddingを外しても、この短い固定位置課題は解けました。</strong> 予想と違う結果も隠さず、課題の容易さやcausal maskによる構造を考えます。これは位置表現が一般に不要だという証明ではありません。<a href="reference.html#term-attention">Attention</a>なしではtoken間の情報交換がなく、copyが難しくなります。外した部品のパラメータは保持しているため、総パラメータ数は同じでも有効な<a href="reference.html#term-complexity">計算量</a>は異なります。</p>
 <p>NLLがゼロにならないのは、noise部分が予測不可能だからです。全token損失とcopy位置の正解率は、異なる側面を測っています。</p>
 <pre><code class="language-sh">python labs/paired_bootstrap.py labs/runs/attention-0/metrics.json labs/runs/no-attention-0/metrics.json
 </code></pre>
@@ -92,8 +92,8 @@ python labs/tiny_transformer.py --steps 300 --resume labs/runs/resume-demo/check
 python labs/bandit.py
 </code></pre>
 <p><a href="downloads/rag_eval.py">rag_eval.py</a>は4文書からの語の一致に基づく検索と、根拠文の抽出を行います。制作時は4問でRecall@1とMRRが1でした。小さな意図的に簡単な集合なので、一般的な検索性能を示すものではありません。生成モデルは含みません。最後の「電話番号」という答えのない質問でも文書は返ります。検索順位が高いことと、答えがあることの違いを調べます。</p>
-<p><a href="downloads/bandit.py">bandit.py</a>は成功確率0.2と0.8の二択でREINFORCEを実行します。3seedでよい選択肢への最終確率は約0.985、0.979、0.976でした。報酬そのものではなく、選択肢の対数確率を微分します。これはLLMのRLHF全体の実装ではなく、方策勾配の最小実験です。</p>
+<p><a href="downloads/bandit.py">bandit.py</a>は成功確率0.2と0.8の二択でREINFORCEを実行します。3seedでよい選択肢への最終確率は約0.985、0.979、0.976でした。<a href="reference.html#term-reward">報酬</a>そのものではなく、選択肢の<a href="reference.html#term-log">対数</a>確率を微分します。これはLLMの<a href="reference.html#term-rlhf">RLHF</a>全体の実装ではなく、方策勾配の最小実験です。</p>
 <h2>6．独自実験へ</h2>
-<p><a href="capstone-guide.html">卒業研究の実行ガイド</a>では、noise4・6で学習し未学習のnoise8を評価する専用ラボを使えます。データ長に合わせて位置Embeddingと採点位置を扱い、文書重複・未来参照・採点のテストを先に通します。3条件×3seedの全結果から、図表と<a href="downloads/capstone_template.md">報告書</a>を作ります。これを大規模論文の完全な再現とは扱いません。</p>
-<p><a href="downloads/research_template.md">研究計画テンプレート</a>を先に埋め、<a href="53-research-design.html">53章</a>から<a href="56-capstone.html">56章</a>に沿って、距離・語彙・データ量など一つの条件を変えます。GPUのTritonや分散学習へ進む際は、<a href="systems-lab.html">追加実習</a>で前提と未検証の範囲を確認してください。</p>
+<p><a href="capstone-guide.html">卒業研究の実行ガイド</a>では、noise4・6で学習し未学習のnoise8を評価する専用ラボを使えます。データ長に合わせて位置<a href="reference.html#term-embedding">Embedding</a>と採点位置を扱い、文書重複・未来参照・採点のテストを先に通します。3条件×3seedの全結果から、図表と<a href="downloads/capstone_template.md">報告書</a>を作ります。これを大規模論文の完全な再現とは扱いません。</p>
+<p><a href="downloads/research_template.md">研究計画テンプレート</a>を先に埋め、<a href="53-research-design.html">53章</a>から<a href="56-capstone.html">56章</a>に沿って、距離・語彙・データ量など一つの条件を変えます。GPUのTritonや<a href="reference.html#term-variance">分散</a>学習へ進む際は、<a href="systems-lab.html">追加実習</a>で前提と未検証の範囲を確認してください。</p>
 </article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>

@@ -15,7 +15,7 @@ assert mean([7]) == 7
 assert abs(mean([0.1, 0.2]) - 0.15) &lt; 1e-12
 print(&quot;checks passed&quot;)
 </code></pre>
-<p>assertは条件が偽なら止まって知らせます。最後の比較だけ誤差の許容幅を設けたのは、小数の計算が有限精度だからです。許容誤差を大きくしすぎると本当の間違いを見逃します。</p>
+<p>assertは条件が偽なら止まって知らせます。最後の比較だけ誤差の許容幅を設けたのは、小数の計算が<a href="reference.html#term-finite">有限精度</a>だからです。許容誤差を大きくしすぎると本当の間違いを見逃します。</p>
 <h2 id="section-2">正常・境界・異常</h2>
 <p>普通の入力だけでなく、一つしかない入力、空の入力、不適切な型なども考えます。空の平均を0にすると「平均が本当に0のデータ」と区別できません。今回はエラーにする設計を選びました。何を許すかを仕様として先に決めます。</p>
 <p>例外を扱う<code>try</code>と<code>except</code>は、想定したエラーへの対応を書く仕組みです。すべての例外を無条件に無視すると、本当の不具合が隠れます。</p>
@@ -26,7 +26,7 @@ except ValueError:
 </code></pre>
 <h2 id="section-3">大きな失敗を小さくする</h2>
 <p>たとえば100件の平均がおかしいとき、まずデータを二件に減らします。入力・出力・形・値の範囲を表示し、手計算と比べます。原因候補を五つ同時に変えると、どの変更が効いたか分からなくなります。一つずつ変更し、同じテストを再実行します。</p>
-<p>関数を別ファイルへ分けると、そのファイルをモジュールとしてimportできます。関連した状態と操作をまとめるときはクラスを使います。たとえば次のCounterは、countという状態とaddという操作を持ちます。</p>
+<p>関数を別ファイルへ分けると、そのファイルを<a href="reference.html#term-module">モジュール</a>としてimportできます。関連した状態と操作をまとめるときは<a href="reference.html#term-class">クラス</a>を使います。たとえば次のCounterは、countという状態とaddという操作を持ちます。</p>
 <pre><code class="language-python">class Counter:
     def __init__(self):
         self.count = 0
@@ -47,7 +47,7 @@ print(counter.count)
 <details><summary>解答と考え方を読む</summary><p>(2,5)→5、(5,2)→5、(3,3)→3。負の数も許すなら(−2,−5)→−2を追加します。順序と等しい境界を確かめています。</p>
 </details></section>
 <section class="exercise"><h3>3・切り分ける</h3><p>計算のコード、入力するデータ、結果を丸める桁数を同時に変えたら結果が改善しました。どの変更が効いたと言えますか。</p>
-<details><summary>解答と考え方を読む</summary><p>この実験だけでは区別できません。一つだけを変えた比較、または組合せを整理した実験が必要です。研究でも部品や条件を一つずつ取り除いて影響を比べます。この比較をablation（アブレーション）と呼びます。</p>
+<details><summary>解答と考え方を読む</summary><p>この実験だけでは区別できません。一つだけを変えた比較、または組合せを整理した実験が必要です。研究でも部品や条件を一つずつ取り除いて影響を比べます。この比較を<a href="reference.html#term-ablation">ablation</a>（アブレーション）と呼びます。</p>
 </details></section>
 <section class="exercise"><h3>4・クラスの状態</h3><p>Counterの実体aとbを別々に作り、a.add()だけを二回呼びました。a.countとb.countはいくつですか。</p>
 <details><summary>解答と考え方を読む</summary><p>2と0です。それぞれの実体に独立したcountを初期化しているためです。</p>

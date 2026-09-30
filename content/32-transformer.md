@@ -2,7 +2,7 @@
 
 ## 部品をつなげる
 
-入力は整数のトークンID列です。Embeddingで各IDをd個の値にし、位置の情報を加え、AttentionとMLPのブロックを何層か通します。最後に各位置から語彙V個の点数を出します。この点数をlogitと呼びます。学習ではlogitと一つ先の正解トークンから交差エントロピーを計算します。
+入力は整数の[トークン](reference.html#term-token)ID列です。[Embedding](reference.html#term-embedding)で各IDをd個の値にし、位置の情報を加え、[Attention](reference.html#term-attention)とMLPのブロックを何層か通します。最後に各位置から語彙V個の点数を出します。この点数をlogitと呼びます。学習ではlogitと一つ先の正解トークンから交差[エントロピー](reference.html#term-entropy)を計算します。
 
 |段階|shape|
 |---|---|
@@ -12,7 +12,7 @@
 |出力logit|B,T,V|
 |正解ID|B,T|
 
-Bはバッチの例数、Tは系列長、dは特徴数です。最後の語彙方向にsoftmaxします。バッチ方向へ正規化してはいけません。
+Bはバッチの例数、Tは系列長、dは特徴数です。最後の語彙方向に[softmax](reference.html#term-softmax)します。バッチ方向へ正規化してはいけません。
 
 ## Multi-Head Attention
 
@@ -22,13 +22,13 @@ Bはバッチの例数、Tは系列長、dは特徴数です。最後の語彙�
 
 ## 位置の情報
 
-位置表現なしのAttentionには順序を区別しにくい性質があります。位置ごとの学習ベクトルを足す方法や、sin/cosを使う方法があります。後で扱うRoPEはQとKへ位置に応じた回転を施し、内積へ相対的な位置の構造を入れます。
+位置表現なしのAttentionには順序を区別しにくい性質があります。位置ごとの学習[ベクトル](reference.html#term-vector)を足す方法や、sin/cosを使う方法があります。後で扱う[RoPE](reference.html#term-rope)はQとKへ位置に応じた回転を施し、[内積](reference.html#term-dot)へ相対的な位置の構造を入れます。
 
 単に長い入力を受け付ける実装へ変えても、学習より長い文脈を正しく使える保証はありません。位置表現と長文での評価を別に考えます。
 
 ## ブロックの中身
 
-本教材の小モデルはPre-Normを使い、`x←x+Attention(LayerNorm(x))`、続いて`x←x+MLP(LayerNorm(x))`とします。残差の入力と出力は同じshape。MLPは各位置へ独立に適用し、位置間の混合はAttentionが担います。
+本教材の小モデルはPre-Normを使い、`x←x+Attention(LayerNorm(x))`、続いて`x←x+MLP(LayerNorm(x))`とします。残差の入力と出力は同じ[shape](reference.html#term-tensor)。MLPは各位置へ独立に適用し、位置間の混合はAttentionが担います。
 
 2017年の元のTransformerはencoder-decoder構成で翻訳などを扱いました。本教材の小モデルは未来を隠すdecoder-onlyです。原論文のモデルそのものを完全に再現したという意味ではありません。BERT系の双方向encoderや、encoder-decoderと用途・maskの違いを整理します。
 
@@ -36,7 +36,7 @@ Bはバッチの例数、Tは系列長、dは特徴数です。最後の語彙�
 
 encoderは入力の表現を作る部分、decoderは出力を作る部分です。双方向encoderは左右両側を参照し、自己回帰decoderは既知の過去だけから次を予測します。encoder-decoderでは入力側の表現を出力側から参照するcross-attentionも使います。本教材のdecoder-onlyではその入力用encoderを別に持ちません。
 
-ここから完成コードへ移る前に、[Pythonの橋](python-reading.html)でModuleの継承・chunk・軸交換・reshapeを、[段階ごとの解説](lab-guide.html)でID→Embedding→Attention→損失の対応を確認します。B=2,T=3,d=8,H=2ならQは(2,2,3,4)、点数は(2,2,3,3)、ヘッド結合後は(2,3,8)。紙に各軸の名前を残してからコードへ進んでください。
+ここから完成コードへ移る前に、[Pythonの橋](python-reading.html)でModuleの継承・chunk・軸交換・reshapeを、[段階ごとの解説](lab-guide.html)でID→Embedding→Attention→[損失](reference.html#term-loss)の対応を確認します。B=2,T=3,d=8,H=2ならQは(2,2,3,4)、点数は(2,2,3,3)、ヘッド結合後は(2,3,8)。紙に各軸の名前を残してからコードへ進んでください。
 
 ## 演習
 

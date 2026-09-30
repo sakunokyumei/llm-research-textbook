@@ -15,7 +15,7 @@
 <div id="softmax-output" aria-live="polite"></div>
 </div>
 
-同じ数を足してもsoftmaxは変わりません。温度を下げると最大scoreの候補へ集中します。温度は正解率を直接表す値ではありません。[28章](28-numerics.html)・[34章](34-generation.html)
+同じ数を足しても[softmax](reference.html#term-softmax)は変わりません。温度を下げると最大scoreの候補へ集中します。温度は正解率を直接表す値ではありません。[28章](28-numerics.html)・[34章](34-generation.html)
 
 ## 0．実行の準備
 
@@ -42,7 +42,7 @@ python -m unittest discover -s labs -v
 python labs/math_checks.py
 ```
 
-[math_checks.py](downloads/math_checks.py)は、通常のsoftmaxとonline計算、有限差分と自動微分、LoRAの凍結と勾配を比較します。制作時には全assertが通り、重み付き和は約5.056113、微分は約5.337499でした。
+[math_checks.py](downloads/math_checks.py)は、通常のsoftmaxとonline計算、有限差分と[自動微分](reference.html#term-autograd)、[LoRA](reference.html#term-lora)の凍結と[勾配](reference.html#term-gradient)を比較します。制作時には全assertが通り、重み付き和は約5.056113、[微分](reference.html#term-derivative)は約5.337499でした。
 
 変更課題：scoreをすべて1000増やしても結果が変わらないか。有限差分のhを極端に小さくすると、誤差は必ず減るか。LoRAのBをゼロ以外で初期化するとAの最初の勾配はどうなるか。
 
@@ -64,9 +64,9 @@ python labs/tiny_transformer.py --steps 300 --seed 0 --out labs/runs/attention-0
 
 [tiny_transformer.py](downloads/tiny_transformer.py)はtoken embedding、位置embedding、multi-head causal attention、MLP、残差、LayerNorm、AdamW、学習・評価・生成・checkpointを含みます。[コードを一行ずつ読む](lab-guide.html)と並べて学びます。
 
-文書は`[BOS, A, noise, noise, noise, noise, separator, A, EOS]`。2〜5の四種類の記号から全1,024文書を作り、固定seedで文書単位に768/128/128へ分割します。separatorの後で最初のAをコピーするには、離れた情報が必要です。これは自然言語の巨大な事前学習モデルではなく、その計算と実験管理を学ぶモデルです。
+文書は`[BOS, A, noise, noise, noise, noise, separator, A, EOS]`。2〜5の四種類の記号から全1,024文書を作り、固定seedで文書単位に768/128/128へ分割します。separatorの後で最初のAをコピーするには、離れた情報が必要です。これは自然言語の巨大な[事前学習](reference.html#term-pretrain)モデルではなく、その計算と実験管理を学ぶモデルです。
 
-保存先にはmetrics.jsonとcheckpoint.ptができます。前者は設定・版・データhash・指標、後者はモデル・optimizer・乱数・stepを含みます。自分で作成したcheckpointを読みます。
+保存先にはmetrics.jsonとcheckpoint.ptができます。前者は設定・版・データhash・指標、後者はモデル・[optimizer](reference.html#term-optimizer)・乱数・stepを含みます。自分で作成したcheckpointを読みます。
 
 ### 保存と再開
 
@@ -75,7 +75,7 @@ python labs/tiny_transformer.py --steps 100 --out labs/runs/resume-demo
 python labs/tiny_transformer.py --steps 300 --resume labs/runs/resume-demo/checkpoint.pt --out labs/runs/resumed
 ```
 
-`--steps`は追加回数ではなく最終的な合計です。resume時はcheckpointの設定を引き継ぎます。因果性・分割・連続学習との一致・学習成立を[test_labs.py](downloads/test_labs.py)で確認しています。同一CPU環境内の一致を確認したテストであり、別の機種やライブラリ版までbit単位で同じという保証ではありません。
+`--steps`は追加回数ではなく最終的な合計です。resume時はcheckpointの設定を引き継ぎます。因果性・分割・連続学習との一致・学習成立を[test_labs.py](downloads/test_labs.py)で確認しています。同一CPU環境内の一致を確認したテストであり、別の機種や[ライブラリ](reference.html#term-library)版までbit単位で同じという保証ではありません。
 
 ### 日本語の文章でも学習する
 
@@ -83,7 +83,7 @@ python labs/tiny_transformer.py --steps 300 --resume labs/runs/resume-demo/check
 python labs/text_lm.py --steps 300 --evaluate-test
 ```
 
-[text_lm.py](downloads/text_lm.py)は同じTransformerを使い、「ねこは公園で赤い箱を見つけた。」のような512種類の合成文をbyteの列として学習します。384/64/64文書へ分割し、paddingの位置を損失から除きます。ダウンロードだけで実行する場合はtiny_transformer.pyも同じフォルダへ置いてください。
+[text_lm.py](downloads/text_lm.py)は同じTransformerを使い、「ねこは公園で赤い箱を見つけた。」のような512種類の合成文をbyteの列として学習します。384/64/64文書へ分割し、paddingの位置を[損失](reference.html#term-loss)から除きます。ダウンロードだけで実行する場合はtiny_transformer.pyも同じフォルダへ置いてください。
 
 制作時の固定したseed0・300更新では、validation NLLが5.6787から0.1491、最終test NLLは0.1512でした。生成例は「ねこは川で小さな花を見つけた。」です。[設定・学習曲線・実測値](downloads/text_results.json)を配布します。単位はbyteとEOSであり、別のtokenizerのPPLとは直接比較しません。非常に限定された合成文法を学ぶ実験で、一般的な会話能力の証拠ではありません。
 
@@ -103,7 +103,7 @@ python labs/run_experiments.py
 |位置embeddingなし|1.000 / 1.000 / 1.000|0.8815 / 0.8743 / 0.8819|
 |Attentionなし|0.2266 / 0.2500 / 0.2500|1.0527 / 1.0457 / 1.0522|
 
-**位置embeddingを外しても、この短い固定位置課題は解けました。** 予想と違う結果も隠さず、課題の容易さやcausal maskによる構造を考えます。これは位置表現が一般に不要だという証明ではありません。Attentionなしではtoken間の情報交換がなく、copyが難しくなります。外した部品のパラメータは保持しているため、総パラメータ数は同じでも有効な計算量は異なります。
+**位置embeddingを外しても、この短い固定位置課題は解けました。** 予想と違う結果も隠さず、課題の容易さやcausal maskによる構造を考えます。これは位置表現が一般に不要だという証明ではありません。[Attention](reference.html#term-attention)なしではtoken間の情報交換がなく、copyが難しくなります。外した部品のパラメータは保持しているため、総パラメータ数は同じでも有効な[計算量](reference.html#term-complexity)は異なります。
 
 NLLがゼロにならないのは、noise部分が予測不可能だからです。全token損失とcopy位置の正解率は、異なる側面を測っています。
 
@@ -122,10 +122,10 @@ python labs/bandit.py
 
 [rag_eval.py](downloads/rag_eval.py)は4文書からの語の一致に基づく検索と、根拠文の抽出を行います。制作時は4問でRecall@1とMRRが1でした。小さな意図的に簡単な集合なので、一般的な検索性能を示すものではありません。生成モデルは含みません。最後の「電話番号」という答えのない質問でも文書は返ります。検索順位が高いことと、答えがあることの違いを調べます。
 
-[bandit.py](downloads/bandit.py)は成功確率0.2と0.8の二択でREINFORCEを実行します。3seedでよい選択肢への最終確率は約0.985、0.979、0.976でした。報酬そのものではなく、選択肢の対数確率を微分します。これはLLMのRLHF全体の実装ではなく、方策勾配の最小実験です。
+[bandit.py](downloads/bandit.py)は成功確率0.2と0.8の二択でREINFORCEを実行します。3seedでよい選択肢への最終確率は約0.985、0.979、0.976でした。[報酬](reference.html#term-reward)そのものではなく、選択肢の[対数](reference.html#term-log)確率を微分します。これはLLMの[RLHF](reference.html#term-rlhf)全体の実装ではなく、方策勾配の最小実験です。
 
 ## 6．独自実験へ
 
-[卒業研究の実行ガイド](capstone-guide.html)では、noise4・6で学習し未学習のnoise8を評価する専用ラボを使えます。データ長に合わせて位置Embeddingと採点位置を扱い、文書重複・未来参照・採点のテストを先に通します。3条件×3seedの全結果から、図表と[報告書](downloads/capstone_template.md)を作ります。これを大規模論文の完全な再現とは扱いません。
+[卒業研究の実行ガイド](capstone-guide.html)では、noise4・6で学習し未学習のnoise8を評価する専用ラボを使えます。データ長に合わせて位置[Embedding](reference.html#term-embedding)と採点位置を扱い、文書重複・未来参照・採点のテストを先に通します。3条件×3seedの全結果から、図表と[報告書](downloads/capstone_template.md)を作ります。これを大規模論文の完全な再現とは扱いません。
 
-[研究計画テンプレート](downloads/research_template.md)を先に埋め、[53章](53-research-design.html)から[56章](56-capstone.html)に沿って、距離・語彙・データ量など一つの条件を変えます。GPUのTritonや分散学習へ進む際は、[追加実習](systems-lab.html)で前提と未検証の範囲を確認してください。
+[研究計画テンプレート](downloads/research_template.md)を先に埋め、[53章](53-research-design.html)から[56章](56-capstone.html)に沿って、距離・語彙・データ量など一つの条件を変えます。GPUのTritonや[分散](reference.html#term-variance)学習へ進む際は、[追加実習](systems-lab.html)で前提と未検証の範囲を確認してください。

@@ -2,7 +2,7 @@
 
 ## 色の付いた図から何が分かる？
 
-Attentionの図である語が明るく見えたとします。その語が重要そうだという仮説は立ちます。しかしAttention重みだけでは、Vの内容、他のhead、残差、後の層が出力にどう作用したか分かりません。図を見せることと、仕組みを説明することは別の作業です。
+[Attention](reference.html#term-attention)の図である語が明るく見えたとします。その語が重要そうだという仮説は立ちます。しかしAttention重みだけでは、Vの内容、他のhead、残差、後の層が出力にどう作用したか分かりません。図を見せることと、仕組みを説明することは別の作業です。
 
 probeは内部表現からある属性を予測する小さなモデルです。属性を読み出せたら、その情報が表現に含まれる証拠になります。ただし元モデルが実際にその情報を使った証拠とは限りません。複雑なprobe自身が課題を解いている可能性もあります。
 
@@ -10,7 +10,7 @@ probeは内部表現からある属性を予測する小さなモデルです。
 
 clean入力と、一箇所だけ変えたcorrupt入力を用意します。corrupt側の特定層・位置の活性値をclean側の値に置換し、回答がどれだけ戻るかを調べる方法をactivation patchingと呼びます。どのノードを介して影響が流れるかの仮説を検証できます。
 
-例として「Aの鍵は赤」「Bの鍵は青」という合成課題を作り、人物と色の対応だけを変えます。正解色と誤答色のlogit差を指標とします。正解確率だけではsoftmax全体の変化と混ざるため、複数の指標で確認します。置換が通常起こらない状態を作る可能性にも注意します。
+例として「Aの鍵は赤」「Bの鍵は青」という合成課題を作り、人物と色の対応だけを変えます。正解色と誤答色のlogit差を指標とします。正解確率だけでは[softmax](reference.html#term-softmax)全体の変化と混ざるため、複数の指標で確認します。置換が通常起こらない状態を作る可能性にも注意します。
 
 ## 一つのニューロンが一つの意味とは限らない
 
@@ -31,7 +31,7 @@ cleanのlogit差が4、corruptが0、patch後が3。線形な回復率は？
 :::
 
 :::exercise 3・疎性
-特徴が[0,−2,0,3]ならL1ノルムは？
+特徴が[0,−2,0,3]ならL1[ノルム](reference.html#term-norm)は？
 :::answer
 絶対値の和で5です。SAEの方式によって特徴を非負に制約する場合もあります。
 :::
@@ -44,9 +44,9 @@ cleanのlogit差が4、corruptが0、patch後が3。線形な回復率は？
 
 ## L1と層の出力を確認する
 
-L1ノルムは成分の絶対値の和です。第14章の二乗和の平方根であるL2ノルムとは違い、[0,−2,0,3]なら0+2+0+3=5。SAEの式のDは特徴から元の幅へ戻す行列、f(x)は特徴を作る関数です。再構成だけよくても、介入で意味が確かめられたことにはしません。
+L1ノルムは成分の絶対値の和です。第14章の二乗和の平方根であるL2ノルムとは違い、[0,−2,0,3]なら0+2+0+3=5。SAEの式のDは特徴から元の幅へ戻す[行列](reference.html#term-matrix)、f(x)は特徴を作る関数です。再構成だけよくても、介入で意味が確かめられたことにはしません。
 
-hookは、層が計算されたときに指定した観測関数を呼ぶPyTorchの仕組みです。Tiny Transformerを使うスクリプトで、`model.blocks[0].register_forward_hook(capture)` として最初の層を観測できます。captureは三つの引数 `(module, inputs, output)` を受け取り、たとえば事前に作った辞書cacheへ `cache["activation"] = output.detach().clone()` と保存します。detachは勾配追跡から切り離す操作、cloneは値を別にコピーする操作です。戻ったhandleの `remove()` で観測を解除します。
+[hook](reference.html#term-hook)は、層が計算されたときに指定した観測関数を呼ぶPyTorchの仕組みです。Tiny Transformerを使うスクリプトで、`model.blocks[0].register_forward_hook(capture)` として最初の層を観測できます。captureは三つの引数 `(module, inputs, output)` を受け取り、たとえば事前に作った辞書cacheへ `cache["activation"] = output.detach().clone()` と保存します。detachは[勾配](reference.html#term-gradient)追跡から切り離す操作、cloneは値を別にコピーする操作です。戻ったhandleの `remove()` で観測を解除します。
 
 観測手順は①evalとno_grad、②同じ長さの二文書を用意、③一文書ずつforward、④各回のcacheを別に保存、⑤同じ位置・同じ特徴を比較、⑥hookを解除、です。コピー対象のIDを2から3へ変えるなら、文書の最初の対象とコピー先の両方を変え、残りは固定します。まず差を観察し、どの成分を置換すれば予測が変わるかは別の介入実験として書きます。[Pythonの橋](python-reading.html)・[コード解説](lab-guide.html)へ戻り、実装の位置を確認できます。仕様：[forward hook](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook)。
 

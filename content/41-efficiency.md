@@ -8,13 +8,13 @@
 
 ## Attentionの大きな中間表
 
-T位置が互いを比べる点数表はT×Tで、Tを二倍にすると要素数は四倍です。通常のAttentionをそのまま実装すると、この大きな表の保存や読み書きが負担になります。
+T位置が互いを比べる点数表はT×Tで、Tを二倍にすると要素数は四倍です。通常の[Attention](reference.html#term-attention)をそのまま実装すると、この大きな表の保存や読み書きが負担になります。
 
-FlashAttentionはタイル分割とonline softmaxなどを使い、巨大な中間表をHBMへ何度も書き出すことを避けます。標準的なFlashAttentionは近似Attentionではなく、同じAttention演算をより効率よく計算するexactな方式です。ただし浮動小数点の演算順序で小さな数値差はあり得ます。「exactだからbitごとに一致」とは言いません。
+FlashAttentionはタイル分割とonline [softmax](reference.html#term-softmax)などを使い、巨大な中間表をHBMへ何度も書き出すことを避けます。標準的なFlashAttentionは近似Attentionではなく、同じAttention演算をより効率よく計算するexactな方式です。ただし[浮動小数点](reference.html#term-finite)の演算順序で小さな数値差はあり得ます。「exactだからbitごとに一致」とは言いません。
 
 ## Online softmaxの更新
 
-これまでの最大値m、指数和l、重み付き値の和oを保持します。新しいブロックの最大値と比較してm_newを決め、古いlとoをexp(m−m_new)倍して尺度を合わせ、新しいexp(score−m_new)の寄与を足します。最後にo/lで正規化します。全スコアを同時に保存せず、分母と分子を同じ尺度で更新するのが要点です。
+これまでの最大値m、[指数](reference.html#term-power)和l、重み付き値の和oを保持します。新しいブロックの最大値と比較してm_newを決め、古いlとoを[exp](reference.html#term-log)(m−m_new)倍して尺度を合わせ、新しいexp(score−m_new)の寄与を足します。最後にo/lで正規化します。全スコアを同時に保存せず、分母と分子を同じ尺度で更新するのが要点です。
 
 ## 二つの候補だけでonline更新を追う
 
@@ -34,7 +34,7 @@ scoreが0,ln2、値が2,8なら、全体の指数は1,2、分母3、分子18、�
 
 TritonはGPU用の計算kernelを書くための言語とコンパイラです。Python風に見えても、通常のPythonループと同じ実行模型ではありません。program_idで担当するブロックを決め、arangeでブロック内の位置を作り、load/storeで入出力します。末尾の端数では範囲外をmaskして保護します。
 
-最初の課題はベクトル加算です。PyTorchを正しさの基準とし、長さ0、1、ブロック幅の前後、割り切れない長さを確認します。その後に速度を測ります。対応GPUが必要なので、CPUラボの成功をGPU kernel検証済みと言い換えません。
+最初の課題は[ベクトル](reference.html#term-vector)加算です。PyTorchを正しさの基準とし、長さ0、1、ブロック幅の前後、割り切れない長さを確認します。その後に速度を測ります。対応GPUが必要なので、CPUラボの成功をGPU kernel検証済みと言い換えません。
 
 ## 演習
 

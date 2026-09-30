@@ -1,0 +1,885 @@
+{
+  "date": "2026-10-01",
+  "registered_concepts": 88,
+  "prose_links": 468,
+  "scope": "88 registered teaching concepts and their first linked prose mention in the chapter route; not an exhaustive natural-language glossary",
+  "first_prose_uses": [
+    {
+      "file": "content/04-powers.md",
+      "term": "累乗",
+      "glossary": "reference.html#term-power"
+    },
+    {
+      "file": "content/05-algebra.md",
+      "term": "代入",
+      "glossary": "reference.html#term-substitution"
+    },
+    {
+      "file": "content/05-algebra.md",
+      "term": "項",
+      "glossary": "reference.html#term-term"
+    },
+    {
+      "file": "content/05-algebra.md",
+      "term": "係数",
+      "glossary": "reference.html#term-coefficient"
+    },
+    {
+      "file": "pages/05b-equations.md",
+      "term": "方程式",
+      "glossary": "reference.html#term-equation"
+    },
+    {
+      "file": "pages/05c-distribute.md",
+      "term": "分配法則",
+      "glossary": "reference.html#term-distribution-law"
+    },
+    {
+      "file": "pages/05d-inequalities.md",
+      "term": "不等式",
+      "glossary": "reference.html#term-inequality"
+    },
+    {
+      "file": "pages/05e-proportion.md",
+      "term": "比例",
+      "glossary": "reference.html#term-proportion"
+    },
+    {
+      "file": "content/06-functions.md",
+      "term": "定義域",
+      "glossary": "reference.html#term-domain"
+    },
+    {
+      "file": "content/06-functions.md",
+      "term": "添字",
+      "glossary": "reference.html#term-index"
+    },
+    {
+      "file": "content/06-functions.md",
+      "term": "実数",
+      "glossary": "reference.html#term-real"
+    },
+    {
+      "file": "content/07-logarithms.md",
+      "term": "対数",
+      "glossary": "reference.html#term-log"
+    },
+    {
+      "file": "content/07-logarithms.md",
+      "term": "機械学習",
+      "glossary": "reference.html#term-ml"
+    },
+    {
+      "file": "content/07-logarithms.md",
+      "term": "損失",
+      "glossary": "reference.html#term-loss"
+    },
+    {
+      "file": "content/09-control.md",
+      "term": "インデント",
+      "glossary": "reference.html#term-indent"
+    },
+    {
+      "file": "content/10-data.md",
+      "term": "トークン",
+      "glossary": "reference.html#term-token"
+    },
+    {
+      "file": "content/10-data.md",
+      "term": "モジュール",
+      "glossary": "reference.html#term-module"
+    },
+    {
+      "file": "content/10-data.md",
+      "term": "一意性",
+      "glossary": "reference.html#term-unique"
+    },
+    {
+      "file": "content/11-debug.md",
+      "term": "有限精度",
+      "glossary": "reference.html#term-finite"
+    },
+    {
+      "file": "content/11-debug.md",
+      "term": "クラス",
+      "glossary": "reference.html#term-class"
+    },
+    {
+      "file": "content/11-debug.md",
+      "term": "ablation",
+      "glossary": "reference.html#term-ablation"
+    },
+    {
+      "file": "content/12-environment.md",
+      "term": "ライブラリ",
+      "glossary": "reference.html#term-library"
+    },
+    {
+      "file": "content/12-environment.md",
+      "term": "仮想環境",
+      "glossary": "reference.html#term-venv"
+    },
+    {
+      "file": "content/13-algorithms.md",
+      "term": "計算量",
+      "glossary": "reference.html#term-complexity"
+    },
+    {
+      "file": "content/13-algorithms.md",
+      "term": "not in",
+      "glossary": "reference.html#term-membership"
+    },
+    {
+      "file": "content/13-algorithms.md",
+      "term": "SQL",
+      "glossary": "reference.html#term-sql"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "ベクトル",
+      "glossary": "reference.html#term-vector"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "スカラー",
+      "glossary": "reference.html#term-scalar"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "内積",
+      "glossary": "reference.html#term-dot"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "直角",
+      "glossary": "reference.html#term-orthogonal"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "斜辺",
+      "glossary": "reference.html#term-pythagoras"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "ノルム",
+      "glossary": "reference.html#term-norm"
+    },
+    {
+      "file": "content/14-vectors.md",
+      "term": "埋め込み",
+      "glossary": "reference.html#term-embedding"
+    },
+    {
+      "file": "content/15-matrices.md",
+      "term": "列ベクトル",
+      "glossary": "reference.html#term-column-vector"
+    },
+    {
+      "file": "content/15-matrices.md",
+      "term": "行列",
+      "glossary": "reference.html#term-matrix"
+    },
+    {
+      "file": "pages/15c-transpose.md",
+      "term": "転置",
+      "glossary": "reference.html#term-transpose"
+    },
+    {
+      "file": "pages/15d-basis.md",
+      "term": "線形結合",
+      "glossary": "reference.html#term-basis"
+    },
+    {
+      "file": "pages/15d-basis.md",
+      "term": "ランク",
+      "glossary": "reference.html#term-rank"
+    },
+    {
+      "file": "content/16-tensors.md",
+      "term": "テンソル",
+      "glossary": "reference.html#term-tensor"
+    },
+    {
+      "file": "content/16-tensors.md",
+      "term": "broadcast",
+      "glossary": "reference.html#term-broadcast"
+    },
+    {
+      "file": "pages/16b-diagonal.md",
+      "term": "対角行列",
+      "glossary": "reference.html#term-diagonal"
+    },
+    {
+      "file": "pages/16c-eigen.md",
+      "term": "固有ベクトル",
+      "glossary": "reference.html#term-eigen"
+    },
+    {
+      "file": "pages/16d-svd.md",
+      "term": "特異値分解",
+      "glossary": "reference.html#term-svd"
+    },
+    {
+      "file": "content/17-calculus.md",
+      "term": "微分",
+      "glossary": "reference.html#term-derivative"
+    },
+    {
+      "file": "content/18-chain.md",
+      "term": "偏微分",
+      "glossary": "reference.html#term-partial"
+    },
+    {
+      "file": "content/18-chain.md",
+      "term": "勾配",
+      "glossary": "reference.html#term-gradient"
+    },
+    {
+      "file": "pages/18b-chain.md",
+      "term": "連鎖律",
+      "glossary": "reference.html#term-chain-rule"
+    },
+    {
+      "file": "pages/18c-descent.md",
+      "term": "学習率",
+      "glossary": "reference.html#term-learning-rate"
+    },
+    {
+      "file": "pages/18c-descent.md",
+      "term": "単位方向",
+      "glossary": "reference.html#term-unit-vector"
+    },
+    {
+      "file": "pages/18d-jacobian.md",
+      "term": "ヤコビ行列",
+      "glossary": "reference.html#term-jacobian"
+    },
+    {
+      "file": "pages/18e-products.md",
+      "term": "JVP",
+      "glossary": "reference.html#term-jvp-vjp"
+    },
+    {
+      "file": "pages/18e-products.md",
+      "term": "自動微分",
+      "glossary": "reference.html#term-autograd"
+    },
+    {
+      "file": "pages/18f-linear.md",
+      "term": "線形層",
+      "glossary": "reference.html#term-linear-layer"
+    },
+    {
+      "file": "pages/18f-linear.md",
+      "term": "上流の勾配",
+      "glossary": "reference.html#term-upstream"
+    },
+    {
+      "file": "content/19-integration.md",
+      "term": "積分",
+      "glossary": "reference.html#term-integral"
+    },
+    {
+      "file": "content/19-integration.md",
+      "term": "密度",
+      "glossary": "reference.html#term-density"
+    },
+    {
+      "file": "content/20-probability.md",
+      "term": "Bayesの定理",
+      "glossary": "reference.html#term-bayes"
+    },
+    {
+      "file": "content/21-distributions.md",
+      "term": "期待値",
+      "glossary": "reference.html#term-expectation"
+    },
+    {
+      "file": "content/21-distributions.md",
+      "term": "分散",
+      "glossary": "reference.html#term-variance"
+    },
+    {
+      "file": "content/22-statistics.md",
+      "term": "bootstrap",
+      "glossary": "reference.html#term-bootstrap"
+    },
+    {
+      "file": "content/23-information.md",
+      "term": "エントロピー",
+      "glossary": "reference.html#term-entropy"
+    },
+    {
+      "file": "content/24-learning.md",
+      "term": "過学習",
+      "glossary": "reference.html#term-overfit"
+    },
+    {
+      "file": "content/26-pytorch.md",
+      "term": "optimizer",
+      "glossary": "reference.html#term-optimizer"
+    },
+    {
+      "file": "content/27-networks.md",
+      "term": "活性化関数",
+      "glossary": "reference.html#term-activation"
+    },
+    {
+      "file": "content/28-numerics.md",
+      "term": "softmax",
+      "glossary": "reference.html#term-softmax"
+    },
+    {
+      "file": "content/28-numerics.md",
+      "term": "Attention",
+      "glossary": "reference.html#term-attention"
+    },
+    {
+      "file": "content/32-transformer.md",
+      "term": "RoPE",
+      "glossary": "reference.html#term-rope"
+    },
+    {
+      "file": "content/33-training.md",
+      "term": "チェックポイント",
+      "glossary": "reference.html#term-checkpoint"
+    },
+    {
+      "file": "content/35-data-scaling.md",
+      "term": "事前学習",
+      "glossary": "reference.html#term-pretrain"
+    },
+    {
+      "file": "content/36-adaptation.md",
+      "term": "LoRA",
+      "glossary": "reference.html#term-lora"
+    },
+    {
+      "file": "content/36-adaptation.md",
+      "term": "量子化",
+      "glossary": "reference.html#term-quantization"
+    },
+    {
+      "file": "content/36-adaptation.md",
+      "term": "RAG",
+      "glossary": "reference.html#term-rag"
+    },
+    {
+      "file": "content/37-rag.md",
+      "term": "エージェント",
+      "glossary": "reference.html#term-agent"
+    },
+    {
+      "file": "content/38-reinforcement.md",
+      "term": "報酬",
+      "glossary": "reference.html#term-reward"
+    },
+    {
+      "file": "content/39-alignment.md",
+      "term": "RLHF",
+      "glossary": "reference.html#term-rlhf"
+    },
+    {
+      "file": "content/42-distributed.md",
+      "term": "MoE",
+      "glossary": "reference.html#term-moe"
+    },
+    {
+      "file": "content/48-multimodal.md",
+      "term": "モダリティ",
+      "glossary": "reference.html#term-modality"
+    },
+    {
+      "file": "content/49-agents.md",
+      "term": "type",
+      "glossary": "reference.html#term-type"
+    },
+    {
+      "file": "content/50-evaluation.md",
+      "term": "交絡",
+      "glossary": "reference.html#term-confounding"
+    },
+    {
+      "file": "content/50-evaluation.md",
+      "term": "rubric",
+      "glossary": "reference.html#term-rubric"
+    },
+    {
+      "file": "content/51-interpretability.md",
+      "term": "hook",
+      "glossary": "reference.html#term-hook"
+    },
+    {
+      "file": "content/54-paper-reading.md",
+      "term": "arXiv",
+      "glossary": "reference.html#term-arxiv"
+    },
+    {
+      "file": "pages/05b-equations.md",
+      "term": "両辺",
+      "glossary": "reference.html#term-sides"
+    },
+    {
+      "file": "pages/05b-equations.md",
+      "term": "解",
+      "glossary": "reference.html#term-solution"
+    },
+    {
+      "file": "pages/05b-equations.md",
+      "term": "検算",
+      "glossary": "reference.html#term-check-answer"
+    },
+    {
+      "file": "pages/18f-linear.md",
+      "term": "アフィン変換",
+      "glossary": "reference.html#term-affine"
+    },
+    {
+      "file": "content/20-probability.md",
+      "term": "二項係数・二項分布",
+      "glossary": "reference.html#term-binomial"
+    }
+  ],
+  "definitions": [
+    {
+      "id": "term-term",
+      "term": "項",
+      "lesson": "05-algebra.html"
+    },
+    {
+      "id": "term-coefficient",
+      "term": "係数",
+      "lesson": "05-algebra.html"
+    },
+    {
+      "id": "term-real",
+      "term": "実数",
+      "lesson": "04d-roots.html"
+    },
+    {
+      "id": "term-power",
+      "term": "累乗・指数・底",
+      "lesson": "04-powers.html"
+    },
+    {
+      "id": "term-substitution",
+      "term": "代入",
+      "lesson": "05-algebra.html"
+    },
+    {
+      "id": "term-equation",
+      "term": "方程式",
+      "lesson": "05b-equations.html"
+    },
+    {
+      "id": "term-distribution-law",
+      "term": "分配法則",
+      "lesson": "05c-distribute.html"
+    },
+    {
+      "id": "term-inequality",
+      "term": "不等号・不等式",
+      "lesson": "05d-inequalities.html"
+    },
+    {
+      "id": "term-proportion",
+      "term": "比例・反比例",
+      "lesson": "05e-proportion.html"
+    },
+    {
+      "id": "term-domain",
+      "term": "定義域・値域",
+      "lesson": "06-functions.html"
+    },
+    {
+      "id": "term-index",
+      "term": "添字・総和",
+      "lesson": "06-functions.html"
+    },
+    {
+      "id": "term-log",
+      "term": "対数・自然対数",
+      "lesson": "07-logarithms.html"
+    },
+    {
+      "id": "term-type",
+      "term": "型・type",
+      "lesson": "08-python.html"
+    },
+    {
+      "id": "term-indent",
+      "term": "インデント",
+      "lesson": "09-control.html"
+    },
+    {
+      "id": "term-membership",
+      "term": "in・not in",
+      "lesson": "13-algorithms.html"
+    },
+    {
+      "id": "term-set-add",
+      "term": "集合への追加",
+      "lesson": "13-algorithms.html"
+    },
+    {
+      "id": "term-unique",
+      "term": "一意性",
+      "lesson": "10-data.html"
+    },
+    {
+      "id": "term-module",
+      "term": "モジュール",
+      "lesson": "10-data.html"
+    },
+    {
+      "id": "term-class",
+      "term": "クラス",
+      "lesson": "11-debug.html"
+    },
+    {
+      "id": "term-finite",
+      "term": "有限精度・浮動小数点",
+      "lesson": "17c-numerics.html"
+    },
+    {
+      "id": "term-library",
+      "term": "ライブラリ",
+      "lesson": "12-environment.html"
+    },
+    {
+      "id": "term-venv",
+      "term": "仮想環境",
+      "lesson": "12-environment.html"
+    },
+    {
+      "id": "term-complexity",
+      "term": "計算量",
+      "lesson": "13-algorithms.html"
+    },
+    {
+      "id": "term-sql",
+      "term": "SQL",
+      "lesson": "13-algorithms.html"
+    },
+    {
+      "id": "term-vector",
+      "term": "ベクトル",
+      "lesson": "14-vectors.html"
+    },
+    {
+      "id": "term-scalar",
+      "term": "スカラー",
+      "lesson": "14-vectors.html"
+    },
+    {
+      "id": "term-dot",
+      "term": "内積",
+      "lesson": "14-vectors.html"
+    },
+    {
+      "id": "term-norm",
+      "term": "ノルム",
+      "lesson": "14-vectors.html"
+    },
+    {
+      "id": "term-orthogonal",
+      "term": "直角・直交",
+      "lesson": "14-vectors.html"
+    },
+    {
+      "id": "term-pythagoras",
+      "term": "斜辺・ピタゴラスの定理",
+      "lesson": "14-vectors.html"
+    },
+    {
+      "id": "term-column-vector",
+      "term": "列ベクトル・行ベクトル",
+      "lesson": "15-matrices.html"
+    },
+    {
+      "id": "term-matrix",
+      "term": "行列",
+      "lesson": "15b-product.html"
+    },
+    {
+      "id": "term-transpose",
+      "term": "転置",
+      "lesson": "15c-transpose.html"
+    },
+    {
+      "id": "term-basis",
+      "term": "線形結合・基底",
+      "lesson": "15d-basis.html"
+    },
+    {
+      "id": "term-rank",
+      "term": "ランク",
+      "lesson": "15d-basis.html"
+    },
+    {
+      "id": "term-tensor",
+      "term": "テンソル・shape",
+      "lesson": "16-tensors.html"
+    },
+    {
+      "id": "term-broadcast",
+      "term": "broadcast",
+      "lesson": "16-tensors.html"
+    },
+    {
+      "id": "term-diagonal",
+      "term": "対角行列",
+      "lesson": "16b-diagonal.html"
+    },
+    {
+      "id": "term-eigen",
+      "term": "固有値・固有ベクトル",
+      "lesson": "16c-eigen.html"
+    },
+    {
+      "id": "term-svd",
+      "term": "特異値分解",
+      "lesson": "16d-svd.html"
+    },
+    {
+      "id": "term-derivative",
+      "term": "微分・極限",
+      "lesson": "17-calculus.html"
+    },
+    {
+      "id": "term-partial",
+      "term": "偏微分",
+      "lesson": "18-chain.html"
+    },
+    {
+      "id": "term-gradient",
+      "term": "勾配",
+      "lesson": "18-chain.html"
+    },
+    {
+      "id": "term-chain-rule",
+      "term": "連鎖律",
+      "lesson": "18b-chain.html"
+    },
+    {
+      "id": "term-unit-vector",
+      "term": "単位方向",
+      "lesson": "18c-descent.html"
+    },
+    {
+      "id": "term-jacobian",
+      "term": "ヤコビ行列",
+      "lesson": "18d-jacobian.html"
+    },
+    {
+      "id": "term-jvp-vjp",
+      "term": "JVP・VJP",
+      "lesson": "18e-products.html"
+    },
+    {
+      "id": "term-linear-layer",
+      "term": "線形層・bias",
+      "lesson": "18f-linear.html"
+    },
+    {
+      "id": "term-upstream",
+      "term": "上流の勾配",
+      "lesson": "18f-linear.html"
+    },
+    {
+      "id": "term-learning-rate",
+      "term": "学習率",
+      "lesson": "18c-descent.html"
+    },
+    {
+      "id": "term-integral",
+      "term": "積分",
+      "lesson": "19-integration.html"
+    },
+    {
+      "id": "term-density",
+      "term": "密度",
+      "lesson": "19-integration.html"
+    },
+    {
+      "id": "term-bayes",
+      "term": "Bayesの定理",
+      "lesson": "20-probability.html"
+    },
+    {
+      "id": "term-expectation",
+      "term": "期待値",
+      "lesson": "21-distributions.html"
+    },
+    {
+      "id": "term-variance",
+      "term": "分散・標準偏差",
+      "lesson": "21-distributions.html"
+    },
+    {
+      "id": "term-bootstrap",
+      "term": "bootstrap",
+      "lesson": "22-statistics.html"
+    },
+    {
+      "id": "term-entropy",
+      "term": "エントロピー",
+      "lesson": "23-information.html"
+    },
+    {
+      "id": "term-ml",
+      "term": "機械学習",
+      "lesson": "24-learning.html"
+    },
+    {
+      "id": "term-loss",
+      "term": "損失",
+      "lesson": "25-regression.html"
+    },
+    {
+      "id": "term-overfit",
+      "term": "過学習",
+      "lesson": "24-learning.html"
+    },
+    {
+      "id": "term-autograd",
+      "term": "自動微分",
+      "lesson": "26-pytorch.html"
+    },
+    {
+      "id": "term-optimizer",
+      "term": "optimizer",
+      "lesson": "26-pytorch.html"
+    },
+    {
+      "id": "term-activation",
+      "term": "活性化関数",
+      "lesson": "27-networks.html"
+    },
+    {
+      "id": "term-softmax",
+      "term": "softmax",
+      "lesson": "28-numerics.html"
+    },
+    {
+      "id": "term-token",
+      "term": "トークン",
+      "lesson": "29-tokenization.html"
+    },
+    {
+      "id": "term-embedding",
+      "term": "埋め込み",
+      "lesson": "29-tokenization.html"
+    },
+    {
+      "id": "term-attention",
+      "term": "Attention・Q/K/V",
+      "lesson": "31-attention.html"
+    },
+    {
+      "id": "term-checkpoint",
+      "term": "チェックポイント",
+      "lesson": "33-training.html"
+    },
+    {
+      "id": "term-pretrain",
+      "term": "事前学習",
+      "lesson": "35-data-scaling.html"
+    },
+    {
+      "id": "term-lora",
+      "term": "LoRA",
+      "lesson": "36-adaptation.html"
+    },
+    {
+      "id": "term-rag",
+      "term": "RAG",
+      "lesson": "37-rag.html"
+    },
+    {
+      "id": "term-reward",
+      "term": "報酬",
+      "lesson": "38-reinforcement.html"
+    },
+    {
+      "id": "term-rlhf",
+      "term": "RLHF",
+      "lesson": "39-alignment.html"
+    },
+    {
+      "id": "term-quantization",
+      "term": "量子化",
+      "lesson": "44-compression.html"
+    },
+    {
+      "id": "term-moe",
+      "term": "MoE",
+      "lesson": "45-moe.html"
+    },
+    {
+      "id": "term-rope",
+      "term": "RoPE",
+      "lesson": "46-context.html"
+    },
+    {
+      "id": "term-modality",
+      "term": "モダリティ",
+      "lesson": "48-multimodal.html"
+    },
+    {
+      "id": "term-agent",
+      "term": "エージェント",
+      "lesson": "49-agents.html"
+    },
+    {
+      "id": "term-rubric",
+      "term": "rubric",
+      "lesson": "50-evaluation.html"
+    },
+    {
+      "id": "term-confounding",
+      "term": "交絡",
+      "lesson": "53-research-design.html"
+    },
+    {
+      "id": "term-hook",
+      "term": "hook",
+      "lesson": "51-interpretability.html"
+    },
+    {
+      "id": "term-ablation",
+      "term": "ablation",
+      "lesson": "53-research-design.html"
+    },
+    {
+      "id": "term-arxiv",
+      "term": "arXiv",
+      "lesson": "54-paper-reading.html"
+    },
+    {
+      "id": "term-sides",
+      "term": "両辺",
+      "lesson": "05b-equations.html"
+    },
+    {
+      "id": "term-solution",
+      "term": "解",
+      "lesson": "05b-equations.html"
+    },
+    {
+      "id": "term-check-answer",
+      "term": "検算",
+      "lesson": "05b-equations.html"
+    },
+    {
+      "id": "term-affine",
+      "term": "アフィン変換",
+      "lesson": "18f-linear.html"
+    },
+    {
+      "id": "term-binomial",
+      "term": "二項係数・二項分布",
+      "lesson": "20-probability.html"
+    }
+  ]
+}
