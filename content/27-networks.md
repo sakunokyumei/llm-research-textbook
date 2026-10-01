@@ -1,75 +1,33 @@
-{"title":"27 ニューラルネットワークを組み立てる","part":"機械学習と深層学習","goal":"線形層・活性化・正規化・残差の役割を説明する","prereq":"15・18・26"}
+{"title": "27 ニューラルネットワークを組み立てる", "part": "機械学習と深層学習", "goal": "線形層・活性化・正規化・残差の役割を説明する", "prereq": "15・18・26", "subpages": ["27u-002", "27u-003", "27u-004", "27u-005", "27u-006", "27u-007", "27u-008", "27u-009", "27u-010", "27u-011", "27u-012", "27u-013"], "next": "27u-002", "previous": "26u-013", "microtitle": "27-1 活性化関数・ReLU・MLP", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 直線を重ねるだけでは足りない
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-線形変換の後に線形変換を重ねても、全体は一つの線形変換です。途中に曲がり方を入れるため、[活性化関数](reference.html#term-activation)を使います。ReLUは入力が正ならそのまま、負なら0にする`max(0,x)`。これを[線形層](reference.html#term-linear-layer)の間に入れると、単一の直線では表せない関係も扱えます。
+この章の1/13ページ。今日の目標：活性化関数・ReLU・MLPの小例を一つ追う。
 
-MLP（多層パーセプトロン）は、線形層と非線形関数を積み重ねたモデルです。入力が(B,d_in)、重みをPyTorchのLinear規約で(d_out,d_in)とすると、計算はxWᵀ+bで、出力は(B,d_out)。[行列](reference.html#term-matrix)の置き方の規約を確認してください。
+今日の言葉：[活性化関数](beginner-glossary.html#concept-27-networks)・[ReLU](beginner-glossary.html#concept-27-networks)・[MLP](beginner-glossary.html#concept-27-networks)。
 
-```python
-import torch
-from torch import nn
-torch.manual_seed(42)
-net = nn.Sequential(nn.Linear(2, 4), nn.ReLU(), nn.Linear(4, 1))
-x = torch.tensor([[0., 1.], [1., 0.]])
-print(net(x).shape)
-print(sum(p.numel() for p in net.parameters()))
-```
+## なぜ使うか
 
-出力の形は(2,1)。パラメータ数は、最初の層が2×4+4=12、次が4×1+1=5、合計17です。値の正しさと[shape](reference.html#term-tensor)の正しさは別なので、両方検証します。
+線形層・活性化・正規化・残差の役割を説明するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-## コードの名前を数へ戻す
+## 意味と小さな例
 
-`from torch import nn` は、モデルの部品を集めたnnを取り出します。`nn.Linear(2,4)` は入力2個から出力4個への行列とbias、`nn.Sequential(...)` は列挙した部品を左から順につなぐ入れ物です。`nn.ReLU()` は上の活性化関数。`net.parameters()` は学習するテンソルを順に渡し、`p.numel()` はその一つの要素数を返します。`manual_seed(42)` はPyTorchの乱数列の開始設定です。[第22章のseed](22-statistics.html)と[第11章のクラス](11-debug.html)へ戻れます。
+層の間に非線形な変換を入れるのが活性化関数。ReLUは負を0、正をそのままにします。複数の層をつなぐMLPで、−2は0、3は3。直線を重ねるだけの模型から変化を作れます。
 
-XORは二つの入力が違うときだけ正解1になる二択問題です。四点 `(0,0)→0、(0,1)→1、(1,0)→1、(1,1)→0` を紙に打ち、一つの直線で正解1だけを分けられないことを確認します。[CPUの段階実習](cpu-practice.html)で、予測・[損失](reference.html#term-loss)・[勾配](reference.html#term-gradient)・更新を一周するコードを説明します。
-
-## 初期化と勾配
-
-多くの重みをすべて同じ値にすると、対称なユニットが同じ働きのままになり得ます。乱数による初期化は対称性を崩します。ただし大きすぎる値は活性化や勾配を不安定にし、小さすぎると情報や勾配が弱くなります。活性化と層の幅に合う初期化を使い、値の分布を観測します。
-
-Dropoutは学習時に一部の成分を確率的に落とす正則化です。PyTorchでは通常、残す成分を1/(1−p)倍し、評価時に落とさない方式を使います。pは落とす確率。これはあらゆるモデルで必ず改善するという保証ではありません。
-
-## 正規化と近道
-
-LayerNormは指定した特徴軸で平均を引き、[分散](reference.html#term-variance)と小さなεを使って尺度を整え、学習可能な倍率とずれを加えます。RMSNormは平均を引かず、二乗平均平方根に基づいて整えます。両者を同じ処理と混同しません。
-
-残差接続は`y=x+f(x)`です。入力とf(x)の形が同じである必要があります。深いモデルで情報と勾配の経路を作ります。Pre-Normは枝の変換の前に正規化する構成で、Transformerでよく使われます。
-
-現代のLLMで使われるSwiGLUは、SiLUという滑らかな関数を使った枝と別の線形枝を要素ごとに掛けます。SiLU(x)=xσ(x)。一例は`(SiLU(xW₁) ⊙ xW₃)W₂`です。⊙は要素ごとの積。同じ幅の普通の二層MLPとパラメータ数が違うので、比較では総数や[計算量](reference.html#term-complexity)をそろえます。
-
-## 演習
-
-:::exercise 1・パラメータ数
-入力3、出力5、バイアスありのLinear層のパラメータ数はいくつですか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-3×5+5=20です。バイアスなしなら15です。
+層の間に非線形な変換を入れるのが活性化関数。ReLUは負を0、正をそのままにします。複数の層をつなぐMLPで、−2は0、3は3。直線を重ねるだけの模型から変化を作れます。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・非線形性
-f(x)=2x、g(x)=3xを合成しても複雑な曲線にならない理由を説明してください。
-:::answer
-g(f(x))=6xで、やはり直線です。線形層を重ねるだけでは表現できる関係が広がりません。
-:::
 
-:::exercise 3・Dropout
-p=0.25のとき、残す成分へ掛ける倍率はいくつですか。
-:::answer
-1/(1−0.25)=4/3です。平均的な大きさを保つためですが、一回の出力が必ず同じになるわけではありません。
-:::
 
-:::exercise 4・正規化の違い
-すべての成分が2の[ベクトル](reference.html#term-vector)は、平均を引く正規化とRMSNormで同じ中間結果になりますか。
-:::answer
-なりません。平均を引けば分子は0。RMSNormは平均中心化せず、εを無視すれば各成分は約1になります。後の学習可能な変換は別です。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・残差のshape
-xが(B,T,32)、f(x)が(B,T,64)なら、そのまま加算できますか。
-:::answer
-末尾の軸が一致せず、そのままはできません。設計を修正するか、対応する射影が必要です。意図しない[broadcast](reference.html#term-broadcast)で通る形も避けます。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-## 到達課題と出典
+[直前の例へ戻る](26-pytorch.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](27-reader.html)
 
-小さなMLPで四点のXORを学習し、活性化なしのモデルと比較してください。分類境界、学習条件、失敗したseedも記録します。[PyTorch Neural Network](https://docs.pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html)、[RMSNorm](https://arxiv.org/abs/1910.07467)、[GLU Variants](https://arxiv.org/abs/2002.05202) を参照。
+<section class="resume-note" data-lesson="27-networks"><h2>次回の再開メモ</h2><label for="resume-27-networks">できたこと・止まった一文・次にすること</label><textarea id="resume-27-networks" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="26-pytorch.html">前の小ページ</a><a href="27u-002.html">次の小ページ</a></nav>

@@ -1,85 +1,33 @@
-{"title":"23 情報量・損失・Perplexity","part":"モデルを支える数学","goal":"確率分布の評価を、対数と期待値から導く","prereq":"07・20〜22"}
+{"title": "23 情報量・損失・Perplexity", "part": "モデルを支える数学", "goal": "確率分布の評価を、対数と期待値から導く", "prereq": "07・20〜22", "subpages": ["23u-002", "23u-003", "23u-004", "23u-005", "23u-006", "23u-007", "23u-008", "23u-009", "23u-010", "23u-011", "23u-012"], "next": "23u-002", "previous": "22u-017", "microtitle": "23-1 自己情報量・math.log・math.exp", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 自信を持って外したら
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-明日の天気を二つの候補から予測し、実際は雨だったとします。雨に0.9を付けた予測と0.01しか付けなかった予測を区別したい。正解・不正解だけでなく、正解にどれだけ確率を配ったかを測るのが負の[対数](reference.html#term-log)確率−ln qです。
+この章の1/12ページ。今日の目標：自己情報量・math.log・math.expの小例を一つ追う。
 
-真の分布pに従って結果が現れるとき、この[損失](reference.html#term-loss)の平均は`H(p,q)=−Σᵢpᵢ ln qᵢ`。交差[エントロピー](reference.html#term-entropy)と呼びます。Hは名前、pᵢは実際の出現確率、qᵢは予測確率です。学習データで正解ラベルが一つ与えられる場合、そのラベルの負の対数確率を計算します。
+今日の言葉：[自己情報量](beginner-glossary.html#concept-23-information)・[math.log](beginner-glossary.html#concept-23-information)・[math.exp](beginner-glossary.html#concept-23-information)。
 
-## もともとの不確かさ
+## なぜ使うか
 
-結果xの起こる確率p(x)が分かるとき、その自己情報量を `I(x)=−ln p(x)` とします。よく起こる結果は小さく、まれな結果は大きくなります。[底](reference.html#term-power)2なら単位はbit、自然対数ならnat。次のエントロピーは、この自己情報量を分布pで平均したものです。予測qの外れを測る交差エントロピーとは、どの確率へ対数を取るかを区別します。
+確率分布の評価を、対数と期待値から導くための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-予測分布もpを使った場合、`H(p)=−Σᵢpᵢ ln pᵢ`となり、エントロピーと呼びます。二択が半々ならln2≈0.693 nat、必ず片方なら0。情報量は単に「価値」や「意味の豊かさ」を表す日常語とは違い、分布に関する数量です。0 ln0は[極限](reference.html#term-derivative)で0として扱います。
+## 意味と小さな例
 
-交差エントロピーとエントロピーの差がKLダイバージェンスです。
+起こる確率pの負の対数が自己情報量です。p=1なら0、1/2なら約0.693。math.logはln、math.expはeの乗算回数を使う指数です。exp(ln(2))は丸めの範囲で2になります。
 
-<div class="formula">D<sub>KL</sub>(p‖q) = Σ<sub>i</sub> p<sub>i</sub> ln(p<sub>i</sub>/q<sub>i</sub>) = H(p,q) − H(p)</div>
-
-離散分布で必要な台の条件が満たされるとKLは非負で、p=qなら0です。pᵢ>0なのにqᵢ=0なら無限大になります。一般にKL(p‖q)とKL(q‖p)は違い、距離のような対称性はありません。
-
-## この章でいう損失と台
-
-損失は、予測の外れ具合を数で測り、小さくしたい量です。この章では正解へ低い確率を付けるほど大きくなる負の対数を使います。「分布の台」は、ここでは正の確率を持つ候補の集合です。pが起こり得るとする候補をqが確率0にすると、その候補の負の対数が無限大になる、という条件を式の前後で確認します。
-
-下のコードの `math.log(x)` は自然対数ln(x)、`math.exp(x)` はeのx乗です。[第7章](07-logarithms.html)の計算をPythonの数学[モジュール](reference.html#term-module)へ移しています。`zip`と生成式が読めなければ[第14章の展開](14-vectors.html)へ戻れます。
-
-## 言語モデルの困惑度
-
-N個の正解[トークン](reference.html#term-token)の平均負対数確率をLとすると、自然対数を使ったPerplexityはexp(L)です。毎回、四つの候補へ均等に確率を付けるならL=ln4、Perplexity=4。あくまで確率的な選択肢数のような量です。
-
-Perplexityが低いと、評価対象のトークン列へ平均的に高い確率を付けています。しかし会話の有用性や事実の正しさ全体を保証しません。トークナイザーや評価データが異なるPerplexityを、条件の説明なしに直接比較するのも不適切です。系列ごとの平均をさらに単純平均するか、全トークンで平均するかでも重み付けが変わります。
-
-```python
-import math
-p = [0.5, 0.5]
-q = [0.8, 0.2]
-entropy = -sum(x * math.log(x) for x in p)
-cross_entropy = -sum(x * math.log(y) for x, y in zip(p, q))
-print(entropy, cross_entropy, cross_entropy - entropy)
-print(math.exp(cross_entropy))
-```
-
-約0.693、0.916、0.223、2.5です。pは半々なのに片方へ偏った予測をするため、不可避の不確かさに余分な損失が加わります。
-
-## 演習
-
-:::exercise 1・一つの正解
-正解に付けた確率が1、1/2、1/4のとき、底2の負対数損失を答えてください。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-0、1、2 bitです。確率が半分になるごとに1 bit増えます。
+起こる確率pの負の対数が自己情報量です。p=1なら0、1/2なら約0.693。math.logはln、math.expはeの乗算回数を使う指数です。exp(ln(2))は丸めの範囲で2になります。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・交差エントロピー
-p=(1,0)、q=(0.25,0.75)なら自然対数の交差エントロピーはいくつですか。
-:::answer
-−ln0.25=ln4≈1.386です。正解が第一候補と確定しているため、その確率だけが寄与します。
-:::
 
-:::exercise 3・KLの向き
-p=(1,0)、q=(0.5,0.5)でKL(p‖q)とKL(q‖p)を比べてください。
-:::answer
-前者はln2。後者は第二候補でqが正、pが0なので無限大です。対称ではありません。
-:::
 
-:::exercise 4・Perplexity
-平均損失がln8ならPerplexityはいくつですか。
-:::answer
-exp(ln8)=8です。対数の底が2なら2の平均損失乗を使います。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・集計
-二トークンの損失が1ずつ、別の八トークンが2ずつでした。全トークン平均損失は何ですか。
-:::answer
-(2×1+8×2)/10=1.8です。文章ごとの平均1と2を単純平均した1.5とは重み付けが違います。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-:::exercise 6・比較条件
-異なるトークナイザーでPerplexityが20と10でした。後者が必ず優秀だと言えますか。
-:::answer
-言えません。予測の単位が変わるので、同じ評価データとトークン化などの条件を確認します。必要なら文字やバイト単位へ正規化した別指標も検討します。
-:::
+[直前の例へ戻る](22-statistics.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](23-reader.html)
 
-## 到達課題と出典
+<section class="resume-note" data-lesson="23-information"><h2>次回の再開メモ</h2><label for="resume-23-information">できたこと・止まった一文・次にすること</label><textarea id="resume-23-information" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
 
-自作の二択分布でp=qとp≠qを比べ、H・交差エントロピー・KLの関係を数値で示してください。[Dive into Deep Learning: Information Theory](https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/information-theory.html) が関連する公開教科書です。
+<nav class="pager" aria-label="小ページの順序"><a href="22-statistics.html">前の小ページ</a><a href="23u-002.html">次の小ページ</a></nav>

@@ -85,5 +85,7 @@ report = {"date": "2026-10-01", "html_pages": len(pages),
 # Failures may contain local paths. Only publish clean reports.
 if not failures and not options.structure_only:
     (ROOT / "verification" / "site-checks.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+if not failures and options.structure_only:
+    (ROOT / "verification" / "structure-checks.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 print(json.dumps(report, ensure_ascii=True, indent=2))
 sys.exit(bool(failures))

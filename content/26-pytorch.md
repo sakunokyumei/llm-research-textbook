@@ -1,89 +1,33 @@
-{"title":"26 PyTorchと自動微分","part":"機械学習と深層学習","goal":"手計算した勾配をautogradで検証する","prereq":"11・16・18・25"}
+{"title": "26 PyTorchと自動微分", "part": "機械学習と深層学習", "goal": "手計算した勾配をautogradで検証する", "prereq": "11・16・18・25", "subpages": ["26u-002", "26u-003", "26u-004", "26u-005", "26u-006", "26u-007", "26u-008", "26u-009", "26u-010", "26u-011", "26u-012", "26u-013"], "next": "26u-002", "previous": "25u-011", "microtitle": "26-1 torch.tensor・dtype", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 微分を手で全部書くのは大変
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-パラメータが二つなら[勾配](reference.html#term-gradient)を手で書けます。しかし百万個になると、式を間違えずに実装するのが難しくなります。PyTorchは、[テンソル](reference.html#term-tensor)の演算と計算グラフに基づく[自動微分](reference.html#term-autograd)を提供する[ライブラリ](reference.html#term-library)です。自動微分は、少しずつ入力を変えて差分を取る数値[微分](reference.html#term-derivative)とは異なり、実行した基本演算の微分を[連鎖律](reference.html#term-chain-rule)で組み合わせます。
+この章の1/13ページ。今日の目標：torch.tensor・dtypeの小例を一つ追う。
 
-インストールは [PyTorch公式の選択画面](https://pytorch.org/get-started/locally/) でOSとCPU/GPU環境に合うコマンドを選びます。まずCPUで本章を実行できます。実装ラボには、この教材で検証した版と再現コマンドを記載します。
+今日の言葉：[torch.tensor](beginner-glossary.html#concept-26-pytorch)・[dtype](beginner-glossary.html#concept-26-pytorch)。
 
-## NumPyから持ち込めるもの
+## なぜ使うか
 
-`torch.tensor(2.0)` はPythonの数からテンソルを作る操作です。表から作る点は第15章の `np.array` に似ていますが、別のライブラリの型です。整数IDは整数型、微分する重みは[浮動小数点](reference.html#term-finite)型で扱います。`dtype=torch.float64` は数を64bitの浮動小数点として保存する指定で、ここでいうdouble精度です。[第17章の数値精度](17-calculus.html)へ戻れます。
+手計算した勾配をautogradで検証するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-導入後に `python -c "import torch; print(torch.__version__)"` で版を表示します。`No module named torch` は今のPythonに導入されていないという意味です。[実装ラボの準備](labs.html)に従い、インストールと実行に同じ[仮想環境](reference.html#term-venv)のPythonを使います。GPUを使えない場合も本章のCPUコードを進められます。
+## 意味と小さな例
 
-## 一つの値で確かめる
+Pythonの数や並びをPyTorchの数の入れ物へ変えるのがtorch.tensor。dtypeは保存する数の型です。2.0を微分するなら浮動小数点、単語番号2は整数で保存します。float64は64bitの小数の指定です。
 
-```python
-import torch
-w = torch.tensor(2.0, requires_grad=True)
-loss = (w - 3) ** 2
-loss.backward()
-print(loss.item(), w.grad.item())
-```
-
-[損失](reference.html#term-loss)1、勾配−2です。`requires_grad=True`で微分を追跡し、`backward()`で出力から入力へたどります。`grad`が計算された勾配、`item()`は一要素のテンソルからPythonの値を取り出す操作です。整数の[添字](reference.html#term-index)テンソル自体へ通常の勾配を計算するわけではありません。
-
-`with` は、字下げした処理の間だけ指定した管理を適用する書き方です。`with torch.no_grad():` の中では通常の演算で新しい勾配追跡を作りません。`None` は値がないことを表すPythonの値で、`w.grad = None` は古い勾配を空にします。0という勾配が計算された場合とは区別します。`w -= ...` は値をその場で更新するため、追跡中の重みを更新するこの部分をno_gradで囲みます。[公式のno_grad](https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html)も参照できます。
-
-## 更新の順番
-
-```python
-import torch
-w = torch.tensor(0.0, requires_grad=True)
-for step in range(20):
-    loss = (w - 3) ** 2
-    loss.backward()
-    with torch.no_grad():
-        w -= 0.1 * w.grad
-    w.grad = None
-print(w.item())
-```
-
-値は3へ近づきます。PyTorchの勾配は基本的に加算されるため、次の独立な更新の前に消します。`no_grad()`は更新の操作を新しい計算グラフへ追加しないために使っています。通常のモデルでは[optimizer](reference.html#term-optimizer)の`zero_grad()`と`step()`がこの役割をまとめます。
-
-バッチは複数の例をまとめたものです。損失をバッチ平均にするか合計にするかで勾配の大きさが変わります。複数バッチの勾配を蓄積して一回更新する場合は、意図した平均になるよう重み付けをそろえます。
-
-optimizerは重みをどう更新するかを管理する道具です。`torch.optim.AdamW(model.parameters(), lr=0.01)` はモデルの調整する値を渡し、歩幅を指定して作ります。`zero_grad()`で前回の勾配を消し、損失を作って `backward()`、`step()`で値を更新します。具体的なMLPは次章、更新式の違いは第28章で確認します。Dropoutは学習中に一部の成分をくじで0にする方法で、詳しい倍率は次章です。
-
-## CPUとGPU、学習と評価
-
-テンソルにはdeviceがあり、CPUとGPUの値を不用意に混ぜて計算できません。モデルと入力を同じ装置へ移します。小さい処理では転送や準備の費用の方が大きいこともあります。
-
-`model.train()`と`model.eval()`はDropoutなどの振る舞いを切り替えます。evalは自動微分を無効化する命令ではありません。評価で勾配が不要なら`torch.no_grad()`や`torch.inference_mode()`も使います。逆にtrainはそれ自体で学習を実行する命令ではありません。
-
-## 演習
-
-:::exercise 1・手計算と照合
-loss=(2w+1)²、w=1でlossとw.gradを予想してください。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-lossは9、勾配は2×3×2=12です。上のコードの式と初期値を変更して確認します。
+Pythonの数や並びをPyTorchの数の入れ物へ変えるのがtorch.tensor。dtypeは保存する数の型です。2.0を微分するなら浮動小数点、単語番号2は整数で保存します。float64は64bitの小数の指定です。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・勾配の加算
-同じwについて独立に新しいlossを作ってbackwardを二回呼び、間にgradを消しませんでした。何に注意しますか。
-:::answer
-勾配が足されます。二回の勾配を意図的に蓄積したいのでなければ、更新前にzero_grad等で消します。同じグラフの再利用にはまた別の制約があります。
-:::
 
-:::exercise 3・平均と合計
-同じ例を四回複製してバッチにしました。損失を合計する場合と平均する場合で、勾配はどう違いますか。
-:::answer
-合計なら一例の4倍、平均なら一例と同じです。実効[学習率](reference.html#term-learning-rate)が変わる原因になります。
-:::
 
-:::exercise 4・evalの意味
-model.eval()だけを呼んだら、勾配の追跡は止まりますか。
-:::answer
-止まりません。層の動作モードと勾配追跡は別です。必要に応じno_grad等を併用します。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・数値検証
-自動微分と中央差分を比べるとき、最初にdouble精度の小さな入力で試す理由は何ですか。
-:::answer
-手で追える形にし、丸め誤差や巨大な計算による切り分けの難しさを減らすためです。差分の刻み幅や微分不可能な点にも注意します。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-## 到達課題と出典
+[直前の例へ戻る](25-regression.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](26-reader.html)
 
-線形回帰をPyTorchへ置き換え、手書きの勾配と同じ値になるか一回の更新で確認します。[PyTorch Autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html) と [Optimization](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html) を参照。
+<section class="resume-note" data-lesson="26-pytorch"><h2>次回の再開メモ</h2><label for="resume-26-pytorch">できたこと・止まった一文・次にすること</label><textarea id="resume-26-pytorch" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="25-regression.html">前の小ページ</a><a href="26u-002.html">次の小ページ</a></nav>

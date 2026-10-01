@@ -1,0 +1,303 @@
+[
+  {
+    "resource": "python-reading",
+    "slug": "python-reading",
+    "previous": "beginner-route",
+    "next": "python-reading-02",
+    "title": "研究コードへ進むためのPythonの橋"
+  },
+  {
+    "resource": "python-reading",
+    "slug": "python-reading-02",
+    "previous": "python-reading",
+    "next": "python-reading-03",
+    "title": "クラスを部品として使う"
+  },
+  {
+    "resource": "python-reading",
+    "slug": "python-reading-03",
+    "previous": "python-reading-02",
+    "next": "python-reading-04",
+    "title": "表を分けて、また戻す"
+  },
+  {
+    "resource": "python-reading",
+    "slug": "python-reading-04",
+    "previous": "python-reading-03",
+    "next": "python-reading-05",
+    "title": "設定と関数の呼び方"
+  },
+  {
+    "resource": "python-reading",
+    "slug": "python-reading-05",
+    "previous": "python-reading-04",
+    "next": "python-reading-06",
+    "title": "乱数・保存・実行を切り分ける"
+  },
+  {
+    "resource": "python-reading",
+    "slug": "python-reading-06",
+    "previous": "python-reading-05",
+    "next": "python-reading-07",
+    "title": "乱数・保存・実行を切り分ける"
+  },
+  {
+    "resource": "python-reading",
+    "slug": "python-reading-07",
+    "previous": "python-reading-06",
+    "next": "beginner-route",
+    "title": "見つからない記法に出会ったら"
+  },
+  {
+    "resource": "cpu-practice",
+    "slug": "cpu-practice",
+    "previous": "beginner-route",
+    "next": "cpu-practice-02",
+    "title": "CPUで、モデルの更新を一周する"
+  },
+  {
+    "resource": "cpu-practice",
+    "slug": "cpu-practice-02",
+    "previous": "cpu-practice",
+    "next": "cpu-practice-03",
+    "title": "四点を紙に描く"
+  },
+  {
+    "resource": "cpu-practice",
+    "slug": "cpu-practice-03",
+    "previous": "cpu-practice-02",
+    "next": "cpu-practice-04",
+    "title": "一周の流れ"
+  },
+  {
+    "resource": "cpu-practice",
+    "slug": "cpu-practice-04",
+    "previous": "cpu-practice-03",
+    "next": "cpu-practice-05",
+    "title": "一周の流れ"
+  },
+  {
+    "resource": "cpu-practice",
+    "slug": "cpu-practice-05",
+    "previous": "cpu-practice-04",
+    "next": "beginner-route",
+    "title": "次へ進む目印"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide",
+    "previous": "56-capstone",
+    "next": "capstone-guide-02",
+    "title": "卒業研究を、実行と報告まで進める"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-02",
+    "previous": "capstone-guide",
+    "next": "capstone-guide-03",
+    "title": "1．どの距離を測るか、図で決める"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-03",
+    "previous": "capstone-guide-02",
+    "next": "capstone-guide-04",
+    "title": "2．小さい確認を先に通す"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-04",
+    "previous": "capstone-guide-03",
+    "next": "capstone-guide-05",
+    "title": "3．実験票を書いてから九実行を残す"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-05",
+    "previous": "capstone-guide-04",
+    "next": "capstone-guide-06",
+    "title": "3．実験票を書いてから九実行を残す"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-06",
+    "previous": "capstone-guide-05",
+    "next": "capstone-guide-07",
+    "title": "4．一つの変更を自分の問いにする"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-07",
+    "previous": "capstone-guide-06",
+    "next": "capstone-guide-08",
+    "title": "4．一つの変更を自分の問いにする"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-08",
+    "previous": "capstone-guide-07",
+    "next": "capstone-guide-09",
+    "title": "5．最終testの前に固定する"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-09",
+    "previous": "capstone-guide-08",
+    "next": "capstone-guide-10",
+    "title": "6．図表と報告を完成させる"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-10",
+    "previous": "capstone-guide-09",
+    "next": "capstone-guide-11",
+    "title": "制作時の実測例：負の結果も読む"
+  },
+  {
+    "resource": "capstone-guide",
+    "slug": "capstone-guide-11",
+    "previous": "capstone-guide-10",
+    "next": "56-capstone",
+    "title": "完了の自己確認"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs",
+    "previous": "beginner-route",
+    "next": "labs-02",
+    "title": "実装ラボ：動かし、壊し、確かめる"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-02",
+    "previous": "labs",
+    "next": "labs-03",
+    "title": "まず確率を動かしてみよう"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-03",
+    "previous": "labs-02",
+    "next": "labs-04",
+    "title": "0．実行の準備"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-04",
+    "previous": "labs-03",
+    "next": "labs-05",
+    "title": "1．数式と自動微分"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-05",
+    "previous": "labs-04",
+    "next": "labs-06",
+    "title": "2．byte BPEを自作する"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-06",
+    "previous": "labs-05",
+    "next": "labs-07",
+    "title": "3．Tiny Transformerを学習する"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-07",
+    "previous": "labs-06",
+    "next": "labs-08",
+    "title": "3．Tiny Transformerを学習する"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-08",
+    "previous": "labs-07",
+    "next": "labs-09",
+    "title": "4．ablationと複数seed"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-09",
+    "previous": "labs-08",
+    "next": "labs-10",
+    "title": "4．ablationと複数seed"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-10",
+    "previous": "labs-09",
+    "next": "labs-11",
+    "title": "5．検索と報酬を独立に検証する"
+  },
+  {
+    "resource": "labs",
+    "slug": "labs-11",
+    "previous": "labs-10",
+    "next": "beginner-route",
+    "title": "6．独自実験へ"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide",
+    "previous": "beginner-route",
+    "next": "lab-guide-02",
+    "title": "Tiny Transformerのコードを読む"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-02",
+    "previous": "lab-guide",
+    "next": "lab-guide-03",
+    "title": "1．データを一行で追う"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-03",
+    "previous": "lab-guide-02",
+    "next": "lab-guide-04",
+    "title": "2．embeddingは行を選ぶ"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-04",
+    "previous": "lab-guide-03",
+    "next": "lab-guide-05",
+    "title": "3．QKVをheadへ分ける"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-05",
+    "previous": "lab-guide-04",
+    "next": "lab-guide-06",
+    "title": "4．残差とMLP"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-06",
+    "previous": "lab-guide-05",
+    "next": "lab-guide-07",
+    "title": "5．損失と更新"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-07",
+    "previous": "lab-guide-06",
+    "next": "lab-guide-08",
+    "title": "6．評価を学習から分ける"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-08",
+    "previous": "lab-guide-07",
+    "next": "lab-guide-09",
+    "title": "7．保存されるものを確認"
+  },
+  {
+    "resource": "lab-guide",
+    "slug": "lab-guide-09",
+    "previous": "lab-guide-08",
+    "next": "beginner-route",
+    "title": "自分で確かめる課題"
+  }
+]

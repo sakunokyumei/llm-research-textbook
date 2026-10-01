@@ -1,0 +1,6435 @@
+[
+  {
+    "chapter": 6,
+    "slug": "06-functions",
+    "kind": "concept",
+    "terms": [
+      "関数"
+    ],
+    "title": "関数",
+    "previous": "05e-proportion",
+    "next": "06u-002"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-002",
+    "kind": "concept",
+    "terms": [
+      "定義域",
+      "値域"
+    ],
+    "title": "定義域・値域",
+    "previous": "06-functions",
+    "next": "06u-003"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-003",
+    "kind": "concept",
+    "terms": [
+      "横軸",
+      "縦軸"
+    ],
+    "title": "横軸・縦軸",
+    "previous": "06u-002",
+    "next": "06u-004"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-004",
+    "kind": "concept",
+    "terms": [
+      "傾き",
+      "切片"
+    ],
+    "title": "傾き・切片",
+    "previous": "06u-003",
+    "next": "06u-005"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-005",
+    "kind": "concept",
+    "terms": [
+      "関数の合成"
+    ],
+    "title": "関数の合成",
+    "previous": "06u-004",
+    "next": "06u-006"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-006",
+    "kind": "concept",
+    "terms": [
+      "添字",
+      "Σ"
+    ],
+    "title": "添字・Σ",
+    "previous": "06u-005",
+    "next": "06u-007"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-007",
+    "kind": "concept",
+    "terms": [
+      "Π",
+      "平均"
+    ],
+    "title": "Π・平均",
+    "previous": "06u-006",
+    "next": "06u-008"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ機械に違う入力を入れる",
+    "previous": "06u-007",
+    "next": "06u-009"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "グラフは対応の見取り図",
+    "previous": "06u-008",
+    "next": "06u-010"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "関数をつなぐ",
+    "previous": "06u-009",
+    "next": "06u-011"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "たくさんの数に名前を付ける",
+    "previous": "06u-010",
+    "next": "06u-012"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "06u-011",
+    "next": "06u-013"
+  },
+  {
+    "chapter": 6,
+    "slug": "06u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と参照",
+    "previous": "06u-012",
+    "next": "07-logarithms"
+  },
+  {
+    "chapter": 7,
+    "slug": "07-logarithms",
+    "kind": "concept",
+    "terms": [
+      "対数"
+    ],
+    "title": "対数",
+    "previous": "06u-013",
+    "next": "07u-002"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-002",
+    "kind": "concept",
+    "terms": [
+      "積の対数の規則"
+    ],
+    "title": "積の対数の規則",
+    "previous": "07-logarithms",
+    "next": "07u-003"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-003",
+    "kind": "concept",
+    "terms": [
+      "確率",
+      "事象"
+    ],
+    "title": "確率・事象",
+    "previous": "07u-002",
+    "next": "07u-004"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-004",
+    "kind": "concept",
+    "terms": [
+      "独立",
+      "条件付き確率"
+    ],
+    "title": "独立・条件付き確率",
+    "previous": "07u-003",
+    "next": "07u-005"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-005",
+    "kind": "concept",
+    "terms": [
+      "e",
+      "自然対数",
+      "exp"
+    ],
+    "title": "e・自然対数・exp",
+    "previous": "07u-004",
+    "next": "07u-006"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-006",
+    "kind": "concept",
+    "terms": [
+      "nat",
+      "負の対数確率"
+    ],
+    "title": "nat・負の対数確率",
+    "previous": "07u-005",
+    "next": "07u-007"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "何回倍にしたか知りたい",
+    "previous": "07u-006",
+    "next": "07u-008"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "なぜ掛け算が足し算になるか",
+    "previous": "07u-007",
+    "next": "07u-009"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "eと自然対数",
+    "previous": "07u-008",
+    "next": "07u-010"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "07u-009",
+    "next": "07u-011"
+  },
+  {
+    "chapter": 7,
+    "slug": "07u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と参照",
+    "previous": "07u-010",
+    "next": "08-python"
+  },
+  {
+    "chapter": 8,
+    "slug": "08-python",
+    "kind": "concept",
+    "terms": [
+      "Python",
+      "プログラム"
+    ],
+    "title": "Python・プログラム",
+    "previous": "07u-011",
+    "next": "08u-002"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-002",
+    "kind": "concept",
+    "terms": [
+      "ターミナル",
+      "コマンド",
+      "OS"
+    ],
+    "title": "ターミナル・コマンド・OS",
+    "previous": "08-python",
+    "next": "08u-003"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-003",
+    "kind": "concept",
+    "terms": [
+      "テキストエディター",
+      "拡張子",
+      "パス"
+    ],
+    "title": "テキストエディター・拡張子・パス",
+    "previous": "08u-002",
+    "next": "08u-004"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-004",
+    "kind": "concept",
+    "terms": [
+      "cd",
+      "print",
+      "変数"
+    ],
+    "title": "cd・print・変数",
+    "previous": "08u-003",
+    "next": "08u-005"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-005",
+    "kind": "concept",
+    "terms": [
+      "Pythonの代入",
+      "=="
+    ],
+    "title": "Pythonの代入・==",
+    "previous": "08u-004",
+    "next": "08u-006"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-006",
+    "kind": "concept",
+    "terms": [
+      "int",
+      "float",
+      "str"
+    ],
+    "title": "int・float・str",
+    "previous": "08u-005",
+    "next": "08u-007"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-007",
+    "kind": "concept",
+    "terms": [
+      "bool",
+      "type"
+    ],
+    "title": "bool・type",
+    "previous": "08u-006",
+    "next": "08u-008"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-008",
+    "kind": "concept",
+    "terms": [
+      "床除算",
+      "剰余"
+    ],
+    "title": "床除算・剰余",
+    "previous": "08u-007",
+    "next": "08u-009"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-009",
+    "kind": "concept",
+    "terms": [
+      "NameError",
+      "SyntaxError"
+    ],
+    "title": "NameError・SyntaxError",
+    "previous": "08u-008",
+    "next": "08u-010"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ計算を何度も頼む",
+    "previous": "08u-009",
+    "next": "08u-011"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "ファイルを実行する",
+    "previous": "08u-010",
+    "next": "08u-012"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "値には種類がある",
+    "previous": "08u-011",
+    "next": "08u-013"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "エラーは観測結果",
+    "previous": "08u-012",
+    "next": "08u-014"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "エラーが出たら、この順に確認する",
+    "previous": "08u-013",
+    "next": "08u-015"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "08u-014",
+    "next": "08u-016"
+  },
+  {
+    "chapter": 8,
+    "slug": "08u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "08u-015",
+    "next": "09-control"
+  },
+  {
+    "chapter": 9,
+    "slug": "09-control",
+    "kind": "concept",
+    "terms": [
+      "if",
+      "else"
+    ],
+    "title": "if・else",
+    "previous": "08u-016",
+    "next": "09u-002"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-002",
+    "kind": "concept",
+    "terms": [
+      "リスト",
+      "for",
+      "インデント"
+    ],
+    "title": "リスト・for・インデント",
+    "previous": "09-control",
+    "next": "09u-003"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-003",
+    "kind": "concept",
+    "terms": [
+      "range",
+      "while"
+    ],
+    "title": "range・while",
+    "previous": "09u-002",
+    "next": "09u-004"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-004",
+    "kind": "concept",
+    "terms": [
+      "def",
+      "引数",
+      "return"
+    ],
+    "title": "def・引数・return",
+    "previous": "09u-003",
+    "next": "09u-005"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-005",
+    "kind": "concept",
+    "terms": [
+      "raise",
+      "空リストの判定"
+    ],
+    "title": "raise・空リストの判定",
+    "previous": "09u-004",
+    "next": "09u-006"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "人が毎回判断しなくてよいように",
+    "previous": "09u-005",
+    "next": "09u-007"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "足し合わせる処理を追う",
+    "previous": "09u-006",
+    "next": "09u-008"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "処理へ名前を付ける",
+    "previous": "09u-007",
+    "next": "09u-009"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "09u-008",
+    "next": "09u-010"
+  },
+  {
+    "chapter": 9,
+    "slug": "09u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "09u-009",
+    "next": "10-data"
+  },
+  {
+    "chapter": 10,
+    "slug": "10-data",
+    "kind": "concept",
+    "terms": [
+      "辞書",
+      "集合",
+      "タプル"
+    ],
+    "title": "辞書・集合・タプル",
+    "previous": "09u-010",
+    "next": "10u-002"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-002",
+    "kind": "concept",
+    "terms": [
+      "len",
+      "スライス",
+      "append"
+    ],
+    "title": "len・スライス・append",
+    "previous": "10-data",
+    "next": "10u-003"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-003",
+    "kind": "concept",
+    "terms": [
+      "参照",
+      "浅いコピー",
+      "深いコピー"
+    ],
+    "title": "参照・浅いコピー・深いコピー",
+    "previous": "10u-002",
+    "next": "10u-004"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-004",
+    "kind": "concept",
+    "terms": [
+      "split",
+      "strip",
+      "トークン"
+    ],
+    "title": "split・strip・トークン",
+    "previous": "10u-003",
+    "next": "10u-005"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-005",
+    "kind": "concept",
+    "terms": [
+      "get",
+      "KeyError"
+    ],
+    "title": "get・KeyError",
+    "previous": "10u-004",
+    "next": "10u-006"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-006",
+    "kind": "concept",
+    "terms": [
+      "JSON",
+      "CSV"
+    ],
+    "title": "JSON・CSV",
+    "previous": "10u-005",
+    "next": "10u-007"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-007",
+    "kind": "concept",
+    "terms": [
+      "モジュール",
+      "import",
+      "Path"
+    ],
+    "title": "モジュール・import・Path",
+    "previous": "10u-006",
+    "next": "10u-008"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-008",
+    "kind": "concept",
+    "terms": [
+      "UTF-8",
+      "一意性"
+    ],
+    "title": "UTF-8・一意性",
+    "previous": "10u-007",
+    "next": "10u-009"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "実験の材料を整理する",
+    "previous": "10u-008",
+    "next": "10u-010"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "文章もデータ",
+    "previous": "10u-009",
+    "next": "10u-011"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "JSONとCSV",
+    "previous": "10u-010",
+    "next": "10u-012"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "10u-011",
+    "next": "10u-013"
+  },
+  {
+    "chapter": 10,
+    "slug": "10u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "10u-012",
+    "next": "11-debug"
+  },
+  {
+    "chapter": 11,
+    "slug": "11-debug",
+    "kind": "concept",
+    "terms": [
+      "テスト",
+      "仕様",
+      "assert"
+    ],
+    "title": "テスト・仕様・assert",
+    "previous": "10u-013",
+    "next": "11u-002"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-002",
+    "kind": "concept",
+    "terms": [
+      "sum",
+      "abs",
+      "許容誤差"
+    ],
+    "title": "sum・abs・許容誤差",
+    "previous": "11-debug",
+    "next": "11u-003"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-003",
+    "kind": "concept",
+    "terms": [
+      "try",
+      "except"
+    ],
+    "title": "try・except",
+    "previous": "11u-002",
+    "next": "11u-004"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-004",
+    "kind": "concept",
+    "terms": [
+      "クラス",
+      "self",
+      "__init__"
+    ],
+    "title": "クラス・self・__init__",
+    "previous": "11u-003",
+    "next": "11u-005"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-005",
+    "kind": "concept",
+    "terms": [
+      "PyTorch",
+      "ablation",
+      "有限精度"
+    ],
+    "title": "PyTorch・ablation・有限精度",
+    "previous": "11u-004",
+    "next": "11u-006"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "動いたことは、正しいことか",
+    "previous": "11u-005",
+    "next": "11u-007"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "正常・境界・異常",
+    "previous": "11u-006",
+    "next": "11u-008"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "大きな失敗を小さくする",
+    "previous": "11u-007",
+    "next": "11u-009"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "11u-008",
+    "next": "11u-010"
+  },
+  {
+    "chapter": 11,
+    "slug": "11u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "11u-009",
+    "next": "12-environment"
+  },
+  {
+    "chapter": 12,
+    "slug": "12-environment",
+    "kind": "concept",
+    "terms": [
+      "ライブラリ",
+      "NumPy"
+    ],
+    "title": "ライブラリ・NumPy",
+    "previous": "11u-010",
+    "next": "12u-002"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-002",
+    "kind": "concept",
+    "terms": [
+      "CPU",
+      "GPU",
+      "ドライバー"
+    ],
+    "title": "CPU・GPU・ドライバー",
+    "previous": "12-environment",
+    "next": "12u-003"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-003",
+    "kind": "concept",
+    "terms": [
+      "仮想環境",
+      "pip"
+    ],
+    "title": "仮想環境・pip",
+    "previous": "12u-002",
+    "next": "12u-004"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-004",
+    "kind": "concept",
+    "terms": [
+      "Git",
+      "GitHub",
+      "リポジトリ"
+    ],
+    "title": "Git・GitHub・リポジトリ",
+    "previous": "12u-003",
+    "next": "12u-005"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-005",
+    "kind": "concept",
+    "terms": [
+      "commit",
+      "作者設定",
+      "noreply"
+    ],
+    "title": "commit・作者設定・noreply",
+    "previous": "12u-004",
+    "next": "12u-006"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-006",
+    "kind": "concept",
+    "terms": [
+      "シェル",
+      "README"
+    ],
+    "title": "シェル・README",
+    "previous": "12u-005",
+    "next": "12u-007"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-007",
+    "kind": "concept",
+    "terms": [
+      "ハッシュ",
+      "秘密鍵",
+      "APIキー"
+    ],
+    "title": "ハッシュ・秘密鍵・APIキー",
+    "previous": "12u-006",
+    "next": "12u-008"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-008",
+    "kind": "concept",
+    "terms": [
+      "データ分割",
+      "乱数",
+      "seed"
+    ],
+    "title": "データ分割・乱数・seed",
+    "previous": "12u-007",
+    "next": "12u-009"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "昨日は動いたのに",
+    "previous": "12u-008",
+    "next": "12u-010"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "用意するものと、今回は用意しないもの",
+    "previous": "12u-009",
+    "next": "12u-011"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Gitは変化の記録",
+    "previous": "12u-010",
+    "next": "12u-012"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Gitは変化の記録",
+    "previous": "12u-011",
+    "next": "12u-013"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "シェルの最低限",
+    "previous": "12u-012",
+    "next": "12u-014"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "最小の実験記録",
+    "previous": "12u-013",
+    "next": "12u-015"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "12u-014",
+    "next": "12u-016"
+  },
+  {
+    "chapter": 12,
+    "slug": "12u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "12u-015",
+    "next": "13-algorithms"
+  },
+  {
+    "chapter": 13,
+    "slug": "13-algorithms",
+    "kind": "concept",
+    "terms": [
+      "計算量",
+      "O記法",
+      "二分探索"
+    ],
+    "title": "計算量・O記法・二分探索",
+    "previous": "12u-016",
+    "next": "13u-002"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-002",
+    "kind": "concept",
+    "terms": [
+      "SQL",
+      "SELECT",
+      "FROM"
+    ],
+    "title": "SQL・SELECT・FROM",
+    "previous": "13-algorithms",
+    "next": "13u-003"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-003",
+    "kind": "concept",
+    "terms": [
+      "WHERE",
+      "GROUP BY",
+      "AVG"
+    ],
+    "title": "WHERE・GROUP BY・AVG",
+    "previous": "13u-002",
+    "next": "13u-004"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-004",
+    "kind": "concept",
+    "terms": [
+      "COUNT",
+      "CREATE TABLE",
+      "INSERT INTO"
+    ],
+    "title": "COUNT・CREATE TABLE・INSERT INTO",
+    "previous": "13u-003",
+    "next": "13u-005"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-005",
+    "kind": "concept",
+    "terms": [
+      "sqlite3",
+      "connect",
+      "execute"
+    ],
+    "title": "sqlite3・connect・execute",
+    "previous": "13u-004",
+    "next": "13u-006"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-006",
+    "kind": "concept",
+    "terms": [
+      "executemany",
+      "fetchall",
+      "close"
+    ],
+    "title": "executemany・fetchall・close",
+    "previous": "13u-005",
+    "next": "13u-007"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-007",
+    "kind": "concept",
+    "terms": [
+      "正規表現",
+      "perf_counter"
+    ],
+    "title": "正規表現・perf_counter",
+    "previous": "13u-006",
+    "next": "13u-008"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-008",
+    "kind": "concept",
+    "terms": [
+      "not in",
+      "set.add"
+    ],
+    "title": "not in・set.add",
+    "previous": "13u-007",
+    "next": "13u-009"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "10件で速くても、100万件では",
+    "previous": "13u-008",
+    "next": "13u-010"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "表へ質問する言語",
+    "previous": "13u-009",
+    "next": "13u-011"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "13u-010",
+    "next": "13u-012"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "時間を測る小さな練習",
+    "previous": "13u-011",
+    "next": "13u-013"
+  },
+  {
+    "chapter": 13,
+    "slug": "13u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "13u-012",
+    "next": "14-vectors"
+  },
+  {
+    "chapter": 14,
+    "slug": "14-vectors",
+    "kind": "concept",
+    "terms": [
+      "ベクトル",
+      "成分",
+      "次元"
+    ],
+    "title": "ベクトル・成分・次元",
+    "previous": "13u-013",
+    "next": "14u-002"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-002",
+    "kind": "concept",
+    "terms": [
+      "スカラー",
+      "スカラー倍",
+      "内積"
+    ],
+    "title": "スカラー・スカラー倍・内積",
+    "previous": "14-vectors",
+    "next": "14u-003"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-003",
+    "kind": "concept",
+    "terms": [
+      "ユークリッドノルム",
+      "ピタゴラスの定理"
+    ],
+    "title": "ユークリッドノルム・ピタゴラスの定理",
+    "previous": "14u-002",
+    "next": "14u-004"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-004",
+    "kind": "concept",
+    "terms": [
+      "直角三角形",
+      "斜辺",
+      "直交"
+    ],
+    "title": "直角三角形・斜辺・直交",
+    "previous": "14u-003",
+    "next": "14u-005"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-005",
+    "kind": "concept",
+    "terms": [
+      "コサイン類似度",
+      "埋め込み"
+    ],
+    "title": "コサイン類似度・埋め込み",
+    "previous": "14u-004",
+    "next": "14u-006"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-006",
+    "kind": "concept",
+    "terms": [
+      "math.sqrt",
+      "zip",
+      "アンパック"
+    ],
+    "title": "math.sqrt・zip・アンパック",
+    "previous": "14u-005",
+    "next": "14u-007"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-007",
+    "kind": "concept",
+    "terms": [
+      "内包表記",
+      "生成式"
+    ],
+    "title": "内包表記・生成式",
+    "previous": "14u-006",
+    "next": "14u-008"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一つの数では表せないもの",
+    "previous": "14u-007",
+    "next": "14u-009"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "内積は、対応を掛けて足す",
+    "previous": "14u-008",
+    "next": "14u-010"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "大きさと方向を分ける",
+    "previous": "14u-009",
+    "next": "14u-011"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "手計算を、一行ずつコードにする",
+    "previous": "14u-010",
+    "next": "14u-012"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "短い書き方へ進む橋（今日は保留してよい）",
+    "previous": "14u-011",
+    "next": "14u-013"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "追加の確認問題",
+    "previous": "14u-012",
+    "next": "14u-014"
+  },
+  {
+    "chapter": 14,
+    "slug": "14u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "14u-013",
+    "next": "15-matrices"
+  },
+  {
+    "chapter": 15,
+    "slug": "15-matrices",
+    "kind": "concept",
+    "terms": [
+      "行列",
+      "行と列"
+    ],
+    "title": "行列・行と列",
+    "previous": "14u-014",
+    "next": "15u-002"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-002",
+    "kind": "concept",
+    "terms": [
+      "列ベクトル",
+      "行ベクトル"
+    ],
+    "title": "列ベクトル・行ベクトル",
+    "previous": "15-matrices",
+    "next": "15u-003"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-003",
+    "kind": "concept",
+    "terms": [
+      "行列積"
+    ],
+    "title": "行列積",
+    "previous": "15u-002",
+    "next": "15u-004"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-004",
+    "kind": "concept",
+    "terms": [
+      "転置"
+    ],
+    "title": "転置",
+    "previous": "15u-003",
+    "next": "15u-005"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-005",
+    "kind": "concept",
+    "terms": [
+      "線形独立"
+    ],
+    "title": "線形独立",
+    "previous": "15u-004",
+    "next": "15u-006"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-006",
+    "kind": "concept",
+    "terms": [
+      "線形結合",
+      "基底",
+      "ランク"
+    ],
+    "title": "線形結合・基底・ランク",
+    "previous": "15u-005",
+    "next": "15u-007"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-007",
+    "kind": "concept",
+    "terms": [
+      "連立方程式",
+      "逆行列"
+    ],
+    "title": "連立方程式・逆行列",
+    "previous": "15u-006",
+    "next": "15u-008"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-008",
+    "kind": "concept",
+    "terms": [
+      "np.array",
+      "@",
+      "np.linalg.solve"
+    ],
+    "title": "np.array・@・np.linalg.solve",
+    "previous": "15u-007",
+    "next": "15u-009"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "この章は、一回一ページで進める",
+    "previous": "15u-008",
+    "next": "15u-010"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "数の向きと、行・列を決める",
+    "previous": "15u-009",
+    "next": "15u-011"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "15u-010",
+    "next": "15u-012"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "四つの出力を一つずつ求める",
+    "previous": "15u-011",
+    "next": "15u-013"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "15u-012",
+    "next": "15u-014"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一行を一列へ移す",
+    "previous": "15u-013",
+    "next": "15u-015"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "15u-014",
+    "next": "15u-016"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二つの方向で全部を作れるか",
+    "previous": "15u-015",
+    "next": "15u-017"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-017",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "15u-016",
+    "next": "15u-018"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-018",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ条件を表と式で書く",
+    "previous": "15u-017",
+    "next": "15u-019"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-019",
+    "kind": "lecture",
+    "terms": [],
+    "title": "章の到達課題と出典",
+    "previous": "15u-018",
+    "next": "15u-020"
+  },
+  {
+    "chapter": 15,
+    "slug": "15u-020",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "15u-019",
+    "next": "16-tensors"
+  },
+  {
+    "chapter": 16,
+    "slug": "16-tensors",
+    "kind": "concept",
+    "terms": [
+      "テンソル",
+      "バッチ",
+      "shape"
+    ],
+    "title": "テンソル・バッチ・shape",
+    "previous": "15u-020",
+    "next": "16u-002"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-002",
+    "kind": "concept",
+    "terms": [
+      "broadcast"
+    ],
+    "title": "broadcast",
+    "previous": "16-tensors",
+    "next": "16u-003"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-003",
+    "kind": "concept",
+    "terms": [
+      "arange",
+      "reshape",
+      "axis"
+    ],
+    "title": "arange・reshape・axis",
+    "previous": "16u-002",
+    "next": "16u-004"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-004",
+    "kind": "concept",
+    "terms": [
+      "対角行列",
+      "diag",
+      "単位行列"
+    ],
+    "title": "対角行列・diag・単位行列",
+    "previous": "16u-003",
+    "next": "16u-005"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-005",
+    "kind": "concept",
+    "terms": [
+      "固有値",
+      "固有ベクトル"
+    ],
+    "title": "固有値・固有ベクトル",
+    "previous": "16u-004",
+    "next": "16u-006"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-006",
+    "kind": "concept",
+    "terms": [
+      "SVD",
+      "特異値"
+    ],
+    "title": "SVD・特異値",
+    "previous": "16u-005",
+    "next": "16u-007"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-007",
+    "kind": "concept",
+    "terms": [
+      "full_matrices=False",
+      "allclose"
+    ],
+    "title": "full_matrices=False・allclose",
+    "previous": "16u-006",
+    "next": "16u-008"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-008",
+    "kind": "concept",
+    "terms": [
+      "低ランク近似",
+      "Frobeniusノルム"
+    ],
+    "title": "低ランク近似・Frobeniusノルム",
+    "previous": "16u-007",
+    "next": "16u-009"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "この章は、一回一ページで進める",
+    "previous": "16u-008",
+    "next": "16u-010"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "文章をまとめる表の形",
+    "previous": "16u-009",
+    "next": "16u-011"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "16u-010",
+    "next": "16u-012"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "省略した0を書き戻す",
+    "previous": "16u-011",
+    "next": "16u-013"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "16u-012",
+    "next": "16u-014"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "横と縦を違う倍率にする",
+    "previous": "16u-013",
+    "next": "16u-015"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "16u-014",
+    "next": "16u-016"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "方向をそろえ、伸ばし、戻す",
+    "previous": "16u-015",
+    "next": "16u-017"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-017",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "16u-016",
+    "next": "16u-018"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-018",
+    "kind": "lecture",
+    "terms": [],
+    "title": "形を表にしてから実行する",
+    "previous": "16u-017",
+    "next": "16u-019"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-019",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "16u-018",
+    "next": "16u-020"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-020",
+    "kind": "lecture",
+    "terms": [],
+    "title": "残すものと失うものを分ける",
+    "previous": "16u-019",
+    "next": "16u-021"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-021",
+    "kind": "lecture",
+    "terms": [],
+    "title": "章の到達課題と戻り先",
+    "previous": "16u-020",
+    "next": "16u-022"
+  },
+  {
+    "chapter": 16,
+    "slug": "16u-022",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "16u-021",
+    "next": "17-calculus"
+  },
+  {
+    "chapter": 17,
+    "slug": "17-calculus",
+    "kind": "concept",
+    "terms": [
+      "平均変化率"
+    ],
+    "title": "平均変化率",
+    "previous": "16u-022",
+    "next": "17u-002"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-002",
+    "kind": "concept",
+    "terms": [
+      "微分",
+      "極限",
+      "lim"
+    ],
+    "title": "微分・極限・lim",
+    "previous": "17-calculus",
+    "next": "17u-003"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-003",
+    "kind": "concept",
+    "terms": [
+      "微分係数",
+      "導関数"
+    ],
+    "title": "微分係数・導関数",
+    "previous": "17u-002",
+    "next": "17u-004"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-004",
+    "kind": "concept",
+    "terms": [
+      "積の微分"
+    ],
+    "title": "積の微分",
+    "previous": "17u-003",
+    "next": "17u-005"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-005",
+    "kind": "concept",
+    "terms": [
+      "浮動小数点",
+      "桁落ち"
+    ],
+    "title": "浮動小数点・桁落ち",
+    "previous": "17u-004",
+    "next": "17u-006"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "この章は、一回一ページで進める",
+    "previous": "17u-005",
+    "next": "17u-007"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "時間幅を小さくする",
+    "previous": "17u-006",
+    "next": "17u-008"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "時間幅を小さくする",
+    "previous": "17u-007",
+    "next": "17u-009"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "17u-008",
+    "next": "17u-010"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "数値の例から一般式へ",
+    "previous": "17u-009",
+    "next": "17u-011"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "17u-010",
+    "next": "17u-012"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "左右で傾きが違う点",
+    "previous": "17u-011",
+    "next": "17u-013"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "小さい差が消えるとは",
+    "previous": "17u-012",
+    "next": "17u-014"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "章の到達課題と参照",
+    "previous": "17u-013",
+    "next": "17u-015"
+  },
+  {
+    "chapter": 17,
+    "slug": "17u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "17u-014",
+    "next": "18-chain"
+  },
+  {
+    "chapter": 18,
+    "slug": "18-chain",
+    "kind": "concept",
+    "terms": [
+      "偏微分",
+      "勾配"
+    ],
+    "title": "偏微分・勾配",
+    "previous": "17u-015",
+    "next": "18u-002"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-002",
+    "kind": "concept",
+    "terms": [
+      "連鎖律",
+      "逆伝播"
+    ],
+    "title": "連鎖律・逆伝播",
+    "previous": "18-chain",
+    "next": "18u-003"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-003",
+    "kind": "concept",
+    "terms": [
+      "損失",
+      "学習率"
+    ],
+    "title": "損失・学習率",
+    "previous": "18u-002",
+    "next": "18u-004"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-004",
+    "kind": "concept",
+    "terms": [
+      "一次近似",
+      "単位方向"
+    ],
+    "title": "一次近似・単位方向",
+    "previous": "18u-003",
+    "next": "18u-005"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-005",
+    "kind": "concept",
+    "terms": [
+      "ヤコビ行列"
+    ],
+    "title": "ヤコビ行列",
+    "previous": "18u-004",
+    "next": "18u-006"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-006",
+    "kind": "concept",
+    "terms": [
+      "JVP",
+      "VJP"
+    ],
+    "title": "JVP・VJP",
+    "previous": "18u-005",
+    "next": "18u-007"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-007",
+    "kind": "concept",
+    "terms": [
+      "線形層",
+      "アフィン変換",
+      "bias"
+    ],
+    "title": "線形層・アフィン変換・bias",
+    "previous": "18u-006",
+    "next": "18u-008"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-008",
+    "kind": "concept",
+    "terms": [
+      "上流の勾配"
+    ],
+    "title": "上流の勾配",
+    "previous": "18u-007",
+    "next": "18u-009"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "この章は、一回一ページで進める",
+    "previous": "18u-008",
+    "next": "18u-010"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "つまみが二つあるとき",
+    "previous": "18u-009",
+    "next": "18u-011"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-010",
+    "next": "18u-012"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "値は前へ、変化率は後ろへ",
+    "previous": "18u-011",
+    "next": "18u-013"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "値は前へ、変化率は後ろへ",
+    "previous": "18u-012",
+    "next": "18u-014"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-013",
+    "next": "18u-015"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "歩幅で結果が変わる",
+    "previous": "18u-014",
+    "next": "18u-016"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-015",
+    "next": "18u-017"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-017",
+    "kind": "lecture",
+    "terms": [],
+    "title": "出力を二つにする",
+    "previous": "18u-016",
+    "next": "18u-018"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-018",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-017",
+    "next": "18u-019"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-019",
+    "kind": "lecture",
+    "terms": [],
+    "title": "入力を動かしたら出力はどう動くか",
+    "previous": "18u-018",
+    "next": "18u-020"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-020",
+    "kind": "lecture",
+    "terms": [],
+    "title": "損失の変化率を入力へ戻す",
+    "previous": "18u-019",
+    "next": "18u-021"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-021",
+    "kind": "lecture",
+    "terms": [],
+    "title": "手計算をコードで照合する",
+    "previous": "18u-020",
+    "next": "18u-022"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-022",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-021",
+    "next": "18u-023"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-023",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ連鎖律を三つの入力へ使う",
+    "previous": "18u-022",
+    "next": "18u-024"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-024",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-023",
+    "next": "18u-025"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-025",
+    "kind": "lecture",
+    "terms": [],
+    "title": "四つの重みを一つずつ微分する",
+    "previous": "18u-024",
+    "next": "18u-026"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-026",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二つの例の寄与を足す",
+    "previous": "18u-025",
+    "next": "18u-027"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-027",
+    "kind": "lecture",
+    "terms": [],
+    "title": "入力とbiasへの勾配も戻す",
+    "previous": "18u-026",
+    "next": "18u-028"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-028",
+    "kind": "lecture",
+    "terms": [],
+    "title": "章の到達課題と出典",
+    "previous": "18u-027",
+    "next": "18u-029"
+  },
+  {
+    "chapter": 18,
+    "slug": "18u-029",
+    "kind": "lecture",
+    "terms": [],
+    "title": "今日の区切り",
+    "previous": "18u-028",
+    "next": "19-integration"
+  },
+  {
+    "chapter": 19,
+    "slug": "19-integration",
+    "kind": "concept",
+    "terms": [
+      "積分",
+      "数値積分"
+    ],
+    "title": "積分・数値積分",
+    "previous": "18u-029",
+    "next": "19u-002"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-002",
+    "kind": "concept",
+    "terms": [
+      "原始関数",
+      "不定積分"
+    ],
+    "title": "原始関数・不定積分",
+    "previous": "19-integration",
+    "next": "19u-003"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-003",
+    "kind": "concept",
+    "terms": [
+      "加算代入"
+    ],
+    "title": "加算代入",
+    "previous": "19u-002",
+    "next": "19u-004"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-004",
+    "kind": "concept",
+    "terms": [
+      "一様分布",
+      "密度",
+      "標本"
+    ],
+    "title": "一様分布・密度・標本",
+    "previous": "19u-003",
+    "next": "19u-005"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "速度から距離へ戻る",
+    "previous": "19u-004",
+    "next": "19u-006"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "微分との関係",
+    "previous": "19u-005",
+    "next": "19u-007"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "足した値を残す一行",
+    "previous": "19u-006",
+    "next": "19u-008"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "密度を面積へ変える",
+    "previous": "19u-007",
+    "next": "19u-009"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "次へ進む前に",
+    "previous": "19u-008",
+    "next": "19u-010"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "追加の確認問題",
+    "previous": "19u-009",
+    "next": "19u-011"
+  },
+  {
+    "chapter": 19,
+    "slug": "19u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "19u-010",
+    "next": "20-probability"
+  },
+  {
+    "chapter": 20,
+    "slug": "20-probability",
+    "kind": "concept",
+    "terms": [
+      "Bayesの定理",
+      "事前確率",
+      "事後確率"
+    ],
+    "title": "Bayesの定理・事前確率・事後確率",
+    "previous": "19u-011",
+    "next": "20u-002"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-002",
+    "kind": "concept",
+    "terms": [
+      "確率の連鎖律"
+    ],
+    "title": "確率の連鎖律",
+    "previous": "20-probability",
+    "next": "20u-003"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-003",
+    "kind": "concept",
+    "terms": [
+      "階乗",
+      "二項係数"
+    ],
+    "title": "階乗・二項係数",
+    "previous": "20u-002",
+    "next": "20u-004"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "どの集団の中で数えるか",
+    "previous": "20u-003",
+    "next": "20u-005"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Bayesの定理を数え直しから導く",
+    "previous": "20u-004",
+    "next": "20u-006"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "独立と条件付きの連鎖",
+    "previous": "20u-005",
+    "next": "20u-007"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "順番を数える、組を数える",
+    "previous": "20u-006",
+    "next": "20u-008"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "追加の確認問題",
+    "previous": "20u-007",
+    "next": "20u-009"
+  },
+  {
+    "chapter": 20,
+    "slug": "20u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と参照",
+    "previous": "20u-008",
+    "next": "21-distributions"
+  },
+  {
+    "chapter": 21,
+    "slug": "21-distributions",
+    "kind": "concept",
+    "terms": [
+      "確率変数",
+      "分布",
+      "期待値"
+    ],
+    "title": "確率変数・分布・期待値",
+    "previous": "20u-009",
+    "next": "21u-002"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-002",
+    "kind": "concept",
+    "terms": [
+      "分散",
+      "標準偏差"
+    ],
+    "title": "分散・標準偏差",
+    "previous": "21-distributions",
+    "next": "21u-003"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-003",
+    "kind": "concept",
+    "terms": [
+      "独立同分布",
+      "母分散",
+      "不偏推定"
+    ],
+    "title": "独立同分布・母分散・不偏推定",
+    "previous": "21u-002",
+    "next": "21u-004"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-004",
+    "kind": "concept",
+    "terms": [
+      "Bernoulli分布",
+      "二項分布",
+      "カテゴリ分布"
+    ],
+    "title": "Bernoulli分布・二項分布・カテゴリ分布",
+    "previous": "21u-003",
+    "next": "21u-005"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-005",
+    "kind": "concept",
+    "terms": [
+      "正規分布"
+    ],
+    "title": "正規分布",
+    "previous": "21u-004",
+    "next": "21u-006"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-006",
+    "kind": "concept",
+    "terms": [
+      "累積確率"
+    ],
+    "title": "累積確率",
+    "previous": "21u-005",
+    "next": "21u-007"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-007",
+    "kind": "concept",
+    "terms": [
+      "共分散",
+      "相関係数",
+      "ddof"
+    ],
+    "title": "共分散・相関係数・ddof",
+    "previous": "21u-006",
+    "next": "21u-008"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "平均が同じでも、体験は違う",
+    "previous": "21u-007",
+    "next": "21u-009"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "散らばりをどう測るか",
+    "previous": "21u-008",
+    "next": "21u-010"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "nとn−1は何の違いか",
+    "previous": "21u-009",
+    "next": "21u-011"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "よく使う分布",
+    "previous": "21u-010",
+    "next": "21u-012"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一緒に動くかを測る",
+    "previous": "21u-011",
+    "next": "21u-013"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "21u-012",
+    "next": "21u-014"
+  },
+  {
+    "chapter": 21,
+    "slug": "21u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と参照",
+    "previous": "21u-013",
+    "next": "22-statistics"
+  },
+  {
+    "chapter": 22,
+    "slug": "22-statistics",
+    "kind": "concept",
+    "terms": [
+      "母集団",
+      "標準誤差"
+    ],
+    "title": "母集団・標準誤差",
+    "previous": "21u-014",
+    "next": "22u-002"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-002",
+    "kind": "concept",
+    "terms": [
+      "中心極限定理"
+    ],
+    "title": "中心極限定理",
+    "previous": "22-statistics",
+    "next": "22u-003"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-003",
+    "kind": "concept",
+    "terms": [
+      "信頼区間",
+      "被覆率"
+    ],
+    "title": "信頼区間・被覆率",
+    "previous": "22u-002",
+    "next": "22u-004"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-004",
+    "kind": "concept",
+    "terms": [
+      "復元抽出",
+      "paired bootstrap"
+    ],
+    "title": "復元抽出・paired bootstrap",
+    "previous": "22u-003",
+    "next": "22u-005"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-005",
+    "kind": "concept",
+    "terms": [
+      "疑似乱数",
+      "default_rng",
+      "integers"
+    ],
+    "title": "疑似乱数・default_rng・integers",
+    "previous": "22u-004",
+    "next": "22u-006"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-006",
+    "kind": "concept",
+    "terms": [
+      "整数配列添字",
+      "quantile"
+    ],
+    "title": "整数配列添字・quantile",
+    "previous": "22u-005",
+    "next": "22u-007"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-007",
+    "kind": "concept",
+    "terms": [
+      "帰無仮説",
+      "統計量",
+      "p値"
+    ],
+    "title": "帰無仮説・統計量・p値",
+    "previous": "22u-006",
+    "next": "22u-008"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-008",
+    "kind": "concept",
+    "terms": [
+      "効果量"
+    ],
+    "title": "効果量",
+    "previous": "22u-007",
+    "next": "22u-009"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "82点は80点よりよいと言えるか",
+    "previous": "22u-008",
+    "next": "22u-010"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "区間を一本作ってから、繰り返す",
+    "previous": "22u-009",
+    "next": "22u-011"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "信頼区間の読み方",
+    "previous": "22u-010",
+    "next": "22u-012"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ問題で差を測る",
+    "previous": "22u-011",
+    "next": "22u-013"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "まず三問を紙で引き直す",
+    "previous": "22u-012",
+    "next": "22u-014"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "まず三問を紙で引き直す",
+    "previous": "22u-013",
+    "next": "22u-015"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "検定と効果量",
+    "previous": "22u-014",
+    "next": "22u-016"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "22u-015",
+    "next": "22u-017"
+  },
+  {
+    "chapter": 22,
+    "slug": "22u-017",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "22u-016",
+    "next": "23-information"
+  },
+  {
+    "chapter": 23,
+    "slug": "23-information",
+    "kind": "concept",
+    "terms": [
+      "自己情報量",
+      "math.log",
+      "math.exp"
+    ],
+    "title": "自己情報量・math.log・math.exp",
+    "previous": "22u-017",
+    "next": "23u-002"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-002",
+    "kind": "concept",
+    "terms": [
+      "エントロピー"
+    ],
+    "title": "エントロピー",
+    "previous": "23-information",
+    "next": "23u-003"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-003",
+    "kind": "concept",
+    "terms": [
+      "交差エントロピー"
+    ],
+    "title": "交差エントロピー",
+    "previous": "23u-002",
+    "next": "23u-004"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-004",
+    "kind": "concept",
+    "terms": [
+      "分布の台",
+      "KLダイバージェンス"
+    ],
+    "title": "分布の台・KLダイバージェンス",
+    "previous": "23u-003",
+    "next": "23u-005"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-005",
+    "kind": "concept",
+    "terms": [
+      "Perplexity"
+    ],
+    "title": "Perplexity",
+    "previous": "23u-004",
+    "next": "23u-006"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-006",
+    "kind": "concept",
+    "terms": [
+      "NLL",
+      "尤度"
+    ],
+    "title": "NLL・尤度",
+    "previous": "23u-005",
+    "next": "23u-007"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "自信を持って外したら",
+    "previous": "23u-006",
+    "next": "23u-008"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "もともとの不確かさ",
+    "previous": "23u-007",
+    "next": "23u-009"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "この章でいう損失と台",
+    "previous": "23u-008",
+    "next": "23u-010"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "言語モデルの困惑度",
+    "previous": "23u-009",
+    "next": "23u-011"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "23u-010",
+    "next": "23u-012"
+  },
+  {
+    "chapter": 23,
+    "slug": "23u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "23u-011",
+    "next": "24-learning"
+  },
+  {
+    "chapter": 24,
+    "slug": "24-learning",
+    "kind": "concept",
+    "terms": [
+      "機械学習",
+      "教師あり学習"
+    ],
+    "title": "機械学習・教師あり学習",
+    "previous": "23u-012",
+    "next": "24u-002"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-002",
+    "kind": "concept",
+    "terms": [
+      "特徴量",
+      "ラベル",
+      "モデル"
+    ],
+    "title": "特徴量・ラベル・モデル",
+    "previous": "24-learning",
+    "next": "24u-003"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-003",
+    "kind": "concept",
+    "terms": [
+      "パラメータ",
+      "train"
+    ],
+    "title": "パラメータ・train",
+    "previous": "24u-002",
+    "next": "24u-004"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-004",
+    "kind": "concept",
+    "terms": [
+      "validation",
+      "test",
+      "baseline"
+    ],
+    "title": "validation・test・baseline",
+    "previous": "24u-003",
+    "next": "24u-005"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-005",
+    "kind": "concept",
+    "terms": [
+      "過学習",
+      "正則化",
+      "早期終了"
+    ],
+    "title": "過学習・正則化・早期終了",
+    "previous": "24u-004",
+    "next": "24u-006"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-006",
+    "kind": "concept",
+    "terms": [
+      "precision",
+      "recall"
+    ],
+    "title": "precision・recall",
+    "previous": "24u-005",
+    "next": "24u-007"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-007",
+    "kind": "concept",
+    "terms": [
+      "F1",
+      "調和平均"
+    ],
+    "title": "F1・調和平均",
+    "previous": "24u-006",
+    "next": "24u-008"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-008",
+    "kind": "concept",
+    "terms": [
+      "混同行列",
+      "校正"
+    ],
+    "title": "混同行列・校正",
+    "previous": "24u-007",
+    "next": "24u-009"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-009",
+    "kind": "concept",
+    "terms": [
+      "独立変数",
+      "従属変数"
+    ],
+    "title": "独立変数・従属変数",
+    "previous": "24u-008",
+    "next": "24u-010"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "答えを覚えた試験では測れない",
+    "previous": "24u-009",
+    "next": "24u-011"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "まず単純な基準と比べる",
+    "previous": "24u-010",
+    "next": "24u-012"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "過学習と正則化",
+    "previous": "24u-011",
+    "next": "24u-013"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "分類を測る",
+    "previous": "24u-012",
+    "next": "24u-014"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二つの割合をまとめる前に",
+    "previous": "24u-013",
+    "next": "24u-015"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "24u-014",
+    "next": "24u-016"
+  },
+  {
+    "chapter": 24,
+    "slug": "24u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "24u-015",
+    "next": "25-regression"
+  },
+  {
+    "chapter": 25,
+    "slug": "25-regression",
+    "kind": "concept",
+    "terms": [
+      "線形回帰",
+      "ロジスティック回帰"
+    ],
+    "title": "線形回帰・ロジスティック回帰",
+    "previous": "24u-016",
+    "next": "25u-002"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-002",
+    "kind": "concept",
+    "terms": [
+      "シグモイド",
+      "logit"
+    ],
+    "title": "シグモイド・logit",
+    "previous": "25-regression",
+    "next": "25u-003"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-003",
+    "kind": "concept",
+    "terms": [
+      "二値交差エントロピー"
+    ],
+    "title": "二値交差エントロピー",
+    "previous": "25u-002",
+    "next": "25u-004"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-004",
+    "kind": "concept",
+    "terms": [
+      "決定木",
+      "ensemble",
+      "Random Forest"
+    ],
+    "title": "決定木・ensemble・Random Forest",
+    "previous": "25u-003",
+    "next": "25u-005"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-005",
+    "kind": "concept",
+    "terms": [
+      "boosting",
+      "clustering",
+      "k-means"
+    ],
+    "title": "boosting・clustering・k-means",
+    "previous": "25u-004",
+    "next": "25u-006"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-006",
+    "kind": "concept",
+    "terms": [
+      "PCA",
+      "中心化",
+      "射影"
+    ],
+    "title": "PCA・中心化・射影",
+    "previous": "25u-005",
+    "next": "25u-007"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "規則を数で調整する",
+    "previous": "25u-006",
+    "next": "25u-008"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "数を予測するか、クラスを予測するか",
+    "previous": "25u-007",
+    "next": "25u-009"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "他の基準モデルも知る",
+    "previous": "25u-008",
+    "next": "25u-010"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "25u-009",
+    "next": "25u-011"
+  },
+  {
+    "chapter": 25,
+    "slug": "25u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "25u-010",
+    "next": "26-pytorch"
+  },
+  {
+    "chapter": 26,
+    "slug": "26-pytorch",
+    "kind": "concept",
+    "terms": [
+      "torch.tensor",
+      "dtype"
+    ],
+    "title": "torch.tensor・dtype",
+    "previous": "25u-011",
+    "next": "26u-002"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-002",
+    "kind": "concept",
+    "terms": [
+      "自動微分",
+      "requires_grad"
+    ],
+    "title": "自動微分・requires_grad",
+    "previous": "26-pytorch",
+    "next": "26u-003"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-003",
+    "kind": "concept",
+    "terms": [
+      "backward",
+      "grad",
+      "item"
+    ],
+    "title": "backward・grad・item",
+    "previous": "26u-002",
+    "next": "26u-004"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-004",
+    "kind": "concept",
+    "terms": [
+      "with",
+      "no_grad",
+      "None"
+    ],
+    "title": "with・no_grad・None",
+    "previous": "26u-003",
+    "next": "26u-005"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-005",
+    "kind": "concept",
+    "terms": [
+      "optimizer",
+      "zero_grad",
+      "step"
+    ],
+    "title": "optimizer・zero_grad・step",
+    "previous": "26u-004",
+    "next": "26u-006"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-006",
+    "kind": "concept",
+    "terms": [
+      "device",
+      "train()",
+      "eval()"
+    ],
+    "title": "device・train()・eval()",
+    "previous": "26u-005",
+    "next": "26u-007"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "微分を手で全部書くのは大変",
+    "previous": "26u-006",
+    "next": "26u-008"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "NumPyから持ち込めるもの",
+    "previous": "26u-007",
+    "next": "26u-009"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一つの値で確かめる",
+    "previous": "26u-008",
+    "next": "26u-010"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "更新の順番",
+    "previous": "26u-009",
+    "next": "26u-011"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "CPUとGPU、学習と評価",
+    "previous": "26u-010",
+    "next": "26u-012"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "26u-011",
+    "next": "26u-013"
+  },
+  {
+    "chapter": 26,
+    "slug": "26u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "26u-012",
+    "next": "27-networks"
+  },
+  {
+    "chapter": 27,
+    "slug": "27-networks",
+    "kind": "concept",
+    "terms": [
+      "活性化関数",
+      "ReLU",
+      "MLP"
+    ],
+    "title": "活性化関数・ReLU・MLP",
+    "previous": "26u-013",
+    "next": "27u-002"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-002",
+    "kind": "concept",
+    "terms": [
+      "nn.Linear",
+      "nn.Sequential",
+      "parameters"
+    ],
+    "title": "nn.Linear・nn.Sequential・parameters",
+    "previous": "27-networks",
+    "next": "27u-003"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-003",
+    "kind": "concept",
+    "terms": [
+      "numel",
+      "manual_seed"
+    ],
+    "title": "numel・manual_seed",
+    "previous": "27u-002",
+    "next": "27u-004"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-004",
+    "kind": "concept",
+    "terms": [
+      "Dropout",
+      "残差接続",
+      "Pre-Norm"
+    ],
+    "title": "Dropout・残差接続・Pre-Norm",
+    "previous": "27u-003",
+    "next": "27u-005"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-005",
+    "kind": "concept",
+    "terms": [
+      "LayerNorm",
+      "RMSNorm"
+    ],
+    "title": "LayerNorm・RMSNorm",
+    "previous": "27u-004",
+    "next": "27u-006"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-006",
+    "kind": "concept",
+    "terms": [
+      "SiLU",
+      "SwiGLU",
+      "GELU"
+    ],
+    "title": "SiLU・SwiGLU・GELU",
+    "previous": "27u-005",
+    "next": "27u-007"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-007",
+    "kind": "concept",
+    "terms": [
+      "XOR",
+      "binary_cross_entropy_with_logits"
+    ],
+    "title": "XOR・binary_cross_entropy_with_logits",
+    "previous": "27u-006",
+    "next": "27u-008"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "直線を重ねるだけでは足りない",
+    "previous": "27u-007",
+    "next": "27u-009"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "コードの名前を数へ戻す",
+    "previous": "27u-008",
+    "next": "27u-010"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "初期化と勾配",
+    "previous": "27u-009",
+    "next": "27u-011"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "正規化と近道",
+    "previous": "27u-010",
+    "next": "27u-012"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "27u-011",
+    "next": "27u-013"
+  },
+  {
+    "chapter": 27,
+    "slug": "27u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "27u-012",
+    "next": "28-numerics"
+  },
+  {
+    "chapter": 28,
+    "slug": "28-numerics",
+    "kind": "concept",
+    "terms": [
+      "softmax",
+      "log-sum-exp"
+    ],
+    "title": "softmax・log-sum-exp",
+    "previous": "27u-013",
+    "next": "28u-002"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-002",
+    "kind": "concept",
+    "terms": [
+      "SGD",
+      "Momentum",
+      "移動平均"
+    ],
+    "title": "SGD・Momentum・移動平均",
+    "previous": "28-numerics",
+    "next": "28u-003"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-003",
+    "kind": "concept",
+    "terms": [
+      "一次モーメント",
+      "二次モーメント",
+      "Adam",
+      "AdamW"
+    ],
+    "title": "一次モーメント・二次モーメント・Adam・AdamW",
+    "previous": "28u-002",
+    "next": "28u-004"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-004",
+    "kind": "concept",
+    "terms": [
+      "warmup",
+      "schedule",
+      "勾配clipping"
+    ],
+    "title": "warmup・schedule・勾配clipping",
+    "previous": "28u-003",
+    "next": "28u-005"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-005",
+    "kind": "concept",
+    "terms": [
+      "FP32",
+      "FP16",
+      "BF16"
+    ],
+    "title": "FP32・FP16・BF16",
+    "previous": "28u-004",
+    "next": "28u-006"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-006",
+    "kind": "concept",
+    "terms": [
+      "mixed precision",
+      "NaN",
+      "inf"
+    ],
+    "title": "mixed precision・NaN・inf",
+    "previous": "28u-005",
+    "next": "28u-007"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-007",
+    "kind": "concept",
+    "terms": [
+      "mask",
+      "clip"
+    ],
+    "title": "mask・clip",
+    "previous": "28u-006",
+    "next": "28u-008"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "大きな指数は計算機に収まらない",
+    "previous": "28u-007",
+    "next": "28u-009"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "これから出る略語を先に読む",
+    "previous": "28u-008",
+    "next": "28u-010"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "SGDからAdamWへ",
+    "previous": "28u-009",
+    "next": "28u-011"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "精度とメモリの交換",
+    "previous": "28u-010",
+    "next": "28u-012"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "28u-011",
+    "next": "28u-013"
+  },
+  {
+    "chapter": 28,
+    "slug": "28u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "28u-012",
+    "next": "29-tokenization"
+  },
+  {
+    "chapter": 29,
+    "slug": "29-tokenization",
+    "kind": "concept",
+    "terms": [
+      "BPE",
+      "subword"
+    ],
+    "title": "BPE・subword",
+    "previous": "28u-013",
+    "next": "29u-002"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-002",
+    "kind": "concept",
+    "terms": [
+      "Embedding",
+      "torch.long"
+    ],
+    "title": "Embedding・torch.long",
+    "previous": "29-tokenization",
+    "next": "29u-003"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-003",
+    "kind": "concept",
+    "terms": [
+      "encode",
+      "decode",
+      "Unicode"
+    ],
+    "title": "encode・decode・Unicode",
+    "previous": "29u-002",
+    "next": "29u-004"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-004",
+    "kind": "concept",
+    "terms": [
+      "EOS",
+      "PAD"
+    ],
+    "title": "EOS・PAD",
+    "previous": "29u-003",
+    "next": "29u-005"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-005",
+    "kind": "concept",
+    "terms": [
+      "BOS",
+      "separator",
+      "noise"
+    ],
+    "title": "BOS・separator・noise",
+    "previous": "29u-004",
+    "next": "29u-006"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "コンピュータは文章をそのまま計算できない",
+    "previous": "29u-005",
+    "next": "29u-007"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "BPEを手で追う",
+    "previous": "29u-006",
+    "next": "29u-008"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "EmbeddingはIDを数の並びへ引く",
+    "previous": "29u-007",
+    "next": "29u-009"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Embeddingの三つの操作",
+    "previous": "29u-008",
+    "next": "29u-010"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "分割の違いも研究条件",
+    "previous": "29u-009",
+    "next": "29u-011"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "29u-010",
+    "next": "29u-012"
+  },
+  {
+    "chapter": 29,
+    "slug": "29u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "29u-011",
+    "next": "30-language-model"
+  },
+  {
+    "chapter": 30,
+    "slug": "30-language-model",
+    "kind": "concept",
+    "terms": [
+      "bigram",
+      "n-gram"
+    ],
+    "title": "bigram・n-gram",
+    "previous": "29u-012",
+    "next": "30u-002"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-002",
+    "kind": "concept",
+    "terms": [
+      "加算平滑化",
+      "Counter",
+      "sorted"
+    ],
+    "title": "加算平滑化・Counter・sorted",
+    "previous": "30-language-model",
+    "next": "30u-003"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-003",
+    "kind": "concept",
+    "terms": [
+      "teacher forcing",
+      "自己回帰",
+      "causal mask"
+    ],
+    "title": "teacher forcing・自己回帰・causal mask",
+    "previous": "30u-002",
+    "next": "30u-004"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "次に来そうなものを数える",
+    "previous": "30u-003",
+    "next": "30u-005"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "ニューラルモデルも同じ問いに答える",
+    "previous": "30u-004",
+    "next": "30u-006"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "未来を見たら簡単すぎる",
+    "previous": "30u-005",
+    "next": "30u-007"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "30u-006",
+    "next": "30u-008"
+  },
+  {
+    "chapter": 30,
+    "slug": "30u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "30u-007",
+    "next": "31-attention"
+  },
+  {
+    "chapter": 31,
+    "slug": "31-attention",
+    "kind": "concept",
+    "terms": [
+      "Attention",
+      "Query",
+      "Key"
+    ],
+    "title": "Attention・Query・Key",
+    "previous": "30u-008",
+    "next": "31u-002"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-002",
+    "kind": "concept",
+    "terms": [
+      "Value",
+      "Self-Attention",
+      "cross-attention"
+    ],
+    "title": "Value・Self-Attention・cross-attention",
+    "previous": "31-attention",
+    "next": "31u-003"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-003",
+    "kind": "concept",
+    "terms": [
+      "triu",
+      "masked_fill",
+      "clone"
+    ],
+    "title": "triu・masked_fill・clone",
+    "previous": "31u-002",
+    "next": "31u-004"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-004",
+    "kind": "concept",
+    "terms": [
+      "末尾軸の添字",
+      "dim"
+    ],
+    "title": "末尾軸の添字・dim",
+    "previous": "31u-003",
+    "next": "31u-005"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "どの情報を参照すればよいか",
+    "previous": "31u-004",
+    "next": "31u-006"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "三つの数え方",
+    "previous": "31u-005",
+    "next": "31u-007"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二候補で計算する",
+    "previous": "31u-006",
+    "next": "31u-008"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Causal maskで未来を隠す",
+    "previous": "31u-007",
+    "next": "31u-009"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "未来を隠す表をコードにする",
+    "previous": "31u-008",
+    "next": "31u-010"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "31u-009",
+    "next": "31u-011"
+  },
+  {
+    "chapter": 31,
+    "slug": "31u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "31u-010",
+    "next": "32-transformer"
+  },
+  {
+    "chapter": 32,
+    "slug": "32-transformer",
+    "kind": "concept",
+    "terms": [
+      "Transformer",
+      "Multi-Head Attention",
+      "ヘッド幅"
+    ],
+    "title": "Transformer・Multi-Head Attention・ヘッド幅",
+    "previous": "31u-011",
+    "next": "32u-002"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-002",
+    "kind": "concept",
+    "terms": [
+      "位置Embedding",
+      "encoder",
+      "decoder"
+    ],
+    "title": "位置Embedding・encoder・decoder",
+    "previous": "32-transformer",
+    "next": "32u-003"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-003",
+    "kind": "concept",
+    "terms": [
+      "decoder-only",
+      "RoPE"
+    ],
+    "title": "decoder-only・RoPE",
+    "previous": "32u-002",
+    "next": "32u-004"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-004",
+    "kind": "concept",
+    "terms": [
+      "BERT",
+      "双方向encoder"
+    ],
+    "title": "BERT・双方向encoder",
+    "previous": "32u-003",
+    "next": "32u-005"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-005",
+    "kind": "concept",
+    "terms": [
+      "Moduleの継承",
+      "super",
+      "forward"
+    ],
+    "title": "Moduleの継承・super・forward",
+    "previous": "32u-004",
+    "next": "32u-006"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-006",
+    "kind": "concept",
+    "terms": [
+      "ModuleList",
+      "chunk",
+      "contiguous"
+    ],
+    "title": "ModuleList・chunk・contiguous",
+    "previous": "32u-005",
+    "next": "32u-007"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-007",
+    "kind": "concept",
+    "terms": [
+      "reshapeの−1",
+      "dataclass",
+      "辞書の引数展開"
+    ],
+    "title": "reshapeの−1・dataclass・辞書の引数展開",
+    "previous": "32u-006",
+    "next": "32u-008"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-008",
+    "kind": "concept",
+    "terms": [
+      "transpose",
+      "argmax",
+      "eq"
+    ],
+    "title": "transpose・argmax・eq",
+    "previous": "32u-007",
+    "next": "32u-009"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-009",
+    "kind": "concept",
+    "terms": [
+      "tolist",
+      "型の注釈",
+      "asdict"
+    ],
+    "title": "tolist・型の注釈・asdict",
+    "previous": "32u-008",
+    "next": "32u-010"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "部品をつなげる",
+    "previous": "32u-009",
+    "next": "32u-011"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Multi-Head Attention",
+    "previous": "32u-010",
+    "next": "32u-012"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "位置の情報",
+    "previous": "32u-011",
+    "next": "32u-013"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "ブロックの中身",
+    "previous": "32u-012",
+    "next": "32u-014"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "名前とコードをつなぐ",
+    "previous": "32u-013",
+    "next": "32u-015"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "32u-014",
+    "next": "32u-016"
+  },
+  {
+    "chapter": 32,
+    "slug": "32u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "32u-015",
+    "next": "33-training"
+  },
+  {
+    "chapter": 33,
+    "slug": "33-training",
+    "kind": "concept",
+    "terms": [
+      "プロセス",
+      "config",
+      "metrics"
+    ],
+    "title": "プロセス・config・metrics",
+    "previous": "32u-016",
+    "next": "33u-002"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-002",
+    "kind": "concept",
+    "terms": [
+      "チェックポイント",
+      "state_dict",
+      "load_state_dict"
+    ],
+    "title": "チェックポイント・state_dict・load_state_dict",
+    "previous": "33-training",
+    "next": "33u-003"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-003",
+    "kind": "concept",
+    "terms": [
+      "torch.save",
+      "torch.load",
+      "FileNotFoundError"
+    ],
+    "title": "torch.save・torch.load・FileNotFoundError",
+    "previous": "33u-002",
+    "next": "33u-004"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-004",
+    "kind": "concept",
+    "terms": [
+      "scheduler",
+      "argparse",
+      "デコレーター"
+    ],
+    "title": "scheduler・argparse・デコレーター",
+    "previous": "33u-003",
+    "next": "33u-005"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-005",
+    "kind": "concept",
+    "terms": [
+      "update",
+      "mkdir",
+      "open"
+    ],
+    "title": "update・mkdir・open",
+    "previous": "33u-004",
+    "next": "33u-006"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-006",
+    "kind": "concept",
+    "terms": [
+      "DictWriter",
+      "writeheader",
+      "writerows"
+    ],
+    "title": "DictWriter・writeheader・writerows",
+    "previous": "33u-005",
+    "next": "33u-007"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-007",
+    "kind": "concept",
+    "terms": [
+      "Random",
+      "shuffle",
+      "Generator"
+    ],
+    "title": "Random・shuffle・Generator",
+    "previous": "33u-006",
+    "next": "33u-008"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-008",
+    "kind": "concept",
+    "terms": [
+      "randint",
+      "cat",
+      "break"
+    ],
+    "title": "randint・cat・break",
+    "previous": "33u-007",
+    "next": "33u-009"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-009",
+    "kind": "concept",
+    "terms": [
+      "add_argument",
+      "parse_args",
+      "__main__"
+    ],
+    "title": "add_argument・parse_args・__main__",
+    "previous": "33u-008",
+    "next": "33u-010"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-010",
+    "kind": "concept",
+    "terms": [
+      "hook"
+    ],
+    "title": "hook",
+    "previous": "33u-009",
+    "next": "33u-011"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-011",
+    "kind": "concept",
+    "terms": [
+      "enumerate",
+      "finally",
+      "isfinite"
+    ],
+    "title": "enumerate・finally・isfinite",
+    "previous": "33u-010",
+    "next": "33u-012"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-012",
+    "kind": "concept",
+    "terms": [
+      "randrange",
+      "extend",
+      "f文字列"
+    ],
+    "title": "randrange・extend・f文字列",
+    "previous": "33u-011",
+    "next": "33u-013"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "まず、一つの小さな仕事を成功させる",
+    "previous": "33u-012",
+    "next": "33u-014"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "ファイルができるまでの確認",
+    "previous": "33u-013",
+    "next": "33u-015"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-015",
+    "kind": "lecture",
+    "terms": [],
+    "title": "学習ループの一周",
+    "previous": "33u-014",
+    "next": "33u-016"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-016",
+    "kind": "lecture",
+    "terms": [],
+    "title": "保存するのは重みだけか",
+    "previous": "33u-015",
+    "next": "33u-017"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-017",
+    "kind": "lecture",
+    "terms": [],
+    "title": "途中再開を実験で確認する",
+    "previous": "33u-016",
+    "next": "33u-018"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-018",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "33u-017",
+    "next": "33u-019"
+  },
+  {
+    "chapter": 33,
+    "slug": "33u-019",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "33u-018",
+    "next": "34-generation"
+  },
+  {
+    "chapter": 34,
+    "slug": "34-generation",
+    "kind": "concept",
+    "terms": [
+      "greedy decoding",
+      "sampling",
+      "温度"
+    ],
+    "title": "greedy decoding・sampling・温度",
+    "previous": "33u-019",
+    "next": "34u-002"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-002",
+    "kind": "concept",
+    "terms": [
+      "top-k",
+      "top-p"
+    ],
+    "title": "top-k・top-p",
+    "previous": "34-generation",
+    "next": "34u-003"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-003",
+    "kind": "concept",
+    "terms": [
+      "KV cache",
+      "MQA",
+      "GQA"
+    ],
+    "title": "KV cache・MQA・GQA",
+    "previous": "34u-002",
+    "next": "34u-004"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-004",
+    "kind": "concept",
+    "terms": [
+      "torch.multinomial"
+    ],
+    "title": "torch.multinomial",
+    "previous": "34u-003",
+    "next": "34u-005"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "確率から一つを選ぶ",
+    "previous": "34u-004",
+    "next": "34u-006"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ計算を繰り返さない",
+    "previous": "34u-005",
+    "next": "34u-007"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "終わり方も仕様",
+    "previous": "34u-006",
+    "next": "34u-008"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一回のくじをコードで確かめる",
+    "previous": "34u-007",
+    "next": "34u-009"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "34u-008",
+    "next": "34u-010"
+  },
+  {
+    "chapter": 34,
+    "slug": "34u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "34u-009",
+    "next": "35-data-scaling"
+  },
+  {
+    "chapter": 35,
+    "slug": "35-data-scaling",
+    "kind": "concept",
+    "terms": [
+      "pipeline",
+      "品質フィルタ",
+      "packing"
+    ],
+    "title": "pipeline・品質フィルタ・packing",
+    "previous": "34u-010",
+    "next": "35u-002"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-002",
+    "kind": "concept",
+    "terms": [
+      "block diagonal mask",
+      "scaling law",
+      "FLOPs"
+    ],
+    "title": "block diagonal mask・scaling law・FLOPs",
+    "previous": "35-data-scaling",
+    "next": "35u-003"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-003",
+    "kind": "lecture",
+    "terms": [],
+    "title": "多ければ何でもよいのか",
+    "previous": "35u-002",
+    "next": "35u-004"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Pipelineを段階に分ける",
+    "previous": "35u-003",
+    "next": "35u-005"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Scaling lawは経験則",
+    "previous": "35u-004",
+    "next": "35u-006"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "自作の四文書で処理の順番を確認する",
+    "previous": "35u-005",
+    "next": "35u-007"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "35u-006",
+    "next": "35u-008"
+  },
+  {
+    "chapter": 35,
+    "slug": "35u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "35u-007",
+    "next": "36-adaptation"
+  },
+  {
+    "chapter": 36,
+    "slug": "36-adaptation",
+    "kind": "concept",
+    "terms": [
+      "SFT",
+      "loss mask",
+      "chat template"
+    ],
+    "title": "SFT・loss mask・chat template",
+    "previous": "35u-008",
+    "next": "36u-002"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-002",
+    "kind": "concept",
+    "terms": [
+      "凍結",
+      "LoRA",
+      "adapter"
+    ],
+    "title": "凍結・LoRA・adapter",
+    "previous": "36-adaptation",
+    "next": "36u-003"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-003",
+    "kind": "concept",
+    "terms": [
+      "QLoRA",
+      "量子化"
+    ],
+    "title": "QLoRA・量子化",
+    "previous": "36u-002",
+    "next": "36u-004"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "文章の続きから、指示への応答へ",
+    "previous": "36u-003",
+    "next": "36u-005"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "更新する数を減らす",
+    "previous": "36u-004",
+    "next": "36u-006"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "量子化と合わせる",
+    "previous": "36u-005",
+    "next": "36u-007"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "凍結とadapterを数で確認する",
+    "previous": "36u-006",
+    "next": "36u-008"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "36u-007",
+    "next": "36u-009"
+  },
+  {
+    "chapter": 36,
+    "slug": "36u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "36u-008",
+    "next": "37-rag"
+  },
+  {
+    "chapter": 37,
+    "slug": "37-rag",
+    "kind": "concept",
+    "terms": [
+      "RAG",
+      "reranking"
+    ],
+    "title": "RAG・reranking",
+    "previous": "36u-009",
+    "next": "37u-002"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-002",
+    "kind": "concept",
+    "terms": [
+      "recall@k",
+      "oracle context"
+    ],
+    "title": "recall@k・oracle context",
+    "previous": "37-rag",
+    "next": "37u-003"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-003",
+    "kind": "lecture",
+    "terms": [],
+    "title": "必要な資料を机に置く",
+    "previous": "37u-002",
+    "next": "37u-004"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "小さい例で失敗を分類する",
+    "previous": "37u-003",
+    "next": "37u-005"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "比較で原因を切り分ける",
+    "previous": "37u-004",
+    "next": "37u-006"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "取り込む文書は命令ではない",
+    "previous": "37u-005",
+    "next": "37u-007"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "37u-006",
+    "next": "37u-008"
+  },
+  {
+    "chapter": 37,
+    "slug": "37u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "37u-007",
+    "next": "38-reinforcement"
+  },
+  {
+    "chapter": 38,
+    "slug": "38-reinforcement",
+    "kind": "concept",
+    "terms": [
+      "強化学習",
+      "state",
+      "action"
+    ],
+    "title": "強化学習・state・action",
+    "previous": "37u-008",
+    "next": "38u-002"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-002",
+    "kind": "concept",
+    "terms": [
+      "policy",
+      "reward",
+      "期待収益"
+    ],
+    "title": "policy・reward・期待収益",
+    "previous": "38-reinforcement",
+    "next": "38u-003"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-003",
+    "kind": "concept",
+    "terms": [
+      "割引率",
+      "エピソード",
+      "bandit"
+    ],
+    "title": "割引率・エピソード・bandit",
+    "previous": "38u-002",
+    "next": "38u-004"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-004",
+    "kind": "concept",
+    "terms": [
+      "REINFORCE",
+      "advantage"
+    ],
+    "title": "REINFORCE・advantage",
+    "previous": "38u-003",
+    "next": "38u-005"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-005",
+    "kind": "concept",
+    "terms": [
+      "credit assignment",
+      "reward hacking"
+    ],
+    "title": "credit assignment・reward hacking",
+    "previous": "38u-004",
+    "next": "38u-006"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "正解の文章が用意できないとき",
+    "previous": "38u-005",
+    "next": "38u-007"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "よかった選択を増やす",
+    "previous": "38u-006",
+    "next": "38u-008"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "平均的な期待との差",
+    "previous": "38u-007",
+    "next": "38u-009"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "38u-008",
+    "next": "38u-010"
+  },
+  {
+    "chapter": 38,
+    "slug": "38u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "38u-009",
+    "next": "39-alignment"
+  },
+  {
+    "chapter": 39,
+    "slug": "39-alignment",
+    "kind": "concept",
+    "terms": [
+      "RLHF",
+      "報酬モデル"
+    ],
+    "title": "RLHF・報酬モデル",
+    "previous": "38u-010",
+    "next": "39u-002"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-002",
+    "kind": "concept",
+    "terms": [
+      "旧方策",
+      "参照方策",
+      "value model"
+    ],
+    "title": "旧方策・参照方策・value model",
+    "previous": "39-alignment",
+    "next": "39u-003"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-003",
+    "kind": "concept",
+    "terms": [
+      "PPO"
+    ],
+    "title": "PPO",
+    "previous": "39u-002",
+    "next": "39u-004"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-004",
+    "kind": "concept",
+    "terms": [
+      "DPO"
+    ],
+    "title": "DPO",
+    "previous": "39u-003",
+    "next": "39u-005"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-005",
+    "kind": "concept",
+    "terms": [
+      "GRPO",
+      "RLVR"
+    ],
+    "title": "GRPO・RLVR",
+    "previous": "39u-004",
+    "next": "39u-006"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-006",
+    "kind": "concept",
+    "terms": [
+      "オンライン",
+      "オフライン"
+    ],
+    "title": "オンライン・オフライン",
+    "previous": "39u-005",
+    "next": "39u-007"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "学習の信号はどこから来るか",
+    "previous": "39u-006",
+    "next": "39u-008"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "PPOは方策の変化を抑えながら更新する",
+    "previous": "39u-007",
+    "next": "39u-009"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "DPOは選好ペアへ直接学習する",
+    "previous": "39u-008",
+    "next": "39u-010"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "GRPOとRLVR",
+    "previous": "39u-009",
+    "next": "39u-011"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "比較する四つのモデルを図にする",
+    "previous": "39u-010",
+    "next": "39u-012"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "39u-011",
+    "next": "39u-013"
+  },
+  {
+    "chapter": 39,
+    "slug": "39u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "39u-012",
+    "next": "40-reasoning"
+  },
+  {
+    "chapter": 40,
+    "slug": "40-reasoning",
+    "kind": "concept",
+    "terms": [
+      "best-of-N",
+      "pass@k"
+    ],
+    "title": "best-of-N・pass@k",
+    "previous": "39u-013",
+    "next": "40u-002"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-002",
+    "kind": "concept",
+    "terms": [
+      "合成データ",
+      "蒸留",
+      "検証器"
+    ],
+    "title": "合成データ・蒸留・検証器",
+    "previous": "40-reasoning",
+    "next": "40u-003"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-003",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一回で答えるか、候補を比べるか",
+    "previous": "40u-002",
+    "next": "40u-004"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "成功率と費用を一緒に見る",
+    "previous": "40u-003",
+    "next": "40u-005"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "合成データで学び直す",
+    "previous": "40u-004",
+    "next": "40u-006"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "最新研究をどう読むか",
+    "previous": "40u-005",
+    "next": "40u-007"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "40u-006",
+    "next": "40u-008"
+  },
+  {
+    "chapter": 40,
+    "slug": "40u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "40u-007",
+    "next": "41-efficiency"
+  },
+  {
+    "chapter": 41,
+    "slug": "41-efficiency",
+    "kind": "concept",
+    "terms": [
+      "帯域",
+      "演算強度",
+      "Roofline"
+    ],
+    "title": "帯域・演算強度・Roofline",
+    "previous": "40u-008",
+    "next": "41u-002"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-002",
+    "kind": "concept",
+    "terms": [
+      "FlashAttention",
+      "HBM",
+      "タイル"
+    ],
+    "title": "FlashAttention・HBM・タイル",
+    "previous": "41-efficiency",
+    "next": "41u-003"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-003",
+    "kind": "concept",
+    "terms": [
+      "online softmax"
+    ],
+    "title": "online softmax",
+    "previous": "41u-002",
+    "next": "41u-004"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-004",
+    "kind": "concept",
+    "terms": [
+      "kernel",
+      "Triton"
+    ],
+    "title": "kernel・Triton",
+    "previous": "41u-003",
+    "next": "41u-005"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "計算機が待っているもの",
+    "previous": "41u-004",
+    "next": "41u-006"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Attentionの大きな中間表",
+    "previous": "41u-005",
+    "next": "41u-007"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Online softmaxの更新",
+    "previous": "41u-006",
+    "next": "41u-008"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二つの候補だけでonline更新を追う",
+    "previous": "41u-007",
+    "next": "41u-009"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Tritonの位置づけ",
+    "previous": "41u-008",
+    "next": "41u-010"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "41u-009",
+    "next": "41u-011"
+  },
+  {
+    "chapter": 41,
+    "slug": "41u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "41u-010",
+    "next": "42-distributed"
+  },
+  {
+    "chapter": 42,
+    "slug": "42-distributed",
+    "kind": "concept",
+    "terms": [
+      "Data Parallel",
+      "DDP",
+      "rank"
+    ],
+    "title": "Data Parallel・DDP・rank",
+    "previous": "41u-011",
+    "next": "42u-002"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-002",
+    "kind": "concept",
+    "terms": [
+      "world size",
+      "all-reduce",
+      "all-gather"
+    ],
+    "title": "world size・all-reduce・all-gather",
+    "previous": "42-distributed",
+    "next": "42u-003"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-003",
+    "kind": "concept",
+    "terms": [
+      "reduce-scatter",
+      "FSDP",
+      "ZeRO"
+    ],
+    "title": "reduce-scatter・FSDP・ZeRO",
+    "previous": "42u-002",
+    "next": "42u-004"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-004",
+    "kind": "concept",
+    "terms": [
+      "Tensor Parallel",
+      "Pipeline Parallel",
+      "Context Parallel"
+    ],
+    "title": "Tensor Parallel・Pipeline Parallel・Context Parallel",
+    "previous": "42u-003",
+    "next": "42u-005"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-005",
+    "kind": "concept",
+    "terms": [
+      "expert",
+      "MoE"
+    ],
+    "title": "expert・MoE",
+    "previous": "42u-004",
+    "next": "42u-006"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-006",
+    "kind": "concept",
+    "terms": [
+      "Expert Parallel",
+      "Gradient checkpointing",
+      "autograd.grad"
+    ],
+    "title": "Expert Parallel・Gradient checkpointing・autograd.grad",
+    "previous": "42u-005",
+    "next": "42u-007"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-007",
+    "kind": "concept",
+    "terms": [
+      "microbatch",
+      "pipeline bubble"
+    ],
+    "title": "microbatch・pipeline bubble",
+    "previous": "42u-006",
+    "next": "42u-008"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一台に入らない、時間も足りない",
+    "previous": "42u-007",
+    "next": "42u-009"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "通信の基本操作",
+    "previous": "42u-008",
+    "next": "42u-010"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "他の並列化",
+    "previous": "42u-009",
+    "next": "42u-011"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "実効バッチと平均",
+    "previous": "42u-010",
+    "next": "42u-012"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二つの装置を、CPU上の二つの計算で模擬する",
+    "previous": "42u-011",
+    "next": "42u-013"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "42u-012",
+    "next": "42u-014"
+  },
+  {
+    "chapter": 42,
+    "slug": "42u-014",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "42u-013",
+    "next": "43-serving"
+  },
+  {
+    "chapter": 43,
+    "slug": "43-serving",
+    "kind": "concept",
+    "terms": [
+      "prefill",
+      "TTFT",
+      "ITL"
+    ],
+    "title": "prefill・TTFT・ITL",
+    "previous": "42u-014",
+    "next": "43u-002"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-002",
+    "kind": "concept",
+    "terms": [
+      "throughput",
+      "continuous batching"
+    ],
+    "title": "throughput・continuous batching",
+    "previous": "43-serving",
+    "next": "43u-003"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-003",
+    "kind": "concept",
+    "terms": [
+      "PagedAttention",
+      "prefix cache",
+      "percentile"
+    ],
+    "title": "PagedAttention・prefix cache・percentile",
+    "previous": "43u-002",
+    "next": "43u-004"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-004",
+    "kind": "concept",
+    "terms": [
+      "speculative decoding",
+      "draft",
+      "target"
+    ],
+    "title": "speculative decoding・draft・target",
+    "previous": "43u-003",
+    "next": "43u-005"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "最初の一文字と、その後の速さ",
+    "previous": "43u-004",
+    "next": "43u-006"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "Cacheの置き方を工夫する",
+    "previous": "43u-005",
+    "next": "43u-007"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "小さいモデルに下書きを頼む",
+    "previous": "43u-006",
+    "next": "43u-008"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "43u-007",
+    "next": "43u-009"
+  },
+  {
+    "chapter": 43,
+    "slug": "43u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "43u-008",
+    "next": "44-compression"
+  },
+  {
+    "chapter": 44,
+    "slug": "44-compression",
+    "kind": "concept",
+    "terms": [
+      "対称量子化",
+      "scale",
+      "zero point"
+    ],
+    "title": "対称量子化・scale・zero point",
+    "previous": "43u-009",
+    "next": "44u-002"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-002",
+    "kind": "concept",
+    "terms": [
+      "per-channel",
+      "group"
+    ],
+    "title": "per-channel・group",
+    "previous": "44-compression",
+    "next": "44u-003"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-003",
+    "kind": "concept",
+    "terms": [
+      "PTQ",
+      "QAT"
+    ],
+    "title": "PTQ・QAT",
+    "previous": "44u-002",
+    "next": "44u-004"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-004",
+    "kind": "concept",
+    "terms": [
+      "GPTQ",
+      "AWQ"
+    ],
+    "title": "GPTQ・AWQ",
+    "previous": "44u-003",
+    "next": "44u-005"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-005",
+    "kind": "concept",
+    "terms": [
+      "枝刈り",
+      "構造的疎性",
+      "非構造的疎性"
+    ],
+    "title": "枝刈り・構造的疎性・非構造的疎性",
+    "previous": "44u-004",
+    "next": "44u-006"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-006",
+    "kind": "concept",
+    "terms": [
+      "np.round",
+      "np.clip"
+    ],
+    "title": "np.round・np.clip",
+    "previous": "44u-005",
+    "next": "44u-007"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-007",
+    "kind": "concept",
+    "terms": [
+      "dense"
+    ],
+    "title": "dense",
+    "previous": "44u-006",
+    "next": "44u-008"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "細かい目盛りを減らす",
+    "previous": "44u-007",
+    "next": "44u-009"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "何を量子化するか",
+    "previous": "44u-008",
+    "next": "44u-010"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "教師から生徒へ",
+    "previous": "44u-009",
+    "next": "44u-011"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-011",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二つの目盛りで出力まで確かめる",
+    "previous": "44u-010",
+    "next": "44u-012"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-012",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "44u-011",
+    "next": "44u-013"
+  },
+  {
+    "chapter": 44,
+    "slug": "44u-013",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "44u-012",
+    "next": "45-moe"
+  },
+  {
+    "chapter": 45,
+    "slug": "45-moe",
+    "kind": "concept",
+    "terms": [
+      "MoE",
+      "expert",
+      "router"
+    ],
+    "title": "MoE・expert・router",
+    "previous": "44u-013",
+    "next": "45u-002"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-002",
+    "kind": "concept",
+    "terms": [
+      "活性化パラメータ",
+      "負荷分散",
+      "offload"
+    ],
+    "title": "活性化パラメータ・負荷分散・offload",
+    "previous": "45-moe",
+    "next": "45u-003"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-003",
+    "kind": "concept",
+    "terms": [
+      "dense"
+    ],
+    "title": "dense",
+    "previous": "45u-002",
+    "next": "45u-004"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "全員を毎回呼ばない",
+    "previous": "45u-003",
+    "next": "45u-005"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "大きさの二つの数え方",
+    "previous": "45u-004",
+    "next": "45u-006"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "比較の問いをそろえる",
+    "previous": "45u-005",
+    "next": "45u-007"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "二人のexpertを紙とコードで呼ぶ",
+    "previous": "45u-006",
+    "next": "45u-008"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "45u-007",
+    "next": "45u-009"
+  },
+  {
+    "chapter": 45,
+    "slug": "45u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "45u-008",
+    "next": "46-context"
+  },
+  {
+    "chapter": 46,
+    "slug": "46-context",
+    "kind": "concept",
+    "terms": [
+      "ラジアン",
+      "sin",
+      "cos"
+    ],
+    "title": "ラジアン・sin・cos",
+    "previous": "45u-009",
+    "next": "46u-002"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-002",
+    "kind": "concept",
+    "terms": [
+      "RoPEの回転式",
+      "相対位置の内積"
+    ],
+    "title": "RoPEの回転式・相対位置の内積",
+    "previous": "46-context",
+    "next": "46u-003"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-003",
+    "kind": "concept",
+    "terms": [
+      "sparse attention",
+      "needle-in-a-haystack"
+    ],
+    "title": "sparse attention・needle-in-a-haystack",
+    "previous": "46u-002",
+    "next": "46u-004"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "位置を回転で表す",
+    "previous": "46u-003",
+    "next": "46u-005"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "入れられる長さと使える長さ",
+    "previous": "46u-004",
+    "next": "46u-006"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "長文評価の設計",
+    "previous": "46u-005",
+    "next": "46u-007"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "回転の二つの性質をコードで比較する",
+    "previous": "46u-006",
+    "next": "46u-008"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "演習",
+    "previous": "46u-007",
+    "next": "46u-009"
+  },
+  {
+    "chapter": 46,
+    "slug": "46u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題と出典",
+    "previous": "46u-008",
+    "next": "47-alternatives"
+  },
+  {
+    "chapter": 47,
+    "slug": "47-alternatives",
+    "kind": "concept",
+    "terms": [
+      "SSM",
+      "再帰的状態",
+      "scan"
+    ],
+    "title": "SSM・再帰的状態・scan",
+    "previous": "46u-009",
+    "next": "47u-002"
+  },
+  {
+    "chapter": 47,
+    "slug": "47u-002",
+    "kind": "concept",
+    "terms": [
+      "Mamba",
+      "mask型拡散",
+      "hybrid"
+    ],
+    "title": "Mamba・mask型拡散・hybrid",
+    "previous": "47-alternatives",
+    "next": "47u-003"
+  },
+  {
+    "chapter": 47,
+    "slug": "47u-003",
+    "kind": "lecture",
+    "terms": [],
+    "title": "過去を全部持つ必要がある？",
+    "previous": "47u-002",
+    "next": "47u-004"
+  },
+  {
+    "chapter": 47,
+    "slug": "47u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "小さな状態を計算する",
+    "previous": "47u-003",
+    "next": "47u-005"
+  },
+  {
+    "chapter": 47,
+    "slug": "47u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "左から書く以外の生成",
+    "previous": "47u-004",
+    "next": "47u-006"
+  },
+  {
+    "chapter": 47,
+    "slug": "47u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "比較表を自分で作る",
+    "previous": "47u-005",
+    "next": "47u-007"
+  },
+  {
+    "chapter": 47,
+    "slug": "47u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "47u-006",
+    "next": "48-multimodal"
+  },
+  {
+    "chapter": 48,
+    "slug": "48-multimodal",
+    "kind": "concept",
+    "terms": [
+      "モダリティ",
+      "色チャネル",
+      "patch"
+    ],
+    "title": "モダリティ・色チャネル・patch",
+    "previous": "47u-007",
+    "next": "48u-002"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-002",
+    "kind": "concept",
+    "terms": [
+      "対照学習",
+      "CLIP",
+      "LLaVA"
+    ],
+    "title": "対照学習・CLIP・LLaVA",
+    "previous": "48-multimodal",
+    "next": "48u-003"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-003",
+    "kind": "concept",
+    "terms": [
+      "Hz",
+      "kHz",
+      "mono"
+    ],
+    "title": "Hz・kHz・mono",
+    "previous": "48u-002",
+    "next": "48u-004"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-004",
+    "kind": "concept",
+    "terms": [
+      "stereo",
+      "fps",
+      "OCR"
+    ],
+    "title": "stereo・fps・OCR",
+    "previous": "48u-003",
+    "next": "48u-005"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "同じ意味でも同じ長さではない",
+    "previous": "48u-004",
+    "next": "48u-006"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "写真を数の列へ",
+    "previous": "48u-005",
+    "next": "48u-007"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "音は時間の並び",
+    "previous": "48u-006",
+    "next": "48u-008"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "何を見て答えたのか",
+    "previous": "48u-007",
+    "next": "48u-009"
+  },
+  {
+    "chapter": 48,
+    "slug": "48u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "48u-008",
+    "next": "49-agents"
+  },
+  {
+    "chapter": 49,
+    "slug": "49-agents",
+    "kind": "concept",
+    "terms": [
+      "エージェント",
+      "tool",
+      "構造化引数"
+    ],
+    "title": "エージェント・tool・構造化引数",
+    "previous": "48u-009",
+    "next": "49u-002"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-002",
+    "kind": "concept",
+    "terms": [
+      "all",
+      "not",
+      "TypeError"
+    ],
+    "title": "all・not・TypeError",
+    "previous": "49-agents",
+    "next": "49u-003"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-003",
+    "kind": "concept",
+    "terms": [
+      "冪等性",
+      "sandbox"
+    ],
+    "title": "冪等性・sandbox",
+    "previous": "49u-002",
+    "next": "49u-004"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "回答だけでは終わらない仕事",
+    "previous": "49u-003",
+    "next": "49u-005"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "小さく作る",
+    "previous": "49u-004",
+    "next": "49u-006"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "文書は命令権限を持たない",
+    "previous": "49u-005",
+    "next": "49u-007"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "検査するコードを普通の日本語へ戻す",
+    "previous": "49u-006",
+    "next": "49u-008"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "成功率を測る",
+    "previous": "49u-007",
+    "next": "49u-009"
+  },
+  {
+    "chapter": 49,
+    "slug": "49u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "49u-008",
+    "next": "50-evaluation"
+  },
+  {
+    "chapter": 50,
+    "slug": "50-evaluation",
+    "kind": "concept",
+    "terms": [
+      "汚染",
+      "coverage"
+    ],
+    "title": "汚染・coverage",
+    "previous": "49u-009",
+    "next": "50u-002"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-002",
+    "kind": "concept",
+    "terms": [
+      "LLM-as-a-judge",
+      "rubric",
+      "提示順序バイアス"
+    ],
+    "title": "LLM-as-a-judge・rubric・提示順序バイアス",
+    "previous": "50-evaluation",
+    "next": "50u-003"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-003",
+    "kind": "concept",
+    "terms": [
+      "adversarial evaluation",
+      "red teaming",
+      "頑健性"
+    ],
+    "title": "adversarial evaluation・red teaming・頑健性",
+    "previous": "50u-002",
+    "next": "50u-004"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-004",
+    "kind": "concept",
+    "terms": [
+      "交絡"
+    ],
+    "title": "交絡",
+    "previous": "50u-003",
+    "next": "50u-005"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "テストで測っているものは何？",
+    "previous": "50u-004",
+    "next": "50u-006"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一つの平均に押し込めない",
+    "previous": "50u-005",
+    "next": "50u-007"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "LLM-as-a-judgeを測定器として扱う",
+    "previous": "50u-006",
+    "next": "50u-008"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "対応を保つ",
+    "previous": "50u-007",
+    "next": "50u-009"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "苦手な条件を意図的に作る",
+    "previous": "50u-008",
+    "next": "50u-010"
+  },
+  {
+    "chapter": 50,
+    "slug": "50u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "50u-009",
+    "next": "51-interpretability"
+  },
+  {
+    "chapter": 51,
+    "slug": "51-interpretability",
+    "kind": "concept",
+    "terms": [
+      "probe",
+      "activation patching",
+      "SAE"
+    ],
+    "title": "probe・activation patching・SAE",
+    "previous": "50u-010",
+    "next": "51u-002"
+  },
+  {
+    "chapter": 51,
+    "slug": "51u-002",
+    "kind": "concept",
+    "terms": [
+      "L1ノルム",
+      "forward hook",
+      "detach"
+    ],
+    "title": "L1ノルム・forward hook・detach",
+    "previous": "51-interpretability",
+    "next": "51u-003"
+  },
+  {
+    "chapter": 51,
+    "slug": "51u-003",
+    "kind": "lecture",
+    "terms": [],
+    "title": "色の付いた図から何が分かる？",
+    "previous": "51u-002",
+    "next": "51u-004"
+  },
+  {
+    "chapter": 51,
+    "slug": "51u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "入れ替えて確かめる",
+    "previous": "51u-003",
+    "next": "51u-005"
+  },
+  {
+    "chapter": 51,
+    "slug": "51u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一つのニューロンが一つの意味とは限らない",
+    "previous": "51u-004",
+    "next": "51u-006"
+  },
+  {
+    "chapter": 51,
+    "slug": "51u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "L1と層の出力を確認する",
+    "previous": "51u-005",
+    "next": "51u-007"
+  },
+  {
+    "chapter": 51,
+    "slug": "51u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "51u-006",
+    "next": "52-privacy"
+  },
+  {
+    "chapter": 52,
+    "slug": "52-privacy",
+    "kind": "concept",
+    "terms": [
+      "公開許可リスト",
+      "差分プライバシー"
+    ],
+    "title": "公開許可リスト・差分プライバシー",
+    "previous": "51u-007",
+    "next": "52u-002"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-002",
+    "kind": "concept",
+    "terms": [
+      "membership inference",
+      "extraction",
+      "canary"
+    ],
+    "title": "membership inference・extraction・canary",
+    "previous": "52-privacy",
+    "next": "52u-003"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-003",
+    "kind": "concept",
+    "terms": [
+      "data attribution",
+      "モデルカード",
+      "open-weight"
+    ],
+    "title": "data attribution・モデルカード・open-weight",
+    "previous": "52u-002",
+    "next": "52u-004"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "公開データなら何でもよい？",
+    "previous": "52u-003",
+    "next": "52u-005"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "保存場所をたどる",
+    "previous": "52u-004",
+    "next": "52u-006"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "防御の限界を知る",
+    "previous": "52u-005",
+    "next": "52u-007"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "どのデータが影響したか",
+    "previous": "52u-006",
+    "next": "52u-008"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "モデルカードを書く",
+    "previous": "52u-007",
+    "next": "52u-009"
+  },
+  {
+    "chapter": 52,
+    "slug": "52u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "52u-008",
+    "next": "53-research-design"
+  },
+  {
+    "chapter": 53,
+    "slug": "53-research-design",
+    "kind": "concept",
+    "terms": [
+      "反証可能な仮説",
+      "対照条件"
+    ],
+    "title": "反証可能な仮説・対照条件",
+    "previous": "52u-009",
+    "next": "53u-002"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-002",
+    "kind": "concept",
+    "terms": [
+      "独立変数",
+      "従属変数",
+      "探索実験"
+    ],
+    "title": "独立変数・従属変数・探索実験",
+    "previous": "53-research-design",
+    "next": "53u-003"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-003",
+    "kind": "concept",
+    "terms": [
+      "Error Analysis"
+    ],
+    "title": "Error Analysis",
+    "previous": "53u-002",
+    "next": "53u-004"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "「性能を上げたい」を一段具体的に",
+    "previous": "53u-003",
+    "next": "53u-005"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "対照条件を作る",
+    "previous": "53u-004",
+    "next": "53u-006"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "予算と探索を記録する",
+    "previous": "53u-005",
+    "next": "53u-007"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "結果が出た後",
+    "previous": "53u-006",
+    "next": "53u-008"
+  },
+  {
+    "chapter": 53,
+    "slug": "53u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "53u-007",
+    "next": "54-paper-reading"
+  },
+  {
+    "chapter": 54,
+    "slug": "54-paper-reading",
+    "kind": "concept",
+    "terms": [
+      "arXiv",
+      "版番号",
+      "abstract"
+    ],
+    "title": "arXiv・版番号・abstract",
+    "previous": "53u-008",
+    "next": "54u-002"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-002",
+    "kind": "concept",
+    "terms": [
+      "Introduction",
+      "Related Work",
+      "Method"
+    ],
+    "title": "Introduction・Related Work・Method",
+    "previous": "54-paper-reading",
+    "next": "54u-003"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-003",
+    "kind": "concept",
+    "terms": [
+      "Experiments",
+      "Limitations",
+      "Appendix"
+    ],
+    "title": "Experiments・Limitations・Appendix",
+    "previous": "54u-002",
+    "next": "54u-004"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-004",
+    "kind": "concept",
+    "terms": [
+      "argmin",
+      "stop-gradient",
+      "再現範囲"
+    ],
+    "title": "argmin・stop-gradient・再現範囲",
+    "previous": "54u-003",
+    "next": "54u-005"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "最初から一語ずつ訳さなくてよい",
+    "previous": "54u-004",
+    "next": "54u-006"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "英語の文を役割で読む",
+    "previous": "54u-005",
+    "next": "54u-007"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "論文の場所と記号を先に決める",
+    "previous": "54u-006",
+    "next": "54u-008"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "一つの式を解剖する",
+    "previous": "54u-007",
+    "next": "54u-009"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-009",
+    "kind": "lecture",
+    "terms": [],
+    "title": "再現と追試の範囲",
+    "previous": "54u-008",
+    "next": "54u-010"
+  },
+  {
+    "chapter": 54,
+    "slug": "54u-010",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "54u-009",
+    "next": "55-writing"
+  },
+  {
+    "chapter": 55,
+    "slug": "55-writing",
+    "kind": "concept",
+    "terms": [
+      "主張と証拠",
+      "誤差棒"
+    ],
+    "title": "主張と証拠・誤差棒",
+    "previous": "54u-010",
+    "next": "55u-002"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-002",
+    "kind": "concept",
+    "terms": [
+      "査読",
+      "条件付き英語要旨"
+    ],
+    "title": "査読・条件付き英語要旨",
+    "previous": "55-writing",
+    "next": "55u-003"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-003",
+    "kind": "lecture",
+    "terms": [],
+    "title": "読者が確かめられる順番に書く",
+    "previous": "55u-002",
+    "next": "55u-004"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "図表の約束",
+    "previous": "55u-003",
+    "next": "55u-005"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "英語の小さな型",
+    "previous": "55u-004",
+    "next": "55u-006"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "査読に応答する",
+    "previous": "55u-005",
+    "next": "55u-007"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "発表と質疑を練習する",
+    "previous": "55u-006",
+    "next": "55u-008"
+  },
+  {
+    "chapter": 55,
+    "slug": "55u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "到達課題",
+    "previous": "55u-007",
+    "next": "56-capstone"
+  },
+  {
+    "chapter": 56,
+    "slug": "56-capstone",
+    "kind": "concept",
+    "terms": [
+      "距離に応じた採点位置",
+      "未学習距離"
+    ],
+    "title": "距離に応じた採点位置・未学習距離",
+    "previous": "55u-008",
+    "next": "56u-002"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-002",
+    "kind": "concept",
+    "terms": [
+      "実験票",
+      "全runの集計"
+    ],
+    "title": "実験票・全runの集計",
+    "previous": "56-capstone",
+    "next": "56u-003"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-003",
+    "kind": "concept",
+    "terms": [
+      "独自変更",
+      "再実行用報告書"
+    ],
+    "title": "独自変更・再実行用報告書",
+    "previous": "56u-002",
+    "next": "56u-004"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-004",
+    "kind": "lecture",
+    "terms": [],
+    "title": "最初の研究を小さく完結させる",
+    "previous": "56u-003",
+    "next": "56u-005"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-005",
+    "kind": "lecture",
+    "terms": [],
+    "title": "第1段階：再現する",
+    "previous": "56u-004",
+    "next": "56u-006"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-006",
+    "kind": "lecture",
+    "terms": [],
+    "title": "第2段階：問いを変える",
+    "previous": "56u-005",
+    "next": "56u-007"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-007",
+    "kind": "lecture",
+    "terms": [],
+    "title": "第3段階：研究としてまとめる",
+    "previous": "56u-006",
+    "next": "56u-008"
+  },
+  {
+    "chapter": 56,
+    "slug": "56u-008",
+    "kind": "lecture",
+    "terms": [],
+    "title": "ここから先",
+    "previous": "56u-007",
+    "next": "capstone-guide"
+  }
+]

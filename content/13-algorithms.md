@@ -1,95 +1,33 @@
-{"title":"13 計算量・検索・SQLの入口","part":"Pythonと研究の道具","goal":"データ量に応じて処理方法を選び、集計する","prereq":"10〜12"}
+{"title": "13 計算量・検索・SQLの入口", "part": "Pythonと研究の道具", "goal": "データ量に応じて処理方法を選び、集計する", "prereq": "10〜12", "subpages": ["13u-002", "13u-003", "13u-004", "13u-005", "13u-006", "13u-007", "13u-008", "13u-009", "13u-010", "13u-011", "13u-012", "13u-013"], "next": "13u-002", "previous": "12u-016", "microtitle": "13-1 計算量・O記法・二分探索", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 10件で速くても、100万件では
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-名簿から名前を探す方法を考えます。先頭から順に見るなら、最悪では全件を読みます。件数をnとすると、必要な操作はおおむねnに[比例](reference.html#term-proportion)します。これをO(n)と書きます。Oは、入力が大きくなったときの増え方を表す記法で、秒数そのものではありません。
+この章の1/13ページ。今日の目標：計算量・O記法・二分探索の小例を一つ追う。
 
-全組合せを比較する二重ループならO(n²)。nが10倍になると操作量はおおむね100倍です。整列済みの名簿を半分ずつ絞る二分探索ならO(log n)。ただし並べ替えの費用や、比較の費用は別途考えます。
+今日の言葉：[計算量](beginner-glossary.html#concept-13-algorithms)・[O記法](beginner-glossary.html#concept-13-algorithms)・[二分探索](beginner-glossary.html#concept-13-algorithms)。
 
-リストで「既に見た値か」を毎回調べると全体でO(n²)になる場合があります。ハッシュ集合setなら、通常の実装で平均的な一回の検索はO(1)を期待できます。ただし最悪ケースまで常に一定時間という保証ではありません。[計算量](reference.html#term-complexity)とメモリ量を両方見ます。
+## なぜ使うか
 
-`item in seen`は「itemがseenに含まれるか」、`item not in seen`は「含まれないか」を調べます。`not in`は二語で一つの判定です。たとえばseenが{"a"}なら、"b" [not in](reference.html#term-membership) seenはTrue、"a" not in seenはFalse。`seen.add(item)`は集合へその値を追加し、既に同じ値があれば二つには増やしません。not in・集合への追加へ戻れます。仕様：[Pythonの所属判定](https://docs.python.org/3/reference/expressions.html#membership-test-operations)。
+データ量に応じて処理方法を選び、集計するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-```python
-items = ["a", "b", "a", "c"]
-seen = set()
-unique = []
-for item in items:
-    if item not in seen:
-        seen.add(item)
-        unique.append(item)
-print(unique)
-```
+## 意味と小さな例
 
-順序を保ったまま重複を取り除き、['a','b','c']になります。setだけへ変換する場合との違いを確認してください。
+入力が増えると処理回数がどう増えるかを計算量で考えます。O記法はその増え方の上界を表す記法。並べた名簿を半分ずつ探す二分探索なら、8件は最大約3回の半分化で一件へ絞れます。
 
-## 表へ質問する言語
-
-実験ID、手法、[損失](reference.html#term-loss)を表に保存すると「手法ごとの平均を見たい」という要求が出ます。[SQL](reference.html#term-sql)は表に対する問い合わせを書く言語です。SELECTは出す列、FROMは対象の表、WHEREは行の条件、GROUP BYはまとめる単位を指定します。
-
-下のsqlite3はPythonに付属する、表を保存・検索する道具です。connectで作業先を開き、":memory:"は今回は保存ファイルを作らず作業中だけ表を持つ指定です。executeは命令を一つ実行し、executemanyは複数のデータを順に渡します。CREATE TABLEは表を作り、TEXTとREALは文字列と[実数](reference.html#term-real)の列、INSERT INTOは行を追加します。AVGは平均、COUNT(*)は行数。fetchallは結果の全行を取り出し、closeは接続を閉じます。この小節は、表の作成→行の追加→集計の三回に分けて読めます。
-
-```python
-import sqlite3
-db = sqlite3.connect(":memory:")
-db.execute("CREATE TABLE runs (method TEXT, loss REAL)")
-db.executemany("INSERT INTO runs VALUES (?, ?)",
-               [("base", 2.0), ("base", 1.8), ("new", 1.7)])
-rows = db.execute("SELECT method, AVG(loss), COUNT(*) FROM runs GROUP BY method").fetchall()
-print(rows)
-db.close()
-```
-
-baseは平均1.9・二件、newは1.7・一件です。一件と二件の平均だけで新手法が確実によいとは言えません。`?`は値を安全に渡すための場所です。文字列を直接つなげてSQLを作るより、値と命令を分けられます。
-
-正規表現は文字列のパターンを表す記法です。`r"\d+"`は数字の並びに対応します。ただし正規表現一つで個人情報をすべて発見したり、日本語の意味を理解したりはできません。候補抽出の後に確認が必要です。
-
-## 演習
-
-:::exercise 1・増え方
-O(n²)の処理で入力を3倍にすると、主な操作量は何倍になりますか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-約9倍です。小さな入力では固定費が支配することもあり、実測秒数が厳密に9倍になるとは限りません。
+入力が増えると処理回数がどう増えるかを計算量で考えます。O記法はその増え方の上界を表す記法。並べた名簿を半分ずつ探す二分探索なら、8件は最大約3回の半分化で一件へ絞れます。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・二分探索の前提
-整列されていないリストで中央から半分ずつ捨ててよいですか。
-:::answer
-よくありません。捨てる側に目標がないと言える順序関係が必要です。先に整列するなら、その費用も含めます。
-:::
 
-:::exercise 3・SQLの件数
-平均と一緒にCOUNT(*)を返すのはなぜですか。
-:::answer
-何件から計算した平均かを確認するためです。欠測や実行失敗により、一方の手法だけ集計対象が少なくなる場合もあります。
-:::
 
-:::exercise 4・検索の適用範囲
-完全一致の重複をsetで除けば、言い換えた文章の重複もなくなりますか。
-:::answer
-なくなりません。文字列が違えば別の値です。近い文章の検出には別の類似度や検証が必要です。
-:::
+## 今日の区切りと戻る場所
 
-## 時間を測る小さな練習
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-`time`は時間を扱う[モジュール](reference.html#term-module)です。`time.perf_counter()`で前後の時計の値を取り、その差を秒で読みます。絶対的な日時ではなく、処理の前後の差だけを使います。
+[直前の例へ戻る](12-environment.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](13-reader.html)
 
-```python
-import time
-items = list(range(1000))
-start = time.perf_counter()
-seen = set()
-unique = []
-for item in items:
-    if item not in seen:
-        seen.add(item)
-        unique.append(item)
-elapsed = time.perf_counter() - start
-print(len(unique), elapsed)
-```
+<section class="resume-note" data-lesson="13-algorithms"><h2>次回の再開メモ</h2><label for="resume-13-algorithms">できたこと・止まった一文・次にすること</label><textarea id="resume-13-algorithms" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
 
-`list(range(1000))`は0〜999の並びをリストにします。最初の出力は1000、次は経過秒数で、機器や実行ごとに変わります。1000を2000、4000へ変えて各5回記録してください。短い処理では他のアプリの影響も大きいので、一回だけの秒数から増え方を決めません。[時計の仕様](https://docs.python.org/3/library/time.html#time.perf_counter)を参照しています。
-
-## 到達課題と出典
-
-1000、2000、4000件で重複除去を計測し、予測と違う原因を考えてください。時間計測は何回か繰り返し、装置と入力も記録します。[Python sqlite3](https://docs.python.org/3/library/sqlite3.html)、[Python re](https://docs.python.org/3/library/re.html) が仕様の参照先です。
+<nav class="pager" aria-label="小ページの順序"><a href="12-environment.html">前の小ページ</a><a href="13u-002.html">次の小ページ</a></nav>

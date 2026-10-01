@@ -2,73 +2,19 @@
 <title>研究コードへ進むためのPythonの橋 | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
 <meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
 <body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
-<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 作業する場所と、保存する場所</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>研究コードへ進むためのPythonの橋</h1><p>完成したモデルは、式の計算以外に設定・保存・実行手順を持ちます。このページは<a href="32-transformer.html">第32章</a>・<a href="33-training.html">第33章</a>から使う補習です。<a href="lab-guide.html">Tiny Transformerの解説</a>とソースを並べます。新しい記法は、次の短い形へ戻して読んでください。</p>
-<h2>クラスを部品として使う</h2>
-<p><code>class Block(nn.Module):</code> は、PyTorchのModuleが持つ仕組みを引き継いだBlockを定義する書き方です。これを継承と呼びます。<code>super().__init__()</code> は引き継いだ側の初期化を呼び、PyTorchが重みなどを登録できるようにします。<code>self.norm1 = ...</code> のselfはこの部品そのものです。<a href="11-debug.html">第11章</a>のCounterの状態と操作へ戻れます。</p>
-<p><code>forward(self,x)</code> は入力から出力を作る計算です。<code>model(x)</code> と呼ぶとPyTorchの仕組みを通してforwardが呼ばれます。<code>nn.ModuleList</code> は複数の部品を登録した並び。普通のリストへ入れるだけではモデルの重み登録と同じ扱いにならない場合があります。GELUはReLUとは違う滑らかな<a href="reference.html#term-activation">活性化関数</a>で、数式は <code>xΦ(x)</code>、Φは標準正規分布の累積確率です。この実習では <code>nn.GELU()</code> がその計算を担い、手書きの近似へ勝手に置き換えません。</p>
-<h2>表を分けて、また戻す</h2>
-<table>
-<thead>
-<tr>
-<th>コード</th>
-<th>小さい例と意味</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>chunk(3,dim=-1)</code></td>
-<td>最後の幅12を4ずつQ,K,Vへ分ける。このモデルでは3等分できる幅を用意する</td>
-</tr>
-<tr>
-<td><code>transpose(1,2)</code></td>
-<td>(B,T,H,d_h)のTとHを交換し(B,H,T,d_h)へ</td>
-</tr>
-<tr>
-<td><code>transpose(-1,-2)</code></td>
-<td>最後の二軸だけを交換する。四次元の.Tで代用しない</td>
-</tr>
-<tr>
-<td><code>contiguous()</code></td>
-<td>軸交換後の値を連続した配置にそろえる。値の意味やshapeは変えない</td>
-</tr>
-<tr>
-<td><code>reshape(-1,7)</code></td>
-<td>要素数が合うよう最初の長さを自動計算し、候補7個の行へまとめる</td>
-</tr>
-<tr>
-<td><code>argmax(-1)</code></td>
-<td>末尾の候補のうち最大の値がある位置番号を選ぶ</td>
-</tr>
-<tr>
-<td><code>eq(other)</code></td>
-<td>otherと等しい位置をTrueにする</td>
-</tr>
-<tr>
-<td><code>tolist()</code></td>
-<td>テンソルの値をPythonのリストへ移す</td>
-</tr>
-</tbody>
-</table>
-<p>たとえばlogitが(B=2,T=3,V=7)なら、<a href="reference.html#term-loss">損失</a>に渡す形は(6,7)、正解IDは(6,)です。候補の軸を一緒に潰して(42,)へするのは違う計算です。復習は<a href="16-tensors.html">第16章</a>・<a href="31-attention.html">第31章</a>へ。</p>
-<h2>設定と関数の呼び方</h2>
-<p><code>@dataclass</code> は<a href="reference.html#term-class">クラス</a>の設定値をまとめやすくするPythonの指定です。<code>seed: int = 0</code> はseedの型の目印と初期値。型の注釈だけでは不正な値を自動で拒否しません。<code>Config(seed=1)</code> で指定しなかった幅などは初期値になります。<code>asdict(cfg)</code> は設定を辞書に変換します。</p>
-<p><code>Config(**record)</code> の <code>**</code> はここではべき乗ではなく、辞書のキーを引数名に展開する記法です。<code>record={&quot;seed&quot;:1}</code> なら <code>Config(seed=1)</code> と同じ指定です。<code>model,opt,rng = setup(cfg)</code> は第14章の三つの戻り値のアンパックです。</p>
-<p><code>[f(z) for z in (q,k,v)]</code> はq,k,vそれぞれへ同じ処理を適用した並びです。複数forの内包表記は組合せを列挙します。読みづらければ通常のforを重ねて書きます。<code>_</code> はこの処理で使わない値に付ける慣習的な名前で、特別な演算ではありません。</p>
-<h2>乱数・保存・実行を切り分ける</h2>
-<p><code>{name: value for name,value in items}</code> は辞書の内包表記です。通常のforなら空の辞書を作り、各回に <code>result[name] = value</code> と書きます。<code>record.update(status=&quot;ok&quot;)</code> は辞書のstatusというキーの値を更新する操作。<code>*items</code> はリストやタプルの中では要素をその場へ展開します。関数の引数に使う <code>**record</code> とは展開する対象が違います。</p>
-<p><code>Path(...).mkdir(parents=True,exist_ok=True)</code> は途中のフォルダも含めて作り、既にある場合はその理由だけでは失敗させない指定です。<code>with path.open(&quot;w&quot;,...) as stream:</code> は書くファイルを開き、その字下げした範囲を終えると閉じます。csvのDictWriterは辞書の各キーを列名として表へ書く道具で、writeheaderは列名、writerowsは複数行を書きます。形式の意味は<a href="10-data.html">第10章</a>へ戻れます。</p>
-<p><code>random.Random(31415).shuffle(docs)</code> は固定した開始設定で文書順を並べ替えます。<code>torch.Generator()</code> はPyTorchの乱数生成器、<code>randint</code> は整数を抽出する操作、<code>multinomial</code> は渡した非負の重みに<a href="reference.html#term-proportion">比例</a>して候補番号を選ぶ操作です。抽出の考えは<a href="22-statistics.html">第22章</a>、生成確率は<a href="34-generation.html">第34章</a>で確認します。</p>
-<p><code>state_dict()</code> はモデルの重みなどの状態を名前付きの辞書として取り出し、<code>load_state_dict(...)</code> は対応する状態を読み込みます。<a href="reference.html#term-optimizer">optimizer</a>にも同様の状態があります。<code>torch.save</code> はファイルへ書き、<code>torch.load(...,weights_only=True)</code> は読み込みの対象を制限して読む指定です。この指定も未知のファイルを全面的に安全にする保証ではありません。実習では自分が作ったファイルを読みます。</p>
-<p><code>@torch.no_grad()</code> はその関数の計算中に通常の<a href="reference.html#term-gradient">勾配</a>追跡をしない指定です。第26章のwithで囲む形式と目的は同じです。<code>torch.cat</code> は指定した軸へ並びを連結し、<code>break</code> は今のループを終えます。</p>
-<p>argparseは実行コマンドの <code>--steps 300</code> などを読む道具です。<code>add_argument</code> が受け付ける名前と型を定め、<code>parse_args()</code> が実際の値を読みます。<code>if __name__ == &quot;__main__&quot;:</code> は、そのファイルを直接実行したときだけmainを呼ぶ目印。importして再利用するときには、その内側の実験を自動では始めません。</p>
-<section class="exercise"><h3>1・辞書から設定へ</h3><p>record={&quot;seed&quot;:2,&quot;width&quot;:16}をConfigへ渡す指定を通常の引数へ展開してください。</p>
-<details><summary>解答と考え方を読む</summary><p><code>Config(seed=2,width=16)</code> です。辞書にそのクラスが受け付けない名前があればエラーになるので、設定の名前を確認します。</p>
-</details></section>
-<section class="exercise"><h3>2・二軸の交換</h3><p>qが(2,4,8,16)でbatch、head、time、特徴の順なら <code>q.transpose(-1,-2)</code> の形は何ですか。</p>
-<details><summary>解答と考え方を読む</summary><p>(2,4,16,8)です。batchとheadは入れ替えません。</p>
-</details></section>
-<h2>見つからない記法に出会ったら</h2>
-<p><code>try</code>の後の<code>finally</code>は、その処理が成功した場合も途中で失敗した場合も実行する片付けの場所です。観測の<a href="reference.html#term-hook">hook</a>を解除する例で使います。<code>enumerate(values)</code> は位置番号と値を組で返す操作で、文書別の失敗を記録するときに使います。<code>torch.isfinite(x)</code> はNaNや無限大ではない位置をTrueにする検査で、第28章の非有限値を探す操作へ対応します。</p>
-<p>名前・入力・出力・<a href="reference.html#term-tensor">shape</a>をメモし、一行だけの例へ縮めます。「コードが動いた」と「各行を説明できる」は別に確認します。部品から学習へつなぐ順番は<a href="lab-guide.html">lab-guide</a>へ戻ってください。</p>
-<p>仕様の参照：<a href="https://docs.python.org/3/library/dataclasses.html">Python dataclasses</a>・<a href="https://docs.python.org/3/library/argparse.html">argparse</a>・<a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html">PyTorch Module</a>。</p>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 作業する場所と、保存する場所</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>研究コードへ進むためのPythonの橋</h1><p>この実習の1/7ページ。読む目安10〜20分、実行・記録は別の回へ分けます。速度や必要時間はPCによって違います。</p>
+<p>完成したモデルは、式の計算以外に設定・保存・実行手順を持ちます。このページは<a href="32-transformer.html">第32章</a>・<a href="33-training.html">第33章</a>から使う補習です。<a href="lab-guide.html">Tiny Transformerの解説</a>とソースを並べます。新しい記法は、次の短い形へ戻して読んでください。</p>
+<h2>今日の作業を一つ残す</h2>
+<p>コードのページでは保存して実行し、期待する出力と比べます。止まったら命令、最後のエラー、作業フォルダをメモします。読むだけで実行した扱いにしません。</p>
+<p><a href="33-reader.html">記法へ戻る</a> · <a href="08-reader.html">保存と実行へ戻る</a> · <a href="python-reading-reference.html">この実習をまとめて参照</a></p>
+<nav class="pager" aria-label="実習の順序"><a href="beginner-route.html">前の作業</a><a href="python-reading-02.html">次の作業</a></nav>
+<h2>作業の地図</h2>
+<ul>
+<li><a href="python-reading-02.html">クラスを部品として使う</a></li>
+<li><a href="python-reading-03.html">表を分けて、また戻す</a></li>
+<li><a href="python-reading-04.html">設定と関数の呼び方</a></li>
+<li><a href="python-reading-05.html">乱数・保存・実行を切り分ける</a></li>
+<li><a href="python-reading-06.html">乱数・保存・実行を切り分ける</a></li>
+<li><a href="python-reading-07.html">見つからない記法に出会ったら</a></li>
+</ul>
 </article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>

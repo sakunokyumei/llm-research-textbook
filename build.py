@@ -54,7 +54,10 @@ def page(title, body, active='index', toc=''):
 <body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
 <div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次">{nav(active)}</nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1">{body}<footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main>{toc}</div></body></html>'''
 
-exercise_count = sum(c['body'].count(':::exercise ') for c in chapters) + sum(p.read_text(encoding='utf-8').count(':::exercise ') for p in (ROOT/'pages').glob('*.md'))
+practice_sequence=json.loads((ROOT/'assets/practice-sequence.json').read_text(encoding='utf-8')) if (ROOT/'assets/practice-sequence.json').exists() else []
+required_pages={slug for c in chapters for slug in c.get('subpages',[])} | {item['slug'] for item in practice_sequence}
+# Count exercises in the learning route, excluding repeated long references/legacy pages.
+exercise_count = sum(c['body'].count(':::exercise ') for c in chapters) + sum((ROOT/'pages'/f'{slug}.md').read_text(encoding='utf-8').count(':::exercise ') for slug in required_pages)
 cards=''
 for idx, group in enumerate(groups):
     items=''.join(f'<li><a href="{c["slug"]}.html"><span>{escape(c["title"])}</span><small>{escape(c.get("goal",""))}</small></a></li>' for c in chapters if c['part']==group)
@@ -87,13 +90,15 @@ for i,c in enumerate(chapters):
     reading = max(5, round(len(c['body']) / 350))
     timing = c.get('time', f'読む目安 {reading}〜{reading+5}分／演習 {count*3}〜{count*6}分。実装・到達課題は別の回に分けられます')
     support = '<p class="study-support">時間は編集上の目安です。見出し一つで休憩しても大丈夫。<a href="learning-help.html">中断・再開と補習の手引き</a>も使ってください。</p>'
-    body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(c["title"])}</h1><p class="lesson-goal">到達目標：{escape(c.get("goal",""))}</p><div class="lesson-meta">前提：{prerequisite_links(c.get("prereq","なし"))} <span>演習 {count} 問</span></div><p class="lesson-time">{escape(timing)}</p>{support}{html}{pager}</article>'
+    display_title=c.get('microtitle',c['title'])
+    display_goal='小例を一つ確かめ、入力・操作・結果を自分の言葉で説明する' if c.get('microtitle') else c.get('goal','')
+    body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(display_title)}</h1><p class="lesson-goal">到達目標：{escape(display_goal)}</p><div class="lesson-meta">前提：{prerequisite_links(c.get("prereq","なし"))} <span>演習 {count} 問</span></div><p class="lesson-time">{escape(timing)}</p>{support}{html}{"" if c.get("microtitle") else pager}</article>'
     (OUT/(c['slug']+'.html')).write_text(page(c['title'],body,c['slug'],toc),encoding='utf-8')
 search_records = [{k:c[k] for k in ['slug','title','part','goal']} for c in chapters]
 for path in (ROOT/'pages').glob('*.md'):
     title,body=path.read_text(encoding='utf-8').split('\n',1)
     (OUT/(path.stem+'.html')).write_text(page(title.lstrip('# '),'<article><h1>'+escape(title.lstrip('# '))+'</h1>'+render(body)+'</article>',path.stem),encoding='utf-8')
-    if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in ['cpu-practice','python-reading','capstone-guide','reference']:
+    if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in required_pages or path.stem in ['cpu-practice','python-reading','capstone-guide','reference','beginner-route']:
         search_records.append({'slug':path.stem,'title':title.lstrip('# '),'part':'小さな学習ページ','goal':' '.join(re.findall(r'^## (.+)$',body,re.M)+re.findall(r'<h2[^>]*>(.*?)</h2>',body))+' '+next((line for line in body.splitlines() if line.strip()),'')})
 for path in (ROOT/'assets').glob('*'):
     shutil.copy2(path,OUT/path.name)

@@ -1,0 +1,91 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>17 微分は、今ここでの変わり方：まとめて参照 | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 作業する場所と、保存する場所</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>17 微分は、今ここでの変わり方：まとめて参照</h1><p>長い参照ページです。初めて学ぶときは<a href="17-calculus.html">小ページの順序</a>を使い、ここへ戻って式やコードを引けます。</p>
+<h2>この章は、一回一ページで進める</h2>
+<p>全3ページです。後のページ名は行き先の案内で、今ここで暗記する用語ではありません。各回の読解・手計算・演習を分け、実装は別の回にできます。時間は初学者向けの編集上の目安で、受講者の実測値ではありません。</p>
+<ul>
+<li><a href="17-calculus.html">1．二点の平均から瞬間の変化へ進む</a></li>
+<li><a href="17b-rules.html">2．微分の規則を一つずつ確かめる</a></li>
+<li><a href="17c-numerics.html">3．微分できない点と数値誤差を分ける</a></li>
+</ul>
+<h2>時間幅を小さくする</h2>
+<figure class="learning-figure"><svg viewBox="0 0 360 210" role="img" aria-labelledby="slope-title"><title id="slope-title">時間幅を狭めて、傾きを調べる</title><path d="M35 175 H325 M35 175 V15" fill="none" stroke="currentColor"/><path d="M35 175 Q175 170 290 35" fill="none" stroke="#245da8" stroke-width="3"/><path d="M174 135 L290 35 M174 135 L210 111" fill="none" stroke="#a56630" stroke-width="2"/><g fill="#245da8"><circle cx="174" cy="135" r="5"/><circle cx="210" cy="111" r="5"/><circle cx="290" cy="35" r="5"/></g><g font-size="14" fill="currentColor"><text x="170" y="195">2</text><text x="274" y="195">3</text><text x="310" y="195">時間</text><text x="42" y="23">位置</text><text x="220" y="130">近い二点で比べる</text></g></svg><figcaption>図は時間幅を狭める概念図です。正確な平均変化率5、4.1、4.01は本文の数値から計算します。</figcaption></figure>
+<p>車が2時間で100km進めば平均速度は50km/hです。しかし途中で止まったかもしれません。今この瞬間の速度を知るには、見る時間幅を短くしていきます。この発想が<a href="reference.html#term-derivative">微分</a>です。</p>
+<p>位置をf(t)=t²とする模型で、t=2からt=3の平均変化率は(9−4)/(3−2)=5。t=2から2.1では(4.41−4)/0.1=4.1。幅hを使って書くと、<code>((2+h)²−2²)/h=4+h</code>です。hを0に近づけると4へ近づきます。この値をt=2の微分<a href="reference.html#term-coefficient">係数</a>と呼びます。</p>
+<p>h=0を直接<a href="reference.html#term-substitution">代入</a>すると0/0になってしまいます。「0を代入する」のではなく「0へ近づくとどの値へ近づくか」を考えるのが極限です。記号limで表します。関数全体について微分係数を返す新しい関数を導関数と呼び、f'(t)と書きます。</p>
+<section class="exercise"><h3>1・平均変化率</h3><p>f(x)=x²のx=1からx=3までの平均変化率を求めてください。</p>
+<details><summary>解答と考え方を読む</summary><p>(9−1)/(3−1)=4です。x=1の瞬間の傾き2とは異なります。</p>
+</details></section>
+<section class="exercise"><h3>2・差分から導く</h3><p>f(x)=3x+2について、(f(x+h)−f(x))/hを整理してください。</p>
+<details><summary>解答と考え方を読む</summary><p>(3x+3h+2−3x−2)/h=3。hが0でない限り一定なので、微分係数も3です。</p>
+</details></section>
+<h2>今日の区切り</h2>
+<p>このページの数値例を、数字を変えて一つ説明できたら区切れます。解答を隠して確認してください。止まったら<a href="learning-help.html">中断・補習の手引き</a>へ戻れます。</p>
+<h2>数値の例から一般式へ</h2>
+<p>同じ計算をxで行うと、<code>((x+h)²−x²)/h=2x+h</code>。したがってf(x)=x²の導関数はf'(x)=2xです。二乗の<a href="reference.html#term-derivative">微分</a>が2xになる理由は、単なる暗記ではなくこの差分から説明できます。</p>
+<p>基本的な規則として、定数の微分は0、xのn乗はn xⁿ⁻¹、和は微分の和です。<a href="reference.html#term-log">exp</a>(x)の微分はexp(x)、ln(x)の微分は1/x（x&gt;0）。積は<code>(fg)'=f'g+fg'</code>となり、f'g'ではありません。公式には<a href="reference.html#term-domain">定義域</a>や微分可能性の条件があります。</p>
+<table>
+<thead>
+<tr>
+<th>関数</th>
+<th>導関数</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>0</td>
+<td>入力を変えても一定</td>
+</tr>
+<tr>
+<td>3x+2</td>
+<td>3</td>
+<td>傾きが常に3</td>
+</tr>
+<tr>
+<td>x²</td>
+<td>2x</td>
+<td>x=−1なら傾き−2</td>
+</tr>
+<tr>
+<td>x³</td>
+<td>3x²</td>
+<td>x=2なら傾き12</td>
+</tr>
+</tbody>
+</table>
+<p>自然対数lnやexpを保留していたら、<a href="07-logarithms.html">第7章の意味</a>・用語集へ戻れます。まず定数・直線・二乗の三つを確認し、<a href="reference.html#term-power">指数</a>関数の微分は別の回へ分けてください。</p>
+<section class="exercise"><h3>3・導関数</h3><p>f(x)=2x³−4x+7の導関数と、x=2での値を求めてください。</p>
+<details><summary>解答と考え方を読む</summary><p>f'(x)=6x²−4、x=2では24−4=20です。</p>
+</details></section>
+<section class="exercise"><h3>4・積の微分</h3><p>x×xの微分を積の公式で求めてください。</p>
+<details><summary>解答と考え方を読む</summary><p>1×x+x×1=2xです。各微分の積1×1=1ではありません。</p>
+</details></section>
+<h2>今日の区切り</h2>
+<p>このページの数値例を、数字を変えて一つ説明できたら区切れます。解答を隠して確認してください。止まったら<a href="learning-help.html">中断・補習の手引き</a>へ戻れます。</p>
+<h2>左右で傾きが違う点</h2>
+<p>絶対値|x|は0で尖っています。左からの傾きは−1、右からは1なので、一つの傾きに決まりません。すべての関数がすべての点で<a href="reference.html#term-derivative">微分</a>できるわけではありません。<a href="reference.html#term-ml">機械学習</a>の<a href="reference.html#term-library">ライブラリ</a>がそこで特定の値を返すことは、数学的な微分が存在することとは別です。</p>
+<pre><code class="language-python">def f(x):
+    return x * x
+
+x = 2.0
+for h in [0.1, 0.01, 0.001]:
+    print(h, (f(x + h) - f(x)) / h)
+</code></pre>
+<p>結果は約4.1、4.01、4.001です。hを無限に小さくすれば実装も無限に正確になるわけではありません。<a href="reference.html#term-finite">有限精度</a>の引き算では、近い数の差が不正確になる場合があります。</p>
+<section class="exercise"><h3>5・傾きの符号</h3><p>f(x)=x²のx=−2では、xを少し増やすと値は増えますか。</p>
+<details><summary>解答と考え方を読む</summary><p>傾き2x=−4なので局所的には減ります。実際にf(−2)=4、f(−1.9)=3.61です。</p>
+</details></section>
+<section class="exercise"><h3>6・極限と実装</h3><p>差分でh=0をそのまま使ってよいですか。また小さくし続ければ必ず精度が上がりますか。</p>
+<details><summary>解答と考え方を読む</summary><p>h=0では分母が0になるため使えません。小さすぎるhでは浮動小数点の丸めや桁落ちにより精度が悪化し得ます。式としての極限と数値近似を分けます。</p>
+</details></section>
+<h2>小さい差が消えるとは</h2>
+<p>浮動小数点は、有限の桁数で数を近似して保存する方式です。たとえば小数一桁しか残せない機械なら、1.001も1.000も1.0になり、差が0に見えてしまいます。実際のPythonはこの十進一桁方式ではありませんが、近い二つの近似値を引くと有効な桁が失われる「桁落ち」の動機は同じです。<a href="04e-errors.html">第4章の丸め</a>へ戻り、数式の極限と保存できる精度を分けましょう。形式の比較は<a href="28-numerics.html">第28章</a>で扱います。</p>
+<h2>章の到達課題と参照</h2>
+<p>f(x)=x³について、x=2の導関数12と差分近似を比べ、hごとの誤差表を作ってください。<a href="https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/">MIT Single Variable Calculus</a> が詳しい参照先です。</p>
+<h2>今日の区切り</h2>
+<p>このページの数値例を、数字を変えて一つ説明できたら区切れます。解答を隠して確認してください。止まったら<a href="learning-help.html">中断・補習の手引き</a>へ戻れます。</p>
+</article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>

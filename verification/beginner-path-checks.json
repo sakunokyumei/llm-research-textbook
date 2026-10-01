@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-01",
+  "passed": true,
+  "micro_pages": 613,
+  "concept_pages": 270,
+  "practice_pages": 43,
+  "maximum_named_new_concepts_per_intro_page": 4,
+  "original_python_blocks_preserved": 44,
+  "original_exercises_preserved": 263,
+  "confidence_model": {
+    "assumptions": "independent Normal(mean=50, known sd=1), n=4, half-width=.98",
+    "replications": 10000,
+    "coverage": 0.951,
+    "not_human_learning_evidence": true
+  },
+  "cross_entropy_example": 0.916290731874155,
+  "failures": [],
+  "scope": "Checks route order, declared concept budget, support links, exact preservation of original Python and exercises, and added numeric examples. Concept budget is an editorial registry, not an exhaustive natural-language term counter or proof of mastery."
+}

@@ -1,63 +1,33 @@
-{"title":"36 SFT・LoRA・QLoRA","part":"LLMを育てる・調整する","goal":"学習対象と凍結する重みを区別して追加学習する","prereq":"16・23・33・35"}
+{"title": "36 SFT・LoRA・QLoRA", "part": "LLMを育てる・調整する", "goal": "学習対象と凍結する重みを区別して追加学習する", "prereq": "16・23・33・35", "subpages": ["36u-002", "36u-003", "36u-004", "36u-005", "36u-006", "36u-007", "36u-008", "36u-009"], "next": "36u-002", "previous": "35u-008", "microtitle": "36-1 SFT・loss mask・chat template", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 文章の続きから、指示への応答へ
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-[事前学習](reference.html#term-pretrain)した言語モデルは、必ずしも質問へ望ましい形式で答えるとは限りません。指示と望ましい応答の組を使って追加学習する方法がSFT（教師あり微調整）です。基本の次[トークン](reference.html#term-token)交差[エントロピー](reference.html#term-entropy)を使いながら、会話のどの部分を[損失](reference.html#term-loss)対象にするかを決めます。
+この章の1/9ページ。今日の目標：SFT・loss mask・chat templateの小例を一つ追う。
 
-応答部分だけを学習するなら、質問やpaddingの位置はloss maskで除外します。会話の役割、区切り、EOSなどのchat templateが学習と推論で異なると性能が変わり得ます。「同じ文章を入力した」だけでは条件がそろわないため、トークン化後の列と対象位置も確認します。
+今日の言葉：[SFT](beginner-glossary.html#concept-36-adaptation)・[loss mask](beginner-glossary.html#concept-36-adaptation)・[chat template](beginner-glossary.html#concept-36-adaptation)。
 
-## 更新する数を減らす
+## なぜ使うか
 
-重みWが(d_out,d_in)なら、全体の更新にはd_out×d_in個の値を調整します。[LoRA](reference.html#term-lora)はWを凍結し、更新分を低[ランク](reference.html#term-rank)の積BAとして学びます。Aは(r,d_in)、Bは(d_out,r)、rは小さなランク。計算は`y=xWᵀ + s x(BA)ᵀ`です。sはα/rなどのスケール設定です。
+学習対象と凍結する重みを区別して追加学習するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-たとえば512×512の重みは262144個。r=8のLoRAなら8×512+512×8=8192個の追加学習パラメータです。ただし凍結した元の重みは保存され、活性化や学習用メモリも必要です。総メモリが同じ比率で減るわけではありません。
+## 意味と小さな例
 
-Bを0、Aをランダムに初期化する典型例では、開始時の更新BAは0で元のモデルの出力を保てます。両方0だと積の両側への[勾配](reference.html#term-gradient)が0になり、学び始められない場合があります。
+正解の応答で調整するのがSFT。損失を取る場所の表がloss mask、会話の役割や区切りをそろえる形式がchat templateです。質問二単位、回答三単位なら回答三つへ損失を取る設計をまず紙で決めます。
 
-## 量子化と合わせる
-
-QLoRAは、凍結した[量子化](reference.html#term-quantization)済みの基盤モデルを通して低ランクの追加部分へ勾配を流す手法です。元論文は4bit NormalFloat、二重量子化、paged [optimizer](reference.html#term-optimizer)などを組み合わせています。「全重みを4bitのまま普通に更新する」とは異なります。学習するadapterの精度や、演算時の型は別に扱います。
-
-追加学習は新しい事実の正確な保管や、忘却しないことを保証しません。対象タスクだけでなく、元の能力の低下、誤回答、データの暗記、評価汚染も確認します。検索で外部知識を渡す[RAG](reference.html#term-rag)とは、重みを変えるかどうかという大きな違いがあります。
-
-## 凍結とadapterを数で確認する
-
-凍結とは、その重みを更新対象にしないことです。adapterは追加して学習する小さな部品で、この章ではBAがその役割です。量子化は細かい数を少ない目盛りへ近似して保存すること。第44章で目盛りの計算をします。QLoRAの保存形式の詳細は発展ですが、凍結するものと学習するものの区別はここで確認します。
-
-[math_checks.py](downloads/math_checks.py)を実行すると、LoRAの凍結と勾配をassertで確認できます。コード中の `w` は `requires_grad=False`、aとbはTrue。最初はbが0なのでaの勾配は0ですが、bへは勾配が流れます。bを一回更新した後にはaへも流れ得ます。元の重みを保つことと、aの初回勾配が0であることを同じ失敗として扱わないでください。戻り先は[第16章の低ランク](16-tensors.html)・[第26章の勾配](26-pytorch.html)・[実装ラボ](labs.html)です。
-
-## 演習
-
-:::exercise 1・損失対象
-入力が「質問4トークン＋応答6トークン＋PAD2トークン」で応答だけ学習するとき、平均の分母は何にしますか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-実際に正解予測の対象にした応答トークン数で割ります。この例の設計なら6。ずらし方やEOSの対象を含め、maskと正解位置が対応するか確認します。
+正解の応答で調整するのがSFT。損失を取る場所の表がloss mask、会話の役割や区切りをそろえる形式がchat templateです。質問二単位、回答三単位なら回答三つへ損失を取る設計をまず紙で決めます。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・LoRAの数
-重みが256×128、ランク4なら、AとBのパラメータ数の合計はいくつですか。
-:::answer
-4×128+256×4=1536個です。元の32768個の重みも凍結して保持します。
-:::
 
-:::exercise 3・初期化
-AとBを両方0へ初期化すると、なぜ問題になり得ますか。
-:::answer
-BAをAで[微分](reference.html#term-derivative)するにはB、Bで微分するにはAが掛かります。両方0なら最初の両方の勾配も0となるためです。
-:::
 
-:::exercise 4・比較条件
-LoRAと全重み更新を比べるとき、何をそろえ、何を報告しますか。
-:::answer
-データ分割、対象層、トークン予算、設定探索の予算、評価方式をそろえ、学習可能な値の数、最大メモリ、時間、品質を報告します。[学習率](reference.html#term-learning-rate)の最適値は手法で違う可能性もあります。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・QLoRAの誤解
-QLoRAはモデル内の全ての計算が4bitだと言えますか。
-:::answer
-言えません。凍結重みの保存形式、演算時の型、adapterやoptimizerの状態を区別します。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-## 到達課題と出典
+[直前の例へ戻る](35-data-scaling.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](36-reader.html)
 
-実装ラボのLoRAを小さな線形写像へ適用し、開始時に元モデルと一致すること、凍結した重みが更新されないこと、adapterへ勾配が流れることを確認します。[LoRA](https://arxiv.org/abs/2106.09685)、[QLoRA](https://arxiv.org/abs/2305.14314) を参照。
+<section class="resume-note" data-lesson="36-adaptation"><h2>次回の再開メモ</h2><label for="resume-36-adaptation">できたこと・止まった一文・次にすること</label><textarea id="resume-36-adaptation" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="35-data-scaling.html">前の小ページ</a><a href="36u-002.html">次の小ページ</a></nav>

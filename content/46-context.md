@@ -1,70 +1,33 @@
-{"title":"46 RoPEと長い文脈","part":"効率と現代のアーキテクチャ","goal":"回転による位置表現を追い、長文能力を実験で測る","prereq":"15・31・34"}
+{"title": "46 RoPEと長い文脈", "part": "効率と現代のアーキテクチャ", "goal": "回転による位置表現を追い、長文能力を実験で測る", "prereq": "15・31・34", "subpages": ["46u-002", "46u-003", "46u-004", "46u-005", "46u-006", "46u-007", "46u-008", "46u-009"], "next": "46u-002", "previous": "45u-009", "microtitle": "46-1 ラジアン・sin・cos", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 位置を回転で表す
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-円の上の点を、角度θで表すことを考えます。半径1の円では横座標がcosθ、縦座標がsinθです。角度はラジアンで測り、一周は2π。cos²θ+sin²θ=1が成り立ちます。
+この章の1/9ページ。今日の目標：ラジアン・sin・cosの小例を一つ追う。
 
-二次元[ベクトル](reference.html#term-vector)(x,y)をθだけ回すと、`(x cosθ−y sinθ, x sinθ+y cosθ)`。[行列](reference.html#term-matrix)ならR(θ)=[[cosθ,−sinθ],[sinθ,cosθ]]です。回転しても長さや、両方を同じ角度だけ回したときの[内積](reference.html#term-dot)は変わりません。
+今日の言葉：[ラジアン](beginner-glossary.html#concept-46-context)・[sin](beginner-glossary.html#concept-46-context)・[cos](beginner-glossary.html#concept-46-context)。
 
-[RoPE](reference.html#term-rope)はQとKの成分を二つずつ組にし、位置mに応じた角度mθで回します。Q側が位置m、K側が位置nなら、回転後の内積は`(R(mθ)q)ᵀR(nθ)k = qᵀR((n−m)θ)k`となり、位置の差に依存する構造が入ります。組ごとに異なる周波数を使います。
+## なぜ使うか
 
-## 入れられる長さと使える長さ
+回転による位置表現を追い、長文能力を実験で測るための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-最大入力長が10万tokenでも、すべての位置の情報を同じように利用できるとは限りません。学習範囲を超える位置では分布外になります。周波数や位置の尺度を調整する拡張、長い系列での追加学習、sparse attentionなど、複数の対策があります。それぞれ何を近似・変更しているかを確認します。
+## 意味と小さな例
 
-一つの秘密文字列を探すneedle-in-a-haystack試験は、特定の検索能力を測る有用な診断ですが、複数根拠の統合、長文の要約、一貫した計画、位置による偏りの全てを測るわけではありません。
+円周を直径で割った数πは約3.1416。半径に対する弧の長さで角度を測るのがラジアン。一周は2π、四分の一周はπ/2です。半径1の円の横がcos、縦がsin。角度0では(1,0)、π/2では(0,1)になります。
 
-## 長文評価の設計
-
-同じ根拠を先頭・中央・末尾へ移動し、長さを変えます。根拠が複数ある問題、紛らわしい文書、答えがない場合も含めます。短い文脈での性能が悪化していないか、KV容量・遅延・コストがどう変わるかを併記します。
-
-## 回転の二つの性質をコードで比較する
-
-```python
-import numpy as np
-def R(angle):
-    c, s = np.cos(angle), np.sin(angle)
-    return np.array([[c, -s], [s, c]])
-q = np.array([2., 3.])
-k = np.array([1., -1.])
-theta = 0.2
-m, n = 5, 8
-left = (R(m * theta) @ q) @ (R(n * theta) @ k)
-right = q @ (R((n - m) * theta) @ k)
-print(np.linalg.norm(q), np.linalg.norm(R(theta) @ q))
-print(left, right)
-assert np.allclose(left, right)
-assert np.allclose(np.linalg.norm(q), np.linalg.norm(R(theta) @ q))
-```
-
-`np.cos`と`np.sin`はラジアンの角度から三角関数を計算します。ベクトル同士の `@` は内積。Rは上で定義した回転行列、allcloseは丸めの差を許した一致確認です。長さと回転内積の二つを別々に確認します。三角関数は本章冒頭の円の例へ、行列は[第15章](15-matrices.html)へ戻れます。sparse attentionは全位置を比較せず一部の組だけを参照する方式。needle-in-a-haystackは大量の文中に一つの探す対象を埋める試験です。
-
-## 演習
-
-:::exercise 1・四分の一回転
-θ=π/2ではcosθ=0、sinθ=1です。(2,3)を回してください。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-(−3,2)です。長さはどちらも√13で変わりません。
+円周を直径で割った数πは約3.1416。半径に対する弧の長さで角度を測るのがラジアン。一周は2π、四分の一周はπ/2です。半径1の円の横がcos、縦がsin。角度0では(1,0)、π/2では(0,1)になります。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・相対位置
-m=5、n=8なら、上の回転内積に現れる角度の差はいくつですか。
-:::answer
-(8−5)θ=3θです。この表記ではK側からQ側の位置を引いています。
-:::
 
-:::exercise 3・cache
-同じ構造で系列長を4倍にすると、通常のKV cacheの要素数はどうなりますか。
-:::answer
-おおむね4倍です。通常の全[Attention](reference.html#term-attention)点数表の16倍とは違います。
-:::
 
-:::exercise 4・評価の範囲
-長文中の一つの鍵を見つける試験が100%なら、長文要約も解決したと言えますか。
-:::answer
-言えません。課題が測る技能が異なります。根拠統合、圧縮、一貫性などを別の評価で確認します。
-:::
+## 今日の区切りと戻る場所
 
-## 到達課題と出典
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-二次元の回転をNumPyで実装し、長さ保存と相対位置の内積式を数値で確認してください。[RoFormer](https://arxiv.org/abs/2104.09864)、[Lost in the Middle](https://arxiv.org/abs/2307.03172) を参照。
+[直前の例へ戻る](45-moe.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](46-reader.html)
+
+<section class="resume-note" data-lesson="46-context"><h2>次回の再開メモ</h2><label for="resume-46-context">できたこと・止まった一文・次にすること</label><textarea id="resume-46-context" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="45-moe.html">前の小ページ</a><a href="46u-002.html">次の小ページ</a></nav>

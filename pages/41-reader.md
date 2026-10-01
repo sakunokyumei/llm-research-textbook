@@ -1,0 +1,76 @@
+# 41 GPU・FlashAttention・Triton：まとめて参照
+
+長い参照ページです。初めて学ぶときは[小ページの順序](41-efficiency.html)を使い、ここへ戻って式やコードを引けます。
+
+
+## 計算機が待っているもの
+
+料理人が速くても材料を運ぶのが遅ければ、厨房全体は速くなりません。GPUも、計算の量だけでなくメモリからの読み書きで速度が決まります。FLOPsは演算回数、FLOP/sは単位時間の演算速度、帯域は単位時間に転送できるbyte数です。
+
+演算強度は演算数を転送byte数で割ったもの。Rooflineの簡単な模型では、達成可能な性能は「演算の上限」と「帯域×演算強度」の小さい側に制限されます。実際には起動費用、占有率、同期、形の不一致なども効きます。理論上限を実測性能と呼ばないでください。
+
+## Attentionの大きな中間表
+
+T位置が互いを比べる点数表はT×Tで、Tを二倍にすると要素数は四倍です。通常の[Attention](reference.html#term-attention)をそのまま実装すると、この大きな表の保存や読み書きが負担になります。
+
+FlashAttentionはタイル分割とonline [softmax](reference.html#term-softmax)などを使い、巨大な中間表をHBMへ何度も書き出すことを避けます。標準的なFlashAttentionは近似Attentionではなく、同じAttention演算をより効率よく計算するexactな方式です。ただし[浮動小数点](reference.html#term-finite)の演算順序で小さな数値差はあり得ます。「exactだからbitごとに一致」とは言いません。
+
+## Online softmaxの更新
+
+これまでの最大値m、[指数](reference.html#term-power)和l、重み付き値の和oを保持します。新しいブロックの最大値と比較してm_newを決め、古いlとoを[exp](reference.html#term-log)(m−m_new)倍して尺度を合わせ、新しいexp(score−m_new)の寄与を足します。最後にo/lで正規化します。全スコアを同時に保存せず、分母と分子を同じ尺度で更新するのが要点です。
+
+## 二つの候補だけでonline更新を追う
+
+HBMはGPU側の大きな記憶領域、タイルは表を分けた小さい塊です。kernelはGPUへ実行させる一まとまりの計算。ここではGPUを使う前に、同じ確率計算をCPUで確かめます。
+
+scoreが0,ln2、値が2,8なら、全体の指数は1,2、分母3、分子18、出力6です。最初の塊だけではm=0,l=1,o=2。次にm_new=ln2となるので古い分母と分子を1/2倍し、新しい寄与を足します。l=0.5+1=1.5、o=1+8=9。9/1.5=6で一致します。
+
+|読み方|先に全部を作る|塊ごとに更新する|
+|---|---|---|
+|分母|1+2=3|0.5+1=1.5|
+|分子|2+16=18|1+8=9|
+|比|18/3=6|9/1.5=6|
+
+保存する値の尺度は違っても、比は同じです。[実装ラボのmath_checks.py](labs.html)で通常のsoftmaxとの比較を実行し、その `online_weighted_sum` のscoresとvaluesへこの二候補を渡して6になるか確認します。関数の入力・更新式・最後の割り算を上の表へ対応づけます。GPUの課題は[追加実習](systems-lab.html)へ進む発展で、対応GPUがなければCPU比較を本章の到達課題にします。GPU性能は測ったことにしません。
+
+## Tritonの位置づけ
+
+TritonはGPU用の計算kernelを書くための言語とコンパイラです。Python風に見えても、通常のPythonループと同じ実行模型ではありません。program_idで担当するブロックを決め、arangeでブロック内の位置を作り、load/storeで入出力します。末尾の端数では範囲外をmaskして保護します。
+
+最初の課題は[ベクトル](reference.html#term-vector)加算です。PyTorchを正しさの基準とし、長さ0、1、ブロック幅の前後、割り切れない長さを確認します。その後に速度を測ります。対応GPUが必要なので、CPUラボの成功をGPU kernel検証済みと言い換えません。
+
+## 演習
+
+:::exercise 1・中間表
+T=4096のAttention点数表には何要素ありますか。FP32なら概算何byteですか。
+:::answer
+4096²=16777216要素、4byteなら67108864byte、64 MiBです。一つのヘッド・一つの系列の表としての概算です。
+:::
+
+:::exercise 2・演算強度
+100万演算に200万byteの転送が必要なら演算強度は何ですか。
+:::answer
+0.5 FLOP/byteです。帯域が100 GB/sなら、この単純な上限は50 GFLOP/sになります。
+:::
+
+:::exercise 3・exactの意味
+FlashAttentionの出力が通常版と1e-6だけ異なりました。それだけで近似Attentionになったと言えますか。
+:::answer
+言えません。同じ数式でも浮動小数点の演算順序が違うと数値差が出ます。dtypeと規模に合う許容誤差で確認します。
+:::
+
+:::exercise 4・端数
+長さ1000の配列を幅256で処理します。必要なブロック数と最後の有効要素数はいくつですか。
+:::answer
+4ブロック、最後は1000−3×256=232要素です。残り24位置へのload/storeを防ぐmaskが必要です。
+:::
+
+:::exercise 5・計測
+GPU処理の呼び出し前後をCPU時計で測るだけでは不十分な理由は何ですか。
+:::answer
+GPUが非同期に実行され、呼び出しだけが先に戻る場合があります。warmup、コンパイル時間の分離、同期または適切なGPUイベントによる計測が必要です。
+:::
+
+## 到達課題と出典
+
+CPUではonline softmaxをブロックごとに実装して通常版と比較し、対応GPUがあれば公式のベクトル加算kernelを改変して端数テストを行います。[FlashAttention](https://arxiv.org/abs/2205.14135)、[FlashAttention-2](https://arxiv.org/abs/2307.08691)、[Triton公式チュートリアル](https://triton-lang.org/main/getting-started/tutorials/index.html) を参照。

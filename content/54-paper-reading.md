@@ -1,57 +1,33 @@
-{"title":"54 論文を読み、式と実装を結ぶ","part":"独自研究を形にする","goal":"主張・根拠・仮定・再現条件を一枚にまとめる","prereq":"01〜53の関連章"}
+{"title": "54 論文を読み、式と実装を結ぶ", "part": "独自研究を形にする", "goal": "主張・根拠・仮定・再現条件を一枚にまとめる", "prereq": "01〜53の関連章", "subpages": ["54u-002", "54u-003", "54u-004", "54u-005", "54u-006", "54u-007", "54u-008", "54u-009", "54u-010"], "next": "54u-002", "previous": "53u-008", "microtitle": "54-1 arXiv・版番号・abstract", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 最初から一語ずつ訳さなくてよい
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-論文は、初学者へすべての前提を教える教科書ではありません。最初の一周では題名・要旨・図・結論から、「何に困り、何を変え、何を測ったか」をつかみます。二周目で方法と実験条件、三周目で式・証明・実装を照合します。分からない用語は、この教材の前提章へ戻ります。
+この章の1/10ページ。今日の目標：arXiv・版番号・abstractの小例を一つ追う。
 
-abstractは論文全体の短い主張です。そこに書かれた改善は、どのデータ・計算予算・baselineに対するものかを実験節で確認します。限界が要旨に全部書かれているとは限りません。
+今日の言葉：[arXiv](beginner-glossary.html#concept-54-paper-reading)・[版番号](beginner-glossary.html#concept-54-paper-reading)・[abstract](beginner-glossary.html#concept-54-paper-reading)。
 
-## 英語の文を役割で読む
+## なぜ使うか
 
-“We propose …”は提案、“We observe …”は観測、“We hypothesize …”は仮説です。“may”や“under this setting”を落として訳すと、可能性や条件を断定へ変えてしまいます。主語、動詞、条件、比較対象、留保を色分けすると、長い文も追いやすくなります。
+主張・根拠・仮定・再現条件を一枚にまとめるための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-自分のメモでは、引用、要約、自分の推測を分けます。原文を長くコピーせず、必要な短い引用にページ・節を付けます。引用した元論文を実際に確認し、別の論文による紹介だけから主張を強くしません。
+## 意味と小さな例
 
-## 論文の場所と記号を先に決める
+論文を置く公開サービスがarXiv。版番号は修正の版を区別し、abstractは主張の概要です。同じ論文でもv1とv2では条件が変わり得るので、読んだ版を記録します。掲載だけで査読済みとは限りません。
 
-[arXiv](reference.html#term-arxiv)は論文原稿の公開場所で、掲載だけで査読済みとは限りません。版番号と取得日を記録します。Introductionは問題、Related Workは既存研究、Methodは方法、Experimentsは実験、Limitationsは限界、Appendixは付録です。論文によって名前と順番は変わるので、まず目次や見出しを見ます。
-
-太字のxを[ベクトル](reference.html#term-vector)、大文字Xを[行列](reference.html#term-matrix)として使う慣習がありますが、各論文の定義を優先します。上付きTは[転置](reference.html#term-transpose)、[添字](reference.html#term-index)iは要素番号、Eは[期待値](reference.html#term-expectation)、∇は[勾配](reference.html#term-gradient)、∂は[偏微分](reference.html#term-partial)。`argmin` は値を最小にする入力を選ぶ記法で、最小値そのもののminとは違います。stop-gradientは値は後へ渡すが、その経路の勾配は戻さない指定です。第51章のdetachが例です。知らない記法は[第14〜18章](14-vectors.html)・[第21章](21-distributions.html)へ戻し、[shape](reference.html#term-tensor)を決めるまで推測で読まないでください。
-
-## 一つの式を解剖する
-
-[Attention](reference.html#term-attention)式を読むなら、Q,K,Vの形、転置する軸、[softmax](reference.html#term-softmax)の軸、mask、正規化の[係数](reference.html#term-coefficient)を書き出します。次に2token・2次元へ縮めて手計算します。最後にコードのreshape、transpose、matmulへ対応させます。行列式の見た目が似ていても、バッチやheadの軸を取り違えると別の計算です。
-
-[損失](reference.html#term-loss)なら、期待値が何について取られているか、平均と和のどちらか、stop-gradientがあるか、正規化の分母は何かを確認します。省略記法を勝手に補う前に付録と公開コードを探します。
-
-## 再現と追試の範囲
-
-元コード・元条件を動かす、独立実装で同条件を試す、縮小設定で核心を確かめる、別データへ拡張する、は異なる仕事です。どれを行ったか具体的に書けば、用語の揺れによる誤解を減らせます。小型モデルで傾向が出ても、巨大モデルの数値を再現したことにはなりません。
-
-:::exercise 1・留保を守る
-“Method A may improve accuracy under a fixed compute budget.”を断定せず訳してください。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-「計算予算を固定した条件では、手法Aが正解率を改善する可能性がある」。mayと条件を残します。
+論文を置く公開サービスがarXiv。版番号は修正の版を区別し、abstractは主張の概要です。同じ論文でもv1とv2では条件が変わり得るので、読んだ版を記録します。掲載だけで査読済みとは限りません。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・論文メモ
-要旨に「20%改善」とありました。何を確認しますか。
-:::answer
-相対改善かpercentage pointか、どの指標・baselineか、評価例数・seed・計算予算・不確実性・選択方法です。
-:::
 
-:::exercise 3・式からテスト
-因果Attentionの実装が正しいか、値を一つずつ比較する以外のテストは？
-:::answer
-未来の入力だけ変えても、過去の出力が変わらないことを確認します。構造から導いた不変条件です。
-:::
 
-:::exercise 4・分からない箇所
-付録を読んでも評価promptが不明です。どうしますか。
-:::answer
-公開コードや設定を確認し、なお不明なら不明点として記録します。自分の代替設定を明示し、同条件の再現と断定しません。
-:::
+## 今日の区切りと戻る場所
 
-## 到達課題
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-原Transformer論文の式(1)を対象に、①shape、②2token手計算、③コード、④未来参照テスト、⑤原論文と自分のモデルの差を一枚にまとめてください。[原論文](https://arxiv.org/abs/1706.03762)
+[直前の例へ戻る](53-research-design.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](54-reader.html)
+
+<section class="resume-note" data-lesson="54-paper-reading"><h2>次回の再開メモ</h2><label for="resume-54-paper-reading">できたこと・止まった一文・次にすること</label><textarea id="resume-54-paper-reading" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="53-research-design.html">前の小ページ</a><a href="54u-002.html">次の小ページ</a></nav>

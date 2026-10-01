@@ -1,55 +1,33 @@
-{"title":"51 モデルの内部を調べる","part":"現代のLLMと評価","goal":"観察と因果介入を区別し、解釈の仮説を検証する","prereq":"16・18・27・31・50"}
+{"title": "51 モデルの内部を調べる", "part": "現代のLLMと評価", "goal": "観察と因果介入を区別し、解釈の仮説を検証する", "prereq": "16・18・27・31・50", "subpages": ["51u-002", "51u-003", "51u-004", "51u-005", "51u-006", "51u-007"], "next": "51u-002", "previous": "50u-010", "microtitle": "51-1 probe・activation patching・SAE", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 色の付いた図から何が分かる？
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-[Attention](reference.html#term-attention)の図である語が明るく見えたとします。その語が重要そうだという仮説は立ちます。しかしAttention重みだけでは、Vの内容、他のhead、残差、後の層が出力にどう作用したか分かりません。図を見せることと、仕組みを説明することは別の作業です。
+この章の1/7ページ。今日の目標：probe・activation patching・SAEの小例を一つ追う。
 
-probeは内部表現からある属性を予測する小さなモデルです。属性を読み出せたら、その情報が表現に含まれる証拠になります。ただし元モデルが実際にその情報を使った証拠とは限りません。複雑なprobe自身が課題を解いている可能性もあります。
+今日の言葉：[probe](beginner-glossary.html#concept-51-interpretability)・[activation patching](beginner-glossary.html#concept-51-interpretability)・[SAE](beginner-glossary.html#concept-51-interpretability)。
 
-## 入れ替えて確かめる
+## なぜ使うか
 
-clean入力と、一箇所だけ変えたcorrupt入力を用意します。corrupt側の特定層・位置の活性値をclean側の値に置換し、回答がどれだけ戻るかを調べる方法をactivation patchingと呼びます。どのノードを介して影響が流れるかの仮説を検証できます。
+観察と因果介入を区別し、解釈の仮説を検証するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-例として「Aの鍵は赤」「Bの鍵は青」という合成課題を作り、人物と色の対応だけを変えます。正解色と誤答色のlogit差を指標とします。正解確率だけでは[softmax](reference.html#term-softmax)全体の変化と混ざるため、複数の指標で確認します。置換が通常起こらない状態を作る可能性にも注意します。
+## 意味と小さな例
 
-## 一つのニューロンが一つの意味とは限らない
+内部から情報を読めるか調べるprobe、途中の値を入れ替える介入activation patching、疎な成分で再構成するSAEを分けます。途中の値を0へして答えが変わっても、どこを変えたか、対照は何かを記録しないと原因を判定できません。
 
-少ない次元に複数の特徴を重ねて表す可能性があります。Sparse Autoencoder（SAE）は活性値を、少数だけ非ゼロになる特徴へ分解し、再構成するモデルです。基本的には再構成誤差と疎性を促す罰則を最小化します。たとえば `‖x−D f(x)‖² + λ‖f(x)‖₁`。λを大きくすると疎性と再構成の間で交換関係が生まれます。
-
-ある特徴に人が「都市名」と名付けても、その全挙動を保証しません。活性化する反例、語彙を変えた評価、介入後の副作用を調べます。特徴の説明文をモデルに書かせる場合も、独立な評価が必要です。[Toy Models of Superposition](https://transformer-circuits.pub/2022/toy_model/index.html)
-
-:::exercise 1・probe
-感情が95%で予測できました。モデルの回答は必ず感情を利用していますか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-いいえ。情報が読めることと、元の計算が利用することは違います。介入・対照条件・probeの容量を調べます。
+内部から情報を読めるか調べるprobe、途中の値を入れ替える介入activation patching、疎な成分で再構成するSAEを分けます。途中の値を0へして答えが変わっても、どこを変えたか、対照は何かを記録しないと原因を判定できません。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・回復率
-cleanのlogit差が4、corruptが0、patch後が3。線形な回復率は？
-:::answer
-(3−0)/(4−0)=0.75。分母が小さい事例では不安定になるため、元の値も報告します。
-:::
 
-:::exercise 3・疎性
-特徴が[0,−2,0,3]ならL1[ノルム](reference.html#term-norm)は？
-:::answer
-絶対値の和で5です。SAEの方式によって特徴を非負に制約する場合もあります。
-:::
 
-:::exercise 4・反例を探す
-「色の特徴」を見つけました。確認する三つの条件は？
-:::answer
-未使用の色名で活性化するか、色でない似た語で誤活性化しないか、介入で色の回答だけが変わるか。命名を結論にせず予測として試します。
-:::
+## 今日の区切りと戻る場所
 
-## L1と層の出力を確認する
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-L1ノルムは成分の絶対値の和です。第14章の二乗和の平方根であるL2ノルムとは違い、[0,−2,0,3]なら0+2+0+3=5。SAEの式のDは特徴から元の幅へ戻す[行列](reference.html#term-matrix)、f(x)は特徴を作る関数です。再構成だけよくても、介入で意味が確かめられたことにはしません。
+[直前の例へ戻る](50-evaluation.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](51-reader.html)
 
-[hook](reference.html#term-hook)は、層が計算されたときに指定した観測関数を呼ぶPyTorchの仕組みです。Tiny Transformerを使うスクリプトで、`model.blocks[0].register_forward_hook(capture)` として最初の層を観測できます。captureは三つの引数 `(module, inputs, output)` を受け取り、たとえば事前に作った辞書cacheへ `cache["activation"] = output.detach().clone()` と保存します。detachは[勾配](reference.html#term-gradient)追跡から切り離す操作、cloneは値を別にコピーする操作です。戻ったhandleの `remove()` で観測を解除します。
+<section class="resume-note" data-lesson="51-interpretability"><h2>次回の再開メモ</h2><label for="resume-51-interpretability">できたこと・止まった一文・次にすること</label><textarea id="resume-51-interpretability" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
 
-観測手順は①evalとno_grad、②同じ長さの二文書を用意、③一文書ずつforward、④各回のcacheを別に保存、⑤同じ位置・同じ特徴を比較、⑥hookを解除、です。コピー対象のIDを2から3へ変えるなら、文書の最初の対象とコピー先の両方を変え、残りは固定します。まず差を観察し、どの成分を置換すれば予測が変わるかは別の介入実験として書きます。[Pythonの橋](python-reading.html)・[コード解説](lab-guide.html)へ戻り、実装の位置を確認できます。仕様：[forward hook](https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.register_forward_hook)。
-
-## 到達課題
-
-Tiny Transformerの一つの層の出力を保存し、copy対象が異なる二例を比較してください。観察した相関を一文、次に必要な介入実験を一文で分けて書きます。
+<nav class="pager" aria-label="小ページの順序"><a href="50-evaluation.html">前の小ページ</a><a href="51u-002.html">次の小ページ</a></nav>

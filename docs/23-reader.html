@@ -1,0 +1,52 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>23 情報量・損失・Perplexity：まとめて参照 | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 作業する場所と、保存する場所</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>23 情報量・損失・Perplexity：まとめて参照</h1><p>長い参照ページです。初めて学ぶときは<a href="23-information.html">小ページの順序</a>を使い、ここへ戻って式やコードを引けます。</p>
+<h2>自信を持って外したら</h2>
+<p>明日の天気を二つの候補から予測し、実際は雨だったとします。雨に0.9を付けた予測と0.01しか付けなかった予測を区別したい。正解・不正解だけでなく、正解にどれだけ確率を配ったかを測るのが負の<a href="reference.html#term-log">対数</a>確率−ln qです。</p>
+<p>真の分布pに従って結果が現れるとき、この<a href="reference.html#term-loss">損失</a>の平均は<code>H(p,q)=−Σᵢpᵢ ln qᵢ</code>。交差<a href="reference.html#term-entropy">エントロピー</a>と呼びます。Hは名前、pᵢは実際の出現確率、qᵢは予測確率です。学習データで正解ラベルが一つ与えられる場合、そのラベルの負の対数確率を計算します。</p>
+<p>まず二択で数字を入れます。実際は必ず第一候補なのでp=(1,0)、予測はq=(1/4,3/4)。上の平均は1×(−ln(1/4))+0×(−ln(3/4))=ln4≈1.386です。実際が半々ならp=(1/2,1/2)。q=(0.8,0.2)に対して0.5×0.223+0.5×1.609≈0.916になります。確率を掛けるのはp、対数を取るのはq。数字の対応を確認してから一般の記号へ戻ります。</p>
+<h2>もともとの不確かさ</h2>
+<p>結果xの起こる確率p(x)が分かるとき、その自己情報量を <code>I(x)=−ln p(x)</code> とします。よく起こる結果は小さく、まれな結果は大きくなります。<a href="reference.html#term-power">底</a>2なら単位はbit、自然対数ならnat。次のエントロピーは、この自己情報量を分布pで平均したものです。予測qの外れを測る交差エントロピーとは、どの確率へ対数を取るかを区別します。</p>
+<p>予測分布もpを使った場合、<code>H(p)=−Σᵢpᵢ ln pᵢ</code>となり、エントロピーと呼びます。二択が半々ならln2≈0.693 nat、必ず片方なら0。情報量は単に「価値」や「意味の豊かさ」を表す日常語とは違い、分布に関する数量です。0 ln0は<a href="reference.html#term-derivative">極限</a>で0として扱います。</p>
+<p>交差エントロピーとエントロピーの差がKLダイバージェンスです。</p>
+<div class="formula">D<sub>KL</sub>(p‖q) = Σ<sub>i</sub> p<sub>i</sub> ln(p<sub>i</sub>/q<sub>i</sub>) = H(p,q) − H(p)</div>
+<p>離散分布で必要な台の条件が満たされるとKLは非負で、p=qなら0です。pᵢ&gt;0なのにqᵢ=0なら無限大になります。一般にKL(p‖q)とKL(q‖p)は違い、距離のような対称性はありません。</p>
+<h2>この章でいう損失と台</h2>
+<p>損失は、予測の外れ具合を数で測り、小さくしたい量です。この章では正解へ低い確率を付けるほど大きくなる負の対数を使います。「分布の台」は、ここでは正の確率を持つ候補の集合です。pが起こり得るとする候補をqが確率0にすると、その候補の負の対数が無限大になる、という条件を式の前後で確認します。</p>
+<p>下のコードの <code>math.log(x)</code> は自然対数ln(x)、<code>math.exp(x)</code> はeのx乗です。<a href="07-logarithms.html">第7章</a>の計算をPythonの数学<a href="reference.html#term-module">モジュール</a>へ移しています。<code>zip</code>と生成式が読めなければ<a href="14-vectors.html">第14章の展開</a>へ戻れます。</p>
+<h2>言語モデルの困惑度</h2>
+<p>N個の正解<a href="reference.html#term-token">トークン</a>の平均負対数確率をLとすると、自然対数を使ったPerplexityはexp(L)です。毎回、四つの候補へ均等に確率を付けるならL=ln4、Perplexity=4。あくまで確率的な選択肢数のような量です。</p>
+<p>Perplexityが低いと、評価対象のトークン列へ平均的に高い確率を付けています。しかし会話の有用性や事実の正しさ全体を保証しません。トークナイザーや評価データが異なるPerplexityを、条件の説明なしに直接比較するのも不適切です。系列ごとの平均をさらに単純平均するか、全トークンで平均するかでも重み付けが変わります。</p>
+<pre><code class="language-python">import math
+p = [0.5, 0.5]
+q = [0.8, 0.2]
+entropy = -sum(x * math.log(x) for x in p)
+cross_entropy = -sum(x * math.log(y) for x, y in zip(p, q))
+print(entropy, cross_entropy, cross_entropy - entropy)
+print(math.exp(cross_entropy))
+</code></pre>
+<p>約0.693、0.916、0.223、2.5です。pは半々なのに片方へ偏った予測をするため、不可避の不確かさに余分な損失が加わります。</p>
+<h2>演習</h2>
+<section class="exercise"><h3>1・一つの正解</h3><p>正解に付けた確率が1、1/2、1/4のとき、底2の負対数損失を答えてください。</p>
+<details><summary>解答と考え方を読む</summary><p>0、1、2 bitです。確率が半分になるごとに1 bit増えます。</p>
+</details></section>
+<section class="exercise"><h3>2・交差エントロピー</h3><p>p=(1,0)、q=(0.25,0.75)なら自然対数の交差エントロピーはいくつですか。</p>
+<details><summary>解答と考え方を読む</summary><p>−ln0.25=ln4≈1.386です。正解が第一候補と確定しているため、その確率だけが寄与します。</p>
+</details></section>
+<section class="exercise"><h3>3・KLの向き</h3><p>p=(1,0)、q=(0.5,0.5)でKL(p‖q)とKL(q‖p)を比べてください。</p>
+<details><summary>解答と考え方を読む</summary><p>前者はln2。後者は第二候補でqが正、pが0なので無限大です。対称ではありません。</p>
+</details></section>
+<section class="exercise"><h3>4・Perplexity</h3><p>平均損失がln8ならPerplexityはいくつですか。</p>
+<details><summary>解答と考え方を読む</summary><p>exp(ln8)=8です。対数の底が2なら2の平均損失乗を使います。</p>
+</details></section>
+<section class="exercise"><h3>5・集計</h3><p>二トークンの損失が1ずつ、別の八トークンが2ずつでした。全トークン平均損失は何ですか。</p>
+<details><summary>解答と考え方を読む</summary><p>(2×1+8×2)/10=1.8です。文章ごとの平均1と2を単純平均した1.5とは重み付けが違います。</p>
+</details></section>
+<section class="exercise"><h3>6・比較条件</h3><p>異なるトークナイザーでPerplexityが20と10でした。後者が必ず優秀だと言えますか。</p>
+<details><summary>解答と考え方を読む</summary><p>言えません。予測の単位が変わるので、同じ評価データとトークン化などの条件を確認します。必要なら文字やバイト単位へ正規化した別指標も検討します。</p>
+</details></section>
+<h2>到達課題と出典</h2>
+<p>自作の二択分布でp=qとp≠qを比べ、H・交差エントロピー・KLの関係を数値で示してください。<a href="https://d2l.ai/chapter_appendix-mathematics-for-deep-learning/information-theory.html">Dive into Deep Learning: Information Theory</a> が関連する公開教科書です。</p>
+</article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>

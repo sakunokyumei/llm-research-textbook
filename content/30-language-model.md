@@ -1,72 +1,33 @@
-{"title":"30 数えるモデルから、学ぶモデルへ","part":"言語モデルを作る","goal":"次トークン予測と教師信号のずらし方を理解する","prereq":"23・29"}
+{"title": "30 数えるモデルから、学ぶモデルへ", "part": "言語モデルを作る", "goal": "次トークン予測と教師信号のずらし方を理解する", "prereq": "23・29", "subpages": ["30u-002", "30u-003", "30u-004", "30u-005", "30u-006", "30u-007", "30u-008"], "next": "30u-002", "previous": "29u-012", "microtitle": "30-1 bigram・n-gram", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 次に来そうなものを数える
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-文章の続きを予測する最も小さな模型から始めます。「aの後にbが3回、cが1回」現れたなら、aの次をbに0.75、cに0.25と予測できます。直前一つの[トークン](reference.html#term-token)だけを見るモデルをbigramと呼びます。n-gramは一定長の直前の文脈で数えるモデルです。
+この章の1/8ページ。今日の目標：bigram・n-gramの小例を一つ追う。
 
-見たことのない組へ確率0を付けると、評価時の負[対数](reference.html#term-log)[損失](reference.html#term-loss)が無限大になります。各候補へα個分を足す加算平滑化なら、`P(y|x)=(count(x,y)+α)/(count(x)+αV)`。Vは候補数です。αは予測を均等分布側へ寄せる強さで、評価用データで最適化しません。
+今日の言葉：[bigram](beginner-glossary.html#concept-30-language-model)・[n-gram](beginner-glossary.html#concept-30-language-model)。
 
-`collections.Counter` は出現回数を数える辞書に似た道具です。`Counter(zip(...))` で隣接組を数え、未登場の組を読むと0になります。`tokens[:-1]` は最後を除く並び、`tokens[1:]` は最初を除く並びなので、対応させると隣接組です。`sorted(set(tokens))` は重複を除いた後、昇順に並べる操作。出力の辞書も、まず普通のfor文で作ります。[添字](reference.html#term-index)は[第10章](10-data.html)、zipは[第14章](14-vectors.html)へ。
+## なぜ使うか
 
-```python
-from collections import Counter
-tokens = ["a", "b", "a", "b", "a", "c"]
-pairs = Counter(zip(tokens[:-1], tokens[1:]))
-vocab = sorted(set(tokens))
-alpha = 1.0
-denom = sum(pairs[("a", y)] for y in vocab) + alpha * len(vocab)
-probabilities = {}
-for y in vocab:
-    probabilities[y] = (pairs[("a", y)] + alpha) / denom
-print(probabilities)
-```
+次トークン予測と教師信号のずらし方を理解するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-ここではaの後はbが2回、cが1回。平滑化後はaが1/6、bが3/6、cが2/6です。実データの文書境界を無視して最後と次の文書の最初を接続すると、意図しない組も学習するため、境界を明示します。
+## 意味と小さな例
 
-## ニューラルモデルも同じ問いに答える
+直前一単位から次を数えるのがbigram。連続するn単位の組がn-gramです。a b a cならaの次はbとcが一回ずつ。長い前の情報を同じようには使えません。
 
-ニューラル言語モデルは、文脈から語彙V個の点数を出し、[softmax](reference.html#term-softmax)で次トークンの確率にします。文字列「abcd」のID列が[0,1,2,3]なら、入力[0,1,2]に対して正解は[1,2,3]。一つ先へずらして対応させます。
-
-これまでの正解の文脈を入力して次の正解を予測する学習はteacher forcingと呼ばれます。生成では自分が出したトークンを次の入力へ加えるので、学習時と生成時の条件は完全には同じではありません。
-
-## 未来を見たら簡単すぎる
-
-位置1で位置2の情報を直接見られるモデルへ、位置2を当てる問題を出すと、答えを見ながら試験を受けることになります。自己回帰モデルでは未来のトークンを参照させません。次章のcausal maskがこの制約を実現します。
-
-Paddingは長さをそろえる補助トークンです。本当の文章ではない位置を損失へ含めると、PAD予測だけで見かけの損失が下がる場合があります。有効トークン数で平均し、PAD位置やSFTの非対象位置を明示的に除外します。
-
-## 演習
-
-:::exercise 1・頻度から予測
-aの後がb=6回、c=2回なら、平滑化なしの確率は何ですか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-bは6/8=0.75、cは2/8=0.25です。
+直前一単位から次を数えるのがbigram。連続するn単位の組がn-gramです。a b a cならaの次はbとcが一回ずつ。長い前の情報を同じようには使えません。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・平滑化
-候補がb,cの二つで、前問にα=1を使うとどうなりますか。
-:::answer
-bは7/10=0.7、cは3/10=0.3。分母もαV=2だけ増やします。
-:::
 
-:::exercise 3・入力と正解
-ID列[4,2,9,1,7]から長さ4の入力と正解を作ってください。
-:::answer
-入力[4,2,9,1]、正解[2,9,1,7]です。位置ごとに一つ先を対応させます。
-:::
 
-:::exercise 4・平均の分母
-二つの系列の有効トークン数が3と7なら、損失の総和を何で割って全トークン平均にしますか。
-:::answer
-10で割ります。系列数2やpaddingを含む長さを分母にしないよう注意します。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・長い文脈
-bigramは「同じ直前トークンだが、それより前の文章が違う」二つの場面へ異なる予測を出せますか。
-:::answer
-基本的なbigramでは出せません。参照する条件が直前一つで同じだからです。より長い文脈を表すモデルが必要になります。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-## 到達課題と出典
+[直前の例へ戻る](29-tokenization.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](30-reader.html)
 
-bigramをtrainだけで学習し、validationの負対数損失を測ってください。後のTiny Transformerの比較対象にします。[Jurafsky & Martin, Speech and Language Processing](https://web.stanford.edu/~jurafsky/slp3/) のn-gramの章が関連します。
+<section class="resume-note" data-lesson="30-language-model"><h2>次回の再開メモ</h2><label for="resume-30-language-model">できたこと・止まった一文・次にすること</label><textarea id="resume-30-language-model" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="29-tokenization.html">前の小ページ</a><a href="30u-002.html">次の小ページ</a></nav>

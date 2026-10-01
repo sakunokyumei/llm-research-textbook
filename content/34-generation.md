@@ -1,71 +1,33 @@
-{"title":"34 生成・温度・KV cache","part":"言語モデルを作る","goal":"学習済みモデルから生成し、速度と分布を区別する","prereq":"28・32・33"}
+{"title": "34 生成・温度・KV cache", "part": "言語モデルを作る", "goal": "学習済みモデルから生成し、速度と分布を区別する", "prereq": "28・32・33", "subpages": ["34u-002", "34u-003", "34u-004", "34u-005", "34u-006", "34u-007", "34u-008", "34u-009", "34u-010"], "next": "34u-002", "previous": "33u-019", "microtitle": "34-1 greedy decoding・sampling・温度", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 確率から一つを選ぶ
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-モデルは語彙全体の点数を出します。最も高いものを選ぶのがgreedy decoding。確率に従ってくじを引くのがsamplingです。greedyは再現しやすい一方、局所的な選択の積み重ねが文章全体の最適解になる保証はありません。
+この章の1/10ページ。今日の目標：greedy decoding・sampling・温度の小例を一つ追う。
 
-温度τ>0を使うと[softmax](reference.html#term-softmax)(z/τ)になります。τを小さくすると高得点へ集中し、大きくすると均等に近づきます。τ=0は式の割り算としては未定義なので、実装ではgreedyを別処理にします。top-kは上位k候補、top-pは累積確率がしきい値に達する候補集合へ絞り、その集合で再正規化する方法です。
+今日の言葉：[greedy decoding](beginner-glossary.html#concept-34-generation)・[sampling](beginner-glossary.html#concept-34-generation)・[温度](beginner-glossary.html#concept-34-generation)。
 
-[実装ラボ](labs.html)の確率計算を操作し、点数を変えずに温度だけを変えた場合を観察してください。温度を下げても事実の正しさを保証するわけではありません。
+## なぜ使うか
 
-## 同じ計算を繰り返さない
+学習済みモデルから生成し、速度と分布を区別するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-自己回帰生成では、過去の[トークン](reference.html#term-token)を毎回最初から計算すると無駄が増えます。causalなTransformerでは、過去位置のKとVを保存し、新しい位置のQ,K,Vだけを計算できます。これがKV cacheです。モデルの層ごとに保存が必要です。
+## 意味と小さな例
 
-概算のcache容量は`2 × 層数 × バッチ数 × 系列長 × KVヘッド数 × ヘッド幅 × 1要素のbyte数`。先頭の2はKとVの二種類です。重み以外に、このcacheが長い生成のメモリを消費します。
+最大確率を選ぶのがgreedy decoding、確率に沿ってくじで選ぶのがsamplingです。温度は点数の尺度を変えます。確率0.7,0.3でもsamplingでは後者が出ます。温度を下げても事実確認にはなりません。
 
-MQAは複数のQヘッドで一組のK/Vヘッドを共有し、GQAはQヘッドをグループに分けてK/Vを共有します。一般にcacheを減らせますが、学習したモデル構造に合わせる必要があり、既存のヘッドを単純に消して同じ品質を保証するものではありません。
-
-## 終わり方も仕様
-
-EOSを出したときに止める、最大生成数で止める、複数系列を個別に終了するなどを設計します。seed、温度、top-p、最大生成数、promptの整形が違えば評価結果も変わり得ます。生成物はモデルの確率的な出力であり、その内容の出典や正確さを別に確認します。
-
-## 一回のくじをコードで確かめる
-
-次の確率は合計1です。`torch.multinomial` は重みに[比例](reference.html#term-proportion)して候補の位置番号を選びます。`generator` が使う乱数列を指定し、`argmax` は最大値の位置番号を返します。同じseed・同じ版・同じ呼び出し順で比較します。
-
-```python
-import torch
-probs = torch.tensor([0.5, 0.3, 0.2])
-rng = torch.Generator().manual_seed(42)
-print(probs.argmax().item())
-print(torch.multinomial(probs, 10, replacement=True, generator=rng).tolist())
-```
-
-最初は0。次は同じ候補を何回も選んでよい十回のくじです。replacement=Trueが復元抽出を指定します。十回の割合が厳密に0.5,0.3,0.2になる意味ではありません。生成モデルではこの一回ごとに次の確率を作り直します。[第22章の再抽出](22-statistics.html)と[Pythonの橋](python-reading.html)へ戻れます。
-
-## 演習
-
-:::exercise 1・温度
-点数(0,ln4)に温度2を使うと確率はどうなりますか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-調整後は(0,ln2)、[指数](reference.html#term-power)は(1,2)、確率は(1/3,2/3)。温度1の(1/5,4/5)より均等に近くなります。
+最大確率を選ぶのがgreedy decoding、確率に沿ってくじで選ぶのがsamplingです。温度は点数の尺度を変えます。確率0.7,0.3でもsamplingでは後者が出ます。温度を下げても事実確認にはなりません。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・top-k
-確率(0.5,0.3,0.2)でtop-k=2なら再正規化後は何ですか。
-:::answer
-(0.625,0.375,0)です。残った確率の和0.8で割ります。
-:::
 
-:::exercise 3・cache容量
-2層、バッチ1、系列長100、KVヘッド2、幅8、1要素2byteなら概算容量はいくつですか。
-:::answer
-2×2×1×100×2×8×2=12800byteです。管理領域などを含まない概算です。
-:::
 
-:::exercise 4・cacheの正しさ
-cacheを使う実装を追加したら、何と比較しますか。
-:::answer
-同じ入力・同じモデル・評価モードで、cacheなしの全再計算のlogitと許容誤差内で一致するか比較します。生成文だけの見た目では検証不足です。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・評価条件
-同じモデルで生成結果が違いました。モデル以外に記録すべき条件を三つ挙げてください。
-:::answer
-sampling seed、温度、top-k/top-p、promptテンプレート、最大長、停止条件などです。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-## 到達課題と出典
+[直前の例へ戻る](33-training.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](34-reader.html)
 
-同じpromptでgreedyと複数seedのsamplingを比べ、同じ文脈での確率と実際の出力を記録してください。[GQA](https://arxiv.org/abs/2305.13245)、[The Curious Case of Neural Text Degeneration](https://arxiv.org/abs/1904.09751) を参照。
+<section class="resume-note" data-lesson="34-generation"><h2>次回の再開メモ</h2><label for="resume-34-generation">できたこと・止まった一文・次にすること</label><textarea id="resume-34-generation" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="33-training.html">前の小ページ</a><a href="34u-002.html">次の小ページ</a></nav>

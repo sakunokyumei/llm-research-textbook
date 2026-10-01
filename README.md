@@ -6,7 +6,7 @@ sakunokyumei の日本語LLM教科書。算数から実装・再現実験・研�
 
 公開サイト：https://sakunokyumei.github.io/llm-research-textbook/
 
-56講義、279問の解答付き演習、CPUで動くTransformer・BPE・検索・方策勾配・統計比較のラボを収録。
+56章の講義、少数の新語と小例から講義へ進む学習ページ、解答付き演習、CPUで動くTransformer・BPE・検索・方策勾配・統計比較のラボを収録。第6〜56章はページ単位で中断・再開でき、長い参照ページも別に引けます。
 研究ガイドは2026年9月30日を確認日とし、一次資料の確認範囲と未検証の範囲を区別しています。
 
 ## 開発
@@ -21,7 +21,7 @@ python -m http.server 4173 --bind 127.0.0.1 --directory dist
 
 `python verify.py`は内部リンク・exercise構造・本文のPythonコードを検証します。本文のコード実行にはNumPyとPyTorchも必要です。
 `python build.py --output docs`でGitHub Pages用の静的サイトを生成します。Pagesの公開元はmainブランチの`/docs`です。
-サイトに外部JavaScript、アクセス解析、広告、入力送信はありません。
+サイトに外部JavaScript、アクセス解析、広告、入力送信はありません。再開メモは端末内のブラウザに保存し、ページごとに削除できます。ブラウザ間の同期は行いません。
 
 研究実験は `labs/README.md` を参照してください。
 

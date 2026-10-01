@@ -1,0 +1,60 @@
+# 54 論文を読み、式と実装を結ぶ：まとめて参照
+
+長い参照ページです。初めて学ぶときは[小ページの順序](54-paper-reading.html)を使い、ここへ戻って式やコードを引けます。
+
+
+## 最初から一語ずつ訳さなくてよい
+
+論文は、初学者へすべての前提を教える教科書ではありません。最初の一周では題名・要旨・図・結論から、「何に困り、何を変え、何を測ったか」をつかみます。二周目で方法と実験条件、三周目で式・証明・実装を照合します。分からない用語は、この教材の前提章へ戻ります。
+
+abstractは論文全体の短い主張です。そこに書かれた改善は、どのデータ・計算予算・baselineに対するものかを実験節で確認します。限界が要旨に全部書かれているとは限りません。
+
+## 英語の文を役割で読む
+
+“We propose …”は提案、“We observe …”は観測、“We hypothesize …”は仮説です。“may”や“under this setting”を落として訳すと、可能性や条件を断定へ変えてしまいます。主語、動詞、条件、比較対象、留保を色分けすると、長い文も追いやすくなります。
+
+自分のメモでは、引用、要約、自分の推測を分けます。原文を長くコピーせず、必要な短い引用にページ・節を付けます。引用した元論文を実際に確認し、別の論文による紹介だけから主張を強くしません。
+
+## 論文の場所と記号を先に決める
+
+[arXiv](reference.html#term-arxiv)は論文原稿の公開場所で、掲載だけで査読済みとは限りません。版番号と取得日を記録します。Introductionは問題、Related Workは既存研究、Methodは方法、Experimentsは実験、Limitationsは限界、Appendixは付録です。論文によって名前と順番は変わるので、まず目次や見出しを見ます。
+
+太字のxを[ベクトル](reference.html#term-vector)、大文字Xを[行列](reference.html#term-matrix)として使う慣習がありますが、各論文の定義を優先します。上付きTは[転置](reference.html#term-transpose)、[添字](reference.html#term-index)iは要素番号、Eは[期待値](reference.html#term-expectation)、∇は[勾配](reference.html#term-gradient)、∂は[偏微分](reference.html#term-partial)。`argmin` は値を最小にする入力を選ぶ記法で、最小値そのもののminとは違います。stop-gradientは値は後へ渡すが、その経路の勾配は戻さない指定です。第51章のdetachが例です。知らない記法は[第14〜18章](14-vectors.html)・[第21章](21-distributions.html)へ戻し、[shape](reference.html#term-tensor)を決めるまで推測で読まないでください。
+
+## 一つの式を解剖する
+
+[Attention](reference.html#term-attention)式を読むなら、Q,K,Vの形、転置する軸、[softmax](reference.html#term-softmax)の軸、mask、正規化の[係数](reference.html#term-coefficient)を書き出します。次に2token・2次元へ縮めて手計算します。最後にコードのreshape、transpose、matmulへ対応させます。行列式の見た目が似ていても、バッチやheadの軸を取り違えると別の計算です。
+
+[損失](reference.html#term-loss)なら、期待値が何について取られているか、平均と和のどちらか、stop-gradientがあるか、正規化の分母は何かを確認します。省略記法を勝手に補う前に付録と公開コードを探します。
+
+## 再現と追試の範囲
+
+元コード・元条件を動かす、独立実装で同条件を試す、縮小設定で核心を確かめる、別データへ拡張する、は異なる仕事です。どれを行ったか具体的に書けば、用語の揺れによる誤解を減らせます。小型モデルで傾向が出ても、巨大モデルの数値を再現したことにはなりません。
+
+:::exercise 1・留保を守る
+“Method A may improve accuracy under a fixed compute budget.”を断定せず訳してください。
+:::answer
+「計算予算を固定した条件では、手法Aが正解率を改善する可能性がある」。mayと条件を残します。
+:::
+
+:::exercise 2・論文メモ
+要旨に「20%改善」とありました。何を確認しますか。
+:::answer
+相対改善かpercentage pointか、どの指標・baselineか、評価例数・seed・計算予算・不確実性・選択方法です。
+:::
+
+:::exercise 3・式からテスト
+因果Attentionの実装が正しいか、値を一つずつ比較する以外のテストは？
+:::answer
+未来の入力だけ変えても、過去の出力が変わらないことを確認します。構造から導いた不変条件です。
+:::
+
+:::exercise 4・分からない箇所
+付録を読んでも評価promptが不明です。どうしますか。
+:::answer
+公開コードや設定を確認し、なお不明なら不明点として記録します。自分の代替設定を明示し、同条件の再現と断定しません。
+:::
+
+## 到達課題
+
+原Transformer論文の式(1)を対象に、①shape、②2token手計算、③コード、④未来参照テスト、⑤原論文と自分のモデルの差を一枚にまとめてください。[原論文](https://arxiv.org/abs/1706.03762)

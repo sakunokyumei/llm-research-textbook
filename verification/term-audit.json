@@ -2,7 +2,7 @@
   "date": "2026-10-01",
   "registered_concepts": 88,
   "prose_links": 468,
-  "scope": "88 registered teaching concepts and their first linked prose mention in the chapter route; not an exhaustive natural-language glossary",
+  "scope": "88 glossary definitions; first linked prose occurrences in the revised required route, distinct from prior small-page definitions. Additional beginner concepts are indexed separately.",
   "first_prose_uses": [
     {
       "file": "content/04-powers.md",
@@ -26,8 +26,23 @@
     },
     {
       "file": "pages/05b-equations.md",
+      "term": "両辺",
+      "glossary": "reference.html#term-sides"
+    },
+    {
+      "file": "pages/05b-equations.md",
       "term": "方程式",
       "glossary": "reference.html#term-equation"
+    },
+    {
+      "file": "pages/05b-equations.md",
+      "term": "解",
+      "glossary": "reference.html#term-solution"
+    },
+    {
+      "file": "pages/05b-equations.md",
+      "term": "検算",
+      "glossary": "reference.html#term-check-answer"
     },
     {
       "file": "pages/05c-distribute.md",
@@ -45,399 +60,384 @@
       "glossary": "reference.html#term-proportion"
     },
     {
-      "file": "content/06-functions.md",
+      "file": "pages/06u-008.md",
       "term": "定義域",
       "glossary": "reference.html#term-domain"
     },
     {
-      "file": "content/06-functions.md",
+      "file": "pages/06u-011.md",
       "term": "添字",
       "glossary": "reference.html#term-index"
     },
     {
-      "file": "content/06-functions.md",
+      "file": "pages/06u-012.md",
       "term": "実数",
       "glossary": "reference.html#term-real"
     },
     {
-      "file": "content/07-logarithms.md",
+      "file": "pages/07u-007.md",
       "term": "対数",
       "glossary": "reference.html#term-log"
     },
     {
-      "file": "content/07-logarithms.md",
+      "file": "pages/07u-009.md",
       "term": "機械学習",
       "glossary": "reference.html#term-ml"
     },
     {
-      "file": "content/07-logarithms.md",
+      "file": "pages/07u-010.md",
       "term": "損失",
       "glossary": "reference.html#term-loss"
     },
     {
-      "file": "content/09-control.md",
+      "file": "pages/09u-006.md",
       "term": "インデント",
       "glossary": "reference.html#term-indent"
     },
     {
-      "file": "content/10-data.md",
+      "file": "pages/10u-010.md",
       "term": "トークン",
       "glossary": "reference.html#term-token"
     },
     {
-      "file": "content/10-data.md",
+      "file": "pages/10u-011.md",
       "term": "モジュール",
       "glossary": "reference.html#term-module"
     },
     {
-      "file": "content/10-data.md",
+      "file": "pages/10u-012.md",
       "term": "一意性",
       "glossary": "reference.html#term-unique"
     },
     {
-      "file": "content/11-debug.md",
+      "file": "pages/11u-006.md",
       "term": "有限精度",
       "glossary": "reference.html#term-finite"
     },
     {
-      "file": "content/11-debug.md",
+      "file": "pages/11u-008.md",
       "term": "クラス",
       "glossary": "reference.html#term-class"
     },
     {
-      "file": "content/11-debug.md",
+      "file": "pages/11u-009.md",
       "term": "ablation",
       "glossary": "reference.html#term-ablation"
     },
     {
-      "file": "content/12-environment.md",
+      "file": "pages/12u-009.md",
       "term": "ライブラリ",
       "glossary": "reference.html#term-library"
     },
     {
-      "file": "content/12-environment.md",
+      "file": "pages/12u-009.md",
       "term": "仮想環境",
       "glossary": "reference.html#term-venv"
     },
     {
-      "file": "content/13-algorithms.md",
+      "file": "pages/13u-009.md",
       "term": "計算量",
       "glossary": "reference.html#term-complexity"
     },
     {
-      "file": "content/13-algorithms.md",
+      "file": "pages/13u-009.md",
       "term": "not in",
       "glossary": "reference.html#term-membership"
     },
     {
-      "file": "content/13-algorithms.md",
+      "file": "pages/13u-010.md",
       "term": "SQL",
       "glossary": "reference.html#term-sql"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-008.md",
       "term": "ベクトル",
       "glossary": "reference.html#term-vector"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-008.md",
       "term": "スカラー",
       "glossary": "reference.html#term-scalar"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-009.md",
       "term": "内積",
       "glossary": "reference.html#term-dot"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-009.md",
       "term": "直角",
       "glossary": "reference.html#term-orthogonal"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-009.md",
       "term": "斜辺",
       "glossary": "reference.html#term-pythagoras"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-009.md",
       "term": "ノルム",
       "glossary": "reference.html#term-norm"
     },
     {
-      "file": "content/14-vectors.md",
+      "file": "pages/14u-010.md",
       "term": "埋め込み",
       "glossary": "reference.html#term-embedding"
     },
     {
-      "file": "content/15-matrices.md",
+      "file": "pages/15u-010.md",
       "term": "列ベクトル",
       "glossary": "reference.html#term-column-vector"
     },
     {
-      "file": "content/15-matrices.md",
+      "file": "pages/15u-010.md",
       "term": "行列",
       "glossary": "reference.html#term-matrix"
     },
     {
-      "file": "pages/15c-transpose.md",
+      "file": "pages/15u-014.md",
       "term": "転置",
       "glossary": "reference.html#term-transpose"
     },
     {
-      "file": "pages/15d-basis.md",
+      "file": "pages/15u-016.md",
       "term": "線形結合",
       "glossary": "reference.html#term-basis"
     },
     {
-      "file": "pages/15d-basis.md",
+      "file": "pages/15u-016.md",
       "term": "ランク",
       "glossary": "reference.html#term-rank"
     },
     {
-      "file": "content/16-tensors.md",
+      "file": "pages/16u-010.md",
       "term": "テンソル",
       "glossary": "reference.html#term-tensor"
     },
     {
-      "file": "content/16-tensors.md",
+      "file": "pages/16u-010.md",
       "term": "broadcast",
       "glossary": "reference.html#term-broadcast"
     },
     {
-      "file": "pages/16b-diagonal.md",
+      "file": "pages/16u-012.md",
       "term": "対角行列",
       "glossary": "reference.html#term-diagonal"
     },
     {
-      "file": "pages/16c-eigen.md",
+      "file": "pages/16u-014.md",
       "term": "固有ベクトル",
       "glossary": "reference.html#term-eigen"
     },
     {
-      "file": "pages/16d-svd.md",
+      "file": "pages/16u-016.md",
       "term": "特異値分解",
       "glossary": "reference.html#term-svd"
     },
     {
-      "file": "content/17-calculus.md",
+      "file": "pages/17u-007.md",
       "term": "微分",
       "glossary": "reference.html#term-derivative"
     },
     {
-      "file": "content/18-chain.md",
+      "file": "pages/18u-010.md",
       "term": "偏微分",
       "glossary": "reference.html#term-partial"
     },
     {
-      "file": "content/18-chain.md",
+      "file": "pages/18u-010.md",
       "term": "勾配",
       "glossary": "reference.html#term-gradient"
     },
     {
-      "file": "pages/18b-chain.md",
+      "file": "pages/18u-012.md",
       "term": "連鎖律",
       "glossary": "reference.html#term-chain-rule"
     },
     {
-      "file": "pages/18c-descent.md",
+      "file": "pages/18u-015.md",
       "term": "学習率",
       "glossary": "reference.html#term-learning-rate"
     },
     {
-      "file": "pages/18c-descent.md",
+      "file": "pages/18u-015.md",
       "term": "単位方向",
       "glossary": "reference.html#term-unit-vector"
     },
     {
-      "file": "pages/18d-jacobian.md",
+      "file": "pages/18u-017.md",
       "term": "ヤコビ行列",
       "glossary": "reference.html#term-jacobian"
     },
     {
-      "file": "pages/18e-products.md",
+      "file": "pages/18u-019.md",
       "term": "JVP",
       "glossary": "reference.html#term-jvp-vjp"
     },
     {
-      "file": "pages/18e-products.md",
+      "file": "pages/18u-021.md",
       "term": "自動微分",
       "glossary": "reference.html#term-autograd"
     },
     {
-      "file": "pages/18f-linear.md",
+      "file": "pages/18u-023.md",
       "term": "線形層",
       "glossary": "reference.html#term-linear-layer"
     },
     {
-      "file": "pages/18f-linear.md",
-      "term": "上流の勾配",
-      "glossary": "reference.html#term-upstream"
-    },
-    {
-      "file": "content/19-integration.md",
-      "term": "積分",
-      "glossary": "reference.html#term-integral"
-    },
-    {
-      "file": "content/19-integration.md",
-      "term": "密度",
-      "glossary": "reference.html#term-density"
-    },
-    {
-      "file": "content/20-probability.md",
-      "term": "Bayesの定理",
-      "glossary": "reference.html#term-bayes"
-    },
-    {
-      "file": "content/21-distributions.md",
-      "term": "期待値",
-      "glossary": "reference.html#term-expectation"
-    },
-    {
-      "file": "content/21-distributions.md",
-      "term": "分散",
-      "glossary": "reference.html#term-variance"
-    },
-    {
-      "file": "content/22-statistics.md",
-      "term": "bootstrap",
-      "glossary": "reference.html#term-bootstrap"
-    },
-    {
-      "file": "content/23-information.md",
-      "term": "エントロピー",
-      "glossary": "reference.html#term-entropy"
-    },
-    {
-      "file": "content/24-learning.md",
-      "term": "過学習",
-      "glossary": "reference.html#term-overfit"
-    },
-    {
-      "file": "content/26-pytorch.md",
-      "term": "optimizer",
-      "glossary": "reference.html#term-optimizer"
-    },
-    {
-      "file": "content/27-networks.md",
-      "term": "活性化関数",
-      "glossary": "reference.html#term-activation"
-    },
-    {
-      "file": "content/28-numerics.md",
-      "term": "softmax",
-      "glossary": "reference.html#term-softmax"
-    },
-    {
-      "file": "content/28-numerics.md",
-      "term": "Attention",
-      "glossary": "reference.html#term-attention"
-    },
-    {
-      "file": "content/32-transformer.md",
-      "term": "RoPE",
-      "glossary": "reference.html#term-rope"
-    },
-    {
-      "file": "content/33-training.md",
-      "term": "チェックポイント",
-      "glossary": "reference.html#term-checkpoint"
-    },
-    {
-      "file": "content/35-data-scaling.md",
-      "term": "事前学習",
-      "glossary": "reference.html#term-pretrain"
-    },
-    {
-      "file": "content/36-adaptation.md",
-      "term": "LoRA",
-      "glossary": "reference.html#term-lora"
-    },
-    {
-      "file": "content/36-adaptation.md",
-      "term": "量子化",
-      "glossary": "reference.html#term-quantization"
-    },
-    {
-      "file": "content/36-adaptation.md",
-      "term": "RAG",
-      "glossary": "reference.html#term-rag"
-    },
-    {
-      "file": "content/37-rag.md",
-      "term": "エージェント",
-      "glossary": "reference.html#term-agent"
-    },
-    {
-      "file": "content/38-reinforcement.md",
-      "term": "報酬",
-      "glossary": "reference.html#term-reward"
-    },
-    {
-      "file": "content/39-alignment.md",
-      "term": "RLHF",
-      "glossary": "reference.html#term-rlhf"
-    },
-    {
-      "file": "content/42-distributed.md",
-      "term": "MoE",
-      "glossary": "reference.html#term-moe"
-    },
-    {
-      "file": "content/48-multimodal.md",
-      "term": "モダリティ",
-      "glossary": "reference.html#term-modality"
-    },
-    {
-      "file": "content/49-agents.md",
-      "term": "type",
-      "glossary": "reference.html#term-type"
-    },
-    {
-      "file": "content/50-evaluation.md",
-      "term": "交絡",
-      "glossary": "reference.html#term-confounding"
-    },
-    {
-      "file": "content/50-evaluation.md",
-      "term": "rubric",
-      "glossary": "reference.html#term-rubric"
-    },
-    {
-      "file": "content/51-interpretability.md",
-      "term": "hook",
-      "glossary": "reference.html#term-hook"
-    },
-    {
-      "file": "content/54-paper-reading.md",
-      "term": "arXiv",
-      "glossary": "reference.html#term-arxiv"
-    },
-    {
-      "file": "pages/05b-equations.md",
-      "term": "両辺",
-      "glossary": "reference.html#term-sides"
-    },
-    {
-      "file": "pages/05b-equations.md",
-      "term": "解",
-      "glossary": "reference.html#term-solution"
-    },
-    {
-      "file": "pages/05b-equations.md",
-      "term": "検算",
-      "glossary": "reference.html#term-check-answer"
-    },
-    {
-      "file": "pages/18f-linear.md",
+      "file": "pages/18u-023.md",
       "term": "アフィン変換",
       "glossary": "reference.html#term-affine"
     },
     {
-      "file": "content/20-probability.md",
-      "term": "二項係数・二項分布",
+      "file": "pages/18u-023.md",
+      "term": "上流の勾配",
+      "glossary": "reference.html#term-upstream"
+    },
+    {
+      "file": "pages/19u-005.md",
+      "term": "積分",
+      "glossary": "reference.html#term-integral"
+    },
+    {
+      "file": "pages/19u-008.md",
+      "term": "密度",
+      "glossary": "reference.html#term-density"
+    },
+    {
+      "file": "pages/20u-005.md",
+      "term": "Bayesの定理",
+      "glossary": "reference.html#term-bayes"
+    },
+    {
+      "file": "pages/20u-007.md",
+      "term": "二項係数",
       "glossary": "reference.html#term-binomial"
+    },
+    {
+      "file": "pages/21u-008.md",
+      "term": "期待値",
+      "glossary": "reference.html#term-expectation"
+    },
+    {
+      "file": "pages/21u-009.md",
+      "term": "分散",
+      "glossary": "reference.html#term-variance"
+    },
+    {
+      "file": "pages/22u-012.md",
+      "term": "bootstrap",
+      "glossary": "reference.html#term-bootstrap"
+    },
+    {
+      "file": "pages/23u-007.md",
+      "term": "エントロピー",
+      "glossary": "reference.html#term-entropy"
+    },
+    {
+      "file": "pages/24u-012.md",
+      "term": "過学習",
+      "glossary": "reference.html#term-overfit"
+    },
+    {
+      "file": "pages/26u-010.md",
+      "term": "optimizer",
+      "glossary": "reference.html#term-optimizer"
+    },
+    {
+      "file": "pages/27u-008.md",
+      "term": "活性化関数",
+      "glossary": "reference.html#term-activation"
+    },
+    {
+      "file": "pages/28u-008.md",
+      "term": "softmax",
+      "glossary": "reference.html#term-softmax"
+    },
+    {
+      "file": "pages/28u-009.md",
+      "term": "Attention",
+      "glossary": "reference.html#term-attention"
+    },
+    {
+      "file": "pages/32u-012.md",
+      "term": "RoPE",
+      "glossary": "reference.html#term-rope"
+    },
+    {
+      "file": "pages/33u-014.md",
+      "term": "チェックポイント",
+      "glossary": "reference.html#term-checkpoint"
+    },
+    {
+      "file": "pages/35u-003.md",
+      "term": "事前学習",
+      "glossary": "reference.html#term-pretrain"
+    },
+    {
+      "file": "pages/36u-005.md",
+      "term": "LoRA",
+      "glossary": "reference.html#term-lora"
+    },
+    {
+      "file": "pages/36u-006.md",
+      "term": "量子化",
+      "glossary": "reference.html#term-quantization"
+    },
+    {
+      "file": "pages/36u-006.md",
+      "term": "RAG",
+      "glossary": "reference.html#term-rag"
+    },
+    {
+      "file": "pages/37u-007.md",
+      "term": "エージェント",
+      "glossary": "reference.html#term-agent"
+    },
+    {
+      "file": "pages/38u-006.md",
+      "term": "報酬",
+      "glossary": "reference.html#term-reward"
+    },
+    {
+      "file": "pages/39u-007.md",
+      "term": "RLHF",
+      "glossary": "reference.html#term-rlhf"
+    },
+    {
+      "file": "pages/42u-010.md",
+      "term": "MoE",
+      "glossary": "reference.html#term-moe"
+    },
+    {
+      "file": "pages/48u-005.md",
+      "term": "モダリティ",
+      "glossary": "reference.html#term-modality"
+    },
+    {
+      "file": "pages/49u-007.md",
+      "term": "type",
+      "glossary": "reference.html#term-type"
+    },
+    {
+      "file": "pages/50u-005.md",
+      "term": "交絡",
+      "glossary": "reference.html#term-confounding"
+    },
+    {
+      "file": "pages/50u-007.md",
+      "term": "rubric",
+      "glossary": "reference.html#term-rubric"
+    },
+    {
+      "file": "pages/51u-006.md",
+      "term": "hook",
+      "glossary": "reference.html#term-hook"
+    },
+    {
+      "file": "pages/54u-007.md",
+      "term": "arXiv",
+      "glossary": "reference.html#term-arxiv"
     }
   ],
   "definitions": [
@@ -881,5 +881,7 @@
       "term": "二項係数・二項分布",
       "lesson": "20-probability.html"
     }
-  ]
+  ],
+  "beginner_dictionary": "beginner-glossary.html",
+  "beginner_definition_pages": 270
 }

@@ -1,73 +1,33 @@
-{"title":"41 GPU・FlashAttention・Triton","part":"効率と現代のアーキテクチャ","goal":"演算と転送のどちらが律速かを測り、正しさを保って改善する","prereq":"13・16・28・31"}
+{"title": "41 GPU・FlashAttention・Triton", "part": "効率と現代のアーキテクチャ", "goal": "演算と転送のどちらが律速かを測り、正しさを保って改善する", "prereq": "13・16・28・31", "subpages": ["41u-002", "41u-003", "41u-004", "41u-005", "41u-006", "41u-007", "41u-008", "41u-009", "41u-010", "41u-011"], "next": "41u-002", "previous": "40u-008", "microtitle": "41-1 帯域・演算強度・Roofline", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます"}
 
-## 計算機が待っているもの
+読む目安5〜10分／確認5〜10分。長いコードの実行はPCを使える別の回へ分けられます。時間は編集上の目安です。
 
-料理人が速くても材料を運ぶのが遅ければ、厨房全体は速くなりません。GPUも、計算の量だけでなくメモリからの読み書きで速度が決まります。FLOPsは演算回数、FLOP/sは単位時間の演算速度、帯域は単位時間に転送できるbyte数です。
+この章の1/11ページ。今日の目標：帯域・演算強度・Rooflineの小例を一つ追う。
 
-演算強度は演算数を転送byte数で割ったもの。Rooflineの簡単な模型では、達成可能な性能は「演算の上限」と「帯域×演算強度」の小さい側に制限されます。実際には起動費用、占有率、同期、形の不一致なども効きます。理論上限を実測性能と呼ばないでください。
+今日の言葉：[帯域](beginner-glossary.html#concept-41-efficiency)・[演算強度](beginner-glossary.html#concept-41-efficiency)・[Roofline](beginner-glossary.html#concept-41-efficiency)。
 
-## Attentionの大きな中間表
+## なぜ使うか
 
-T位置が互いを比べる点数表はT×Tで、Tを二倍にすると要素数は四倍です。通常の[Attention](reference.html#term-attention)をそのまま実装すると、この大きな表の保存や読み書きが負担になります。
+演算と転送のどちらが律速かを測り、正しさを保って改善するための一歩です。今日は下の小例を自分の言葉へ直し、同じ操作を再開できるようにします。
 
-FlashAttentionはタイル分割とonline [softmax](reference.html#term-softmax)などを使い、巨大な中間表をHBMへ何度も書き出すことを避けます。標準的なFlashAttentionは近似Attentionではなく、同じAttention演算をより効率よく計算するexactな方式です。ただし[浮動小数点](reference.html#term-finite)の演算順序で小さな数値差はあり得ます。「exactだからbitごとに一致」とは言いません。
+## 意味と小さな例
 
-## Online softmaxの更新
+一秒に運べるbyte数が帯域、演算数を転送byteで割るのが演算強度。Rooflineは計算の上限と転送側の上限の小さい方を考える模型です。10演算で20byte運べば0.5演算/byte。上限を実測値とは呼びません。
 
-これまでの最大値m、[指数](reference.html#term-power)和l、重み付き値の和oを保持します。新しいブロックの最大値と比較してm_newを決め、古いlとoを[exp](reference.html#term-log)(m−m_new)倍して尺度を合わせ、新しいexp(score−m_new)の寄与を足します。最後にo/lで正規化します。全スコアを同時に保存せず、分母と分子を同じ尺度で更新するのが要点です。
-
-## 二つの候補だけでonline更新を追う
-
-HBMはGPU側の大きな記憶領域、タイルは表を分けた小さい塊です。kernelはGPUへ実行させる一まとまりの計算。ここではGPUを使う前に、同じ確率計算をCPUで確かめます。
-
-scoreが0,ln2、値が2,8なら、全体の指数は1,2、分母3、分子18、出力6です。最初の塊だけではm=0,l=1,o=2。次にm_new=ln2となるので古い分母と分子を1/2倍し、新しい寄与を足します。l=0.5+1=1.5、o=1+8=9。9/1.5=6で一致します。
-
-|読み方|先に全部を作る|塊ごとに更新する|
-|---|---|---|
-|分母|1+2=3|0.5+1=1.5|
-|分子|2+16=18|1+8=9|
-|比|18/3=6|9/1.5=6|
-
-保存する値の尺度は違っても、比は同じです。[実装ラボのmath_checks.py](labs.html)で通常のsoftmaxとの比較を実行し、その `online_weighted_sum` のscoresとvaluesへこの二候補を渡して6になるか確認します。関数の入力・更新式・最後の割り算を上の表へ対応づけます。GPUの課題は[追加実習](systems-lab.html)へ進む発展で、対応GPUがなければCPU比較を本章の到達課題にします。GPU性能は測ったことにしません。
-
-## Tritonの位置づけ
-
-TritonはGPU用の計算kernelを書くための言語とコンパイラです。Python風に見えても、通常のPythonループと同じ実行模型ではありません。program_idで担当するブロックを決め、arangeでブロック内の位置を作り、load/storeで入出力します。末尾の端数では範囲外をmaskして保護します。
-
-最初の課題は[ベクトル](reference.html#term-vector)加算です。PyTorchを正しさの基準とし、長さ0、1、ブロック幅の前後、割り切れない長さを確認します。その後に速度を測ります。対応GPUが必要なので、CPUラボの成功をGPU kernel検証済みと言い換えません。
-
-## 演習
-
-:::exercise 1・中間表
-T=4096のAttention点数表には何要素ありますか。FP32なら概算何byteですか。
+:::exercise 1・例を自分で確かめる
+上の例の入力と結果、または二つの役割を紙やメモへ書き、答えを隠して理由を一文で説明してください。数字がある例では、元の値へ戻して計算を照合してください。
 :::answer
-4096²=16777216要素、4byteなら67108864byte、64 MiBです。一つのヘッド・一つの系列の表としての概算です。
+一秒に運べるbyte数が帯域、演算数を転送byteで割るのが演算強度。Rooflineは計算の上限と転送側の上限の小さい方を考える模型です。10演算で20byte運べば0.5演算/byte。上限を実測値とは呼びません。 入力・途中の操作・結果の三つを対応させます。説明できなければ次の新語へ進まず、この一例へ戻れます。
 :::
 
-:::exercise 2・演算強度
-100万演算に200万byteの転送が必要なら演算強度は何ですか。
-:::answer
-0.5 FLOP/byteです。帯域が100 GB/sなら、この単純な上限は50 GFLOP/sになります。
-:::
 
-:::exercise 3・exactの意味
-FlashAttentionの出力が通常版と1e-6だけ異なりました。それだけで近似Attentionになったと言えますか。
-:::answer
-言えません。同じ数式でも浮動小数点の演算順序が違うと数値差が出ます。dtypeと規模に合う許容誤差で確認します。
-:::
 
-:::exercise 4・端数
-長さ1000の配列を幅256で処理します。必要なブロック数と最後の有効要素数はいくつですか。
-:::answer
-4ブロック、最後は1000−3×256=232要素です。残り24位置へのload/storeを防ぐmaskが必要です。
-:::
+## 今日の区切りと戻る場所
 
-:::exercise 5・計測
-GPU処理の呼び出し前後をCPU時計で測るだけでは不十分な理由は何ですか。
-:::answer
-GPUが非同期に実行され、呼び出しだけが先に戻る場合があります。warmup、コンパイル時間の分離、同期または適切なGPUイベントによる計測が必要です。
-:::
+この小例を一つ説明できたら区切れます。 分からないことは説明の順序の手掛かりです。できた扱いにせず、止まった一文をメモします。
 
-## 到達課題と出典
+[直前の例へ戻る](40-reasoning.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](41-reader.html)
 
-CPUではonline softmaxをブロックごとに実装して通常版と比較し、対応GPUがあれば公式のベクトル加算kernelを改変して端数テストを行います。[FlashAttention](https://arxiv.org/abs/2205.14135)、[FlashAttention-2](https://arxiv.org/abs/2307.08691)、[Triton公式チュートリアル](https://triton-lang.org/main/getting-started/tutorials/index.html) を参照。
+<section class="resume-note" data-lesson="41-efficiency"><h2>次回の再開メモ</h2><label for="resume-41-efficiency">できたこと・止まった一文・次にすること</label><textarea id="resume-41-efficiency" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
+
+<nav class="pager" aria-label="小ページの順序"><a href="40-reasoning.html">前の小ページ</a><a href="41u-002.html">次の小ページ</a></nav>
