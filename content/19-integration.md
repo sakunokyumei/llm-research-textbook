@@ -1,4 +1,4 @@
-{"title": "19 積分と連続的な量", "part": "モデルを支える数学", "goal": "細かい量を足し合わせ、密度と確率の関係へつなげる", "prereq": "17", "previous": "18u-029", "subpages": ["19u-002", "19u-003", "19u-004", "19u-005", "19u-006", "19u-007", "19u-008", "19u-009", "19u-010", "19u-011"], "next": "19u-002", "microtitle": "19-1 積分・数値積分", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます", "microgoal": "幅を掛けた量を足して面積を近似する"}
+{"title": "19 積分と連続的な量", "part": "モデルを支える数学", "goal": "細かい量を足し合わせ、密度と確率の関係へつなげる", "prereq": "17", "previous": "18u-028", "subpages": ["19u-002", "19u-003", "19u-004", "19u-005", "19u-006", "19u-007", "19u-008", "19u-009", "19u-010", "19u-011"], "next": "19u-002", "microtitle": "19-1 積分・数値積分", "time": "この小ページを読む目安5〜10分／確認5〜10分。章全体は複数日に分けます", "microgoal": "幅を掛けた量を足して面積を近似する"}
 
 読む目安5〜10分／確認5〜10分。時間は編集上の目安です。
 
@@ -26,8 +26,8 @@
 
 確認問題で「幅を掛けた量を足して面積を近似する」ことを試してください。答えの数だけでなく理由も照合し、違った部分から本文へ戻ります。
 
-[直前の例へ戻る](18u-029.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](19-reader.html)
+[直前の例へ戻る](18u-028.html) · [中断・再開の手引き](learning-help.html) · [この章をまとめて参照](19-reader.html)
 
 <section class="resume-note" data-lesson="19-integration"><h2>次回の再開メモ</h2><label for="resume-19-integration">できたこと・止まった一文・次にすること</label><textarea id="resume-19-integration" rows="3" maxlength="2000"></textarea><button type="button" data-save-note>この端末へメモを保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったらメモを消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>
 
-<nav class="pager" aria-label="小ページの順序"><a href="18u-029.html">前の小ページ</a><a href="19u-002.html">次の小ページ</a></nav>
+<nav class="pager" aria-label="小ページの順序"><a href="18u-028.html">前の小ページ</a><a href="19u-002.html">次の小ページ</a></nav>

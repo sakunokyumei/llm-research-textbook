@@ -1,4 +1,4 @@
-{"title": "04 大きな数と、小さな誤差", "part": "算数から数式へ", "goal": "繰り返す掛け算を読み、数の規模と誤差を順に扱う", "prereq": "03", "previous": "03e-combine", "next": "04b-zero-negative", "time": "第4章も一回一ページ。今日は文字の役割と繰り返す掛け算を5〜10分で確認します"}
+{"title": "04 大きな数と、小さな誤差", "part": "算数から数式へ", "goal": "繰り返す掛け算を読み、数の規模と誤差を順に扱う", "prereq": "03", "previous": "03e-combine", "next": "04b-zero-negative", "time": "第4章も一回一ページ。今日は文字の役割と繰り返す掛け算を5〜10分で確認します", "subpages": ["04b-zero-negative", "04c-notation", "04d-roots", "04e-errors", "04f-storage", "04g-binary"]}
 
 ## ゼロを数え続けないために
 

@@ -2,7 +2,7 @@
   "date": "2026-10-01",
   "passed": true,
   "scanned_files": 1581,
-  "content_manifest_sha256": "9cf3e3c13c8f57dd0a5dd0e83b2e19aec5ec1ae26ff25f6c933b4f4f8ddcdd3c",
+  "content_manifest_sha256": "3f3a177a7150b83fb5912c0b102967a1603323a5faacfc5e88a30c3c3118cf5d",
   "line_endings_for_manifest": "LF normalized",
   "findings": [],
   "scope": [

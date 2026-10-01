@@ -1370,15 +1370,6 @@
     "terms": [],
     "title": "数の向きと、行・列を決める",
     "previous": "15u-009",
-    "next": "15u-011"
-  },
-  {
-    "chapter": 15,
-    "slug": "15u-011",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "15u-010",
     "next": "15u-012"
   },
   {
@@ -1387,16 +1378,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "四つの出力を一つずつ求める",
-    "previous": "15u-011",
-    "next": "15u-013"
-  },
-  {
-    "chapter": 15,
-    "slug": "15u-013",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "15u-012",
+    "previous": "15u-010",
     "next": "15u-014"
   },
   {
@@ -1405,16 +1387,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "一行を一列へ移す",
-    "previous": "15u-013",
-    "next": "15u-015"
-  },
-  {
-    "chapter": 15,
-    "slug": "15u-015",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "15u-014",
+    "previous": "15u-012",
     "next": "15u-016"
   },
   {
@@ -1423,16 +1396,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "二つの方向で全部を作れるか",
-    "previous": "15u-015",
-    "next": "15u-017"
-  },
-  {
-    "chapter": 15,
-    "slug": "15u-017",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "15u-016",
+    "previous": "15u-014",
     "next": "15u-018"
   },
   {
@@ -1441,7 +1405,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "同じ条件を表と式で書く",
-    "previous": "15u-017",
+    "previous": "15u-016",
     "next": "15u-019"
   },
   {
@@ -1451,15 +1415,6 @@
     "terms": [],
     "title": "章の到達課題と出典",
     "previous": "15u-018",
-    "next": "15u-020"
-  },
-  {
-    "chapter": 15,
-    "slug": "15u-020",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "15u-019",
     "next": "16-tensors"
   },
   {
@@ -1472,7 +1427,7 @@
       "shape"
     ],
     "title": "テンソル・バッチ・shape",
-    "previous": "15u-020",
+    "previous": "15u-019",
     "next": "16u-002"
   },
   {
@@ -1576,15 +1531,6 @@
     "terms": [],
     "title": "文章をまとめる表の形",
     "previous": "16u-009",
-    "next": "16u-011"
-  },
-  {
-    "chapter": 16,
-    "slug": "16u-011",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "16u-010",
     "next": "16u-012"
   },
   {
@@ -1593,16 +1539,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "省略した0を書き戻す",
-    "previous": "16u-011",
-    "next": "16u-013"
-  },
-  {
-    "chapter": 16,
-    "slug": "16u-013",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "16u-012",
+    "previous": "16u-010",
     "next": "16u-014"
   },
   {
@@ -1611,16 +1548,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "横と縦を違う倍率にする",
-    "previous": "16u-013",
-    "next": "16u-015"
-  },
-  {
-    "chapter": 16,
-    "slug": "16u-015",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "16u-014",
+    "previous": "16u-012",
     "next": "16u-016"
   },
   {
@@ -1629,16 +1557,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "方向をそろえ、伸ばし、戻す",
-    "previous": "16u-015",
-    "next": "16u-017"
-  },
-  {
-    "chapter": 16,
-    "slug": "16u-017",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "16u-016",
+    "previous": "16u-014",
     "next": "16u-018"
   },
   {
@@ -1647,16 +1566,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "形を表にしてから実行する",
-    "previous": "16u-017",
-    "next": "16u-019"
-  },
-  {
-    "chapter": 16,
-    "slug": "16u-019",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "16u-018",
+    "previous": "16u-016",
     "next": "16u-020"
   },
   {
@@ -1665,7 +1575,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "残すものと失うものを分ける",
-    "previous": "16u-019",
+    "previous": "16u-018",
     "next": "16u-021"
   },
   {
@@ -1675,15 +1585,6 @@
     "terms": [],
     "title": "章の到達課題と戻り先",
     "previous": "16u-020",
-    "next": "16u-022"
-  },
-  {
-    "chapter": 16,
-    "slug": "16u-022",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "16u-021",
     "next": "17-calculus"
   },
   {
@@ -1694,7 +1595,7 @@
       "平均変化率"
     ],
     "title": "平均変化率",
-    "previous": "16u-022",
+    "previous": "16u-021",
     "next": "17u-002"
   },
   {
@@ -1770,15 +1671,6 @@
     "terms": [],
     "title": "時間幅を小さくする",
     "previous": "17u-007",
-    "next": "17u-009"
-  },
-  {
-    "chapter": 17,
-    "slug": "17u-009",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "17u-008",
     "next": "17u-010"
   },
   {
@@ -1787,16 +1679,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "数値の例から一般式へ",
-    "previous": "17u-009",
-    "next": "17u-011"
-  },
-  {
-    "chapter": 17,
-    "slug": "17u-011",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "17u-010",
+    "previous": "17u-008",
     "next": "17u-012"
   },
   {
@@ -1805,7 +1688,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "左右で傾きが違う点",
-    "previous": "17u-011",
+    "previous": "17u-010",
     "next": "17u-013"
   },
   {
@@ -1824,15 +1707,6 @@
     "terms": [],
     "title": "章の到達課題と参照",
     "previous": "17u-013",
-    "next": "17u-015"
-  },
-  {
-    "chapter": 17,
-    "slug": "17u-015",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "17u-014",
     "next": "18-chain"
   },
   {
@@ -1844,7 +1718,7 @@
       "勾配"
     ],
     "title": "偏微分・勾配",
-    "previous": "17u-015",
+    "previous": "17u-014",
     "next": "18u-002"
   },
   {
@@ -1946,15 +1820,6 @@
     "terms": [],
     "title": "つまみが二つあるとき",
     "previous": "18u-009",
-    "next": "18u-011"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-011",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-010",
     "next": "18u-012"
   },
   {
@@ -1963,7 +1828,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "値は前へ、変化率は後ろへ",
-    "previous": "18u-011",
+    "previous": "18u-010",
     "next": "18u-013"
   },
   {
@@ -1973,15 +1838,6 @@
     "terms": [],
     "title": "値は前へ、変化率は後ろへ",
     "previous": "18u-012",
-    "next": "18u-014"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-014",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-013",
     "next": "18u-015"
   },
   {
@@ -1990,16 +1846,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "歩幅で結果が変わる",
-    "previous": "18u-014",
-    "next": "18u-016"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-016",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-015",
+    "previous": "18u-013",
     "next": "18u-017"
   },
   {
@@ -2008,16 +1855,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "出力を二つにする",
-    "previous": "18u-016",
-    "next": "18u-018"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-018",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-017",
+    "previous": "18u-015",
     "next": "18u-019"
   },
   {
@@ -2026,7 +1864,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "入力を動かしたら出力はどう動くか",
-    "previous": "18u-018",
+    "previous": "18u-017",
     "next": "18u-020"
   },
   {
@@ -2045,15 +1883,6 @@
     "terms": [],
     "title": "手計算をコードで照合する",
     "previous": "18u-020",
-    "next": "18u-022"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-022",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-021",
     "next": "18u-023"
   },
   {
@@ -2062,16 +1891,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "同じ連鎖律を三つの入力へ使う",
-    "previous": "18u-022",
-    "next": "18u-024"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-024",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-023",
+    "previous": "18u-021",
     "next": "18u-025"
   },
   {
@@ -2080,7 +1900,7 @@
     "kind": "lecture",
     "terms": [],
     "title": "四つの重みを一つずつ微分する",
-    "previous": "18u-024",
+    "previous": "18u-023",
     "next": "18u-026"
   },
   {
@@ -2108,15 +1928,6 @@
     "terms": [],
     "title": "章の到達課題と出典",
     "previous": "18u-027",
-    "next": "18u-029"
-  },
-  {
-    "chapter": 18,
-    "slug": "18u-029",
-    "kind": "lecture",
-    "terms": [],
-    "title": "今日の区切り",
-    "previous": "18u-028",
     "next": "19-integration"
   },
   {
@@ -2128,7 +1939,7 @@
       "数値積分"
     ],
     "title": "積分・数値積分",
-    "previous": "18u-029",
+    "previous": "18u-028",
     "next": "19u-002"
   },
   {
