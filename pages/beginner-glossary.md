@@ -458,9 +458,19 @@ area += 1.5は今回の小数の値ではarea=area+1.5という更新です。�
 
 差の大きさです。80%から82%なら2パーセントポイント。件数が増えて小さな差を確かめられても、それが仕事で役立つ大きさかは別に考えます。 [小例と確認へ戻る](22u-008.html)。
 
-<h2 id="concept-23-information">自己情報量・math.log・math.exp</h2>
+<h2 id="concept-23-information">自己情報量とPythonの対数・指数</h2>
 
-起こる確率pの負の対数が自己情報量です。p=1なら0、1/2なら約0.693。math.logはln、math.expはeの乗算回数を使う指数です。exp(ln(2))は丸めの範囲で2になります。 [小例と確認へ戻る](23-information.html)。
+<h3 id="self-information">自己情報量</h3>
+
+確率pの出来事に対しI(p)=−ln(p)（0<p≤1）。自然対数なら単位はnat。p=1/4なら約1.386で、確率が小さいほど大きくなります。出来事の日常的な価値の尺度ではありません。[説明と確認](23-information.html)。
+
+<h3 id="math-log">math.log</h3>
+
+Pythonの関数。math.log(x)は正のxの自然対数ln(x)を返します。例えばmath.log(1)=0です。実数を扱うこの関数でx=0や負数は定義域外です。[逆対応の説明](23-information.html)。
+
+<h3 id="math-exp">math.exp</h3>
+
+Pythonで指数関数eˣを計算します。xは整数に限らず、exp(1/2)=√e、exp(−1)=1/eです。計算機では丸めや扱える大きさに限りがあります。[説明と確認](23-information.html)。
 
 <h2 id="concept-23u-002">エントロピー</h2>
 

@@ -1,0 +1,14 @@
+{
+  "scope": "Content integrity and representative mathematical calculations, not evidence of learner mastery",
+  "route_pages": 613,
+  "rewritten_unique_checks": 270,
+  "counted_distinct_exercises": 292,
+  "original_route_exercises_preserved": 264,
+  "original_route_python_blocks_preserved": 44,
+  "numerical_assertions": 24,
+  "chapter6": {
+    "exercises": 6,
+    "checks": 7
+  },
+  "passed": true
+}

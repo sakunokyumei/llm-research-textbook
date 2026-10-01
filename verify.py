@@ -56,11 +56,11 @@ for file in sorted(list((ROOT / "content").glob("*.md")) + list((ROOT / "pages")
     source = file.read_text(encoding="utf-8")
     if file.parent.name == "content":
         json.loads(source.splitlines()[0])
-    assert source.count(":::exercise ") == source.count(":::answer"), file.name
+    assert source.count(":::exercise ")+source.count(":::check ") == source.count(":::answer"), file.name
     numbers = list(map(int, re.findall(r"^:::exercise (\d+)", source, re.M)))
     if numbers and numbers != list(range(numbers[0], numbers[0] + len(numbers))):
         failures.append(f"exercise numbering: {file.name}")
-    if re.search(r"^:::(?!exercise |answer\s*$|\s*$)", source, re.M):
+    if re.search(r"^:::(?!exercise |check |answer\s*$|\s*$)", source, re.M):
         failures.append(f"exercise boundary: {file.name}")
     codes = [] if options.structure_only else re.findall(r"```python\n(.*?)\n```", source, re.S)
     for i, code in enumerate(codes):

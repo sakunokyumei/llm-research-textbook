@@ -1,7 +1,7 @@
 """Build the textbook. No private input documents are required or copied."""
 from pathlib import Path
 from html import escape
-import argparse, json, re, shutil
+import argparse, hashlib, json, re, shutil
 from markdown_it import MarkdownIt
 
 ROOT = Path(__file__).resolve().parent
@@ -30,6 +30,10 @@ def render(body):
         title, question, answer = match.groups()
         return '<section class="exercise"><h3>'+escape(title)+'</h3>'+md.render(question)+'<details><summary>解答と考え方を読む</summary>'+md.render(answer)+'</details></section>\n\n'
     body = re.sub(r':::exercise (.*?)\n(.*?)\n:::answer\n(.*?)\n:::', exercise, body, flags=re.S)
+    def check(match):
+        title, question, answer = match.groups()
+        return '<section class="exercise concept-check"><h3>確認：'+escape(title)+'</h3>'+md.render(question)+'<details><summary>答えと理由を照合する</summary>'+md.render(answer)+'</details></section>\n\n'
+    body = re.sub(r':::check (.*?)\n(.*?)\n:::answer\n(.*?)\n:::', check, body, flags=re.S)
     return md.render(body)
 
 def nav(active):
@@ -56,8 +60,27 @@ def page(title, body, active='index', toc=''):
 
 practice_sequence=json.loads((ROOT/'assets/practice-sequence.json').read_text(encoding='utf-8')) if (ROOT/'assets/practice-sequence.json').exists() else []
 required_pages={slug for c in chapters for slug in c.get('subpages',[])} | {item['slug'] for item in practice_sequence}
-# Count exercises in the learning route, excluding repeated long references/legacy pages.
-exercise_count = sum(c['body'].count(':::exercise ') for c in chapters) + sum((ROOT/'pages'/f'{slug}.md').read_text(encoding='utf-8').count(':::exercise ') for slug in required_pages)
+# Count distinct question/answer pairs in the route; concept checks are separate.
+route_sources={c['slug']:c['body'] for c in chapters}
+route_sources.update({slug:(ROOT/'pages'/f'{slug}.md').read_text(encoding='utf-8') for slug in sorted(required_pages)})
+inventory={'method':'Required route only; identical normalized question/answer pairs counted once. References excluded. Short concept checks counted separately.', 'exercises':[], 'checks':[]}
+seen={}
+for slug,source in route_sources.items():
+    for kind,title,question,answer in re.findall(r':::(exercise|check) (.*?)\n(.*?)\n:::answer\n(.*?)\n:::',source,re.S):
+        plain=re.sub(r'\[([^\]]+)\]\([^)]*\)',r'\1',question+'\n'+answer)
+        key=hashlib.sha256(re.sub(r'\s+','',plain).encode()).hexdigest()
+        if key in seen:
+            seen[key]['also_at'].append(slug+'.html')
+            continue
+        record={'id':key[:16],'page':slug+'.html','title':title,'question':question,'answer':answer,'also_at':[]}
+        seen[key]=record
+        inventory['exercises' if kind=='exercise' else 'checks'].append(record)
+exercise_count=len(inventory['exercises'])
+check_count=len(inventory['checks'])
+(OUT/'exercise-inventory.json').write_text(json.dumps(inventory,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+rows=''.join('<tr><td>'+str(i)+'</td><td><a href="'+r['page']+'">'+escape(r['title'])+'</a></td></tr>' for i,r in enumerate(inventory['exercises'],1))
+inventory_body=f'<article><h1>演習の数え方と一覧</h1><p>学習経路の解答付き演習は{exercise_count}問です。参照ページへの再掲、同じ問題文と解答の重複、用語の短い確認{check_count}件をこの数に含めません。一つの問題欄に複数の設問があっても一問と数えます。</p><p>確認は、その場の小さな適用を試すものです。確認に答えられても章全体の理解や実装能力を証明するものではありません。章の演習と実装課題でも確かめます。</p><p>第6章は演習6問と確認7件です。それぞれを別の見出しで表示します。以前の雛形による確認は、具体的な問いと理由のある解答へ置き換えました。</p><p><a href="exercise-inventory.json">集計対象の全問題文・解答（JSON）</a></p><table><thead><tr><th>集計番号</th><th>演習の掲載先</th></tr></thead><tbody>{rows}</tbody></table></article>'
+(OUT/'exercise-inventory.html').write_text(page('演習の数え方',inventory_body),encoding='utf-8')
 cards=''
 for idx, group in enumerate(groups):
     items=''.join(f'<li><a href="{c["slug"]}.html"><span>{escape(c["title"])}</span><small>{escape(c.get("goal",""))}</small></a></li>' for c in chapters if c['part']==group)
@@ -67,6 +90,7 @@ home=f'''<div class="home-intro"><p class="eyebrow">A QUESTION IS WHERE RESEARCH
 <section class="learning-strip" aria-label="学びの流れ"><span><b>01</b>疑問を持つ</span><span><b>02</b>小さく計算する</span><span><b>03</b>コードで確かめる</span><span><b>04</b>自分の言葉にする</span></section>
 <section class="intro-note"><h2>難しさの上限を下げずに、<br>一段を小さくする。</h2><p>初めての概念は、身近な問題から。数式の意味をつかんだら、例題を追い、答えを隠して演習に取り組みます。行き詰まったら、前提の章に戻って大丈夫。研究も、同じ積み重ねです。</p></section>
 <section id="curriculum"><p class="eyebrow">THE LEARNING MAP</p><h2>学習の地図</h2><p>上から順に進めます。既に知っている章も、解答を見ずに演習と到達課題を解いて確認してください。</p>{cards}</section>'''
+home=home.replace(' 解答付き演習</span>', ' 解答付き演習 <a href="exercise-inventory.html">集計内訳</a></span>')
 (OUT/'index.html').write_text(page('ゼロから、LLMを研究する。',home),encoding='utf-8')
 for i,c in enumerate(chapters):
     html=render(c['body'])
@@ -91,8 +115,15 @@ for i,c in enumerate(chapters):
     timing = c.get('time', f'読む目安 {reading}〜{reading+5}分／演習 {count*3}〜{count*6}分。実装・到達課題は別の回に分けられます')
     support = '<p class="study-support">時間は編集上の目安です。見出し一つで休憩しても大丈夫。<a href="learning-help.html">中断・再開と補習の手引き</a>も使ってください。</p>'
     display_title=c.get('microtitle',c['title'])
-    display_goal='小例を一つ確かめ、入力・操作・結果を自分の言葉で説明する' if c.get('microtitle') else c.get('goal','')
-    body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(display_title)}</h1><p class="lesson-goal">到達目標：{escape(display_goal)}</p><div class="lesson-meta">前提：{prerequisite_links(c.get("prereq","なし"))} <span>演習 {count} 問</span></div><p class="lesson-time">{escape(timing)}</p>{support}{html}{"" if c.get("microtitle") else pager}</article>'
+    display_goal=c.get('microgoal',c.get('goal',''))
+    if c.get('microtitle'):
+        # Micro pages already have a single reading-time note in their body.
+        timing_html=''
+        support=''
+    else:
+        timing_html=f'<p class="lesson-time">{escape(timing)}</p>'
+    local_checks=c['body'].count(':::check ')
+    body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(display_title)}</h1><p class="lesson-goal">今回取り組むこと：{escape(display_goal)}</p><div class="lesson-meta">前提：{prerequisite_links(c.get("prereq","なし"))} <span>演習 {count} 問・確認 {local_checks} 件</span></div>{timing_html}{support}{html}{"" if c.get("microtitle") else pager}</article>'
     (OUT/(c['slug']+'.html')).write_text(page(c['title'],body,c['slug'],toc),encoding='utf-8')
 search_records = [{k:c[k] for k in ['slug','title','part','goal']} for c in chapters]
 for path in (ROOT/'pages').glob('*.md'):

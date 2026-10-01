@@ -4,7 +4,6 @@
   "micro_pages": 613,
   "concept_pages": 270,
   "practice_pages": 43,
-  "maximum_named_new_concepts_per_intro_page": 4,
   "original_python_blocks_preserved": 44,
   "original_exercises_preserved": 263,
   "confidence_model": {
@@ -15,5 +14,5 @@
   },
   "cross_entropy_example": 0.916290731874155,
   "failures": [],
-  "scope": "Checks route order, declared concept budget, support links, exact preservation of original Python and exercises, and added numeric examples. Concept budget is an editorial registry, not an exhaustive natural-language term counter or proof of mastery."
+  "scope": "Checks route order, support links, preservation of original Python and exercises, and numeric examples. Does not count all unfamiliar words or establish learner comprehension."
 }
