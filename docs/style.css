@@ -19,6 +19,7 @@ article{max-width:800px}article p,article li{line-height:1.95}
 pre{font-size:16px;line-height:1.8}code{font-size:.95em}
 #sidebar,input[type=search],header nav,.resource-nav a{font-size:15px}
 .side-title{display:block;margin:10px 0;line-height:1.8}
+.brand-mark{display:block;width:44px;height:44px;flex-shrink:0;background:none;border-radius:11px}.brand-mark img{display:block;width:100%;height:100%}@media(max-width:750px){.brand-mark{width:36px;height:36px;border-radius:9px}}
 .nav-group a,.nav-group .sublesson{font-size:15px;line-height:1.8}
 .side-note,footer,.counts,.part small,#sidebar label{font-size:14px}
 .guide-intro{background:var(--soft);border-left:4px solid var(--blue);padding:20px 24px;margin:24px 0}.guide-intro p{margin:8px 0}
