@@ -8,3 +8,19 @@
 .resume-note{padding:20px;background:var(--soft);margin-top:32px}.resume-note h2{font-size:20px;margin:0 0 16px}.resume-note label{display:block;font-size:14px}.resume-note textarea{display:block;width:100%;min-height:90px;border:1px solid var(--line);padding:10px;font:inherit;resize:vertical}.resume-note button{margin:12px 10px 0 0;min-height:44px;padding:8px 14px;border:1px solid var(--blue);color:var(--blue);background:white;cursor:pointer}.resume-note p{font-size:13px}
 article svg{display:block;width:100%;height:auto;margin:24px 0;background:var(--soft)}
 .step-flow{display:none}@media(max-width:600px){article:has(.step-flow) svg{display:none}.step-flow{display:grid;gap:16px;margin:24px 0}.step-flow>div{background:var(--soft);padding:16px;border-left:3px solid var(--blue);font-size:16px}.step-flow>div+div::before{content:'↓';display:block;color:var(--blue);font-size:22px}}
+
+/* Reading sizes apply equally to lessons, practice questions and guidance. */
+:root{--ink:#172337;--muted:#40516a}
+body{font-family:Meiryo,"Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;font-size:19px;font-weight:400;line-height:1.95}
+article{max-width:800px}article p,article li{line-height:1.95}
+.lead,.lesson-goal,.intro-note p,.exercise p,.study-support,.note,.learning-strip{font-size:18px}
+.exercise h3,.exercise summary,.resume-note label,.resume-note p,.learning-figure figcaption,.lesson-time,.step-flow>div{font-size:17px}
+.lesson-meta,table,.pager a,.part li a,.start-row{font-size:16px}
+pre{font-size:16px;line-height:1.8}code{font-size:.95em}
+#sidebar,input[type=search],header nav,.resource-nav a{font-size:15px}
+.side-title{display:block;margin:10px 0;line-height:1.8}
+.nav-group a,.nav-group .sublesson{font-size:15px;line-height:1.8}
+.side-note,footer,.counts,.part small,#sidebar label{font-size:14px}
+.guide-intro{background:var(--soft);border-left:4px solid var(--blue);padding:20px 24px;margin:24px 0}.guide-intro p{margin:8px 0}
+@media(max-width:750px){body{font-size:18px}main{padding:28px 18px 0}.lead,.lesson-goal,.intro-note p,.exercise p,.study-support,.note,.learning-strip{font-size:18px}.start-row{flex-wrap:wrap;font-size:16px}pre{font-size:15px}.guide-intro{padding:16px 18px}header nav{gap:14px}}
+@media print{body{font-size:11pt}pre{font-size:10pt}}

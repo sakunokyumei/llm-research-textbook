@@ -93,7 +93,7 @@ def render(body):
     return md.render(body)
 
 def nav(active):
-    result = '<a class="side-title" href="index.html">学習の地図</a>'
+    result = '<a class="side-title" href="learning-guide.html">初めての方へ：学習ガイド</a><a class="side-title" href="index.html#curriculum">全56章の目次</a>'
     for idx, group in enumerate(groups):
         result += f'<details class="nav-group" {"open" if active=="index" or any((c["slug"]==active or active in c.get("subpages",[])) and c["part"]==group for c in chapters) else ""}><summary><span>{idx+1:02}</span> {escape(group)}</summary>'
         for c in chapters:
@@ -111,7 +111,7 @@ def page(title, body, active='index', toc=''):
     return f'''<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(title)} | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
 <meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
-<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="learning-guide.html">学習ガイド</a><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
 <div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次">{nav(active)}</nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1">{body}<footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main>{toc}</div></body></html>'''
 
 practice_sequence=json.loads((ROOT/'assets/practice-sequence.json').read_text(encoding='utf-8')) if (ROOT/'assets/practice-sequence.json').exists() else []
@@ -149,7 +149,7 @@ for idx, group in enumerate(groups):
     items=''.join(f'<li><a href="{c["slug"]}.html"><span>{escape(c["title"])}</span><small>{escape(c.get("goal",""))}</small></a></li>' for c in chapters if c['part']==group)
     cards+=f'<section class="part"><div class="part-heading"><span>{idx+1:02}</span><h3>{escape(group)}</h3></div><ol>{items}</ol></section>'
 first=chapters[0]['slug'] if chapters else 'index'
-home=f'''<div class="home-intro"><p class="eyebrow">A QUESTION IS WHERE RESEARCH BEGINS.</p><h1>ゼロから、<br>LLMを研究する。</h1><p class="lead">「なぜ？」を、ひとつずつ。<br>算数の最初の一歩から、数式を読み、モデルを作り、<br class="desktop">自分の問いを実験で確かめるところまで。</p><div class="start-row"><a class="primary" href="{first}.html">最初の講義を読む</a><a href="#curriculum">学習の地図を見る</a></div><div class="counts"><span><b>{len(chapters)}</b> 講義</span><span><b>{exercise_count}</b> 解答付き演習</span><span>紙とCPUから始められる</span></div></div>
+home=f'''<div class="home-intro"><p class="eyebrow">A QUESTION IS WHERE RESEARCH BEGINS.</p><h1>ゼロから、<br>LLMを研究する。</h1><p class="lead">「なぜ？」を、ひとつずつ。<br>算数の最初の一歩から、数式を読み、モデルを作り、<br class="desktop">自分の問いを実験で確かめるところまで。</p><div class="start-row"><a class="primary" href="learning-guide.html">初めての方へ：学習ガイド</a><a href="{first}.html">第1章を読む</a><a href="#curriculum">全章の目次</a></div><div class="counts"><span><b>{len(chapters)}</b> 講義</span><span><b>{exercise_count}</b> 解答付き演習</span><span>紙とCPUから始められる</span></div></div>
 <section class="learning-strip" aria-label="学びの流れ"><span><b>01</b>疑問を持つ</span><span><b>02</b>小さく計算する</span><span><b>03</b>コードで確かめる</span><span><b>04</b>自分の言葉にする</span></section>
 <section class="intro-note"><h2>難しさの上限を下げずに、<br>一段を小さくする。</h2><p>初めての概念は、身近な問題から。数式の意味をつかんだら、例題を追い、答えを隠して演習に取り組みます。行き詰まったら、前提の章に戻って大丈夫。研究も、同じ積み重ねです。</p></section>
 <section id="curriculum"><p class="eyebrow">THE LEARNING MAP</p><h2>学習の地図</h2><p>上から順に進めます。既に知っている章も、解答を見ずに演習と到達課題を解いて確認してください。</p>{cards}</section>'''
@@ -198,7 +198,7 @@ for path in (ROOT/'pages').glob('*.md'):
     if path.stem in required_pages and path.stem[:2].isdigit():
         body += f'\n\n[この章の具体例・手助け付き問題・自力の問題]({path.stem[:2]}-workshop.html)\n'
     (OUT/(path.stem+'.html')).write_text(page(title.lstrip('# '),'<article><h1>'+escape(title.lstrip('# '))+'</h1>'+render(body)+'</article>',path.stem),encoding='utf-8')
-    if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in required_pages or path.stem in ['cpu-practice','python-reading','capstone-guide','reference','beginner-route']:
+    if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in required_pages or path.stem in ['cpu-practice','python-reading','capstone-guide','reference','beginner-route','learning-guide']:
         search_records.append({'slug':path.stem,'title':title.lstrip('# '),'part':'小さな学習ページ','goal':' '.join(re.findall(r'^## (.+)$',body,re.M)+re.findall(r'<h2[^>]*>(.*?)</h2>',body))+' '+next((line for line in body.splitlines() if line.strip()),'')})
 for path in (ROOT/'assets').glob('*'):
     shutil.copy2(path,OUT/path.name)
