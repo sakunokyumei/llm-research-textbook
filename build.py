@@ -18,6 +18,62 @@ for path in sorted((ROOT / 'content').glob('*.md')):
     chapters.append(record)
 groups = list(dict.fromkeys(c['part'] for c in chapters))
 
+# The workshops are additional practice, counted separately from chapter exercises.
+workshops = json.loads((ROOT/'assets/workshops.json').read_text(encoding='utf-8'))
+assert [w['chapter'] for w in workshops] == list(range(1,57))
+workshop_sources = {}
+for w,c in zip(workshops,chapters):
+    n=w['chapter']; slug=f'{n:02}-workshop'
+    note=f'''<section class="resume-note" data-lesson="{slug}"><h2>解いた記録と、次に試すこと</h2><label for="note-{slug}">予想・途中の計算・答え・まだ必要な補習。実行していない作業は未実行と書きます。</label><textarea id="note-{slug}" rows="5" maxlength="2000"></textarea><button type="button" data-save-note>この端末へ保存</button><p role="status" data-note-status>端末内だけに保存します。共有PCでは個人情報を書かず、使い終わったら消してください。</p><button type="button" data-clear-note>このメモを消す</button></section>'''
+    workshop_sources[slug]=f'''# 第{n}章の補習：{w['title']}
+
+[全56章の練習の地図](workshop-route.html) · [本編の最初へ]({c['slug']}.html) · [前提の小例]({w['prerequisite']})
+
+読む目安8〜15分。手助け付きの問題は別に5〜15分、自力の問題は10〜30分。保存・実行・報告を含む問題は複数日に分けます。今日は一つの見出しまででもかまいません。
+
+## 何ができるようになるか
+
+{w['why']}
+
+## まず一つの例を確かめる
+
+{w['example']}
+
+## 途中まで手伝う問題
+
+{w['guided']}
+
+<details><summary>途中の答えと理由</summary>
+
+{w['guided_answer']}
+
+</details>
+
+ここで休憩できます。分からないときは、答えを何度も眺める前に次の戻り道を使います。
+
+## 間違えたときの戻り道
+
+{w['rescue']} [具体例を開く]({w['prerequisite']})。
+
+スマホで数や順序だけ追う場合は紙に一行ずつ書きます。表がある場合は、空欄を一つずつ埋めます。中断する場合は、できた行と止まった行だけを下のメモに残してください。
+
+## 解答を閉じて、自分で試す
+
+{w['transfer']}
+
+<details><summary>自力の問題の確認基準</summary>
+
+{w['transfer_answer']}
+
+</details>
+
+この二問は章の足場を確認する補習です。本編の演習・到達課題も確認してください。補習の正答だけで、章の実装や研究を完了した扱いにはしません。
+
+{note}
+
+[本編へ戻って演習・到達課題を確認する]({c['slug']}.html) · [実行の準備](pc-practice.html) · [止まったときの手引き](learning-help.html)
+'''
+
 def prerequisite_links(value):
     def link(match):
         first = int(match[1]); last = int(match[2] or first)
@@ -48,7 +104,7 @@ def nav(active):
                         title = (ROOT/'pages'/f'{slug}.md').read_text(encoding='utf-8').splitlines()[0].lstrip('# ')
                         result += f'<a class="sublesson" {"aria-current=page" if slug==active else ""} href="{slug}.html">{escape(title)}</a>'
         result += '</details>'
-    result += '<div class="resource-nav"><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div>'
+    result += '<div class="resource-nav"><a href="workshop-route.html">全56章の補習と練習</a><a href="pc-practice.html">PCで実行する準備</a><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div>'
     return result
 
 def page(title, body, active='index', toc=''):
@@ -63,7 +119,10 @@ required_pages={slug for c in chapters for slug in c.get('subpages',[])} | {item
 # Count distinct question/answer pairs in the route; concept checks are separate.
 route_sources={c['slug']:c['body'] for c in chapters}
 route_sources.update({slug:(ROOT/'pages'/f'{slug}.md').read_text(encoding='utf-8') for slug in sorted(required_pages)})
-inventory={'method':'Required route only; identical normalized question/answer pairs counted once. References excluded. Short concept checks counted separately.', 'exercises':[], 'checks':[]}
+inventory={'method':'Required route only; identical normalized question/answer pairs counted once. References excluded. Short concept checks and additional workshops counted separately.', 'exercises':[], 'checks':[], 'workshop_exercises':[]}
+for w in workshops:
+    for kind in ['guided','transfer']:
+        inventory['workshop_exercises'].append({'page':f'{w["chapter"]:02}-workshop.html','title':w['title']+' / '+kind,'question':w[kind],'answer':w[kind+'_answer']})
 seen={}
 for slug,source in route_sources.items():
     for kind,title,question,answer in re.findall(r':::(exercise|check) (.*?)\n(.*?)\n:::answer\n(.*?)\n:::',source,re.S):
@@ -81,6 +140,10 @@ check_count=len(inventory['checks'])
 rows=''.join('<tr><td>'+str(i)+'</td><td><a href="'+r['page']+'">'+escape(r['title'])+'</a></td></tr>' for i,r in enumerate(inventory['exercises'],1))
 inventory_body=f'<article><h1>演習の数え方と一覧</h1><p>学習経路の解答付き演習は{exercise_count}問です。参照ページへの再掲、同じ問題文と解答の重複、用語の短い確認{check_count}件をこの数に含めません。一つの問題欄に複数の設問があっても一問と数えます。</p><p>確認は、その場の小さな適用を試すものです。確認に答えられても章全体の理解や実装能力を証明するものではありません。章の演習と実装課題でも確かめます。</p><p>第6章は演習6問と確認7件です。それぞれを別の見出しで表示します。以前の雛形による確認は、具体的な問いと理由のある解答へ置き換えました。</p><p><a href="exercise-inventory.json">集計対象の全問題文・解答（JSON）</a></p><table><thead><tr><th>集計番号</th><th>演習の掲載先</th></tr></thead><tbody>{rows}</tbody></table></article>'
 (OUT/'exercise-inventory.html').write_text(page('演習の数え方',inventory_body),encoding='utf-8')
+for slug,source in workshop_sources.items():
+    (OUT/(slug+'.html')).write_text(page(source.splitlines()[0].lstrip('# '),'<article>'+render(source)+'</article>',slug),encoding='utf-8')
+inventory_body=inventory_body.replace('</article>',f'<h2>追加の補習は別集計</h2><p>各章の手助け付き問題と自力の問題は合計{len(inventory["workshop_exercises"])}問です。本編の{exercise_count}問、短い確認{check_count}件には足していません。</p><p><a href="workshop-route.html">全56章の補習を選ぶ</a></p></article>')
+(OUT/'exercise-inventory.html').write_text(page('演習の数え方',inventory_body),encoding='utf-8')
 cards=''
 for idx, group in enumerate(groups):
     items=''.join(f'<li><a href="{c["slug"]}.html"><span>{escape(c["title"])}</span><small>{escape(c.get("goal",""))}</small></a></li>' for c in chapters if c['part']==group)
@@ -94,6 +157,7 @@ home=home.replace(' 解答付き演習</span>', ' 解答付き演習 <a href="ex
 (OUT/'index.html').write_text(page('ゼロから、LLMを研究する。',home),encoding='utf-8')
 for i,c in enumerate(chapters):
     html=render(c['body'])
+    html='<p class="study-support">本編で止まったら、<a href="'+c['slug'][:2]+'-workshop.html">この章の例題・手助け付き問題・自力の問題</a>を使えます。<a href="workshop-route.html">練習の進め方</a></p>'+html
     headings=[]
     def heading(m):
         number=len(headings)+1; headings.append((number,re.sub('<[^>]*>','',m[1])))
@@ -126,8 +190,13 @@ for i,c in enumerate(chapters):
     body=f'<article><p class="eyebrow">{escape(c["part"])}</p><h1>{escape(display_title)}</h1><p class="lesson-goal">今回取り組むこと：{escape(display_goal)}</p><div class="lesson-meta">前提：{prerequisite_links(c.get("prereq","なし"))} <span>演習 {count} 問・確認 {local_checks} 件</span></div>{timing_html}{support}{html}{"" if c.get("microtitle") else pager}</article>'
     (OUT/(c['slug']+'.html')).write_text(page(c['title'],body,c['slug'],toc),encoding='utf-8')
 search_records = [{k:c[k] for k in ['slug','title','part','goal']} for c in chapters]
+search_records += [{'slug':f'{w["chapter"]:02}-workshop','title':f'第{w["chapter"]}章の補習：'+w['title'],'part':'補習と練習','goal':w['why']} for w in workshops]
 for path in (ROOT/'pages').glob('*.md'):
     title,body=path.read_text(encoding='utf-8').split('\n',1)
+    if path.stem == 'workshop-route':
+        body=body.replace('<!-- WORKSHOP_LIST -->','\n'.join(f'- [第{w["chapter"]}章：{w["title"]}]({w["chapter"]:02}-workshop.html)' for w in workshops))
+    if path.stem in required_pages and path.stem[:2].isdigit():
+        body += f'\n\n[この章の具体例・手助け付き問題・自力の問題]({path.stem[:2]}-workshop.html)\n'
     (OUT/(path.stem+'.html')).write_text(page(title.lstrip('# '),'<article><h1>'+escape(title.lstrip('# '))+'</h1>'+render(body)+'</article>',path.stem),encoding='utf-8')
     if re.match(r'\d{2}[a-z]-', path.stem) or path.stem in required_pages or path.stem in ['cpu-practice','python-reading','capstone-guide','reference','beginner-route']:
         search_records.append({'slug':path.stem,'title':title.lstrip('# '),'part':'小さな学習ページ','goal':' '.join(re.findall(r'^## (.+)$',body,re.M)+re.findall(r'<h2[^>]*>(.*?)</h2>',body))+' '+next((line for line in body.splitlines() if line.strip()),'')})

@@ -6,3 +6,5 @@
 
 .nav-group .sublesson{font-size:12px;padding-left:35px;border-left:1px solid var(--line)}
 .resume-note{padding:20px;background:var(--soft);margin-top:32px}.resume-note h2{font-size:20px;margin:0 0 16px}.resume-note label{display:block;font-size:14px}.resume-note textarea{display:block;width:100%;min-height:90px;border:1px solid var(--line);padding:10px;font:inherit;resize:vertical}.resume-note button{margin:12px 10px 0 0;min-height:44px;padding:8px 14px;border:1px solid var(--blue);color:var(--blue);background:white;cursor:pointer}.resume-note p{font-size:13px}
+article svg{display:block;width:100%;height:auto;margin:24px 0;background:var(--soft)}
+.step-flow{display:none}@media(max-width:600px){article:has(.step-flow) svg{display:none}.step-flow{display:grid;gap:16px;margin:24px 0}.step-flow>div{background:var(--soft);padding:16px;border-left:3px solid var(--blue);font-size:16px}.step-flow>div+div::before{content:'↓';display:block;color:var(--blue);font-size:22px}}

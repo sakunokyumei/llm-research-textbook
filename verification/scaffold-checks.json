@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-02",
+  "passed": true,
+  "chapters_with_workshop": 56,
+  "additional_workshop_exercises": 112,
+  "chapter_exercises": 308,
+  "short_checks": 270,
+  "numeric_cases": 31,
+  "numeric_results": {
+    "weighted_accuracy": {
+      "actual": 0.6,
+      "expected": 0.6
+    },
+    "memory_bytes": {
+      "actual": 1.2,
+      "expected": 1.2
+    },
+    "budget_integer_limit": {
+      "actual": 4,
+      "expected": 4
+    },
+    "squared_function": {
+      "actual": [
+        5,
+        1,
+        10
+      ],
+      "expected": [
+        5,
+        1,
+        10
+      ]
+    },
+    "logs": {
+      "actual": [
+        -3.0,
+        5.0
+      ],
+      "expected": [
+        -3,
+        5
+      ]
+    },
+    "loop_squared_mean": {
+      "actual": 18.666666666666668,
+      "expected": 18.666666666666668
+    },
+    "matrix_transfer": {
+      "actual": [
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ],
+      "expected": [
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ]
+    },
+    "svd_rebuild": {
+      "actual": [
+        [
+          4.0,
+          0.0
+        ],
+        [
+          0.0,
+          2.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "expected": [
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "derivative_difference": {
+      "actual": 8.099999999999987,
+      "expected": 8.1
+    },
+    "scalar_gradient": {
+      "actual": 24,
+      "expected": 24
+    },
+    "matrix_gradient": {
+      "actual": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          8
+        ]
+      ],
+      "expected": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          8
+        ]
+      ]
+    },
+    "density_probability": {
+      "actual": 0.49999999999999994,
+      "expected": 0.5
+    },
+    "conditional_probability": {
+      "actual": 0.6923076923076923,
+      "expected": 0.6923076923076923
+    },
+    "variance": {
+      "actual": 4.0,
+      "expected": 4
+    },
+    "paired_difference": {
+      "actual": 0.25,
+      "expected": 0.25
+    },
+    "one_hot_cross_entropy": {
+      "actual": 1.3862943611198906,
+      "expected": 1.3862943611198906
+    },
+    "gradient_update": {
+      "actual": 2.4,
+      "expected": 2.4
+    },
+    "too_large_update_loss": {
+      "actual": 36,
+      "expected": 36
+    },
+    "two_updates": {
+      "actual": 2.7199999999999998,
+      "expected": 2.72
+    },
+    "stable_softmax": {
+      "actual": [
+        0.8807970779778823,
+        0.11920292202211755
+      ],
+      "expected": [
+        0.8807970779778823,
+        0.11920292202211755
+      ]
+    },
+    "attention_mixture": {
+      "actual": 10.0,
+      "expected": 10
+    },
+    "lora_rank2": {
+      "actual": 24,
+      "expected": 24
+    },
+    "rl_expectation": {
+      "actual": 0.6500000000000001,
+      "expected": 0.65
+    },
+    "ppo_negative_advantage": {
+      "actual": -3.0,
+      "expected": -3
+    },
+    "group_centering": {
+      "actual": [
+        -2.0,
+        0.0,
+        2.0
+      ],
+      "expected": [
+        -2,
+        0,
+        2
+      ]
+    },
+    "weighted_gradients": {
+      "actual": 3.5,
+      "expected": 3.5
+    },
+    "quantization_error": {
+      "actual": 0.2,
+      "expected": 0.2
+    },
+    "rotation": {
+      "actual": [
+        -2,
+        3
+      ],
+      "expected": [
+        -2,
+        3
+      ]
+    },
+    "state_retention": {
+      "actual": [
+        4,
+        2,
+        1
+      ],
+      "expected": [
+        4.0,
+        2.0,
+        1.0
+      ]
+    },
+    "multimodal_accuracy": {
+      "actual": 0.8,
+      "expected": 0.8
+    },
+    "all_seed_mean": {
+      "actual": 0.01,
+      "expected": 0.01
+    }
+  },
+  "limitations": [
+    "AI editorial forecast is not human learning evidence",
+    "GPU and distributed runtime not tested",
+    "Workshop passing is not chapter or capstone completion"
+  ]
+}

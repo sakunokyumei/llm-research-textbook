@@ -1,0 +1,61 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SVDを、数・形・実行の三回に分ける | sakunokyumei</title><meta name="description" content="算数からLLMの実装・再現実験・独自研究へ。動機から学ぶ日本語の講義、解答付き演習、実装ラボ。AI支援で作成した公開教科書。">
+<meta name="color-scheme" content="light"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body><a class="skip" href="#main">本文へ</a><header><a class="brand" href="index.html"><span class="brand-mark">∑</span><span>sakunokyumei<small>LLM RESEARCH TEXTBOOK</small></span></a><nav aria-label="メイン"><a href="index.html#curriculum">講義</a><a href="labs.html">実装ラボ</a><a href="research.html">研究を読む</a><a href="about.html">編集方針</a></nav><button id="menu" aria-expanded="false" aria-controls="sidebar">目次</button></header>
+<div class="layout"><aside id="sidebar"><label for="search">教材を探す</label><input id="search" type="search" placeholder="例：微分、Attention" autocomplete="off"><div id="results" aria-live="polite"></div><nav aria-label="全章目次"><a class="side-title" href="index.html">学習の地図</a><details class="nav-group" ><summary><span>01</span> 学ぶ準備</summary><a  href="01-start.html">01 学び方を、実験にする</a><a  href="02-computer.html">02 作業する場所と、保存する場所</a></details><details class="nav-group" ><summary><span>02</span> 算数から数式へ</summary><a  href="03-arithmetic.html">03 数・分数・割合を量として考える</a><a  href="04-powers.html">04 大きな数と、小さな誤差</a><a  href="05-algebra.html">05 文字式は、条件を書いた文章</a><a  href="06-functions.html">06 関数・グラフ・添字の読み方</a><a  href="07-logarithms.html">07 指数と対数は、行きと帰り</a></details><details class="nav-group" ><summary><span>03</span> Pythonと研究の道具</summary><a  href="08-python.html">08 Pythonで、最初の計算を動かす</a><a  href="09-control.html">09 条件・繰り返し・関数</a><a  href="10-data.html">10 文字列・データ構造・ファイル</a><a  href="11-debug.html">11 テストとデバッグで確かめる</a><a  href="12-environment.html">12 環境・Git・実験の記録</a><a  href="13-algorithms.html">13 計算量・検索・SQLの入口</a></details><details class="nav-group" ><summary><span>04</span> モデルを支える数学</summary><a  href="14-vectors.html">14 ベクトルと内積</a><a  href="15-matrices.html">15 行列は、まとめて変換する道具</a><a  href="16-tensors.html">16 テンソル・固有値・低ランク</a><a  href="17-calculus.html">17 微分は、今ここでの変わり方</a><a  href="18-chain.html">18 偏微分・連鎖律・勾配</a><a  href="19-integration.html">19 積分と連続的な量</a><a  href="20-probability.html">20 確率・条件付き確率・Bayes</a><a  href="21-distributions.html">21 期待値・分散・分布</a><a  href="22-statistics.html">22 標本・信頼区間・仮説検定</a><a  href="23-information.html">23 情報量・損失・Perplexity</a></details><details class="nav-group" ><summary><span>05</span> 機械学習と深層学習</summary><a  href="24-learning.html">24 機械学習は、未知の例で確かめる</a><a  href="25-regression.html">25 回帰・分類を自分で学習する</a><a  href="26-pytorch.html">26 PyTorchと自動微分</a><a  href="27-networks.html">27 ニューラルネットワークを組み立てる</a><a  href="28-numerics.html">28 Optimizerと数値安定性</a></details><details class="nav-group" ><summary><span>06</span> 言語モデルを作る</summary><a  href="29-tokenization.html">29 文章をトークンへ変える</a><a  href="30-language-model.html">30 数えるモデルから、学ぶモデルへ</a><a  href="31-attention.html">31 Attentionを手で計算する</a><a  href="32-transformer.html">32 Transformerを一つのモデルにする</a><a  href="33-training.html">33 小さな言語モデルを学習・再開する</a><a  href="34-generation.html">34 生成・温度・KV cache</a></details><details class="nav-group" ><summary><span>07</span> LLMを育てる・調整する</summary><a  href="35-data-scaling.html">35 データを作り、規模を見積もる</a><a  href="36-adaptation.html">36 SFT・LoRA・QLoRA</a><a  href="37-rag.html">37 RAGを検索と生成に分ける</a><a  href="38-reinforcement.html">38 強化学習を、二つの選択肢から学ぶ</a><a  href="39-alignment.html">39 PPO・DPO・GRPOを混同しない</a><a  href="40-reasoning.html">40 推論時の計算と合成データ</a></details><details class="nav-group" ><summary><span>08</span> 効率と現代のアーキテクチャ</summary><a  href="41-efficiency.html">41 GPU・FlashAttention・Triton</a><a  href="42-distributed.html">42 分散学習と並列化</a><a  href="43-serving.html">43 推論サービスと投機的生成</a><a  href="44-compression.html">44 量子化・蒸留・枝刈り</a><a  href="45-moe.html">45 MoEと、使う計算を選ぶ設計</a><a  href="46-context.html">46 RoPEと長い文脈</a><a  href="47-alternatives.html">47 状態空間モデルと拡散言語モデル</a></details><details class="nav-group" ><summary><span>09</span> 現代のLLMと評価</summary><a  href="48-multimodal.html">48 多言語と画像・音声を扱う</a><a  href="49-agents.html">49 ツールを使うエージェント</a><a  href="50-evaluation.html">50 評価・汚染・LLMによる採点</a><a  href="51-interpretability.html">51 モデルの内部を調べる</a><a  href="52-privacy.html">52 データ・プライバシー・公開責任</a></details><details class="nav-group" ><summary><span>10</span> 独自研究を形にする</summary><a  href="53-research-design.html">53 問いを実験へ変える</a><a  href="54-paper-reading.html">54 論文を読み、式と実装を結ぶ</a><a  href="55-writing.html">55 研究を文章・図・査読で伝える</a><a  href="56-capstone.html">56 卒業研究：再現から独自の問いへ</a></details><div class="resource-nav"><a href="workshop-route.html">全56章の補習と練習</a><a href="pc-practice.html">PCで実行する準備</a><a href="labs.html">実装ラボ</a><a href="capstone-guide.html">卒業研究の手順</a><a href="research.html">研究を読む</a><a href="reference.html">用語・記号の早見表</a><a href="coverage.html">原資料との対応</a><a href="about.html">編集方針</a></div></nav><div class="side-note">AI支援で作成<br>出典・検証範囲を各章に掲載<br><a href="about.html">この教材について</a></div></aside><main id="main" tabindex="-1"><article><h1>SVDを、数・形・実行の三回に分ける</h1><p><a href="reference.html#term-svd">SVD</a>は行列の変換を三つへ分ける方法です。この補習では分解の一般的な証明を暗記する前に、与えられた三つの表で元へ戻せるかを確かめます。各節を別の日にできます。読む10〜15分、手計算10〜20分、実行15〜30分は別々の目安です。</p>
+<h2>1．まず向きと倍率だけを見る</h2>
+<p>横4倍、縦2倍なら、点(3,5)は(12,10)へ動きます。向きを変えない単位行列Iは <code>[[1,0],[0,1]]</code>。倍率を並べた対角行列Σは <code>[[4,0],[0,2]]</code>。対角線の外の0は、横と縦をこの段で混ぜないという意味です。</p>
+<p><svg viewBox="0 0 620 110" role="img" aria-labelledby="svd-steps-title"><title id="svd-steps-title">入力3,5から、向きをそろえ、横4倍縦2倍、向きを戻して12,10になる三段階</title><rect x="5" y="20" width="100" height="65" rx="8" fill="#f3efe6"/><text x="20" y="48">入力 (3,5)</text><text x="118" y="56">→</text><rect x="145" y="20" width="125" height="65" rx="8" fill="#f3efe6"/><text x="153" y="48">向きをそろえる</text><text x="153" y="72">この例は同じ</text><text x="283" y="56">→</text><rect x="310" y="20" width="120" height="65" rx="8" fill="#e4eee6"/><text x="320" y="48">4倍・2倍</text><text x="320" y="72">(12,10)</text><text x="443" y="56">→</text><rect x="470" y="20" width="145" height="65" rx="8" fill="#f3efe6"/><text x="480" y="48">向きを戻す</text><text x="480" y="72">この例は同じ</text></svg></p>
+<div class="step-flow"><div>入力 (3,5)<br>向きをそろえる<br>この例は変わらない</div><div>横4倍・縦2倍<br>(12,10)へ</div><div>向きを戻す<br>この例は変わらない<br>結果 (12,10)</div></div>
+<p>式ではA=UΣVᵀで、この例はU=I、Vᵀ=Iです。右側のVᵀから入力へ作用し、その後Σ、最後にUを使います。ここでΣは行列の名前で、数を全部足す記号Σとは違います。</p>
+<p><strong>確認：</strong> 小さい倍率2を0にすると(3,5)の出力は(12,0)。元の縦成分10が失われます。低ランク近似は、残す方向を減らす操作です。</p>
+<h2>2．表の大きさを先に埋める</h2>
+<p>形は表の行数と列数です。3行2列のAなら、必要な本数kは小さい方の2。NumPyで <code>full_matrices=False</code> を使うと次の形になります。</p>
+<table>
+<thead>
+<tr>
+<th>表</th>
+<th style="text-align:right">行</th>
+<th style="text-align:right">列</th>
+<th>次の掛け算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U</td>
+<td style="text-align:right">3</td>
+<td style="text-align:right">2</td>
+<td>U @ Σは3行2列</td>
+</tr>
+<tr>
+<td>Σ</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">2</td>
+<td>その結果 @ Vhも3行2列</td>
+</tr>
+<tr>
+<td>Vh</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">2</td>
+<td>最後は元のAと同じ形</td>
+</tr>
+</tbody>
+</table>
+<p><code>@</code>は行列積。前の表の列数と次の表の行数が一致することを<a href="15b-product.html">第15章</a>で確かめます。<code>s</code>は倍率だけの一覧で形(2,)。<code>np.diag(s)</code>が一覧からΣを作ります。実数を使うここではVhがVᵀに対応します。</p>
+<p><strong>確認：</strong> 2行3列のAなら、Uは(2,2)、Σは(2,2)、Vhは(2,3)です。<code>full_matrices=False</code>は必要な本数の形にする指定で、小さい倍率を捨てる指定ではありません。</p>
+<h2>3．一つの出力ずつ照合する</h2>
+<p><a href="pc-practice.html#numpy">NumPyの準備</a>を終えてから、次を保存・実行します。まず三つの形だけを予想し、次の回で再構成を確認してもかまいません。</p>
+<pre><code class="language-python">import numpy as np
+A = np.array([[4., 0.], [0., 2.], [0., 0.]])
+U, s, Vh = np.linalg.svd(A, full_matrices=False)
+print(&quot;shapes&quot;, U.shape, s.shape, Vh.shape)
+Sigma = np.diag(s)
+rebuilt = U @ Sigma @ Vh
+print(&quot;rebuilt&quot;, rebuilt)
+print(&quot;matches&quot;, np.allclose(A, rebuilt))
+</code></pre>
+<p><code>np.array</code>は数の表を配列へ、<code>np.linalg.svd</code>は分解、<code>shape</code>は形、<code>allclose</code>は小さい丸め差を許す一致判定です。最初の出力は(3,2)、(2,)、(2,2)、最後はTrue。UやVhは符号の違う組が返ってもよいので、その値の暗記ではなく積がAへ戻るかを照合します。</p>
+<p><strong>止まったら：</strong> <code>No module named numpy</code>は導入したPythonと実行したPythonを照合します。行列積の形のエラーなら各shapeを上の表へ書きます。NaNやInfなど数として有限でない値が入っていないかも確認します。エラーを消す前に最後の行を残してください。</p>
+<p><strong>自分で変える：</strong> 対角4,2を6,1へ変え、sが[6,1]になると予想して実行します。次に小さい倍率を0へ変える近似は<a href="16u-020.html">元の低ランクの講義</a>で確かめます。</p>
+<p><a href="16-workshop.html">自力の形の問題</a> · <a href="16u-016.html">SVDの元の例</a> · <a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html">NumPy公式SVD</a></p>
+</article><footer><strong>sakunokyumei</strong><p>AI（OpenAI Codex）を用いて作成した教材です。理解は、小さな実験で確かめよう。</p><a href="about.html">編集・検証・プライバシー</a> · <a href="references.html">出典一覧</a> · <a href="coverage.html">原資料との対応</a></footer></main></div></body></html>
