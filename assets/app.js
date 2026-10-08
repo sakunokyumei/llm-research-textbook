@@ -21,3 +21,87 @@ for(const panel of document.querySelectorAll('[data-lesson]')){
     catch{status.textContent='削除できませんでした。ブラウザの保存設定をご確認ください。';}
   });
 }
+
+// Everything below is stored only in this browser; failures leave the page usable.
+const store={get(k){try{return localStorage.getItem(k);}catch{return null;}},set(k,v){try{localStorage.setItem(k,v);return true;}catch{return false;}},remove(k){try{localStorage.removeItem(k);}catch{}}};
+const page=document.body.dataset.page||'index';
+const slugOf=href=>(href||'').split('#')[0].replace(/\.html$/,'').split('/').pop();
+
+// Theme: an explicit choice wins over the system setting.
+const themeButton=document.querySelector('#theme');
+const darkQuery=window.matchMedia?.('(prefers-color-scheme: dark)');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':!!darkQuery?.matches;}
+function showTheme(){if(!themeButton)return;const dark=isDark();themeButton.textContent=dark?'明るい表示':'暗い表示';themeButton.setAttribute('aria-pressed',String(dark));}
+themeButton?.addEventListener('click',()=>{const next=isDark()?'light':'dark';document.documentElement.dataset.theme=next;store.set('llm-textbook-theme',next);showTheme();});
+darkQuery?.addEventListener?.('change',showTheme);showTheme();
+
+// "/" jumps to search, as on many documentation sites.
+document.addEventListener('keydown',event=>{
+  if(event.key!=='/'||event.ctrlKey||event.metaKey||event.altKey||event.target.closest?.('input,textarea,select,[contenteditable]'))return;
+  if(!search)return;event.preventDefault();
+  if(getComputedStyle(document.querySelector('#sidebar')).display==='none'){document.body.classList.add('menu-open');menu?.setAttribute('aria-expanded','true');}
+  search.focus();
+});
+
+// Reading progress: pages marked as read, and the last page opened.
+const DONE='llm-textbook-done', LAST='llm-textbook-last';
+function readDone(){try{const v=JSON.parse(store.get(DONE)||'[]');return new Set(Array.isArray(v)?v:[]);}catch{return new Set();}}
+function writeDone(set){return store.set(DONE,JSON.stringify([...set]));}
+function markLinks(){
+  const done=readDone();
+  document.querySelectorAll('#sidebar nav a, .part li a').forEach(a=>a.classList.toggle('is-done',done.has(slugOf(a.getAttribute('href')))));
+}
+const article=document.querySelector('article');
+if(page!=='index'&&article){
+  const heading=article.querySelector('h1')?.textContent.trim()||document.title;
+  store.set(LAST,JSON.stringify({slug:page,title:heading}));
+  const box=document.createElement('div');box.className='done-toggle';
+  const button=document.createElement('button');button.type='button';
+  const status=document.createElement('p');status.setAttribute('role','status');
+  const show=()=>{const on=readDone().has(page);button.textContent=on?'✓ 読み終えた（取り消す）':'このページを読み終えた';button.setAttribute('aria-pressed',String(on));};
+  button.addEventListener('click',()=>{const done=readDone();const on=!done.has(page);on?done.add(page):done.delete(page);
+    status.textContent=writeDone(done)?(on?'印を付けました。目次に ✓ が表示されます。':'印を外しました。'):'保存できない設定です。紙やメモに記録してください。';show();markLinks();});
+  show();box.append(button,status);
+  const pager=article.querySelector('.pager');pager?pager.before(box):article.append(box);
+}
+markLinks();
+
+const progress=document.querySelector('[data-progress]');
+if(progress){
+  const chapters=[...document.querySelectorAll('#curriculum .part li a')].map(a=>slugOf(a.getAttribute('href')));
+  const render=()=>{
+    const done=readDone();let last=null;try{last=JSON.parse(store.get(LAST)||'null');}catch{}
+    progress.replaceChildren();
+    const read=chapters.filter(s=>done.has(s)).length;
+    if(!done.size&&!last){progress.hidden=true;return;}
+    progress.hidden=false;
+    const count=document.createElement('span');count.textContent=`講義 ${read} / ${chapters.length} を読了`;
+    const bar=document.createElement('span');bar.className='progress-bar';bar.setAttribute('aria-hidden','true');bar.style.setProperty('--value',`${chapters.length?read/chapters.length*100:0}%`);
+    progress.append(count,bar);
+    if(last?.slug&&/^[\w-]+$/.test(last.slug)){const a=document.createElement('a');a.href=`${last.slug}.html`;a.textContent=`続きから：${last.title||last.slug}`;progress.append(a);}
+    const clear=document.createElement('button');clear.type='button';clear.textContent='進み具合の記録を消す';
+    clear.addEventListener('click',()=>{if(!confirm('読了の印と最後に開いたページの記録を、この端末から消します。メモは残ります。'))return;store.remove(DONE);store.remove(LAST);render();markLinks();});
+    progress.append(clear);
+  };
+  render();
+}
+
+// Copy buttons for code blocks.
+document.querySelectorAll('article pre > code').forEach(code=>{
+  const pre=code.parentElement, button=document.createElement('button');
+  button.type='button';button.className='copy-code';button.textContent='コピー';
+  button.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(code.textContent);button.textContent='コピーしました';}
+    catch{const range=document.createRange();range.selectNodeContents(code);const sel=getSelection();sel.removeAllRanges();sel.addRange(range);button.textContent='選択しました。Ctrl+Cでコピー';}
+    setTimeout(()=>{button.textContent='コピー';},2000);
+  });
+  const wrap=document.createElement('div');wrap.className='code-wrap';pre.before(wrap);wrap.append(pre,button);
+});
+
+// A thin bar under the header showing how far down the page you are.
+if(article&&page!=='index'){
+  const bar=document.createElement('div');bar.className='read-progress';bar.setAttribute('aria-hidden','true');document.body.append(bar);
+  let ticking=false;
+  const update=()=>{const max=document.documentElement.scrollHeight-innerHeight;bar.style.transform=`scaleX(${max>0?Math.min(1,scrollY/max):0})`;ticking=false;};
+  addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});addEventListener('resize',update);update();
+}
