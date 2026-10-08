@@ -21,7 +21,7 @@ python -m http.server 4173 --bind 127.0.0.1 --directory dist
 
 `python verify.py`は内部リンク・exercise構造・本文のPythonコードを検証します。本文のコード実行にはNumPyとPyTorchも必要です。
 `python build.py --output docs`でGitHub Pages用の静的サイトを生成します。Pagesの公開元はmainブランチの`/docs`です。
-サイトに外部JavaScript、アクセス解析、広告、入力送信はありません。再開メモは端末内のブラウザに保存し、ページごとに削除できます。ブラウザ間の同期は行いません。
+サイトに外部JavaScript、アクセス解析、広告、入力送信はありません。再開メモ・読了の印・最後に開いたページ・表示の明るさの設定は端末内のブラウザに保存し、削除できます。ブラウザ間の同期は行いません。
 
 研究実験は `labs/README.md` を参照してください。
 
