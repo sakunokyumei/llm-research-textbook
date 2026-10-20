@@ -17,6 +17,7 @@ from urllib.parse import unquote, urlsplit
 import argparse
 import datetime
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -60,10 +61,13 @@ def run_chapter(slug, path, timeout, full=False):
     if work.exists():
         shutil.rmtree(work)
     work.mkdir(parents=True)
+    # each chapter starts with the Google Drive a learner would have at that point (see fake drive.mount)
+    shutil.rmtree("/content/drive", ignore_errors=True)
     (work / "cells.json").write_text(json.dumps([prepare(c, full) for c in cs], ensure_ascii=False), encoding="utf-8")
     try:
         proc = subprocess.run([sys.executable, str(ROOT / "tools/testkit/runner.py"), "cells.json", "result.json"],
-                              cwd=work, capture_output=True, text=True, timeout=timeout)
+                              cwd=work, capture_output=True, text=True, timeout=timeout,
+                              env={**os.environ, "VERIFY_CHAPTER": slug})
         stderr = proc.stderr
     except subprocess.TimeoutExpired:
         return {"slug": slug, "cells": len(cs), "failures": [f"timeout after {timeout}s"], "results": []}

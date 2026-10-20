@@ -533,12 +533,15 @@ def persona_table():
     if not path.exists():
         return "（`python tools/persona.py` を実行すると、ここに表が入ります）"
     data = json.loads(path.read_text(encoding="utf-8"))
-    rows = ["| 章 | 難しさ | 新しい用語 | 新しいPython | コードのセル | 会話 | クイズ | 実出力・図 | 最長の地の文（字） | 読む目安（分） | 未習の先取り |",
+    rows = ["| 章 | 難しさ | 新しい用語 | 新しいPython | コードのセル | 会話 | クイズ | 実出力・図 | 最長の地の文（字） | 読むだけの時間（分） | 未習の先取り |",
             "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in data["chapters"]:
         early = len(r["early_terms"]) + len(r["early_python"])
         rows.append(f"| {int(r['slug'][:2])} | {'★' * (r['level'] or 1)} | {r['new_terms']} | {len(r['new_python'])} | {r['cells']} | {r['talks']} | {r['quizzes']} | "
                     f"{r['outputs'] + r['figures']} | {r['longest_prose_chars']} | {r['est_minutes']} | {early} |")
+    rows.append("")
+    rows.append("「読むだけの時間」は、文字数とセルの数から機械的に見積もった、読んでセルを実行するだけの時間です。"
+                "考えたり、学習を待ったり、つまずいたりする時間は入っていないので、実際には各章の冒頭にある「所要時間」くらいかかります。")
     rows.append("")
     rows.append(f"機械チェックで残っている問題：**{len(data['issues'])}件**" + ("" if not data["issues"] else "（" + "、".join(data["issues"]) + "）"))
     return "\n".join(rows)
