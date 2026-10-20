@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>5分でLLMと話す | つくってわかるLLM</title><meta name="description" content="Google Colabで、本物のLLMを0円で動かす">
+<meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script></head>
+<body data-page="01-first-llm"><a class="skip" href="#main">本文へ移動</a>
+<header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
+<a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
+<div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" open><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" aria-current="page" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第1部 まず動かす · 第1章</p><h1>5分でLLMと話す</h1><p class="sub">Google Colabで、本物のLLMを0円で動かす</p><dl class="meta"><div><dt>目安</dt><dd>45〜60分</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/01-first-llm.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/01-first-llm.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>ブラウザだけで動く、自分専用のチャットLLM（Qwen2.5-0.5B-Instruct）</p></div><div><h3>ついでに身につく理論</h3><ul><li>LLMは「次の言葉」を予測し続ける機械</li><li>チャットの正体は「台本の続き」を書かせること</li><li>パラメータ（調整できる数）と「大規模」の意味</li></ul></div><div><h3>新しく使うPython</h3><ul><li>セルの実行と <code>print</code></li><li>変数と文字列</li><li><code>import</code>（道具を借りる）</li><li>リスト <code>[ ]</code> と辞書 <code>{ }</code></li><li>関数 <code>def</code></li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>この章が終わるころ、あなたのブラウザの中で<strong>本物のLLMが動いていて</strong>、あなたの質問に日本語で答えています。しかも、そのLLMに「ダジャレ好きの先生」のキャラクターを演じさせることもできます。かかるお金は0円、インストールするものはゼロです。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>いきなりLLMですか？ まだPythonも<code>print</code>くらいしか……。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p><code>print</code>が書ければ十分！ 今日は自転車の補助輪つきだ。こけそうになったら、私が後ろを持っている。……持っているつもりで読んでくれ。</p>
+</div></div>
+
+<h2 id="s1">Google Colabを開く</h2>
+<p>LLMを動かすには、たくさんの計算ができるコンピュータが必要です。でも心配いりません。Googleが無料で貸してくれます。それが <strong>Google Colaboratory</strong>（略して <strong>Colab</strong>、コラボ）です。</p>
+<p>Colabは「ブラウザの中で動くPythonのノート」です。あなたのパソコンにPythonを入れなくても、Googleのコンピュータ上でPythonを実行して、結果だけをブラウザに表示してくれます。</p>
+<ol>
+<li>ブラウザで <a href="https://colab.research.google.com/">https://colab.research.google.com/</a> を開きます</li>
+<li>Googleアカウントでログインします（右上の「ログイン」）</li>
+<li>表示された画面で <strong>「ノートブックを新規作成」</strong>（または左上メニューの「ファイル」→「ノートブックを新規作成」）を押します</li>
+</ol>
+<p>すると、灰色の入力欄がひとつある画面になります。この入力欄を <strong>セル</strong>（cell）と呼びます。ここにPythonのコードを書いて、実行するのです。</p>
+<aside class="box box-tip"><p class="box-title">コツ：ノートブックに名前をつけよう</p><p>左上の「Untitled0.ipynb」をクリックすると名前を変えられます。<code>01-first-llm.ipynb</code> のようにしておくと、あとで探しやすくなります。ノートブックは自動的にあなたのGoogleドライブの「Colab Notebooks」フォルダに保存されます。</p>
+</aside>
+
+<h2 id="s2">最初の1行を実行する</h2>
+<p>セルに次のコードを入力（またはコピーして貼り付け）してください。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(<span class="st">&quot;こんにちは、LLM！&quot;</span>)</code></pre></div>
+<p>そして、セルの左にある <strong>▶（再生ボタン）</strong> を押すか、キーボードで <kbd>Shift</kbd> + <kbd>Enter</kbd> を押します。最初の1回は、Googleのコンピュータと接続するので数秒〜十数秒かかります。</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>こんにちは、LLM！</code></pre></div>
+<p>おめでとうございます。あなたは今、Googleのデータセンターにあるコンピュータを遠隔操作しました。地球の裏側かもしれないコンピュータに「こんにちは」と言わせたわけです。なかなか偉いことです。</p>
+<p>新しいセルは、画面上の <strong>「+ コード」</strong> ボタンで追加できます。次のセルも試してみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>greeting = <span class="st">&quot;ボン&quot;</span>
+<span class="bi">print</span>(greeting * <span class="nu">3</span> + <span class="st">&quot;ゴ！&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>ボンボンボンゴ！</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：変数と文字列</p><p><code>greeting = &quot;ボン&quot;</code> は「<code>greeting</code> という名前の箱に、文字列 <code>&quot;ボン&quot;</code> を入れる」という意味です。この箱を <strong>変数</strong> と呼びます。<code>=</code> は「等しい」ではなく「入れる」の意味なので注意。<br>
+<code>&quot;ボン&quot; * 3</code> は「ボン」を3回つなげた <code>&quot;ボンボンボン&quot;</code> になり、<code>+</code> で文字列どうしをつなげます。文字列の掛け算ができる言語は、意外と少ないんですよ。Pythonはノリがいい。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：セルを上から順に実行する</p><p>変数は「実行したセル」の中でだけ作られます。下のセルだけ実行して <code>NameError: name 'greeting' is not defined</code> と出たら、上のセルを先に実行してください。困ったら、メニューの「ランタイム」→「すべてのセルを実行」で、上から全部やり直せます。</p>
+</aside>
+
+<h2 id="s3">無料のGPUを借りる</h2>
+<p>LLMは計算の量がとても多いので、<strong>GPU</strong>（ジーピーユー）という計算専門の部品を使うと速くなります。GPUはもともと、ゲームの画面を描くために作られた部品です。画面の何百万個もの点の色を「一斉に」計算するのが得意で、その「一斉に計算する力」がAIにもぴったりだったのです。</p>
+<p>Colabでは、無料でGPU（NVIDIA T4という機種）を借りられます。</p>
+<ol>
+<li>メニューの <strong>「ランタイム」→「ランタイムのタイプを変更」</strong> を開く</li>
+<li>「ハードウェア アクセラレータ」で <strong>「T4 GPU」</strong> を選ぶ</li>
+<li><strong>「保存」</strong> を押す</li>
+</ol>
+<aside class="box box-warn"><p class="box-title">つまずき注意：「GPUに接続できません」と言われたら</p><p>無料のGPUは、混み具合や使いすぎによって借りられないことがあります（「使用量上限に達したため…」など）。そのときは <strong>CPUのままで大丈夫</strong>。この章のモデルは小さいので、CPUでも少し待てば動きます。どうしてもGPUが欲しいときは<a href="a-setup.html">付録A</a>の「Kaggleを使う」を見てください。Kaggleも無料でGPUが使えます。</p>
+</aside>
+
+<p>借りられたか確かめましょう。行の先頭の <code>!</code> は「ここはPythonではなく、Linuxのコマンドとして実行して」という合図です。Linuxの授業で習った <code>ls</code> なども、<code>!ls</code> と書けばColabで動きます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!nvidia-smi</span></code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>+-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.54.15              Driver Version: 550.54.15      CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   44C    P8              9W /   70W |       0MiB /  15360MiB |      0%      Default |
++-----------------------------------------+------------------------+----------------------+</code></pre></div>
+<p><code>Tesla T4</code> と <code>15360MiB</code>（約15GB）の文字が見えたら成功です。15GBはGPUの中にあるメモリ（<strong>VRAM</strong>）の大きさで、モデルを置ける机の広さのようなものです。CPUのままの人は <code>command not found</code> のようなエラーになりますが、気にせず進みましょう。</p>
+<h2 id="s4">LLMを呼び出す</h2>
+<p>いよいよです。次のセルを実行します。少し長いですが、1行ずつの意味は後で説明します。今は「呪文」だと思って、そのまま貼り付けてください。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> pipeline
+
+gpu = torch.cuda.is_available()   <span class="cm"># GPUが使えるなら True、使えないなら False</span>
+
+chat = pipeline(
+    <span class="st">&quot;text-generation&quot;</span>,                         <span class="cm"># やりたいこと：文章を生成する</span>
+    model=<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>,        <span class="cm"># 使うモデルの名前</span>
+    dtype=torch.float16 <span class="kw">if</span> gpu <span class="kw">else</span> torch.float32,  <span class="cm"># 数の細かさ（GPUなら軽い形式）</span>
+    device_map=<span class="st">&quot;auto&quot;</span>,                         <span class="cm"># GPUがあればGPUに載せる</span>
+)
+<span class="bi">print</span>(<span class="st">&quot;GPUを使う？&quot;</span>, gpu)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>config.json: 100%|██████████| 659/659 [00:00&lt;00:00, 4.21MB/s]
+model.safetensors: 100%|██████████| 988M/988M [00:08&lt;00:00, 118MB/s]
+...
+Device set to use cuda:0
+GPUを使う？ True</code></pre></div>
+<p>モデルのファイル（約1GB）がインターネットから<strong>ダウンロード</strong>されるので、1〜2分かかります。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：赤や黄色の文字が出ても、まず落ち着く</p><p><code>The secret HF_TOKEN does not exist in your Colab secrets.</code> という黄色い警告が出ることがあります。これは「Hugging Faceのログイン情報がないよ」というお知らせですが、<strong>今回は無視して大丈夫</strong>です。誰でも使える公開モデルなので、ログインなしでダウンロードできます。最後の行に <code>GPUを使う？ True</code>（CPUなら <code>False</code>）と出ていれば成功です。</p>
+</aside>
+
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：import ＝ 道具を借りる</p><p><code>import torch</code> は「<code>torch</code> という道具箱を借りてくる」という意味です。<code>torch</code>（PyTorch）は数値計算とAIのための道具箱、<code>transformers</code> はLLMを簡単に扱うための道具箱です。どちらもColabには最初から入っています。<br>
+<code>A if 条件 else B</code> は「条件が正しければA、そうでなければB」という書き方です。HTMLにはない、Pythonの便利な一行if文です。</p>
+</aside>
+
+<p><code>Qwen/Qwen2.5-0.5B-Instruct</code> は、中国のAlibaba社のチームが公開しているLLMの名前です。<code>Qwen</code>（チェン）がシリーズ名、<code>2.5</code> が世代、<code>0.5B</code> が大きさ（後で説明します）、<code>Instruct</code> は「指示に従うように訓練済み」という意味です。商用でも使えるライセンス（Apache 2.0）で公開されています。</p>
+<h2 id="s5">話しかけてみる</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>messages = [
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;こんにちは！あなたは誰ですか？&quot;</span>},
+]
+result = chat(messages, max_new_tokens=<span class="nu">100</span>)
+<span class="bi">print</span>(result[<span class="nu">0</span>][<span class="st">&quot;generated_text&quot;</span>][-<span class="nu">1</span>][<span class="st">&quot;content&quot;</span>])</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>こんにちは！私はQwenです。Alibaba Cloudによって開発された大規模言語モデルです。質問に答えたり、文章を書いたり、いろいろなお手伝いができます。何かお手伝いできることはありますか？</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>動いた！ 今、キミのブラウザの向こうで、約5億個の数がいっせいに計算されて、この返事が生まれたんだ。拍手！ 🥁ドコドコ</p>
+</div></div>
+
+<p>答えは実行するたびに少し変わります。LLMは毎回、少しだけサイコロを振って言葉を選んでいるからです（このサイコロの話は第3章で詳しくやります）。</p>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：リスト と 辞書</p><p><code>[ ... ]</code> は <strong>リスト</strong>：ものを順番に並べた入れ物です。<code>[&quot;りんご&quot;, &quot;みかん&quot;]</code> のように書きます。<br>
+<code>{ ... }</code> は <strong>辞書</strong>：「名前（キー）: 中身（値）」の組を入れる入れ物です。<code>{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;こんにちは&quot;}</code> は「役割はuser、内容はこんにちは」という1件のメッセージです。<br>
+<code>messages</code> は「辞書が並んだリスト」、つまり会話の記録です。HTMLで例えるなら、<code>&lt;ul&gt;</code> の中に <code>&lt;li&gt;</code> が並んでいて、それぞれの <code>&lt;li&gt;</code> に「誰が」「何を言ったか」が書いてある感じです。</p>
+</aside>
+
+<p>最後の行の <code>result[0][&quot;generated_text&quot;][-1][&quot;content&quot;]</code> は、返ってきた結果の箱を順番に開けていく操作です。</p>
+<table>
+<thead>
+<tr>
+<th>書き方</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>result[0]</code></td>
+<td>結果のリストの0番目（Pythonは0から数えます）</td>
+</tr>
+<tr>
+<td><code>[&quot;generated_text&quot;]</code></td>
+<td>その中の「生成された会話」</td>
+</tr>
+<tr>
+<td><code>[-1]</code></td>
+<td>会話の一番最後（<code>-1</code> は「後ろから1番目」）</td>
+</tr>
+<tr>
+<td><code>[&quot;content&quot;]</code></td>
+<td>そのメッセージの「内容」</td>
+</tr>
+</tbody>
+</table>
+<p>マトリョーシカを外側から1つずつ開けているようなものです。</p>
+<h2 id="s6">毎回書くのは面倒なので、関数にする</h2>
+<p>質問のたびに4行書くのは面倒ですね。プログラマは面倒くさがりです。そして面倒くさがりは、<strong>関数</strong>を作ります。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">ask</span>(question, max_new_tokens=<span class="nu">200</span>):
+    messages = [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: question}]
+    result = chat(messages, max_new_tokens=max_new_tokens)
+    <span class="kw">return</span> result[<span class="nu">0</span>][<span class="st">&quot;generated_text&quot;</span>][-<span class="nu">1</span>][<span class="st">&quot;content&quot;</span>]
+
+<span class="bi">print</span>(ask(<span class="st">&quot;朝ごはんにおすすめの食べ物を3つ、理由つきで教えて&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>1. ご飯と味噌汁：エネルギーになる炭水化物と、体を温める味噌汁で一日を元気に始められます。
+2. ヨーグルトとフルーツ：腸内環境を整え、ビタミンも取れます。
+3. 卵料理：たんぱく質が豊富で、お腹が空きにくくなります。</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：関数 def</p><p><code>def ask(question, ...):</code> は「<code>ask</code> という名前の手順を作ります」という宣言です。字下げ（行頭のスペース4つ）された部分が手順の中身で、<code>return</code> は「この値を結果として返す」です。<br>
+フローチャートで言えば、よく使う処理をひとまとまりの「定義済み処理」の箱にしたものです。一度作れば、<code>ask(&quot;…&quot;)</code> の1行で何度でも呼び出せます。<br>
+<code>max_new_tokens=200</code> は「指定しなければ200を使う」という<strong>初期値</strong>です。</p>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：いろいろ聞いてみよう</p><p><code>ask(&quot;…&quot;)</code> の中身を変えて、何度か実行してみましょう。</p>
+<ul>
+<li>得意なこと：「ITパスポートと基本情報技術者試験の違いを、高校生向けに説明して」</li>
+<li>創作：「猫が主人公の、3行で終わる物語を書いて」</li>
+<li>苦手かも：「123×456を計算して」</li>
+</ul>
+<p>最後の計算、答えは合っていましたか？ 次のセルで確かめてみてください。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(<span class="nu">123</span> * <span class="nu">456</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>56088</code></pre></div>
+</aside>
+
+<h2 id="s7">LLMの正体：次の言葉を当てるゲームの達人</h2>
+<p>計算を間違えることがあるのはなぜでしょう？ ここで、この教科書でいちばん大事な話をします。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：LLMがやっていることは、たった1つ</p><p>LLMがやっているのは、<strong>「ここまでの文章の続きとして、次に来そうな言葉はどれか」を予測すること</strong>だけです。</p>
+<p>「吾輩は猫で」と来たら、次は「ある」が来そう。「今日の天気は」と来たら「晴れ」や「雨」が来そう。LLMはこの「次の言葉当てゲーム」を、インターネット上の膨大な文章で練習して、ものすごく上手になったプログラムです。</p>
+<p>1つ予測したら、その言葉を文章の最後に付け足して、また次を予測する。これを何百回も繰り返すと、長い文章ができあがります。</p>
+<div class="math-display">「吾輩は」→ 予測「猫」→「吾輩は猫」→ 予測「で」→「吾輩は猫で」→ 予測「ある」→ …</div>
+<p>だから「123×456=」の次に来る数字も、<strong>計算しているのではなく「それっぽい数字」を予測している</strong>のです。大きなLLMは練習量が多いので、それっぽさが正解とほぼ一致するようになりますが、小さなモデルはよく外します。人間が暗算せずに「だいたい5万くらい？」と言うのに似ていますね。</p>
+</aside>
+
+<p>本当に「続きを書いているだけ」なのか、確かめてみましょう。会話の形（<code>messages</code>）ではなく、ただの文字列を渡すと、LLMは素直に「続き」を書きます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>out = chat(<span class="st">&quot;吾輩は猫である。名前は&quot;</span>, max_new_tokens=<span class="nu">30</span>, do_sample=<span class="kw">False</span>)
+<span class="bi">print</span>(out[<span class="nu">0</span>][<span class="st">&quot;generated_text&quot;</span>])</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所で</code></pre></div>
+<p><code>do_sample=False</code> は「サイコロを振らずに、いちばん確率の高い言葉を毎回選ぶ」という指定です。夏目漱石の『吾輩は猫である』の書き出しを覚えていたようです。ネット上で何度も引用されている文章なので、「次の言葉当てゲーム」の練習で何度も見たのでしょう。</p>
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>え、じゃあチャットで会話できるのはどうしてですか？ 続きを書いてるだけなのに。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>いい質問だ！ 実はチャットも「続きを書いている」だけなんだ。会話を「台本」の形の文章に変換して、「アシスタントのセリフ」の続きを書かせている。見てみよう。</p>
+</div></div>
+
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>messages = [
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;system&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;あなたは陽気な物理の先生です。&quot;</span>},
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;空はなぜ青いの？&quot;</span>},
+]
+script = chat.tokenizer.apply_chat_template(messages, tokenize=<span class="kw">False</span>, add_generation_prompt=<span class="kw">True</span>)
+<span class="bi">print</span>(script)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>&lt;|im_start|&gt;system
+あなたは陽気な物理の先生です。&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+空はなぜ青いの？&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant</code></pre></div>
+<p>これが、LLMが実際に受け取っている文章です。<code>&lt;|im_start|&gt;</code> や <code>&lt;|im_end|&gt;</code> は「ここからセリフ」「ここでセリフ終わり」を表す特別な記号です。最後が <code>&lt;|im_start|&gt;assistant</code>（アシスタントのセリフ開始）で終わっているので、LLMはその続き、つまり<strong>アシスタントのセリフ</strong>を書きます。そして <code>&lt;|im_end|&gt;</code> を書いたところで止まります。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：チャット＝台本の続き</p><p><strong>チャットモデル</strong>は、この台本形式の文章で「アシスタントのセリフ」を上手に書けるように、追加で訓練されたモデルです（名前の <code>Instruct</code> はその意味）。どう訓練するかは第18章で、実際に自分でやります。</p>
+<p>台本の一番上の <code>system</code> は、劇でいう「役の設定」です。ここを変えると、LLMの話し方が変わります。</p>
+</aside>
+
+<h2 id="s8">キャラクターを演じさせる</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">ask_as</span>(character, question, max_new_tokens=<span class="nu">200</span>):
+    messages = [
+        {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;system&quot;</span>, <span class="st">&quot;content&quot;</span>: character},
+        {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: question},
+    ]
+    result = chat(messages, max_new_tokens=max_new_tokens)
+    <span class="kw">return</span> result[<span class="nu">0</span>][<span class="st">&quot;generated_text&quot;</span>][-<span class="nu">1</span>][<span class="st">&quot;content&quot;</span>]
+
+bongo = <span class="st">&quot;あなたはボンゴ先生です。陽気な物理の先生で、答えに必ずダジャレを1つ入れます。&quot;</span>
+<span class="bi">print</span>(ask_as(bongo, <span class="st">&quot;空はなぜ青いの？&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>いい質問だね！空が青いのは、太陽の光が空気の粒にぶつかって散らばるからなんだ。青い光は波が短くて散らばりやすいから、空いっぱいに青が広がるんだよ。これを「レイリー散乱」と言うんだ。散乱だけに、さんざん考えた答えだよ！</code></pre></div>
+<aside class="box box-try"><p class="box-title">やってみよう：systemを書き換えよう</p><p><code>bongo</code> の中身を変えて、いろいろなキャラクターにしてみましょう。</p>
+<ul>
+<li>「あなたは江戸時代の侍です。古風な言葉で答えます。」</li>
+<li>「あなたは5歳の子どもにも分かるように説明する先生です。」</li>
+<li>「あなたは何を聞かれても『それはLLMの得意分野です』と答えます。」</li>
+</ul>
+<p>小さなモデル（0.5B）なので、キャラクターを忘れたり、ダジャレが微妙だったりします。それも味です。第18〜19章では、この「ボンゴ先生らしさ」をモデルに<strong>学習</strong>させて、systemに書かなくてもボンゴ先生になるようにします。</p>
+</aside>
+
+<h2 id="s9">「大規模」ってどれくらい？</h2>
+<p>LLMの「L」はLarge（大規模）。何が大規模なのでしょう？ 数えてみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>n = <span class="bi">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> chat.model.parameters())
+<span class="bi">print</span>(<span class="st">f&quot;パラメータの数：{n:,} 個&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>パラメータの数：494,032,768 個</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：パラメータ＝調整できるつまみ</p><p><strong>パラメータ</strong>は、モデルの中にある「調整できる数」です。音楽のミキサーにたくさん並んでいるつまみを想像してください。LLMの学習とは、このつまみを少しずつ回して、「次の言葉当てゲーム」の成績が良くなる位置を探す作業です。</p>
+<p>このモデルには約4億9400万個（0.49 Billion ≒ 0.5B）のつまみがあります。名前の <code>0.5B</code> はこれのこと。Bは Billion（10億）の頭文字です。ChatGPTのような最先端のモデルは、これの数百倍〜数千倍のつまみを持つと言われています。</p>
+<p>そして、つまみの位置を決めるために読ませる文章の量も大規模です。最近のモデルは、数兆個の言葉（<strong>トークン</strong>）で練習しています。人間が一生かかっても読めない量です。</p>
+</aside>
+
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：一行で数えるテクニック</p><p><code>sum(p.numel() for p in chat.model.parameters())</code> は、「モデルの部品（<code>parameters()</code>）を1つずつ取り出して、それぞれに入っている数の個数（<code>numel()</code>）を数え、全部足す（<code>sum</code>）」という意味です。今は「そういう書き方がある」と分かれば十分。<br>
+<code>f&quot;…{n:,}…&quot;</code> は <strong>f文字列</strong>です。<code>{ }</code> の中に変数を書くと値に置き換わり、<code>:,</code> を付けると3桁ごとにカンマが入ります。</p>
+</aside>
+
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：「B」と「iB」</p><p><code>0.5B</code> のBは10億（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>9</mn></msup></mrow><annotation encoding="application/x-tex">10^9</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span>）ですが、メモリの「15360MiB」のMiBはメビバイト（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>20</mn></msup></mrow><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">20</span></span></span></span></span></span></span></span></span></span></span></span> バイト ≒ 105万バイト）です。基本情報で習う「K・M・G」と「Ki・Mi・Gi」の違いが、こんなところで出てきます。モデルの重さは「パラメータ数 × 1個あたりのバイト数」で、<code>float16</code> なら1個2バイトなので、約4.9億 × 2 ≒ 約1GBになります。さっきダウンロードした <code>988M</code> のファイルの大きさと、だいたい合っていますね！</p>
+</aside>
+
+<h2 id="s10">うまく動かないときは</h2>
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>ModuleNotFoundError: No module named 'transformers'</code></strong>：Colab以外（自分のパソコンなど）で実行していませんか？ Colabなら最初から入っています。自分のパソコンで動かす方法は<a href="a-setup.html">付録A</a>へ。</li>
+<li><strong><code>CUDA out of memory</code></strong>：GPUのメモリが足りません。「ランタイム」→「セッションを再起動する」を押してから、上のセルから順に実行し直しましょう。</li>
+<li><strong>途中で止まった・接続が切れた</strong>：無料版のColabは、しばらく操作しないと自動で切断されます（目安は数十分〜1時間半ほどで、時期によって変わります）。また、つなぎっぱなしでも最長12時間ほどで切れます。切れたら「再接続」を押して、上から実行し直せばOKです。ノートブック（コード）は残っています。消えるのは、変数やダウンロードしたファイルだけです。</li>
+<li><strong>ダウンロードが遅い・失敗する</strong>：時間をおいて、そのセルをもう一度実行してください。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：LLMの基本</p><p>LLMが文章を作るとき、毎回やっていることを一言で言うと？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>「ここまでの文章の続きとして、次に来る言葉を予測する」ことです。予測した言葉を最後に付け足して、また次を予測する……を繰り返します。チャットも、会話を台本形式の文章にして、その続きを書かせているだけです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：計算ミスの理由</p><p>小さなLLMが「123×456」を間違えやすいのはなぜでしょう？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>LLMは計算をしているのではなく、「それっぽい続きの文字」を予測しているからです。数字の並びを確率的に予測しているので、もっともらしいけれど間違った数字を出すことがあります。正確な計算が必要なら、Pythonに計算させるのが確実です（第23章では、LLMに「計算機」という道具を使わせます）。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：0.5B</p><p>モデル名の「0.5B」は何を表している？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>パラメータ（調整できる数）の個数が約0.5 Billion、つまり約5億個であることです。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="01-first-llm:0"> <span>Colabでノートブックを作り、<code>print</code> を実行できた</span></label></li><li><label><input type="checkbox" data-check="01-first-llm:1"> <span>ランタイムをT4 GPUに変更できた（できなくてもCPUで進めた）</span></label></li><li><label><input type="checkbox" data-check="01-first-llm:2"> <span><code>ask()</code> 関数でLLMに質問できた</span></label></li><li><label><input type="checkbox" data-check="01-first-llm:3"> <span>systemを変えて、キャラクターを演じさせた</span></label></li><li><label><input type="checkbox" data-check="01-first-llm:4"> <span>「LLMは次の言葉を予測し続ける機械」と説明できる</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>Google Colabなら、ブラウザだけで無料のGPUを使ってLLMを動かせる</li>
+<li>LLMがやっているのは「次の言葉の予測」の繰り返し。チャットも台本の続きを書いているだけ</li>
+<li><code>0.5B</code> は約5億個のパラメータ（調整できるつまみ）の意味。学習とは、このつまみを調整すること</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>次の章では、LLMが言葉をどうやって「数」として扱っているのかをのぞく。コンピュータは数しか分からないからね。「猫」という字は、LLMにとって何番なのか？ お楽しみに！</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="01-first-llm">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="00-welcome.html"><small>← 前の章</small>はじめに：この教室の歩き方</a><a class="next" href="02-tokens.html"><small>次の章 →</small>文章を数字にする：トークン</a></nav></article>
+<footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">Google Colabを開く</a><a href="#s2">最初の1行を実行する</a><a href="#s3">無料のGPUを借りる</a><a href="#s4">LLMを呼び出す</a><a href="#s5">話しかけてみる</a><a href="#s6">毎回書くのは面倒なので、関数にする</a><a href="#s7">LLMの正体：次の言葉を当てるゲームの達人</a><a href="#s8">キャラクターを演じさせる</a><a href="#s9">「大規模」ってどれくらい？</a><a href="#s10">うまく動かないときは</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

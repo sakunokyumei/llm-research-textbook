@@ -11,3 +11,5 @@ tmp/
 *.pdf
 labs/runs/
 dist/
+.cache/
+.verify/
