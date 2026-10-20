@@ -127,8 +127,8 @@ $$\mathrm{RMSNorm}(x) = \frac{x}{\sqrt{\frac{1}{d}\sum_i x_i^2 + \epsilon}} \cdo
 class SwiGLU(nn.Module):
     def __init__(self, dim, hidden):
         super().__init__()
-        self.w1 = nn.Linear(dim, hidden, bias=False)   # 中身
-        self.w3 = nn.Linear(dim, hidden, bias=False)   # 門番
+        self.w1 = nn.Linear(dim, hidden, bias=False)   # 門番（SiLUを通す。Qwenの gate_proj）
+        self.w3 = nn.Linear(dim, hidden, bias=False)   # 中身（Qwenの up_proj）
         self.w2 = nn.Linear(hidden, dim, bias=False)
 
     def forward(self, x):
@@ -136,7 +136,7 @@ class SwiGLU(nn.Module):
 ```
 
 :::theory 門番つきのフィードフォワード
-第12章のフィードフォワード層は「広げる → GELU → 戻す」でした。**SwiGLU** は、広げる全結合層を**2つ**用意して、片方（`w3`）を「門番」として使います。もう片方（`w1`）の出力を活性化関数SiLU（GELUとよく似た形）に通し、門番の値を**掛け算**します。門番が0に近いところは情報が通らず、大きいところはよく通る。「どの情報を通すか」を、入力に応じて細かく調整できるのです。
+第12章のフィードフォワード層は「広げる → GELU → 戻す」でした。**SwiGLU** は、広げる全結合層を**2つ**用意して、片方（`w1`）を「門番」として使います。門番の出力は活性化関数SiLU（GELUとよく似た形）に通し、もう片方（`w3`、中身）の値に**掛け算**します。門番が0に近いところは情報が通らず、大きいところはよく通る。QwenやLlamaのコードでは、門番が `gate_proj`、中身が `up_proj`、戻す層（`w2`）が `down_proj` という名前です（第19章でLoRAを貼った全結合層の名前にも出てきます）。「どの情報を通すか」を、入力に応じて細かく調整できるのです。
 
 重みが3つになる分、パラメータが増えるので、広げる幅を4倍ではなく約8/3倍（≒2.67倍）にして、パラメータ数をそろえるのが定番です。
 :::
