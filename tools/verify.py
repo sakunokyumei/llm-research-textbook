@@ -224,9 +224,14 @@ def main():
     for f in link_failures:
         print("LINK " + f)
     all_failures += link_failures
+    report_path = ROOT / "verification" / "code-report.json"
     if not a.only and not a.links_only:
-        (ROOT / "verification").mkdir(exist_ok=True)
-        (ROOT / "verification" / "code-report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        report_path.parent.mkdir(exist_ok=True)
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    elif a.links_only and report_path.exists():   # keep the chapter results, refresh the link check
+        old = json.loads(report_path.read_text(encoding="utf-8"))
+        old["html_pages"], old["link_failures"] = n, link_failures
+        report_path.write_text(json.dumps(old, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("ALL OK" if not all_failures else f"{len(all_failures)} problem(s)")
     sys.exit(1 if all_failures else 0)
 

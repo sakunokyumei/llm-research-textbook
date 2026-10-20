@@ -185,9 +185,7 @@
    "failures": []
   }
  ],
- "link_failures": [
-  "broken link 13-train-gpt.html -> img/figs/13-train-gpt/cell11_0.png"
- ],
+ "link_failures": [],
  "torch": "2.14.1+cu130",
  "transformers": "5.20.2",
  "html_pages": 39
