@@ -262,6 +262,40 @@ T4 GPUなら数分、CPUなら1時間ほどかかります。待っている間�
 CPUしか使えないときは、`max_iters=5000` を `max_iters=1000` に変えれば、15分ほどで終わります。検証損失は上の表ほどは下がりませんが、「7作品のほうが、同じステップ数でも良くなる」傾向は確かめられます。完全版は、GPUが使える日にもう一度やればOKです。
 :::
 
+## 大事なモデルを保存する
+
+比べたり書かせたりする前に、**まず保存**しましょう。せっかく学習したモデルも、Colabのセッションが切れると消えてしまいます。保存先はGoogleドライブです（第10章と同じ手順）。今回は、モデルの中身だけでなく、**語彙と設定もいっしょに**保存します。第24章で、このファイルからブラウザで動くモデルを作ります。
+
+```python
+from google.colab import drive
+drive.mount("/content/drive")
+```
+
+```python
+import os
+save_dir = "/content/drive/MyDrive/tsukuru-llm"
+os.makedirs(save_dir, exist_ok=True)
+checkpoint = {
+    "model": model_all.state_dict(),
+    "chars": chars,
+    "config": {"vocab_size": V, "block_size": block_size, "n_embd": 128, "n_head": 4, "n_layer": 4, "dropout": 0.1},
+}
+torch.save(checkpoint, f"{save_dir}/soseki_gpt.pt")
+print("保存しました：", round(os.path.getsize(f"{save_dir}/soseki_gpt.pt") / 1e6, 1), "MB")
+```
+
+```output
+保存しました： 8.1 MB
+```
+
+:::tip チェックポイント
+学習の**途中**でも、定期的に保存しておくと安心です。これを **チェックポイント** と言います。Colabの無料版は、長い学習の途中で切断されることがあります。たとえば `train` 関数の中で、検証損失が過去最良を更新したときだけ `torch.save` するようにしておけば、切断されても「一番良かったモデル」は手元に残ります。大きなモデルの学習では、チェックポイントは命綱です。
+:::
+
+:::tip Kaggleで学習した人は
+Kaggleには `google.colab` がないので、`drive.mount` のセルは飛ばし、保存のセルの `save_dir` を `"/kaggle/working"` に変えて実行します。保存した `soseki_gpt.pt` は、画面右の「Output」からダウンロードして、Googleドライブに `tsukuru-llm` というフォルダを作ってアップロードしておきましょう（第24章で使います）。
+:::
+
 ## 2つの実験を比べる
 
 ```python
@@ -283,7 +317,7 @@ plt.legend(); plt.title("データを増やすと、同じモデルがもっと�
 plt.show()
 ```
 
-![2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける](img/figs/13-train-gpt/cell9_0.png)
+![2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける](img/figs/13-train-gpt/cell11_0.png)
 
 :::theory 結局、データがいちばん効く
 第10章では、過学習を抑えるためにドロップアウトや重み減衰を使いました。でも、最も強力な治療法は **データを増やすこと** です。
@@ -329,6 +363,10 @@ for start in ["吾輩は", "先生は", "　山路を登りながら"]:
 ----------------------------------------
 ```
 
+:::python encode(start)[None]
+`encode(start)` は、文字のIDを並べた1次元のテンソル（形 `[T]`）です。でもGPTは「何個かの文章をまとめて」受け取る形 `[B, T]` を期待しています。`[None]` を付けると、先頭に長さ1の軸が増えて `[1, T]`（文章1個ぶん）になります。第12章で `torch.tensor([[…]])` と、かっこを二重にしていたのと同じ意味です。
+:::
+
 :::sensei
 どうだい、キミのGPTの「作品」は？ 第4章の「私は腎臓の運ばなた。」から、ずいぶん遠くまで来ただろう？ 文法はだいぶ整い、漱石らしい言い回しも出てくる。ただし、話の筋はまだ迷子だ。175万個のつまみと100万字では、このあたりが限界。ChatGPTが賢いのは、この何万倍ものつまみとデータがあるからなんだよ。
 :::
@@ -347,36 +385,6 @@ for start in ["吾輩は", "先生は", "　山路を登りながら"]:
 ※ 第13章のモデルは語彙が3,665文字に増えているので、厳密には少しだけ不利な条件での比較です。数値は教科書の検証環境（CPU）での実測値です。GPUで実行したあなたの数値も、ぜひ表に書き足してください。
 
 第10章のMLP（3.177）から、『こころ』だけのGPTで **3.075**、7作品のGPTで **2.635**。パープレキシティにすると、24択から約14択へ。数えるbigram（36択）から比べると、迷いが半分以下になりました。
-
-## 大事なモデルを保存する
-
-学習したモデルは、Googleドライブに保存しておきましょう（第10章と同じ手順です）。今回は、モデルの中身だけでなく、**語彙と設定もいっしょに**保存します。第24章で、このファイルからブラウザで動くモデルを作ります。
-
-```python
-from google.colab import drive
-drive.mount("/content/drive")
-```
-
-```python
-import os
-save_dir = "/content/drive/MyDrive/tsukuru-llm"
-os.makedirs(save_dir, exist_ok=True)
-checkpoint = {
-    "model": model_all.state_dict(),
-    "chars": chars,
-    "config": {"vocab_size": V, "block_size": block_size, "n_embd": 128, "n_head": 4, "n_layer": 4, "dropout": 0.1},
-}
-torch.save(checkpoint, f"{save_dir}/soseki_gpt.pt")
-print("保存しました：", round(os.path.getsize(f"{save_dir}/soseki_gpt.pt") / 1e6, 1), "MB")
-```
-
-```output
-保存しました： 8.1 MB
-```
-
-:::tip チェックポイント
-学習の**途中**でも、定期的に保存しておくと安心です。これを **チェックポイント** と言います。Colabの無料版は、長い学習の途中で切断されることがあります。たとえば `train` 関数の中で、検証損失が過去最良を更新したときだけ `torch.save` するようにしておけば、切断されても「一番良かったモデル」は手元に残ります。大きなモデルの学習では、チェックポイントは命綱です。
-:::
 
 ## ヘッドたちの役割分担を見る
 
@@ -405,7 +413,7 @@ plt.show()
 ヘッドによって、注目の仕方が違っているはずです。直前の文字ばかり見る「近視のヘッド」、文の頭を見る「振り返りヘッド」……。誰も役割を割り振っていないのに、学習の中で**自然に分業**が生まれています。
 
 :::try GPUがあるなら、もっと大きく
-GPUが使えるなら、モデルを大きくしてみましょう。`train` 関数の中の `GPT(…)` の行と、`block_size` を次のように変えて、`max_iters=5000` で学習し直します。
+GPUが使えるなら、モデルを大きくしてみましょう。`train` 関数はそのままで、次のセルを実行するだけです（大きなモデル用の `train_big` を新しく作ります）。このセルは `block_size` と `batch_size` を書き換えるので、必ず**上の保存が終わってから**試しましょう。後で保存のセルを実行し直すと、設定の記録がずれて、第24章で読み込めなくなります。
 
 ```python gpu-only
 block_size = 256
@@ -443,7 +451,7 @@ model_big = train_big(all_train, max_iters=5000)
 :::warn よくあるつまずき
 - **`RuntimeError: Expected all tensors to be on the same device`**：モデルとデータの片方だけがGPUにいます。`model.to(device)` と、`get_batch` の中の `.to(device)` を確認しましょう。
 - **`CUDA out of memory`**：GPUのメモリが足りません。`batch_size` や `block_size` を半分にしてみましょう。それでもダメなら、「ランタイム」→「セッションを再起動する」でメモリを空にしてから、上から実行し直します。
-- **`No such file or directory: 'minigpt.py'`** / **`ModuleNotFoundError: No module named 'minigpt'`**：`wget` のセルを実行し忘れているか、ダウンロードに失敗しています。そのセルをもう一度実行しましょう。
+- **`No such file or directory: 'minigpt.py'`** / **`ModuleNotFoundError: No module named 'minigpt'`**：`wget` のセルを実行し忘れているか、ダウンロードに失敗しています。そのセルをもう一度実行しましょう。それでも同じなら、`!wget` の行から `-q`（静かに実行する指定）を消して実行すると、失敗の理由（`ERROR 404` など）が表示されます。どうしてもダウンロードできないときは、第12章の5つのクラス（`Head` から `GPT` まで）のセルをこのノートブックに貼って実行し、`from minigpt import GPT` の行を消せば、同じように動きます。
 - **学習の途中で切断された**：無料のColabではよくあります。チェックポイントの節を参考に、途中経過を保存するようにしましょう。
 :::
 

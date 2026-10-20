@@ -15,7 +15,7 @@
 | `NameError: name 'xxx' is not defined` | そのセルより上のセルを実行していない | 「ランタイム」→「すべてのセルを実行」 |
 | `ModuleNotFoundError: No module named 'xxx'` | その道具が入っていない | `!pip install -q xxx` を実行。自分のPCならターミナルで `pip install xxx` |
 | `No such file or directory: 'xxx'` | ファイルがない（ダウンロード忘れ、場所違い） | `!ls` で今のフォルダの中身を確認。`!wget` のセルを実行し直す |
-| `!wget` で `ERROR 404: Not Found` | URLの打ち間違い | URLをコピーし直す |
+| `!wget` で `ERROR 404: Not Found` | URLの打ち間違い、またはファイルの場所が変わった | URLをコピーし直す。`-q` が付いているとエラーが表示されないので、消して実行し直す。教科書のファイルなら、GitHubのリポジトリの `code/` フォルダから直接ダウンロードして、Colabの左のフォルダアイコンからアップロードしてもよい |
 | `The secret HF_TOKEN does not exist` | Hugging Faceのトークンが未設定 | 公開モデルなら**無視してOK**。設定方法は第17章 |
 | `drive.mount` で止まる | ポップアップのブロック、許可の項目のチェック漏れ | ポップアップを許可し、全項目にチェックして「続行」 |
 
@@ -44,6 +44,7 @@
 | `RuntimeError: Expected all tensors to be on the same device` | GPUとCPUのテンソルが混ざっている | モデルを `.to(device)`、データも `.to(device)`（第13章） |
 | `IndexError: index out of range in self` | 埋め込みの表の範囲外の番号 | 語彙数・`block_size` を超える入力。生成時は入力を切り詰める |
 | `RuntimeError: element 0 of tensors does not require grad` | 勾配を計算できない | `requires_grad=True` の付け忘れ、`no_grad` の中で `backward` した |
+| `RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.` | 学習するパラメータを、記録したまま書き換えた | 更新の行（`w -= lr * w.grad`）を `with torch.no_grad():` の中に入れる（第7章） |
 | `RuntimeError: Trying to backward through the graph a second time` | 同じ計算に2回 `backward` した | 毎ステップ、損失を計算し直す |
 
 ## GPUのメモリ
@@ -75,7 +76,8 @@
 | `apply_chat_template` の結果に `**` が使えない | 古い版では辞書ではなくテンソルが返る | `return_dict=True` を付ける（この教科書のコードは付けてあります） |
 | `The attention mask and the pad token id were not set` という警告 | パディングの設定がない | 動作に問題はない。気になるなら `pad_token_id=tok.pad_token_id` を渡す |
 | `Setting pad_token_id to eos_token_id` という警告 | 同上 | 無視してOK |
-| 生成が止まらない | ベースモデルを使っている／SFTで `<\|im_end\|>` を学習させていない | チャットモデルを使う。第18章の `build_example` を確認 |
+| 生成が止まらない | ベースモデルを使っている／SFTで `<\|im_end\|>` を学習させていない／止まる合図に `<\|im_end\|>` が登録されていない | チャットモデルを使う。第18章の `build_example` と、`generation_config.eos_token_id` の設定を確認 |
+| `The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']` | `do_sample=False` なので、モデル付属の温度などの設定が使われないというお知らせ | 無視してOK |
 
 ## TRL・PEFT・量子化
 

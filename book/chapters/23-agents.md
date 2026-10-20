@@ -199,7 +199,10 @@ def run_agent(question, max_steps=5, verbose=True):
                          "tool_calls": [{"type": "function", "function": c} for c in calls]})
         for c in calls:
             fn = tools.get(c.get("name"))
-            result = fn(**c.get("arguments", {})) if fn else f"そんな道具はありません：{c.get('name')}"
+            try:                                            # 引数がおかしくても止まらないように
+                result = fn(**c.get("arguments", {})) if fn else f"そんな道具はありません：{c.get('name')}"
+            except Exception as e:
+                result = f"エラー：{e}"                     # エラーの内容をLLMに返して、やり直させる
             if verbose:
                 print(f"  🔧 {c.get('name')}({c.get('arguments')}) → {result[:60]}")
             messages.append({"role": "tool", "name": c.get("name"), "content": result})

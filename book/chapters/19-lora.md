@@ -1,4 +1,4 @@
-{"title": "少ないメモリで鍛える：LoRAと量子化", "short": "LoRAと量子化", "subtitle": "本体には指一本触れず、小さな「付せん」だけを学習する", "time": "2時間", "env": "gpu", "level": 4, "builds": "LoRA層をゼロから実装してQwenに取り付け、学習するパラメータを1%以下にしてボンゴ先生化する。さらにPEFTとQLoRA（4ビット量子化＋LoRA）で、無料GPUに大きめのモデルを載せる", "theory": ["行列のランクと低ランク近似", "LoRA：重みの変化を小さな2つの行列の積で表す", "学習するパラメータ数とメモリの節約", "量子化（absmax・int8・4ビット）と誤差", "QLoRA：4ビットの本体＋LoRA", "アダプタの保存・合体（マージ）"], "python": ["`requires_grad_(False)` で凍結する", "モジュールの差し替え（`setattr`）", "`peft` の `LoraConfig` と `get_peft_model`", "`BitsAndBytesConfig`（4ビット読み込み）"]}
+{"title": "少ないメモリで鍛える：LoRAと量子化", "short": "LoRAと量子化", "subtitle": "本体には指一本触れず、小さな「付せん」だけを学習する", "time": "2時間", "env": "gpu", "level": 4, "builds": "LoRA層をゼロから実装してQwenに取り付け、学習するパラメータを1%以下にしてボンゴ先生化する。さらにPEFTとQLoRA（4ビット量子化＋LoRA）で、無料GPUに大きめのモデルを載せる", "theory": ["行列のランクと低ランク近似", "LoRA：重みの変化を小さな2つの行列の積で表す", "学習するパラメータ数とメモリの節約", "量子化（absmax・int8・4ビット）と誤差", "QLoRA：4ビットの本体＋LoRA", "アダプタの保存・合体（マージ）"], "python": ["`requires_grad_(False)` で凍結する", "モジュールの差し替え（`attn.q_proj = …`）", "`peft` の `LoraConfig` と `PeftModel`", "`BitsAndBytesConfig`（4ビット読み込み）"]}
 
 :::goal
 第18章では、0.5Bのモデルの全パラメータを学習させるのに約10GBのメモリを使いました。この方法では、7Bのモデルは無料のGPUに乗りません。この章では、モデル本体の重みを**凍結**（変えない）したまま、ほんの少しの追加パラメータだけを学習する **LoRA** を、まず自分の手で実装します。さらに、モデル本体を4ビットに縮める **量子化** と組み合わせた **QLoRA** で、無料のT4でも大きめのモデルを鍛えられるようにします。
@@ -127,6 +127,8 @@ print(f"全パラメータ {total:,} のうち、学習するのは {trainable:,
 
 学習するのは、全体の**0.1%ほど**だけになりました。
 
+`attn.q_proj = LoRALinear(attn.q_proj)` の1行で、なぜモデルの計算が変わるのでしょう？ Qwenの中では、Attentionの計算のときに `self.q_proj(x)` と、**その名前の部品**を呼び出しています。だから、`q_proj` という名前の部品を、元の層を包んだLoRA層に差し替えれば、次からはLoRA層が呼ばれるのです。部品を差し替えるだけで、Qwenのコードは1行も書き換えていません。
+
 学習は、第18章のデータ作りと学習ループをそのまま使います（自分で書いたものを再利用！）。
 
 ```python
@@ -179,7 +181,7 @@ model.eval()
 :::
 
 ```python
-def chat(question, n=80):
+def chat(question, n=150):
     inputs = tok.apply_chat_template([{"role": "user", "content": question}], add_generation_prompt=True,
                                      return_tensors="pt", return_dict=True).to(device)
     out = model.generate(**inputs, max_new_tokens=n, do_sample=False)
@@ -301,10 +303,19 @@ print("最大の誤差：", (w - w_back).abs().max().item())
 
 次のコードは、Qwen2.5-1.5B-Instructを4ビットで読み込んでLoRA学習する例です。4ビットの読み込みには `bitsandbytes` というライブラリを使い、**GPUが必要**です。
 
+このセルは、メニューの「ランタイム」→「セッションを再起動する」で**GPUのメモリを空にしてから**実行します。上の節のモデルがGPUに残っていると、メモリの使用量を正しく測れないうえ、メモリが足りなくなることもあるからです。再起動すると変数は消えますが、ダウンロードしたファイルは残っているので、このセルだけで動くように、必要なものを全部読み込み直しています。
+
 ```python gpu-only
 !pip install -q bitsandbytes peft trl
-from transformers import BitsAndBytesConfig
-from peft import prepare_model_for_kbit_training
+import json, torch
+from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from peft import LoraConfig, prepare_model_for_kbit_training
+from trl import SFTTrainer, SFTConfig
+
+train_rows = [json.loads(l) for l in open("bongo_sft.jsonl", encoding="utf-8")]
+ds = Dataset.from_list([{"prompt": [{"role": "user", "content": r["question"]}],
+                         "completion": [{"role": "assistant", "content": r["answer"]}]} for r in train_rows])
 
 bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                          bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True)
@@ -349,7 +360,7 @@ GPUメモリ使用量：1.20 GB
 :::
 
 :::warn よくあるつまずき
-- **`bitsandbytes` のエラー（CUDAが見つからない等）**：4ビットの読み込みにはGPUが必要です。ランタイムが「T4 GPU」になっているか確認しましょう。
+- **`bitsandbytes` のエラー（CUDAが見つからない等）**：4ビットの読み込みにはGPUが必要です。ランタイムが「T4 GPU」になっているか確認しましょう。インストールした直後に「入っていない」と言われるときは、「ランタイム」→「セッションを再起動する」をしてから、QLoRAのセルをもう一度実行しましょう。
 - **LoRAで全然変化しない**：学習率が小さすぎる（$10^{-5}$ など）ことが多いです。$10^{-4}$〜$10^{-3}$ にしてみましょう。また、`print_trainable_parameters()` で学習するパラメータが0でないか確認しましょう。
 - **`merge_and_unload` 後に結果が少し変わる**：4ビットのモデルにマージすると、丸めの誤差が出ます。マージは、float16などで読み込み直した本体に対して行いましょう。
 :::

@@ -249,7 +249,7 @@ class GPT(nn.Module):
 - `nn.Sequential(*[Block(…) for _ in range(n_layer)])`：Blockを `n_layer` 個作ってリストにし、`*` でばらして `Sequential` に渡しています。Blockを何層も積み重ねる、の1行版です。
 - `self.apply(self._init_weights)`：モデルの中の**すべての部品**に対して `_init_weights` を実行します。GPT-2と同じく、重みを標準偏差0.02の正規分布で初期化します（第10章の初期化の話）。
 - `isinstance(module, nn.Linear)`：「`module` は `nn.Linear` の仲間（インスタンス）か？」を `True` / `False` で答える関数です。`(nn.Linear, nn.Embedding)` のように並べると「どちらかの仲間か？」になります。部品の種類ごとに、初期化の仕方を変えるために使っています。
-- `generate` は、第3章で自作した生成ループと同じです。違いは、入力を最後の `block_size` 文字に切り詰めること（位置の埋め込みは `block_size` 個しかないので）と、上位 `top_k` 個以外を候補から外せること（第16章で詳しく）。
+- `generate` は、第3章で自作した生成ループと同じです。違いは、入力を最後の `block_size` 文字に切り詰めること（位置の埋め込みは `block_size` 個しかないので）と、上位 `top_k` 個以外を候補から外せること（考え方は第16章で詳しく）。`v, _ = torch.topk(logits, k)` で上位k個の点数 `v` を大きい順に取り出し、`v[:, [-1]]`（その一番最後＝k位の点数。`[-1]` を `[ ]` で囲むと、形が `[B, 1]` のまま残ります）より小さい点数を、`-inf`（softmaxで確率0になる）に置き換えています。
 :::
 
 ## 動かしてみる
@@ -389,7 +389,7 @@ print("".join(itos[i] for i in out[0].tolist()))
 :::
 
 :::warn よくあるつまずき
-- **`RuntimeError: shape '[…]' is invalid for input of size …`**：`n_embd` が `n_head` で割り切れないと、ヘッドの大きさがずれます。64と4、128と4、384と6のように、割り切れる組み合わせにしましょう。
+- **`RuntimeError: mat1 and mat2 shapes cannot be multiplied (…x60 and 64x64)`**：`n_embd` が `n_head` で割り切れていません。たとえば `n_embd=64, n_head=5` だと、1つのヘッドの大きさが `64 // 5 = 12` になり、5つのヘッドをつなげても `5 × 12 = 60` で、64に戻りません。64と4、128と4、384と6のように、割り切れる組み合わせにしましょう。
 - **損失がまったく下がらない**：`self.heads` を `nn.ModuleList` ではなく普通のリストにしていませんか？ `print(model)` で部品の一覧を表示して、ヘッドが入っているか確認しましょう。
 - **`IndexError: index out of range in self`**：`block_size` より長い文字列を `model(…)` に入れています。`generate` は自動で切り詰めますが、自分で `model(x)` を呼ぶときは注意。
 :::

@@ -166,6 +166,8 @@ for step in range(3001):
 
 CPUだと1〜2分かかります。損失がどんどん下がっていきます！ 7.63（まっさら）から、3.7あたりまで来ました。
 
+ステップ0の検証損失だけ7.531と、$\log V = 7.631$ より少し小さいのは、検証損失を**1回更新した後**に測っているからです（コードでは、③の更新の後に検証しています）。訓練損失の7.631は更新の前に測っているので、ぴったり $\log V$ です。
+
 :::python W.grad = None
 第7章では `.grad.zero_()` で勾配を0にしました。`W.grad = None` は「勾配を捨てる」で、効果は同じです（次の `backward()` で新しく作られます）。メモリの節約になるので、こちらがよく使われます。
 :::
@@ -293,7 +295,9 @@ print("".join(out))
 
 :::warn よくあるつまずき
 - **損失が `nan` になった**：学習率が大きすぎて発散しています。学習率を小さくしましょう。
-- **損失がまったく下がらない**：`W` を作るときに `requires_grad=True` を付け忘れていないか、更新の行（`W -= lr * W.grad`）が `with torch.no_grad():` の中にあるか確認しましょう。
+- **`RuntimeError: element 0 of tensors does not require grad`**：`W` を作るときに `requires_grad=True` を付け忘れています。
+- **`RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.`**：更新の行（`W -= lr * W.grad`）が `with torch.no_grad():` の中に入っていません（字下げを確認）。
+- **損失がほとんど下がらない**：学習率が小さすぎるか、勾配のリセット（`W.grad = None`）の位置がずれています。上のコードと1行ずつ見比べましょう。
 - **とても遅い**：検証損失の計算（`W[vxs]`）は重いので、毎ステップではなく250ステップごとにしています。Colabのランタイムを「T4 GPU」にして、テンソルを `.to("cuda")` で送ると速くなります（第13章で本格的にやります）。
 :::
 

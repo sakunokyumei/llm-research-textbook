@@ -249,11 +249,11 @@ $$P(\text{生} \mid \text{先}) = \frac{\text{「先生」の回数}}{\text{「�
 ```python
 import random
 
-following = {}
-for a, b in zip(text, text[1:]):
-    if a not in following:
-        following[a] = Counter()
-    following[a][b] += 1
+following = {}                       # 「文字 → その次の文字の回数」の辞書
+for a, b in zip(text, text[1:]):      # 隣り合う2文字 a, b を順番に
+    if a not in following:            # a が初めて出てきたら
+        following[a] = Counter()      #   a 用の空のカウンターを用意
+    following[a][b] += 1              # 「a の次に b が来た」回数を1増やす
 
 def generate(start, n=80):
     out = start
@@ -272,7 +272,8 @@ print(generate("私"))
 私は腎臓の運ばなた。私のた後姿を帯の頁されはな時先生の方がなかられていと私のだろう済むしたに成功を心は私に宛てどこころにものだ私がら、多に私は自然とは午眠り、あ百
 ```
 
-:::python random.choices
+:::python Counter の「0回」と random.choices
+`Counter` は、まだ数えていないものを「0回」として扱います。だから、初めて出てきた `b` でも、いきなり `following[a][b] += 1` と書けます（ふつうの辞書だと、ここで `KeyError` になります）。<br>
 `random.choices(候補のリスト, weights=重みのリスト)` は、重みに比例した確率で候補から1つ選びます（結果はリストで返るので `[0]` で取り出します）。第3章で自作した `sample` 関数と同じ仕事です。
 :::
 

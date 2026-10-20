@@ -223,7 +223,7 @@ GitHub Pagesは小さなモデル向けです。Qwenのような大きめのモ�
 
 ### Colabで一時的に公開する：Gradio
 
-**Gradio** は、Pythonだけでチャット画面などのWebアプリを作れるライブラリです。Colabで `share=True` にすると、72時間有効な公開URLが発行されます。第18〜19章のボンゴ先生モデルを、友だちに試してもらうのにぴったりです。
+**Gradio** は、Pythonだけでチャット画面などのWebアプリを作れるライブラリです。Colabで `share=True` にすると、一時的な公開URL（最長1週間ほど有効）が発行されます。第18〜19章のボンゴ先生モデルを、友だちに試してもらうのにぴったりです。
 
 ```python
 !pip install -q gradio
@@ -263,7 +263,7 @@ demo.launch(share=True)
 Gradioは版によって書き方が少しずつ変わります。古い解説記事に `gr.ChatInterface(…, type="messages")` と書いてあっても、新しい版（6系）ではこの引数がなくなっていて、エラーになります。エラーが出たら、まずGradioの版（`print(gr.__version__)`）と、公式ドキュメントを確認しましょう。
 :::
 
-`model=` の部分を、第18章で保存したフォルダ（`/content/drive/MyDrive/tsukuru-llm/bongo-sft`）に変えれば、あなたのボンゴ先生が公開されます。Colabのセッションが切れると、URLも使えなくなります。
+`model=` の部分を、第18章で保存したフォルダ（`/content/drive/MyDrive/tsukuru-llm/bongo-sft`）に変えれば、あなたのボンゴ先生が公開されます（このノートブックで先に `drive.mount` のセルを実行して、ドライブをつないでおきましょう）。Colabのセッションが切れると、URLも使えなくなります。
 
 ### 自分のパソコンで動かす：Ollama
 

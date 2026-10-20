@@ -237,11 +237,14 @@ wins_ab = [judge(q, a[0], b[0]) for q, a, b in zip(test_questions, answers["ボ�
 wins_ba = [judge(q, b[0], a[0]) for q, a, b in zip(test_questions, answers["ボンゴLoRA"], answers["ベースライン"])]
 print("ボンゴを「A」に置いたとき、ボンゴの勝ち：", wins_ab.count("A"), "/", len(test_questions))
 print("ボンゴを「B」に置いたとき、ボンゴの勝ち：", wins_ba.count("B"), "/", len(test_questions))
+both = sum(x == "A" and y == "B" for x, y in zip(wins_ab, wins_ba))   # どちらの順番でも勝った数
+print("どちらの順番でもボンゴの勝ち：", both, "/", len(test_questions))
 ```
 
 ```output-example
 ボンゴを「A」に置いたとき、ボンゴの勝ち： 10 / 12
 ボンゴを「B」に置いたとき、ボンゴの勝ち： 5 / 12
+どちらの順番でもボンゴの勝ち： 5 / 12
 ```
 
 :::theory 審査員にもクセがある
@@ -276,7 +279,7 @@ LLM審査は便利ですが、審査員が0.5Bでは心もとない。本格的�
 
 ## 評価レポートを書く
 
-最後に、結果を表にまとめます。研究でも、仕事でも、評価は「表」で語ります。
+最後に、結果を表にまとめます。研究でも、仕事でも、評価は「表」で語ります。下のコードの数字は、この教科書の例です。**あなたの結果の数字に書き換えて**から実行しましょう。
 
 ```python
 report = [

@@ -50,7 +50,7 @@ tok = AutoTokenizer.from_pretrained(name)
 model = AutoModelForCausalLM.from_pretrained(name, dtype=torch.float32).to("cuda" if torch.cuda.is_available() else "cpu")
 device = model.device
 
-def chat(question, n=80):
+def chat(question, n=150):
     msgs = [{"role": "user", "content": question}]
     inputs = tok.apply_chat_template(msgs, add_generation_prompt=True, return_tensors="pt", return_dict=True).to(device)
     out = model.generate(**inputs, max_new_tokens=n, do_sample=False, pad_token_id=tok.pad_token_id)
@@ -61,7 +61,8 @@ print(chat(test_rows[0]["question"]))
 
 ```output-example
 海の水がしょっぱいのは、海水に塩分が含まれているからです。<|im_end|>
-<|endoftext|>Human: なぜ空は青いの？<|im_end|>
+<|im_start|>user
+なぜ空は青いの？<|im_end|>
 <|im_start|>assistant
 空が青いのは
 ```
@@ -168,6 +169,7 @@ def train_sft(model, examples, epochs=3, lr=1e-5, batch_size=4, seed=0):
             scaler.update()
             total += loss.item()
         print(f"エポック {epoch + 1}：平均損失 {total / (len(order) / batch_size):.3f}")
+    model.zero_grad(set_to_none=True)   # 最後の勾配を捨てて、GPUのメモリを空ける
     model.eval()
 
 train_sft(model, examples)
@@ -187,7 +189,19 @@ T4なら1分もかかりません。60問を3周（3エポック）しただけ�
 
 ## 変身した！？
 
-学習用には入っていない、評価用の質問で試してみましょう。
+試す前に、1つだけ設定を足します。モデルは「答え終わったら `<|im_end|>` を出す」ことを学びましたが、`generate` に「`<|im_end|>` が出たら止まって」と教えるのは、モデルとは別の**設定**の仕事です（第17章の `generation_config`）。ベースモデルの設定では、止まる合図は `<|endoftext|>` だけなので、`<|im_end|>` も合図に加えます。
+
+```python
+im_end = tok.convert_tokens_to_ids("<|im_end|>")
+model.generation_config.eos_token_id = [im_end, tok.eos_token_id]   # どちらが出ても止まる
+print("止まる合図：", model.generation_config.eos_token_id)
+```
+
+```output
+止まる合図： [151645, 151643]
+```
+
+この設定は、後でモデルを保存するときに、いっしょに保存されます。では、学習用には入っていない、評価用の質問で試してみましょう。
 
 ```python
 for r in test_rows[:4]:
@@ -216,9 +230,31 @@ A: 地球の表面は何枚ものプレートでできていて、それがゆ�
 
 （ここに載せた出力は一例です。あなたの画面ではもっと面白いダジャレ、またはもっと寒いダジャレが出るでしょう。説明の中身が間違っていることもあります。0.5Bのモデルの知識には限りがあるからです。）
 
+## 鍛えたモデルを保存する
+
+```python
+from google.colab import drive
+drive.mount("/content/drive")
+save_dir = "/content/drive/MyDrive/tsukuru-llm/bongo-sft"
+model.save_pretrained(save_dir)
+tok.save_pretrained(save_dir)
+print("保存しました")
+```
+
+```output
+Mounted at /content/drive
+保存しました
+```
+
+0.5Bのモデルを丸ごと保存するので、ドライブを約2GB使います（float32のため）。次の章のLoRAなら、保存するのは数MBの「差分」だけで済みます。
+
+:::deep Hugging Faceに公開するには
+`model.push_to_hub("あなたのユーザー名/bongo-sensei-0.5b")` のように書くと、Hugging Faceにモデルをアップロードできます（Writeの権限があるトークンが必要。第17章）。公開するときは、モデルカードに「どのモデルを元に、どんなデータで、どう学習したか」と、元のモデルのライセンス（Qwen2.5-0.5BはApache 2.0）を書いておきましょう。
+:::
+
 ## 道具を使う：TRLのSFTTrainer
 
-ここまで自分で書いた「損失マスク」「パディング」「学習ループ」は、Hugging Faceの **TRL**（Transformer Reinforcement Learning）というライブラリを使うと、10行ほどで書けます。中でやっていることは、あなたが書いたものとほぼ同じです。
+鍛えたモデルを保存できたら、もう一歩。ここまで自分で書いた「損失マスク」「パディング」「学習ループ」は、Hugging Faceの **TRL**（Transformer Reinforcement Learning）というライブラリを使うと、10行ほどで書けます。中でやっていることは、あなたが書いたものとほぼ同じです。
 
 ```python
 !pip install -q trl
@@ -271,34 +307,13 @@ TRLは、GPUが対応していれば自動で `bf16`（第13章のbfloat16）を
 :::
 
 :::try 自分のキャラクターを作ろう
-`bongo_sft.jsonl` を真似して、自分だけのキャラクターのデータを作ってみましょう。たとえば「関西弁で答える先輩」「必ず最後に俳句を詠む猫」など。20〜30問あれば、口調はかなり変わります。Colabの左のファイル一覧から `bongo_sft.jsonl` をダウンロードして編集し、アップロードし直せばOKです。作ったデータは、第20章の評価や、第22章の好みの学習でも使えます。
-:::
-
-## 鍛えたモデルを保存する
-
-```python
-from google.colab import drive
-drive.mount("/content/drive")
-save_dir = "/content/drive/MyDrive/tsukuru-llm/bongo-sft"
-model.save_pretrained(save_dir)
-tok.save_pretrained(save_dir)
-print("保存しました")
-```
-
-```output
-Mounted at /content/drive
-保存しました
-```
-
-0.5Bのモデルを丸ごと保存するので、ドライブを約2GB使います（float32のため）。次の章のLoRAなら、保存するのは数MBの「差分」だけで済みます。
-
-:::deep Hugging Faceに公開するには
-`model.push_to_hub("あなたのユーザー名/bongo-sensei-0.5b")` のように書くと、Hugging Faceにモデルをアップロードできます（Writeの権限があるトークンが必要。第17章）。公開するときは、モデルカードに「どのモデルを元に、どんなデータで、どう学習したか」と、元のモデルのライセンス（Qwen2.5-0.5BはApache 2.0）を書いておきましょう。
+`bongo_sft.jsonl` を真似して、自分だけのキャラクターのデータを作ってみましょう。たとえば「関西弁で答える先輩」「必ず最後に俳句を詠む猫」など。20〜30問あれば、口調はかなり変わります。Colabの左のファイル一覧から `bongo_sft.jsonl` をダウンロードして編集し、アップロードし直せばOKです。作ったデータは、第20章の評価でも使えます（第22章の好みの学習に使うには、質問ごとに「悪い答え」も1つずつ書き足します）。
 :::
 
 :::warn よくあるつまずき
 - **`CUDA out of memory`**：全パラメータの学習はメモリを食います。`batch_size=2` にする、`model.gradient_checkpointing_enable()` を実行する（第16章）、または次の章のLoRAを使いましょう。
-- **答えの後も止まらない**：答えの最後に `<|im_end|>` を付け忘れていないか、`build_example` を確認しましょう。止まり方も「学習」で覚えるものです。
+- **答えの後も止まらない**：「変身した！？」の節の、止まる合図（`eos_token_id`）を設定するセルを実行したか確認しましょう。それでも止まらないなら、答えの最後に `<|im_end|>` を付け忘れていないか、`build_example` を確認しましょう。止まり方も「学習」で覚えるものです。
+- **TRLの節で `CUDA out of memory`**：自分で鍛えたモデルがGPUに残っています。保存が済んでいることを確かめてから、`model.to("cpu"); torch.cuda.empty_cache()` を実行して、GPUから降ろしてからTRLのセルを実行しましょう。
 - **損失が下がらない・nanになる**：学習率が大きすぎます。ファインチューニングは $10^{-5}$ 前後から試しましょう。
 - **何を聞いても同じ答え**：学習しすぎ（エポックが多すぎ）で丸暗記した可能性があります。エポックを減らしましょう。
 :::
