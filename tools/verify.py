@@ -209,10 +209,15 @@ def main():
                 update_outputs(path, r["results"])
             figs = ROOT / ".verify" / slug / "figs"
             if figs.exists() and not r["failures"]:
+                # figures from cells after a shrunken (test:) cell show the short run, not the real one: keep the old ones
                 dest = ROOT / "site" / "img" / "figs" / slug
-                if dest.exists():
+                real = {x["index"] for x in r["results"] if x.get("comparable")}
+                if len(real) == len(r["results"]) and dest.exists():
                     shutil.rmtree(dest)
-                shutil.copytree(figs, dest)
+                dest.mkdir(parents=True, exist_ok=True)
+                for f in figs.glob("cell*_*.png"):
+                    if int(f.stem[4:].split("_")[0]) in real:
+                        shutil.copy(f, dest / f.name)
             all_failures += r["failures"]
             report["chapters"].append({k: v for k, v in r.items() if k != "results"})
     consistency = check_minigpt()

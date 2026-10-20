@@ -327,7 +327,7 @@ class Head(nn.Module):
 torch.manual_seed(0)
 head = Head(n_embd=32, head_size=16, block_size=8)
 x1 = torch.randn(1, 8, 32)
-x2 = x1.clone()
+x2 = x1.clone()                       # x1 は残したまま、別のコピーを作る（x2 = x1 だけだと同じものを指す）
 x2[0, 7] = torch.randn(32)            # 位置7（最後）だけ書き換える
 
 out1, out2 = head(x1), head(x2)

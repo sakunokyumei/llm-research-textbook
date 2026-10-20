@@ -190,7 +190,7 @@ print("重みの大きさ 1/√256：", stack_stats(1 / math.sqrt(256)))
 ```python
 h = torch.randn(2, 6) * 5 + 3      # 平均3、標準偏差5くらいの、暴れた数
 mean = h.mean(dim=1, keepdim=True)
-std = h.std(dim=1, keepdim=True, unbiased=False)
+std = h.std(dim=1, keepdim=True, unbiased=False)   # unbiased=False：数式どおり N で割る
 h_hand = (h - mean) / (std + 1e-5)  # 平均を引いて、標準偏差で割る
 
 ln = nn.LayerNorm(6, elementwise_affine=False)
@@ -452,7 +452,8 @@ print("読み込んだモデルの検証損失：", round(val_loss(loaded), 3))
 :::warn よくあるつまずき
 - **`drive.mount` で止まる・失敗する**：ポップアップがブロックされていないか確認しましょう。アカウント選択の画面で、すべての項目にチェックを入れて「続行」を押します。
 - **`RuntimeError: Error(s) in loading state_dict`**：保存したときと違う設計図（`dropout` 以外の `d` や `H`、`T` など）でモデルを作っています。保存時と同じ設定で作りましょう。
-- **生成した文章が毎回同じ・評価が毎回変わる**：`model.eval()` と `model.train()` の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。
+- **検証損失が、同じモデルなのに実行するたびにぶれる**：`model.eval()` と `model.train()` の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。
+- **`.std()` で計算した標準偏差が、手計算と合わない**：PyTorchの `.std()` と `.var()` は、標準では N ではなく N−1 で割ります（統計で「標本から全体を推定する」ときの割り方）。数式どおり N で割るには `unbiased=False` を付けます。LayerNormは N で割るほうです。
 :::
 
 :::quiz 過学習の見分け方

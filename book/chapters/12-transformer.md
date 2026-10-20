@@ -270,7 +270,7 @@ for name, p in model.named_parameters():
     else:
         groups["最後のLayerNorm＋出力層"] += p.numel()
 for k, v in groups.items():
-    print(f"  {k}：{v:,}（{v / total:.0%}）")
+    print(f"  {k}：{v:,}（{v / total:.0%}）")   # :, は3桁ごとのカンマ、:.0% はパーセント表示
 ```
 
 ```output

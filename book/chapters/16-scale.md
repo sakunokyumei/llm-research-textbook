@@ -118,6 +118,7 @@ def generate_cached(model, idx, n):
     return idx
 
 prompt = torch.randint(0, 1000, (1, 20))
+# time.perf_counter() は「今の時刻（秒）」。前後の差が、かかった時間になる
 t0 = time.perf_counter(); a = generate_naive(model, prompt, 200); t1 = time.perf_counter()
 b = generate_cached(model, prompt, 200); t2 = time.perf_counter()
 print("結果は同じ？", torch.equal(a, b))

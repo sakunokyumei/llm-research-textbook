@@ -55,7 +55,7 @@ print("ミニGPTの設計図を読み込みました")
 
 ## 漱石の7作品を読み込む
 
-準備セルの `load_soseki` を使って、7作品をまとめて読み込みます。
+第9章までと同じ `load_soseki`（下のセルで定義し直します）を使って、7作品をまとめて読み込みます。
 
 ```python
 import re, math, urllib.request
@@ -183,7 +183,7 @@ def train(train_data, max_iters, lr=1e-3, seed=0, log_every=500):
         x, y = get_batch(train_data, g)
         with torch.autocast(device_type=device, dtype=torch.float16, enabled=(device == "cuda")):
             _, loss = model(x, y)
-        opt.zero_grad(set_to_none=True)
+        opt.zero_grad(set_to_none=True)              # 勾配を0にする代わりに捨てる（第8章の W.grad = None と同じ）
         scaler.scale(loss).backward()
         scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -296,6 +296,24 @@ print("保存しました：", round(os.path.getsize(f"{save_dir}/soseki_gpt.pt"
 Kaggleには `google.colab` がないので、`drive.mount` のセルは飛ばし、保存のセルの `save_dir` を `"/kaggle/working"` に変えて実行します。保存した `soseki_gpt.pt` は、画面右の「Output」からダウンロードして、Googleドライブに `tsukuru-llm` というフォルダを作ってアップロードしておきましょう（第24章で使います）。
 :::
 
+### 続きを別の日にやるとき
+
+この章は長いので、ここで一度休んでもOKです。次の日に続きをやるときは、学習のセル（実験1と実験2）**以外**のセルを上から順に実行し、ドライブをつないでから、次のセルで保存したモデルを読み込みます。語彙は同じデータから同じ手順で作るので、保存したときと同じになります。
+
+```python
+save_dir = "/content/drive/MyDrive/tsukuru-llm"
+ckpt = torch.load(f"{save_dir}/soseki_gpt.pt", map_location=device)
+model_all = GPT(**ckpt["config"]).to(device)     # 保存した設定で、同じ形のGPTを作る
+model_all.load_state_dict(ckpt["model"])         # 学習した中身を流し込む
+print("読み込みました。語彙は同じ？", ckpt["chars"] == chars)
+```
+
+```output
+読み込みました。語彙は同じ？ True
+```
+
+`GPT(**ckpt["config"])` の `**` は、第3章の `model(**inputs)` と同じ「辞書の中身を名前つきの引数として渡す」書き方です。`GPT(vocab_size=3665, block_size=128, …)` と書いたのと同じ意味になります。なお、次の節の「2つの実験を比べる」グラフは、学習中の記録（`hist_k` と `hist_all`）が必要なので、休んだ後は描けません。教科書の図で確かめましょう。
+
 ## 2つの実験を比べる
 
 ```python
@@ -317,7 +335,7 @@ plt.legend(); plt.title("データを増やすと、同じモデルがもっと�
 plt.show()
 ```
 
-![2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける](img/figs/13-train-gpt/cell11_0.png)
+![2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける](img/figs/13-train-gpt/cell12_0.png)
 
 :::theory 結局、データがいちばん効く
 第10章では、過学習を抑えるためにドロップアウトや重み減衰を使いました。でも、最も強力な治療法は **データを増やすこと** です。
@@ -408,7 +426,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-![最後の層の4つのヘッドの注目の仕方。ヘッドによって、直前の文字を見るもの、少し前の特定の文字を見るものなど、役割が違う](img/figs/13-train-gpt/cell13_0.png)
+![最後の層の4つのヘッドの注目の仕方。ヘッドによって、直前の文字を見るもの、少し前の特定の文字を見るものなど、役割が違う](img/figs/13-train-gpt/cell14_0.png)
 
 ヘッドによって、注目の仕方が違っているはずです。直前の文字ばかり見る「近視のヘッド」、文の頭を見る「振り返りヘッド」……。誰も役割を割り振っていないのに、学習の中で**自然に分業**が生まれています。
 
