@@ -42,6 +42,7 @@
 | `RuntimeError: The size of tensor a (X) must match the size of tensor b (Y)` | 足し算などで形が合わない | ブロードキャストできる形か確認。`keepdim=True` を忘れていないか |
 | `RuntimeError: shape '[...]' is invalid for input of size N` | `view` で、数の個数が合わない形を指定 | `n_embd` が `n_head` で割り切れるか（第12章） |
 | `RuntimeError: Expected all tensors to be on the same device` | GPUとCPUのテンソルが混ざっている | モデルを `.to(device)`、データも `.to(device)`（第13章） |
+| `RuntimeError: Expected a 'cuda' device type for generator but found 'cpu'` | サイコロ（`torch.Generator()`）はCPU用なのに、確率のテンソルがGPUにある | 確率を `.cpu()` でCPUに戻してから `torch.multinomial` に渡す（第8章） |
 | `IndexError: index out of range in self` | 埋め込みの表の範囲外の番号 | 語彙数・`block_size` を超える入力。生成時は入力を切り詰める |
 | `RuntimeError: element 0 of tensors does not require grad` | 勾配を計算できない | `requires_grad=True` の付け忘れ、`no_grad` の中で `backward` した |
 | `RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.` | 学習するパラメータを、記録したまま書き換えた | 更新の行（`w -= lr * w.grad`）を `with torch.no_grad():` の中に入れる（第7章） |
