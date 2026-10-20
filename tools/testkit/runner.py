@@ -142,6 +142,7 @@ def _patch_matplotlib():
 
 
 def main():
+    sys.path.insert(0, os.getcwd())   # like Jupyter: files in the working folder are importable
     _patch_matplotlib()
     cells = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
     out_path = Path(sys.argv[2])

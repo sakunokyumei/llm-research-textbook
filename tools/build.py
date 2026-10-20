@@ -160,6 +160,8 @@ def render_fence(self, tokens, idx, options, env):
         label = "Python（読むだけ・実行しなくてOK）"
     if lang == "python" and "gpu-only" in flags:
         label = "Python（GPUのランタイムで実行）"
+    if lang == "python" and "online" in flags:
+        label = "Python（Hugging Faceにつないで実行）"
     if lang == "python":
         body = highlight_python(code)
     elif lang in {"bash", "sh", "powershell"}:
@@ -285,7 +287,9 @@ def render_block(name, arg, inner, ctx):
         return f'<section class="checklist"><p class="box-title">できたらチェック</p><ul>{restore_math(lis)}</ul></section>\n'
     if name == "widget":
         widget_pages.add(ctx["slug"])
-        return f'<div class="widget" data-widget="{escape(arg)}"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>\n'
+        wname, _, mode = arg.partition(" ")
+        mode_attr = f' data-mode="{escape(mode)}"' if mode else ""
+        return f'<div class="widget" data-widget="{escape(wname)}"{mode_attr}><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>\n'
     if name in BOX:
         title, cls = BOX[name]
         heading = f'{title}{"：" + escape(arg) if arg else ""}'

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>17-hf-models | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>Hugging Faceと事前学習済みモデル | つくってわかるLLM</title><meta name="description" content="世界中のモデルを借りる前に知っておくこと：ベースとチャット、ライセンス、プロンプト">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,253 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" open><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" aria-current="page" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第5部 既製モデルを鍛える · 第17章</p><h1>17-hf-models</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="17-hf-models">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="16-scale.html"><small>← 前の章</small>16-scale</a><a class="next" href="18-sft.html"><small>次の章 →</small>18-sft</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" open><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" aria-current="page" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第5部 既製モデルを鍛える · 第17章</p><h1>Hugging Faceと事前学習済みモデル</h1><p class="sub">世界中のモデルを借りる前に知っておくこと：ベースとチャット、ライセンス、プロンプト</p><dl class="meta"><div><dt>目安</dt><dd>90分</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中3">★★★☆☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/17-hf-models.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/17-hf-models.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>ベースモデルとチャットモデルの比較実験、複数ターンの会話、few-shotプロンプトの効果測定。Hugging Faceのアカウントとトークンも安全に準備する</p></div><div><h3>ついでに身につく理論</h3><ul><li>事前学習→SFT→好みの学習（ベースとチャットの違い）</li><li>モデルカードとライセンス</li><li>チャットテンプレートと複数ターンの会話</li><li>プロンプト技法（zero-shot・few-shot・段階的に考える）とその限界</li><li>モデルの大きさとGPUメモリの見積もり</li><li>safetensors（安全な重みのファイル形式）</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>AutoModelForCausalLM</code> / <code>AutoTokenizer</code></li><li><code>apply_chat_template</code></li><li><code>generation_config</code></li><li>Colabのシークレット（<code>userdata</code>）</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第4部まで、あなたは「LLMを作る側」でした。ここからは、世界中の研究機関や企業が公開している<strong>事前学習済みモデル</strong>を借りて、自分の目的に合わせて鍛える側に回ります。この章ではその準備として、Hugging Faceでのモデルの選び方、ベースモデルとチャットモデルの違い、プロンプトの工夫とその限界を、実験しながら学びます。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>第1章でQwenを使ったときは、名前をコピペしただけでした。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>それで正解だった。でも、これからモデルを鍛えるなら、借りるモデルの「素性」を知っておく必要がある。どんなデータで育ったのか、何をしていいライセンスなのか、どれくらいの大きさなのか。中古車を買うときに、車検証を見るのと同じだ。</p>
+</div></div>
+
+<h2 id="s1">Hugging Face Hub を歩く</h2>
+<p><strong>Hugging Face Hub</strong>（<a href="https://huggingface.co/">https://huggingface.co/</a>）は、LLMを含むAIモデルとデータセットの、世界最大の置き場です。GitHubのAI版と考えてください。ブラウザで開いて、検索窓に <code>Qwen2.5-0.5B-Instruct</code> と入れてみましょう。モデルのページ（<strong>モデルカード</strong>）には、次のような情報が書いてあります。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>何が分かる？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>説明（Model card）</td>
+<td>どんな目的で作られたか、どんなデータで学習したか、性能、使い方</td>
+</tr>
+<tr>
+<td>ライセンス（License）</td>
+<td>商用利用してよいか、改変して公開してよいか</td>
+</tr>
+<tr>
+<td>Files and versions</td>
+<td>重みのファイル（<code>model.safetensors</code>）、設定（<code>config.json</code>）、トークナイザー</td>
+</tr>
+<tr>
+<td>パラメータ数・テンソル型</td>
+<td>大きさ（0.5Bなど）と、保存されている数の形式（bfloat16など）</td>
+</tr>
+</tbody>
+</table>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ライセンスは必ず読む</p><p>モデルにも、ソフトウェアと同じようにライセンス（利用条件）があります。</p>
+<ul>
+<li><strong>Apache 2.0 / MIT</strong>：商用利用も改変も自由（Qwen2.5の多くのサイズ、など）</li>
+<li><strong>独自ライセンス</strong>：Llama（Meta）やGemma（Google）は、独自の利用規約に同意する必要がある。条件付きで商用利用可</li>
+<li><strong>CC BY-NC（非営利）</strong>：研究や個人の学習はOKだが、商用は不可</li>
+</ul>
+<p>学校の課題や個人の勉強ならほとんど問題ありませんが、<strong>作ったものを公開したり、アルバイト先や就職先で使ったりする</strong>ときには、必ず確認しましょう。学習に使ったデータセットのライセンスも同様です。</p>
+</aside>
+
+<h2 id="s2">ベースモデルとチャットモデル</h2>
+<p>Qwen2.5-0.5Bには、2つの版があります。<code>Qwen2.5-0.5B</code>（<strong>ベースモデル</strong>）と、<code>Qwen2.5-0.5B-Instruct</code>（<strong>チャットモデル</strong>、指示に従うモデル）です。同じ質問をして、違いを見てみましょう。GPUのランタイムで実行してください。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModelForCausalLM
+
+gpu = torch.cuda.is_available()
+dtype = torch.float16 <span class="kw">if</span> gpu <span class="kw">else</span> torch.float32
+
+<span class="kw">def</span> <span class="fn">load</span>(name):
+    tok = AutoTokenizer.from_pretrained(name)
+    model = AutoModelForCausalLM.from_pretrained(name, dtype=dtype, device_map=<span class="st">&quot;auto&quot;</span>)
+    <span class="kw">return</span> tok, model
+
+base_tok, base = load(<span class="st">&quot;Qwen/Qwen2.5-0.5B&quot;</span>)
+chat_tok, chat = load(<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>)
+<span class="bi">print</span>(<span class="st">&quot;読み込み完了&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>読み込み完了</code></pre></div>
+<p>ベースモデルに、質問の文章をそのまま渡してみます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">complete</span>(tok, model, text, n=<span class="nu">60</span>):
+    inputs = tok(text, return_tensors=<span class="st">&quot;pt&quot;</span>).to(model.device)
+    out = model.generate(**inputs, max_new_tokens=n, do_sample=<span class="kw">False</span>)
+    <span class="kw">return</span> tok.decode(out[<span class="nu">0</span>][inputs[<span class="st">&quot;input_ids&quot;</span>].shape[<span class="nu">1</span>]:], skip_special_tokens=<span class="kw">True</span>)
+
+<span class="bi">print</span>(complete(base_tok, base, <span class="st">&quot;日本で一番高い山は何ですか？&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>日本で一番高い山は何ですか？
+日本で一番高い山は何ですか？
+日本で一番高い山は何ですか？
+日本で一番高い山は何ですか？</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>同じ質問をくり返している！ ベースモデルは「質問に答える」ことを教わっていない。ネットで「質問文」の次によく来るのは……別の質問文（よくある質問の一覧ページなど）だからね。ベースモデルは、ひたすら<strong>ネットの文章の続き</strong>を書く。それだけだ。</p>
+</div></div>
+
+<p>答えさせたいなら、「答えが続きそうな文章」にしてあげればいいのです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(complete(base_tok, base, <span class="st">&quot;問：日本で一番高い山は何ですか？\n答：&quot;</span>, n=<span class="nu">30</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>富士山です。富士山は標高3776メートルで、静岡県と山梨県にまたがっています。
+問：日本で一番長い川は何ですか？
+答：</code></pre></div>
+<p>答えた後、また次の「問」を勝手に作り始めました。止まるタイミングを知らないのです。一方、チャットモデルは……</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">ask</span>(tok, model, messages, n=<span class="nu">100</span>):
+    inputs = tok.apply_chat_template(messages, add_generation_prompt=<span class="kw">True</span>,
+                                     return_tensors=<span class="st">&quot;pt&quot;</span>, return_dict=<span class="kw">True</span>).to(model.device)
+    out = model.generate(**inputs, max_new_tokens=n, do_sample=<span class="kw">False</span>)
+    <span class="kw">return</span> tok.decode(out[<span class="nu">0</span>][inputs[<span class="st">&quot;input_ids&quot;</span>].shape[<span class="nu">1</span>]:], skip_special_tokens=<span class="kw">True</span>)
+
+<span class="bi">print</span>(ask(chat_tok, chat, [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;日本で一番高い山は何ですか？&quot;</span>}]))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>日本で一番高い山は富士山です。標高は3,776メートルで、静岡県と山梨県の境にあります。</code></pre></div>
+<p>きちんと答えて、きちんと止まりました。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：LLMができるまでの3段階</p><p>チャットモデルは、ふつう次の3段階で作られます。</p>
+<ol>
+<li><strong>事前学習</strong>（pre-training）：大量の文章で「次のトークン予測」を学ぶ（第13〜15章でやったこと）。ここでできるのが<strong>ベースモデル</strong>。知識と文章力は身につくが、会話の作法は知らない</li>
+<li><strong>SFT</strong>（教師ありファインチューニング）：「質問 → 良い答え」の例を数万〜数百万件、チャットテンプレート（第1章の台本形式）で学ばせる。会話の作法と、<code>&lt;|im_end|&gt;</code> で止まることを覚える（<strong>第18章</strong>）</li>
+<li><strong>好みの学習</strong>（RLHF・DPOなど）：同じ質問への2つの答えのどちらが良いかを人間が選び、良い方を出しやすくする。安全性や丁寧さもここで整える（<strong>第22章</strong>）</li>
+</ol>
+<p>ベースモデルは「知識豊富だけど空気が読めない人」、チャットモデルは「それに接客研修を受けさせた人」、というイメージです。</p>
+</aside>
+
+<h2 id="s3">チャットテンプレートと複数ターンの会話</h2>
+<p>第1章で見た台本形式を、もう少し詳しく見ておきます。会話を続けるには、<strong>これまでの会話を全部</strong> <code>messages</code> に入れて渡します。LLMは、前回の会話を覚えていません。毎回、台本の最初から読み直しているのです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>messages = [
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;system&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;あなたは親切なアシスタントです。&quot;</span>},
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;私の名前はミナトです。&quot;</span>},
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;assistant&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;こんにちは、ミナトさん！&quot;</span>},
+    {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;私の名前は何でしたっけ？&quot;</span>},
+]
+<span class="bi">print</span>(chat_tok.apply_chat_template(messages, tokenize=<span class="kw">False</span>, add_generation_prompt=<span class="kw">True</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>&lt;|im_start|&gt;system
+あなたは親切なアシスタントです。&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+私の名前はミナトです。&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant
+こんにちは、ミナトさん！&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+私の名前は何でしたっけ？&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant</code></pre></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(ask(chat_tok, chat, messages))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>あなたの名前はミナトさんです。</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：「記憶」の正体</p><p>ChatGPTなどのアプリが会話を覚えているように見えるのは、アプリが<strong>過去の会話を毎回まとめてLLMに送っている</strong>からです。会話が長くなると、その分トークンが増え、計算が重くなり（第16章のKVキャッシュ）、やがてコンテキスト長（第2章）の上限に達します。長い会話で、最初のほうの話を忘れてしまうのはこのためです。</p>
+</aside>
+
+<h2 id="s4">プロンプトの工夫と、その限界</h2>
+<p>モデルの重みを変えずに、<strong>入力の書き方（プロンプト）だけで</strong>性能を上げる工夫を、プロンプトエンジニアリングと呼びます。小さな実験で効果を確かめてみましょう。お題は「レビューが肯定的か否定的かを判定する」です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>reviews = [
+    (<span class="st">&quot;このラーメン、スープが最高においしかった！&quot;</span>, <span class="st">&quot;肯定&quot;</span>),
+    (<span class="st">&quot;店員さんの態度が悪くて二度と行かない。&quot;</span>, <span class="st">&quot;否定&quot;</span>),
+    (<span class="st">&quot;値段のわりに量が少なくてがっかり。&quot;</span>, <span class="st">&quot;否定&quot;</span>),
+    (<span class="st">&quot;駅から近くて便利、また来たいです。&quot;</span>, <span class="st">&quot;肯定&quot;</span>),
+    (<span class="st">&quot;注文してから40分も待たされた。&quot;</span>, <span class="st">&quot;否定&quot;</span>),
+    (<span class="st">&quot;期待していなかったけど、意外とよかった。&quot;</span>, <span class="st">&quot;肯定&quot;</span>),
+]
+
+<span class="kw">def</span> <span class="fn">classify</span>(review, few_shot=<span class="kw">False</span>):
+    msgs = [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;system&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;レビューが肯定的なら「肯定」、否定的なら「否定」とだけ答えてください。&quot;</span>}]
+    <span class="kw">if</span> few_shot:   <span class="cm"># 例を2つ見せる</span>
+        msgs += [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;最高の一日でした。&quot;</span>}, {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;assistant&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;肯定&quot;</span>},
+                 {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;最悪の対応でした。&quot;</span>}, {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;assistant&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;否定&quot;</span>}]
+    msgs.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: review})
+    <span class="kw">return</span> ask(chat_tok, chat, msgs, n=<span class="nu">5</span>).strip()
+
+<span class="kw">for</span> few <span class="kw">in</span> [<span class="kw">False</span>, <span class="kw">True</span>]:
+    correct = <span class="bi">sum</span>(classify(r, few) == label <span class="kw">for</span> r, label <span class="kw">in</span> reviews)
+    <span class="bi">print</span>((<span class="st">&quot;few-shot &quot;</span> <span class="kw">if</span> few <span class="kw">else</span> <span class="st">&quot;zero-shot&quot;</span>), <span class="st">f&quot;正解 {correct}/{len(reviews)}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>zero-shot 正解 4/6
+few-shot  正解 6/6</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：プロンプト技法</p><ul>
+<li><strong>zero-shot</strong>：お手本なしで、指示だけを与える</li>
+<li><strong>few-shot</strong>：答え方のお手本（例）を数個見せてから聞く。小さなモデルほど、出力の形式がそろって効果が大きい</li>
+<li><strong>段階的に考えさせる</strong>（Chain-of-Thought）：「ステップごとに考えてから答えてください」と頼むと、計算や推論の問題で正答率が上がることがある。答えの前に考える過程を書かせることで、その過程が次のトークンの手がかりになるため（第1章：LLMは自分の出力を読みながら次を予測する）</li>
+<li><strong>役割（system）</strong>：第1章のボンゴ先生のように、立場や口調を指定する</li>
+</ul>
+<p>ただし、プロンプトには限界があります。上の6問では正解数が変わりましたが、<strong>6問は少なすぎて、偶然の差かもしれません</strong>。本当に効果があるかを確かめるには、もっと多くの問題と、統計の考え方が必要です（第20章）。また、小さなモデルに知らない知識はプロンプトでは教えられませんし、毎回お手本を入れるとトークン（お金と時間）を食います。そこで、モデル自体を鍛える <strong>ファインチューニング</strong>（第18〜19章）や、資料を検索して渡す <strong>RAG</strong>（第21章）の出番になります。</p>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：段階的に考えさせる</p><p><code>ask(chat_tok, chat, [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;りんごが3個入った箱が4箱あり、2個食べました。残りは何個？&quot;}])</code> と、同じ質問の最後に「ステップごとに考えてから答えてください。」を付けたものを比べてみましょう。小さなモデルなので、どちらも間違えるかもしれません。それも大事な観察結果です。</p>
+</aside>
+
+<h2 id="s5">生成の設定を確かめる</h2>
+<p>モデルには、作った人がおすすめする生成の設定が付いてきます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(chat.generation_config)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>GenerationConfig {
+  &quot;bos_token_id&quot;: 151643,
+  &quot;do_sample&quot;: true,
+  &quot;eos_token_id&quot;: [
+    151645,
+    151643
+  ],
+  &quot;pad_token_id&quot;: 151643,
+  &quot;repetition_penalty&quot;: 1.1,
+  &quot;temperature&quot;: 0.7,
+  &quot;top_k&quot;: 20,
+  &quot;top_p&quot;: 0.8
+}</code></pre></div>
+<p>温度0.7、top-p 0.8、top-k 20、くり返しペナルティ1.1。第3章と第16章で学んだつまみが、全部出てきました。<code>eos_token_id</code> の151645は <code>&lt;|im_end|&gt;</code>（第2章）。これが出たら生成を止める、という設定です。</p>
+<h2 id="s6">モデルの大きさとGPUメモリ</h2>
+<p>借りるモデルを選ぶとき、一番の制約はGPUのメモリです。<strong>推論（使うだけ）</strong> に必要なメモリは、だいたい「パラメータ数 × 1個のバイト数」です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">infer_gb</span>(n_params_billion, bytes_per_param):
+    <span class="kw">return</span> n_params_billion * bytes_per_param
+
+<span class="bi">print</span>(<span class="st">&quot;        float16   8ビット   4ビット&quot;</span>)
+<span class="kw">for</span> size <span class="kw">in</span> [<span class="nu">0.5</span>, <span class="nu">1.5</span>, <span class="nu">3</span>, <span class="nu">7</span>, <span class="nu">14</span>]:
+    <span class="bi">print</span>(<span class="st">f&quot;{size:4}B  {infer_gb(size, 2):6.1f}GB {infer_gb(size, 1):6.1f}GB {infer_gb(size, 0.5):6.1f}GB&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>        float16   8ビット   4ビット
+ 0.5B     1.0GB    0.5GB    0.2GB
+ 1.5B     3.0GB    1.5GB    0.8GB
+   3B     6.0GB    3.0GB    1.5GB
+   7B    14.0GB    7.0GB    3.5GB
+  14B    28.0GB   14.0GB    7.0GB</code></pre></div>
+<p>T4（約15GB）なら、float16で3B程度まで余裕を持って動かせます。7Bはfloat16だとギリギリ（実際には計算用のメモリも必要なので厳しい）ですが、<strong>4ビットに量子化</strong>すれば3.5GBで動きます。量子化は第19章で学びます。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：safetensors</p><p>モデルの重みのファイルには <code>model.safetensors</code> という形式がよく使われます。昔よく使われていた <code>pytorch_model.bin</code>（Pythonの <code>pickle</code> 形式）は、読み込むときに<strong>任意のプログラムが実行される</strong>危険がありました。知らない人が公開したファイルを開いたら、ウイルスが動く、ということが理論上ありえたのです。<code>safetensors</code> は数の並びだけを保存する形式なので、そうした危険がありません。知らない人のモデルを使うときは、safetensors形式を選びましょう。</p>
+</aside>
+
+<h2 id="s7">Hugging Faceのアカウントとトークン</h2>
+<p>第18章以降で、自分で鍛えたモデルをHugging Faceに保存したり、利用規約への同意が必要なモデルを使ったりするには、<strong>アカウント</strong>と<strong>アクセストークン</strong>が必要です。</p>
+<ol>
+<li><a href="https://huggingface.co/join">https://huggingface.co/join</a> で無料アカウントを作る（メールアドレスの確認まで）</li>
+<li>右上のアイコン →「Settings」→「Access Tokens」→「Create new token」</li>
+<li>種類（Token type）は、最初は <strong>Read</strong>（読み取り専用）を選ぶ。モデルをアップロードするときだけ <strong>Write</strong> の権限があるものを作る</li>
+<li>表示されたトークン（<code>hf_</code> で始まる文字列）をコピー</li>
+</ol>
+<aside class="box box-warn"><p class="box-title">つまずき注意：トークンは「家の鍵」</p><p>アクセストークンは、あなたのアカウントの鍵です。<strong>ノートブックのコードに直接書いてはいけません</strong>。ノートブックを人に見せたり、GitHubに上げたりしたときに、鍵ごと渡してしまうからです。Colabでは、左側の <strong>鍵のアイコン（シークレット）</strong> に <code>HF_TOKEN</code> という名前で保存し、「ノートブックからのアクセス」をオンにします。すると、コードに書かなくても、自動で使われるようになります（第1章で出た黄色い警告が消えます）。もし漏らしてしまったら、すぐにHugging Faceの設定画面でそのトークンを削除（Invalidate）しましょう。</p>
+</aside>
+
+<p>コードからトークンを使う必要があるときは、次のように取り出します（シークレットが設定されていないとエラーになります）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Hugging Faceにつないで実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> google.colab <span class="kw">import</span> userdata
+<span class="kw">from</span> huggingface_hub <span class="kw">import</span> login
+login(token=userdata.get(<span class="st">&quot;HF_TOKEN&quot;</span>))</code></pre></div>
+<aside class="box box-free"><p class="box-title">0円のコツ：無料でできること</p><p>Hugging Faceの無料アカウントで、公開モデル・データセットのダウンロード、自分のモデル・データセットの公開（公開リポジトリ）ができます。アプリを公開する「Spaces」は、無料アカウントだと使える種類が限られます（2026年10月時点の公式ドキュメントでは、CPUで動くGradioアプリの新規作成には有料プランが必要で、無料では「ZeroGPU」のSpaceが2つまで、または静的ページのSpaceが使えます）。第24章では、0円で確実に公開できる方法を紹介します。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>OSError: … is not a local folder and is not a valid model identifier</code></strong>：モデル名のつづりが違うか、利用規約への同意が必要なモデル（gated model）です。Hugging Faceのモデルページで「Agree and access」を押し、<code>HF_TOKEN</code> を設定しましょう。</li>
+<li><strong><code>CUDA out of memory</code></strong>：モデルを2つ同時に読み込んでいるとメモリを食います。使わなくなったモデルは <code>del base</code> で消し、<code>torch.cuda.empty_cache()</code> を実行しましょう。</li>
+<li><strong>ベースモデルが同じ文をくり返す</strong>：正常です（この章の実験のとおり）。会話させたいならチャットモデル（Instruct）を使いましょう。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：ベースとチャット</p><p>ベースモデルに「日本の首都は？」と聞くと、同じ質問をくり返すことがあるのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>ベースモデルは「ネットの文章の続きを書く」ことしか学んでいないからです。ネットには、質問文の後に別の質問文が続く文章（よくある質問の一覧など）がたくさんあるので、それを真似します。質問に答えて止まる作法は、SFT（第18章）で身につけます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：メモリ</p><p>7Bのモデルを4ビットに量子化すると、重みはだいたい何GB？ T4で動く？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>$7 \times 0.5 = 3.5$GB。計算用のメモリを足しても、T4（約15GB）で動かせます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：トークン</p><p>Hugging Faceのアクセストークンを、ノートブックのコードに直接書いてはいけないのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>ノートブックを共有したりGitHubに上げたりしたときに、トークン（アカウントの鍵）が他人に見えてしまうからです。Colabのシークレット機能に保存して使いましょう。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="17-hf-models:0"> <span>モデルカードで、説明・ライセンス・大きさを確認した</span></label></li><li><label><input type="checkbox" data-check="17-hf-models:1"> <span>ベースモデルとチャットモデルの違いを実験で確かめた</span></label></li><li><label><input type="checkbox" data-check="17-hf-models:2"> <span>複数ターンの会話を <code>messages</code> で渡せた</span></label></li><li><label><input type="checkbox" data-check="17-hf-models:3"> <span>zero-shotとfew-shotを比べ、「6問では少なすぎる」理由を説明できる</span></label></li><li><label><input type="checkbox" data-check="17-hf-models:4"> <span>モデルの大きさから、必要なGPUメモリを見積もれた</span></label></li><li><label><input type="checkbox" data-check="17-hf-models:5"> <span>Hugging Faceのアカウントを作り、トークンをColabのシークレットに保存した</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>チャットモデルは、<strong>事前学習 → SFT → 好みの学習</strong> の3段階で作られる。ベースモデルは「続きを書く」だけ</li>
+<li>会話の「記憶」は、毎回これまでの会話全体を台本にして渡しているだけ</li>
+<li>プロンプトの工夫（few-shotなど）は手軽だが、効果は<strong>十分な数の問題で測る</strong>必要があり、知識の追加には限界がある</li>
+<li>推論メモリ ≈ パラメータ数 × バイト数。T4ならfloat16で3B程度、4ビットなら7Bも動く</li>
+<li>モデルの<strong>ライセンス</strong>を確認し、トークンは<strong>シークレット</strong>で管理する</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>次の章では、いよいよ「接客研修」を自分でやる。ベースモデルに、質問に答えて止まる作法を教える <strong>SFT</strong> だ。まずは自作の漱石GPTで仕組みを確かめてから、Qwenを「ボンゴ先生」に変身させよう。ダジャレの質は保証しない。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="17-hf-models">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="16-scale.html"><small>← 前の章</small>速く・大きく：推論と学習の工学</a><a class="next" href="18-sft.html"><small>次の章 →</small>指示に従わせる：SFT（教師ありファインチューニング）</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">Hugging Face Hub を歩く</a><a href="#s2">ベースモデルとチャットモデル</a><a href="#s3">チャットテンプレートと複数ターンの会話</a><a href="#s4">プロンプトの工夫と、その限界</a><a href="#s5">生成の設定を確かめる</a><a href="#s6">モデルの大きさとGPUメモリ</a><a href="#s7">Hugging Faceのアカウントとトークン</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

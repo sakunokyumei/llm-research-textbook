@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>15-gpt2 | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>自分のコードに本物のGPT-2を入れる | つくってわかるLLM</title><meta name="description" content="OpenAIが公開した1億2400万個の数を、自作GPTに流し込む">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,339 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" open><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" aria-current="page" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第4部 本物に近づける · 第15章</p><h1>15-gpt2</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="15-gpt2">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="14-bpe.html"><small>← 前の章</small>14-bpe</a><a class="next" href="16-scale.html"><small>次の章 →</small>16-scale</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" open><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" aria-current="page" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第4部 本物に近づける · 第15章</p><h1>自分のコードに本物のGPT-2を入れる</h1><p class="sub">OpenAIが公開した1億2400万個の数を、自作GPTに流し込む</p><dl class="meta"><div><dt>目安</dt><dd>90〜120分</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/15-gpt2.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/15-gpt2.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>GPT-2と同じ形の自作GPTを書き、Hugging FaceからダウンロードしたGPT-2の重みを読み込んで、本物と<strong>同じ出力</strong>が出ることを確かめる</p></div><div><h3>ついでに身につく理論</h3><ul><li>GPT-2の構造（Q・K・Vをまとめた計算、重み共有、GELUの近似）</li><li>マルチヘッドを1回の行列計算でまとめてやる方法</li><li>事前学習とは何か（データ・計算量）</li><li>スケーリング則とChinchillaの法則</li><li>計算量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>6</mn><mi>N</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">\approx 6ND</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4831em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">6</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span> と、学習に必要なメモリの見積もり</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>nn.ModuleDict</code></li><li><code>state_dict</code> の中身を調べる・コピーする</li><li><code>.split</code> と <code>.view</code> と <code>.transpose</code> で形を組み替える</li><li><code>torch.allclose</code> で一致を確かめる</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>この章は、あなたの自作GPTの<strong>答え合わせ</strong>です。2019年にOpenAIが公開したGPT-2（一番小さい版、約1億2400万パラメータ）と同じ形のGPTを、第12章のコードを少し書き換えて作ります。そこにGPT-2の公開された重みを読み込むと……あなたのコードが、本物のGPT-2と<strong>小数点以下まで同じ出力</strong>を出します。「自分のコードは本物と同じものだ」と、数字で確かめられる瞬間です。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>本物の重みを入れるって、なんだかすごいことのように聞こえます。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>すごいことさ。OpenAIは、何百万円分もの計算をして見つけた「つまみの位置」1億2400万個を、全部公開してくれた。キミがやるのは、その数をキミの設計図の正しい場所に1つずつはめ込むことだ。設計図が1か所でも違えば、ガラクタになる。完璧に合えば、キミのコードがGPT-2になる。パズルの最後のピースだね。</p>
+</div></div>
+
+<h2 id="s1">GPT-2をダウンロードする</h2>
+<p>まずは、Hugging Faceの <code>transformers</code> で本物のGPT-2を読み込みます。CPUのままで大丈夫です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> math
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+<span class="kw">from</span> transformers <span class="kw">import</span> GPT2LMHeadModel, AutoTokenizer
+
+hf = GPT2LMHeadModel.from_pretrained(<span class="st">&quot;gpt2&quot;</span>)
+tok = AutoTokenizer.from_pretrained(<span class="st">&quot;gpt2&quot;</span>)
+hf.eval()
+cfg = hf.config
+<span class="bi">print</span>(<span class="st">&quot;層の数：&quot;</span>, cfg.n_layer, <span class="st">&quot; ヘッド：&quot;</span>, cfg.n_head, <span class="st">&quot; 幅：&quot;</span>, cfg.n_embd)
+<span class="bi">print</span>(<span class="st">&quot;語彙：&quot;</span>, cfg.vocab_size, <span class="st">&quot; 窓の大きさ：&quot;</span>, cfg.n_positions)
+<span class="bi">print</span>(<span class="st">f&quot;パラメータの数：{sum(p.numel() for p in hf.parameters()):,}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>層の数： 12  ヘッド： 12  幅： 768
+語彙： 50257  窓の大きさ： 1024
+パラメータの数：124,439,808</code></pre></div>
+<p>12層・12ヘッド・幅768。あなたの第13章のGPT（4層・4ヘッド・幅128）を、縦にも横にも大きくしたものです。構造は同じはずです。</p>
+<h2 id="s2">重みの名前と形を見る</h2>
+<p>モデルの中身（<code>state_dict</code>）を見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>sd_hf = hf.state_dict()
+<span class="kw">for</span> k <span class="kw">in</span> <span class="bi">list</span>(sd_hf.keys())[:<span class="nu">16</span>]:
+    <span class="bi">print</span>(<span class="st">f&quot;{k:42s} {tuple(sd_hf[k].shape)}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>transformer.wte.weight                     (50257, 768)
+transformer.wpe.weight                     (1024, 768)
+transformer.h.0.ln_1.weight                (768,)
+transformer.h.0.ln_1.bias                  (768,)
+transformer.h.0.attn.c_attn.weight         (768, 2304)
+transformer.h.0.attn.c_attn.bias           (2304,)
+transformer.h.0.attn.c_proj.weight         (768, 768)
+transformer.h.0.attn.c_proj.bias           (768,)
+transformer.h.0.ln_2.weight                (768,)
+transformer.h.0.ln_2.bias                  (768,)
+transformer.h.0.mlp.c_fc.weight            (768, 3072)
+transformer.h.0.mlp.c_fc.bias              (3072,)
+transformer.h.0.mlp.c_proj.weight          (3072, 768)
+transformer.h.0.mlp.c_proj.bias            (768,)
+transformer.h.1.ln_1.weight                (768,)
+transformer.h.1.ln_1.bias                  (768,)</code></pre></div>
+<p>第12章の部品と見比べると、対応がわかります。</p>
+<table>
+<thead>
+<tr>
+<th>GPT-2の名前</th>
+<th>第12章の部品</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wte</code></td>
+<td><code>tok_emb</code></td>
+<td>文字（トークン）の埋め込み（word token embedding）</td>
+</tr>
+<tr>
+<td><code>wpe</code></td>
+<td><code>pos_emb</code></td>
+<td>位置の埋め込み（word position embedding）</td>
+</tr>
+<tr>
+<td><code>h.0</code>, <code>h.1</code>, …</td>
+<td><code>blocks[0]</code>, …</td>
+<td>Transformerブロック</td>
+</tr>
+<tr>
+<td><code>ln_1</code>, <code>ln_2</code></td>
+<td><code>ln1</code>, <code>ln2</code></td>
+<td>LayerNorm</td>
+</tr>
+<tr>
+<td><code>attn.c_attn</code></td>
+<td>各ヘッドの <code>key</code>, <code>query</code>, <code>value</code></td>
+<td><strong>Q・K・Vをまとめた</strong>全結合層（768 → 2304 = 768×3）</td>
+</tr>
+<tr>
+<td><code>attn.c_proj</code></td>
+<td><code>proj</code></td>
+<td>ヘッドの結果を混ぜる層</td>
+</tr>
+<tr>
+<td><code>mlp.c_fc</code>, <code>mlp.c_proj</code></td>
+<td><code>ffwd.net[0]</code>, <code>ffwd.net[2]</code></td>
+<td>フィードフォワード（768 → 3072 → 768）</td>
+</tr>
+</tbody>
+</table>
+<p>違いは主に3つです。</p>
+<ol>
+<li><strong>Q・K・Vを1つの全結合層でまとめて作る</strong>（<code>c_attn</code> の出力が2304 = 768×3）。そして、ヘッドを別々のクラスにせず、1回の計算で全ヘッドをまとめて処理する</li>
+<li><strong>Q・K・Vにもバイアスがある</strong>（第12章は <code>bias=False</code> でした）</li>
+<li><strong>出力層の重みを、トークンの埋め込み <code>wte</code> と共有している</strong>（weight tying）。だから <code>lm_head</code> の重みが一覧に別にない</li>
+</ol>
+<p>さらに、GELUは計算の速い「tanhを使った近似版」が使われています。これらを合わせれば、読み込めるはずです。</p>
+<h2 id="s3">GPT-2と同じ形のGPTを書く</h2>
+<p>第12章のGPTを、上の3つの違いに合わせて書き直します。マルチヘッドAttentionは、ヘッドごとにクラスを作る代わりに、<strong>形の組み替え</strong>で全ヘッドを一度に計算します。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">CausalSelfAttention</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, n_embd, n_head, block_size):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.n_head = n_head
+        <span class="self">self</span>.c_attn = nn.Linear(n_embd, <span class="nu">3</span> * n_embd)     <span class="cm"># Q・K・Vをまとめて作る</span>
+        <span class="self">self</span>.c_proj = nn.Linear(n_embd, n_embd)
+        <span class="self">self</span>.register_buffer(<span class="st">&quot;tril&quot;</span>, torch.tril(torch.ones(block_size, block_size)), persistent=<span class="kw">False</span>)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        B, T, C = x.shape
+        hs = C // <span class="self">self</span>.n_head                           <span class="cm"># 1ヘッドの大きさ</span>
+        q, k, v = <span class="self">self</span>.c_attn(x).split(C, dim=<span class="nu">2</span>)        <span class="cm"># 3等分してQ・K・Vに</span>
+        q = q.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>)   <span class="cm"># [B, ヘッド, T, hs]</span>
+        k = k.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>)
+        v = v.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>)
+        att = q @ k.transpose(-<span class="nu">2</span>, -<span class="nu">1</span>) / math.sqrt(hs)   <span class="cm"># 全ヘッドの点数を一度に</span>
+        att = att.masked_fill(<span class="self">self</span>.tril[:T, :T] == <span class="nu">0</span>, <span class="bi">float</span>(<span class="st">&quot;-inf&quot;</span>))
+        att = F.softmax(att, dim=-<span class="nu">1</span>)
+        y = att @ v                                     <span class="cm"># [B, ヘッド, T, hs]</span>
+        y = y.transpose(<span class="nu">1</span>, <span class="nu">2</span>).contiguous().view(B, T, C)    <span class="cm"># ヘッドを横につなげ直す</span>
+        <span class="kw">return</span> <span class="self">self</span>.c_proj(y)
+
+
+<span class="kw">class</span> <span class="fn">MLP</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, n_embd):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.c_fc = nn.Linear(n_embd, <span class="nu">4</span> * n_embd)
+        <span class="self">self</span>.gelu = nn.GELU(approximate=<span class="st">&quot;tanh&quot;</span>)         <span class="cm"># GPT-2のGELU（近似版）</span>
+        <span class="self">self</span>.c_proj = nn.Linear(<span class="nu">4</span> * n_embd, n_embd)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        <span class="kw">return</span> <span class="self">self</span>.c_proj(<span class="self">self</span>.gelu(<span class="self">self</span>.c_fc(x)))
+
+
+<span class="kw">class</span> <span class="fn">Block</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, n_embd, n_head, block_size):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.ln_1 = nn.LayerNorm(n_embd)
+        <span class="self">self</span>.attn = CausalSelfAttention(n_embd, n_head, block_size)
+        <span class="self">self</span>.ln_2 = nn.LayerNorm(n_embd)
+        <span class="self">self</span>.mlp = MLP(n_embd)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        x = x + <span class="self">self</span>.attn(<span class="self">self</span>.ln_1(x))
+        x = x + <span class="self">self</span>.mlp(<span class="self">self</span>.ln_2(x))
+        <span class="kw">return</span> x
+
+
+<span class="kw">class</span> <span class="fn">GPT2</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, vocab_size, block_size, n_embd, n_head, n_layer):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.block_size = block_size
+        <span class="self">self</span>.transformer = nn.ModuleDict(<span class="bi">dict</span>(
+            wte=nn.Embedding(vocab_size, n_embd),
+            wpe=nn.Embedding(block_size, n_embd),
+            h=nn.ModuleList([Block(n_embd, n_head, block_size) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_layer)]),
+            ln_f=nn.LayerNorm(n_embd),
+        ))
+        <span class="self">self</span>.lm_head = nn.Linear(n_embd, vocab_size, bias=<span class="kw">False</span>)
+        <span class="self">self</span>.lm_head.weight = <span class="self">self</span>.transformer.wte.weight    <span class="cm"># 重み共有（weight tying）</span>
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, idx):
+        B, T = idx.shape
+        x = <span class="self">self</span>.transformer.wte(idx) + <span class="self">self</span>.transformer.wpe(torch.arange(T, device=idx.device))
+        <span class="kw">for</span> block <span class="kw">in</span> <span class="self">self</span>.transformer.h:
+            x = block(x)
+        <span class="kw">return</span> <span class="self">self</span>.lm_head(<span class="self">self</span>.transformer.ln_f(x))</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ヘッドをまとめて計算する形の組み替え</p><p>第12章では、4つのヘッドを4つのクラスで別々に計算していました。わかりやすいけれど、GPUにとっては「小さな仕事を4回」頼まれるより「大きな仕事を1回」のほうが速いのです。</p>
+<p>そこで、Q（形 <code>[B, T, 768]</code>）を <code>view</code> で <code>[B, T, 12, 64]</code>（12ヘッド×64）に切り分け、<code>transpose(1, 2)</code> で <code>[B, 12, T, 64]</code> に並べ替えます。こうすると、テンソルの <code>@</code> が「バッチごと・ヘッドごと」に行列の掛け算をしてくれるので、12ヘッド分の計算が<strong>1回</strong>で済みます。最後に逆の操作で <code>[B, T, 768]</code> に戻します（<code>contiguous()</code> は、並べ替えたテンソルをメモリ上できれいに並べ直すおまじない）。</p>
+<p>計算の中身は、第11〜12章とまったく同じです。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：重み共有（weight tying）</p><p>入力側の埋め込み <code>wte</code>（トークン→ベクトル）と、出力層 <code>lm_head</code>（ベクトル→各トークンの点数）は、どちらも「語彙数 × 幅」の大きな表です。GPT-2はこの2つを<strong>同じ表</strong>にしています。「『猫』のベクトルに近いベクトルが来たら、次は『猫』の点数を高くする」という、入口と出口の対応関係を自然に表せるうえ、パラメータが3860万個（50257×768）も節約できます。</p>
+</aside>
+
+<h2 id="s4">重みを流し込む</h2>
+<p>同じ設定で自作GPT-2を作り、GPT-2の重みを1つずつコピーします。1つだけ注意点があります。GPT-2の公開コードでは、全結合層の重みを <code>[入力, 出力]</code> の向きで持っていますが、PyTorchの <code>nn.Linear</code> は <code>[出力, 入力]</code> の向きです。だから、該当する重みは <strong>転置</strong>（<code>.t()</code>、行と列の入れ替え）してからコピーします。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>mine = GPT2(cfg.vocab_size, cfg.n_positions, cfg.n_embd, cfg.n_head, cfg.n_layer)
+mine.eval()
+sd = mine.state_dict()
+transposed = (<span class="st">&quot;attn.c_attn.weight&quot;</span>, <span class="st">&quot;attn.c_proj.weight&quot;</span>, <span class="st">&quot;mlp.c_fc.weight&quot;</span>, <span class="st">&quot;mlp.c_proj.weight&quot;</span>)
+
+copied = <span class="nu">0</span>
+<span class="kw">with</span> torch.no_grad():
+    <span class="kw">for</span> k <span class="kw">in</span> sd:
+        src = sd_hf[k].t() <span class="kw">if</span> k.endswith(transposed) <span class="kw">else</span> sd_hf[k]
+        <span class="kw">assert</span> sd[k].shape == src.shape, (k, sd[k].shape, src.shape)
+        sd[k].copy_(src)
+        copied += <span class="nu">1</span>
+<span class="bi">print</span>(<span class="st">&quot;コピーした重みの数：&quot;</span>, copied)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>コピーした重みの数： 149</code></pre></div>
+<p><code>assert</code> は「この条件が正しくなければ、ここで止まって教えて」という命令です。形が1つでも合わなければエラーになるので、黙って間違ったコピーをすることはありません。</p>
+<h2 id="s5">答え合わせ</h2>
+<p>同じ文章を入れて、自作GPT-2と本物のGPT-2の出力（ロジット）を比べます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>ids = tok(<span class="st">&quot;Hello, I&#x27;m a language model,&quot;</span>, return_tensors=<span class="st">&quot;pt&quot;</span>).input_ids
+<span class="kw">with</span> torch.no_grad():
+    logits_mine = mine(ids)
+    logits_hf = hf(ids).logits
+<span class="bi">print</span>(<span class="st">&quot;出力の形：&quot;</span>, <span class="bi">tuple</span>(logits_mine.shape))
+<span class="bi">print</span>(<span class="st">&quot;差は0.001未満？&quot;</span>, (logits_mine - logits_hf).<span class="bi">abs</span>().<span class="bi">max</span>().item() &lt; <span class="nu">1e-3</span>)
+<span class="bi">print</span>(<span class="st">&quot;一致した？&quot;</span>, torch.allclose(logits_mine, logits_hf, atol=<span class="nu">1e-3</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>出力の形： (1, 9, 50257)
+差は0.001未満？ True
+一致した？ True</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>一致した！！ 🥁ドコドコドコ！ キミが書いたコードは、本物のGPT-2と、小数点以下まで同じ計算をしている。言い換えれば、<strong>キミはGPT-2を理解した</strong>ということだ。ファインマンの黒板の言葉、「作れないものは理解していない」の逆向きだね。作れたものは、理解している。</p>
+</div></div>
+
+<p>（出力の形の9は、この文章が9トークンだったという意味です。）</p>
+<h2 id="s6">GPT-2に文章を書かせる</h2>
+<p>自作GPT-2で、文章を生成してみましょう。第3章の自作 <code>generate</code> と同じループに、上位k個だけから選ぶ <strong>top-k</strong> を加えたものです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">generate</span>(model, text, n=<span class="nu">40</span>, temperature=<span class="nu">0.8</span>, top_k=<span class="nu">50</span>, seed=<span class="nu">0</span>):
+    torch.manual_seed(seed)
+    idx = tok(text, return_tensors=<span class="st">&quot;pt&quot;</span>).input_ids
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):
+        logits = model(idx[:, -model.block_size:])[:, -<span class="nu">1</span>, :] / temperature
+        v, _ = torch.topk(logits, top_k)
+        logits[logits &lt; v[:, [-<span class="nu">1</span>]]] = -<span class="bi">float</span>(<span class="st">&quot;inf&quot;</span>)    <span class="cm"># 上位k個以外は候補から外す</span>
+        next_id = torch.multinomial(F.softmax(logits, dim=-<span class="nu">1</span>), <span class="nu">1</span>)
+        idx = torch.cat([idx, next_id], dim=<span class="nu">1</span>)
+    <span class="kw">return</span> tok.decode(idx[<span class="nu">0</span>])
+
+<span class="bi">print</span>(generate(mine, <span class="st">&quot;Hello, I&#x27;m a language model,&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>Hello, I&#x27;m a language model, and I&#x27;m interested in how language is used in the real world. I think the best way to understand it is to look at how people use it in everyday life, and what they mean when they</code></pre></div>
+<p>英語ならすらすら書けます。では、日本語ではどうでしょう？</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(generate(mine, <span class="st">&quot;吾輩は猫である。&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>吾輩は猫である。の�が��������、���、�、�����、��、��、�、�����、</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：モデルは、読んだものしか書けない</p><p>GPT-2は、主に英語のWebページ（約40GBのテキスト）で学習しました。バイトレベルBPEなので日本語の文字を<strong>表す</strong>ことはできても（第2章）、日本語の文章をほとんど<strong>読んだことがない</strong>ので、まともな続きを書けません。</p>
+<p>あなたの漱石GPTが漱石風の文章しか書けないのと、まったく同じ理由です。LLMの能力は、<strong>どんなデータで、どれだけ学習したか</strong>で決まります。モデルの設計図（あなたが書いたコード）は、ほとんど同じなのです。</p>
+</aside>
+
+<h2 id="s7">事前学習：GPT-2はどうやって作られたか</h2>
+<p>GPT-2の重みは、あなたが第13章でやったのとまったく同じ「次のトークン予測」の学習で作られました。違うのは規模だけです。このように、大量の文章で「次のトークン予測」を学習させることを <strong>事前学習</strong>（pre-training）と呼びます。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>あなたの漱石GPT</th>
+<th>GPT-2（small）</th>
+<th>最近の大型LLM（目安）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>パラメータ</td>
+<td>約175万</td>
+<td>1.24億</td>
+<td>数百億〜数千億以上</td>
+</tr>
+<tr>
+<td>学習データ</td>
+<td>約100万文字</td>
+<td>約40GB（数十億トークン）</td>
+<td>数兆〜数十兆トークン</td>
+</tr>
+<tr>
+<td>計算機</td>
+<td>Colabの無料GPU 1枚・数分</td>
+<td>当時の大量のGPU・TPU</td>
+<td>数千〜数万枚のGPUで数か月</td>
+</tr>
+</tbody>
+</table>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：スケーリング則：大きくすると、予想どおりに賢くなる</p><p>2020年、OpenAIの研究者たちは、LLMの損失が <strong>モデルの大きさ <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span></span></span></span>（パラメータ数）</strong>、<strong>データ量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span>（トークン数）</strong>、<strong>計算量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span></span></span></span></strong> を増やすと、とてもきれいな法則に従って下がることを見つけました。それぞれを10倍にすると、損失が決まった割合ずつ下がっていく（グラフの両軸を対数にすると直線になる、<strong>べき乗則</strong>）。これを <strong>スケーリング則</strong>（scaling law）と言います。</p>
+<p>この発見の何がすごいかというと、<strong>小さな実験から、大きなモデルの性能が予想できる</strong>ことです。「このくらいのお金をかければ、このくらい賢くなる」と計算できるので、巨大なモデルへの投資が始まりました。</p>
+<p>2022年には、DeepMindの研究（通称 <strong>Chinchilla</strong>）が、「決まった計算量で一番賢いモデルを作るには、パラメータ1個あたり<strong>約20トークン</strong>のデータで学習させるのがよい」ことを示しました。それまでのモデルは、大きさのわりにデータが少なすぎた（読書量の割に頭だけ大きかった）のです。</p>
+</aside>
+
+<p>計算量と、学習に必要なメモリを見積もってみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">train_flops</span>(n_params, n_tokens):
+    <span class="kw">return</span> <span class="nu">6</span> * n_params * n_tokens          <span class="cm"># 学習の計算量 ≈ 6 × N × D</span>
+
+<span class="kw">def</span> <span class="fn">train_memory_gb</span>(n_params):
+    <span class="kw">return</span> n_params * <span class="nu">16</span> / <span class="nu">1e9</span>              <span class="cm"># AdamWで学習するときのメモリの目安（1パラメータ16バイト）</span>
+
+models = {<span class="st">&quot;漱石GPT&quot;</span>: (<span class="nu">1.75e6</span>, <span class="nu">2e7</span>), <span class="st">&quot;GPT-2 small&quot;</span>: (<span class="nu">124e6</span>, <span class="nu">9e9</span>),
+          <span class="st">&quot;Qwen2.5-0.5B&quot;</span>: (<span class="nu">0.49e9</span>, <span class="nu">18e12</span>), <span class="st">&quot;70Bのモデル&quot;</span>: (<span class="nu">70e9</span>, <span class="nu">15e12</span>)}
+<span class="kw">for</span> name, (N, D) <span class="kw">in</span> models.items():
+    <span class="bi">print</span>(<span class="st">f&quot;{name:12s} 計算量 {train_flops(N, D):9.1e} 回  学習メモリ {train_memory_gb(N):9.2f} GB&quot;</span>
+          <span class="st">f&quot;  Chinchilla推奨データ {20 * N:8.1e} トークン&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>漱石GPT       計算量   3.8e+14 回  学習メモリ      0.04 GB  Chinchilla推奨データ  5.0e+07 トークン
+GPT-2 small  計算量   6.7e+18 回  学習メモリ      1.98 GB  Chinchilla推奨データ  2.5e+09 トークン
+Qwen2.5-0.5B 計算量   5.3e+22 回  学習メモリ      7.84 GB  Chinchilla推奨データ  9.8e+09 トークン
+70Bのモデル     計算量   6.3e+24 回  学習メモリ   1120.00 GB  Chinchilla推奨データ  1.4e+12 トークン</code></pre></div>
+<p>（データ量は公開情報などからのおおまかな目安です。漱石GPTは、第13章の実験2で学習した約2000万トークン（5000ステップ × 32 × 128）で計算しています。）</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：6ND と 16バイト</p><ul>
+<li><strong>計算量 ≈ <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mi>N</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">6ND</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">6</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span></strong>：1トークンを学習するごとに、パラメータ1個あたり約6回の掛け算・足し算をします（順方向で約2回、逆伝播で約4回）。T4の実効性能を毎秒10兆回（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>13</mn></msup></mrow><annotation encoding="application/x-tex">10^{13}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">13</span></span></span></span></span></span></span></span></span></span></span></span>）とすると、漱石GPTは数十秒、GPT-2 smallは約1週間、Qwen2.5-0.5Bは約170年（！）。大きなLLMの事前学習が、個人では無理な理由です</li>
+<li><strong>メモリ ≈ 16バイト × パラメータ数</strong>：混合精度でAdamWを使うと、パラメータ1個あたり、重み（2バイト＋4バイトの控え）、勾配（2バイト）、Adamの慣性と歩幅の記録（4バイト×2）で約16バイト必要です。T4のメモリは約15GBなので、全パラメータを学習できるのは<strong>数億パラメータ</strong>くらいまで。それより大きいモデルを無料GPUで鍛えるには、第19章の <strong>LoRA</strong> という技が必要になります</li>
+</ul>
+</aside>
+
+<aside class="box box-free"><p class="box-title">0円のコツ：事前学習は「借りる」が正解</p><p>数十億パラメータ以上のモデルを、個人が0円で事前学習するのは不可能です。でも心配いりません。世界中の企業や研究機関が、事前学習済みのモデルを公開しています（Qwen、Llama、Gemma、日本語特化のモデルなど）。<strong>事前学習は借りて、自分の目的に合わせた追加の学習（ファインチューニング）だけを自分でやる</strong>。これが、第5部からのやり方です。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>AssertionError: ('transformer.h.0.attn.c_attn.weight', …)</code></strong>：形が合っていません。転置が必要な重み（<code>transposed</code> の4種類）の名前が合っているか、<code>n_embd</code> などの設定が <code>cfg</code> と同じか確認しましょう。</li>
+<li><strong><code>KeyError</code>（<code>sd_hf[k]</code> の行）</strong>：自作モデルの部品の名前が、GPT-2の名前と違っています。<code>transformer</code>、<code>wte</code>、<code>h</code>、<code>ln_1</code> などの名前を、上のコードと一字一句同じにしましょう。</li>
+<li><strong>一致しない（<code>False</code>）</strong>：GELUを <code>approximate=&quot;tanh&quot;</code> にしたか、<code>mine.eval()</code> を呼んだか、確認しましょう。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：転置</p><p>GPT-2の <code>c_attn.weight</code> の形は <code>(768, 2304)</code> でした。PyTorchの <code>nn.Linear(768, 2304)</code> の重みの形は？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p><code>(2304, 768)</code> です。<code>nn.Linear</code> は <code>[出力, 入力]</code> の向きで重みを持つので、GPT-2の <code>[入力, 出力]</code> の重みを転置（<code>.t()</code>）してからコピーします。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：Chinchilla</p><p>10億（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>9</mn></msup></mrow><annotation encoding="application/x-tex">10^9</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span></span></span></span>）パラメータのモデルを、Chinchillaの目安どおりに学習させるには、何トークンのデータが必要？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>パラメータ1個あたり約20トークンなので、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>20</mn><mo>×</mo><msup><mn>10</mn><mn>9</mn></msup><mo>=</mo><mn>2</mn><mo>×</mo><msup><mn>10</mn><mn>10</mn></msup></mrow><annotation encoding="application/x-tex">20 \times 10^9 = 2 \times 10^{10}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">20</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">10</span></span></span></span></span></span></span></span></span></span></span></span>（200億）トークンです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：学習メモリ</p><p>T4（約15GB）で、AdamWで全パラメータを学習できるモデルの大きさの上限は、だいたいどれくらい？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>1パラメータ約16バイトとすると、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>15</mn><mo>×</mo><msup><mn>10</mn><mn>9</mn></msup><mo>÷</mo><mn>16</mn><mo>≈</mo><mn>9</mn><mo>×</mo><msup><mn>10</mn><mn>8</mn></msup></mrow><annotation encoding="application/x-tex">15 \times 10^9 \div 16 \approx 9 \times 10^8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">15</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8974em;vertical-align:-0.0833em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">9</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">÷</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">16</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">9</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span>、つまり<strong>数億パラメータ</strong>くらいまでです（実際には、計算の途中の値を置くメモリも必要なので、もっと小さくなります）。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="15-gpt2:0"> <span>GPT-2の重みの名前と形を、第12章の部品と対応づけられた</span></label></li><li><label><input type="checkbox" data-check="15-gpt2:1"> <span>Q・K・Vをまとめて計算し、ヘッドを形の組み替えで処理するAttentionを書いた</span></label></li><li><label><input type="checkbox" data-check="15-gpt2:2"> <span>GPT-2の重みを自作GPTに読み込み、出力が一致することを確かめた</span></label></li><li><label><input type="checkbox" data-check="15-gpt2:3"> <span>GPT-2が日本語を書けない理由（学習データ）を説明できる</span></label></li><li><label><input type="checkbox" data-check="15-gpt2:4"> <span>計算量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mi>N</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">6ND</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">6</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span> と学習メモリ（16バイト×パラメータ）を見積もれた</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>GPT-2は、第12章のGPTと<strong>同じ構造</strong>。違いはQKVの結合・バイアス・重み共有・GELUの近似だけ</li>
+<li>ヘッドは <code>view</code> と <code>transpose</code> でまとめて計算できる（速い）</li>
+<li>公開された重みを読み込み、<strong>本物と同じ出力</strong>が出ることで、自作コードの正しさを確かめた</li>
+<li><strong>事前学習</strong>＝大規模な「次のトークン予測」。性能はモデル・データ・計算量で予測できる（<strong>スケーリング則</strong>）</li>
+<li>学習の計算量 ≈ <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mi>N</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">6ND</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord">6</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span></span></span></span>、学習メモリ ≈ 16バイト×パラメータ数。大きな事前学習は「借りる」のが正解</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>これで、キミのGPTは本物と同じものだと証明された。次の章では、このGPTを<strong>速く</strong>する工学を学ぶ。生成を何倍も速くするKVキャッシュ、賢い候補の絞り方、大きなモデルを何枚ものGPUで学習する方法……。研究室や会社で「LLMを動かす係」になったとき、真っ先に役立つ話だ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="15-gpt2">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="14-bpe.html"><small>← 前の章</small>トークナイザーを自作する：BPE</a><a class="next" href="16-scale.html"><small>次の章 →</small>速く・大きく：推論と学習の工学</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">GPT-2をダウンロードする</a><a href="#s2">重みの名前と形を見る</a><a href="#s3">GPT-2と同じ形のGPTを書く</a><a href="#s4">重みを流し込む</a><a href="#s5">答え合わせ</a><a href="#s6">GPT-2に文章を書かせる</a><a href="#s7">事前学習：GPT-2はどうやって作られたか</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

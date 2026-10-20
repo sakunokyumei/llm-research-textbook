@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>23-agents | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>道具を使わせる：エージェント | つくってわかるLLM</title><meta name="description" content="LLMに電卓と検索を渡し、自分で考えて使わせる">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,227 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" open><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" aria-current="page" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第6部 LLMをシステムにする · 第23章</p><h1>23-agents</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="23-agents">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="22-alignment.html"><small>← 前の章</small>22-alignment</a><a class="next" href="24-deploy.html"><small>次の章 →</small>24-deploy</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" open><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" aria-current="page" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第6部 LLMをシステムにする · 第23章</p><h1>道具を使わせる：エージェント</h1><p class="sub">LLMに電卓と検索を渡し、自分で考えて使わせる</p><dl class="meta"><div><dt>目安</dt><dd>90〜120分</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/23-agents.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/23-agents.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>電卓・学校資料の検索・今日の日付の3つの道具を、LLMが自分で選んで使う「ボンゴ情報専門学校の案内エージェント」</p></div><div><h3>ついでに身につく理論</h3><ul><li>ツール呼び出し（function calling）の仕組み</li><li>道具の説明はJSONスキーマとしてプロンプトに入る</li><li>エージェントのループ（フローチャート）</li><li>ReAct：考える→行動→観察</li><li>安全性：権限・許可リスト・プロンプトインジェクション・人の確認</li><li>MCP（道具をつなぐ共通の約束）</li></ul></div><div><h3>新しく使うPython</h3><ul><li>型ヒントとdocstringで関数を説明する</li><li><code>ast</code> で安全に式を計算する</li><li>正規表現と <code>json.loads</code> で出力を読み取る</li><li><code>while</code> ループと上限回数</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第1章で、LLMは「123×456」を間違えました。計算しているのではなく、それっぽい数字を予測していたからです。じゃあ、LLMに<strong>電卓を渡せば</strong>いい。この章では、LLMが「ここは電卓を使おう」「ここは資料を検索しよう」と<strong>自分で判断して道具を使う</strong>仕組み、<strong>エージェント</strong>を作ります。フローチャートで設計して、Pythonで組み立てます。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>LLMが電卓を使うって、どうやって？ LLMには手がないですよね。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>手はないが、口はある。LLMに「電卓を使いたいときは、こういう形式で書いてね」と教えておく。LLMがその形式で「電卓：123×456」と書いたら、<strong>プログラム（キミのPython）が代わりに電卓を叩いて</strong>、結果をLLMに返す。LLMは司令塔、Pythonは手足。チームプレーだね。</p>
+</div></div>
+
+<h2 id="s1">準備：少し大きめのモデル</h2>
+<p>道具を使うには、指示を正確に守る力が必要なので、0.5Bより一回り大きい <strong>Qwen2.5-1.5B-Instruct</strong>（float16で約3GB）を使います。GPUのランタイムで実行してください。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/rag_docs.jsonl</span>
+<span class="kw">import</span> ast, json, operator, re, datetime
+<span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModelForCausalLM
+
+device = <span class="st">&quot;cuda&quot;</span> <span class="kw">if</span> torch.cuda.is_available() <span class="kw">else</span> <span class="st">&quot;cpu&quot;</span>
+name = <span class="st">&quot;Qwen/Qwen2.5-1.5B-Instruct&quot;</span>
+tok = AutoTokenizer.from_pretrained(name)
+llm = AutoModelForCausalLM.from_pretrained(name, dtype=torch.float16 <span class="kw">if</span> device == <span class="st">&quot;cuda&quot;</span> <span class="kw">else</span> torch.float32).to(device)
+<span class="bi">print</span>(<span class="st">&quot;準備完了&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>準備完了</code></pre></div>
+<h2 id="s2">道具を作る</h2>
+<p>道具は、ふつうのPythonの関数です。ただし、LLMが「この道具は何をするのか」を理解できるように、<strong>型ヒント</strong>と**説明（docstring）**をきちんと書きます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
+       ast.Div: operator.truediv, ast.Pow: operator.<span class="bi">pow</span>, ast.USub: operator.neg}
+
+<span class="kw">def</span> <span class="fn">calculator</span>(expression: <span class="bi">str</span>) -&gt; <span class="bi">str</span>:
+    <span class="st">&quot;&quot;&quot;四則演算の式を正確に計算する。
+
+    Args:
+        expression: 計算したい式。例：&#x27;123*456&#x27; や &#x27;(3+4)/2&#x27;
+    &quot;&quot;&quot;</span>
+    <span class="kw">def</span> <span class="fn">ev</span>(node):
+        <span class="kw">if</span> <span class="bi">isinstance</span>(node, ast.Constant) <span class="kw">and</span> <span class="bi">isinstance</span>(node.value, (<span class="bi">int</span>, <span class="bi">float</span>)):
+            <span class="kw">return</span> node.value
+        <span class="kw">if</span> <span class="bi">isinstance</span>(node, ast.BinOp) <span class="kw">and</span> <span class="bi">type</span>(node.op) <span class="kw">in</span> OPS:
+            <span class="kw">return</span> OPS[<span class="bi">type</span>(node.op)](ev(node.left), ev(node.right))
+        <span class="kw">if</span> <span class="bi">isinstance</span>(node, ast.UnaryOp) <span class="kw">and</span> <span class="bi">type</span>(node.op) <span class="kw">in</span> OPS:
+            <span class="kw">return</span> OPS[<span class="bi">type</span>(node.op)](ev(node.operand))
+        <span class="kw">raise</span> ValueError(<span class="st">&quot;数字と + - * / ** ( ) 以外は使えません&quot;</span>)
+    <span class="kw">try</span>:
+        expression = expression.replace(<span class="st">&quot;×&quot;</span>, <span class="st">&quot;*&quot;</span>).replace(<span class="st">&quot;÷&quot;</span>, <span class="st">&quot;/&quot;</span>)
+        <span class="kw">return</span> <span class="bi">str</span>(ev(ast.parse(expression, mode=<span class="st">&quot;eval&quot;</span>).body))
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="kw">return</span> <span class="st">f&quot;エラー：{e}&quot;</span>
+
+docs = [json.loads(l) <span class="kw">for</span> l <span class="kw">in</span> <span class="bi">open</span>(<span class="st">&quot;rag_docs.jsonl&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>)]
+
+<span class="kw">def</span> <span class="fn">search_school</span>(query: <span class="bi">str</span>) -&gt; <span class="bi">str</span>:
+    <span class="st">&quot;&quot;&quot;ボンゴ情報専門学校の資料から、質問に関係する文章を探す。
+
+    Args:
+        query: 調べたいこと。例：&#x27;学食の人気メニュー&#x27;
+    &quot;&quot;&quot;</span>
+    grams = <span class="kw">lambda</span> s: {s[i:i + <span class="nu">2</span>] <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">len</span>(s) - <span class="nu">1</span>)}
+    q = grams(query)
+    best = <span class="bi">sorted</span>(docs, key=<span class="kw">lambda</span> d: -<span class="bi">len</span>(q &amp; grams(d[<span class="st">&quot;title&quot;</span>] + d[<span class="st">&quot;text&quot;</span>])))[:<span class="nu">2</span>]
+    <span class="kw">return</span> <span class="st">&quot;\n&quot;</span>.join(<span class="st">f&quot;[{d[&#x27;id&#x27;]}] {d[&#x27;text&#x27;]}&quot;</span> <span class="kw">for</span> d <span class="kw">in</span> best)
+
+<span class="kw">def</span> <span class="fn">today</span>() -&gt; <span class="bi">str</span>:
+    <span class="st">&quot;&quot;&quot;今日の日付を返す。&quot;&quot;&quot;</span>
+    <span class="kw">return</span> datetime.date.today().isoformat()
+
+tools = {<span class="st">&quot;calculator&quot;</span>: calculator, <span class="st">&quot;search_school&quot;</span>: search_school, <span class="st">&quot;today&quot;</span>: today}
+<span class="bi">print</span>(calculator(<span class="st">&quot;123*456&quot;</span>), calculator(<span class="st">&quot;(3+4)/2&quot;</span>), calculator(<span class="st">&quot;__import__(&#x27;os&#x27;)&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>56088 3.5 エラー：数字と + - * / ** ( ) 以外は使えません</code></pre></div>
+<aside class="box box-warn"><p class="box-title">つまずき注意：eval を使わない理由</p><p>Pythonには、文字列をそのままプログラムとして実行する <code>eval</code> という関数があります。電卓なら <code>eval(&quot;123*456&quot;)</code> で済みそうですが、<strong>LLMの出力を <code>eval</code> してはいけません</strong>。LLMが（あるいは、LLMをだました誰かが）<code>__import__('os').system('…')</code> のような文字列を書けば、あなたのコンピュータで好きな命令が実行されてしまいます。上の <code>calculator</code> は、式を構文の木（<code>ast</code>）に分解し、数字と四則演算だけを許可しているので、そうした攻撃を受け付けません。<strong>道具は、できることを最小限にして作る</strong>。これがエージェントの安全の基本です。</p>
+</aside>
+
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：構文解析</p><p><code>ast.parse</code> は、式を「木構造」（<strong>構文木</strong>）に分解します。<code>3+4*2</code> は、「＋」の下に「3」と「×」があり、「×」の下に「4」と「2」がある木になります。基本情報で習う「逆ポーランド記法」や「木の走査」は、まさにこの計算の仕組みです。上の <code>ev</code> 関数は、木を下からたどって計算する<strong>再帰</strong>の関数になっています。</p>
+</aside>
+
+<h2 id="s3">道具の説明は、プロンプトに入る</h2>
+<p><code>apply_chat_template</code> に <code>tools=</code> で関数のリストを渡すと、関数の型ヒントとdocstringから、<strong>道具の説明書</strong>（JSONスキーマ）が自動で作られ、プロンプトの中に書き込まれます。LLMが実際に何を読んでいるのか、見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>messages = [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;123×456はいくつ？&quot;</span>}]
+prompt = tok.apply_chat_template(messages, tools=<span class="bi">list</span>(tools.values()), add_generation_prompt=<span class="kw">True</span>, tokenize=<span class="kw">False</span>)
+<span class="bi">print</span>(prompt)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>&lt;|im_start|&gt;system
+You are Qwen, created by Alibaba Cloud. You are a helpful assistant.
+
+# Tools
+
+You may call one or more functions to assist with the user query.
+
+You are provided with function signatures within &lt;tools&gt;&lt;/tools&gt; XML tags:
+&lt;tools&gt;
+{&quot;type&quot;: &quot;function&quot;, &quot;function&quot;: {&quot;name&quot;: &quot;calculator&quot;, &quot;description&quot;: &quot;四則演算の式を正確に計算する。&quot;, &quot;parameters&quot;: {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {&quot;expression&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;計算したい式。例：&#x27;123*456&#x27; や &#x27;(3+4)/2&#x27;&quot;}}, &quot;required&quot;: [&quot;expression&quot;]}, &quot;return&quot;: {&quot;type&quot;: &quot;string&quot;}}}
+{&quot;type&quot;: &quot;function&quot;, &quot;function&quot;: {&quot;name&quot;: &quot;search_school&quot;, &quot;description&quot;: &quot;ボンゴ情報専門学校の資料から、質問に関係する文章を探す。&quot;, &quot;parameters&quot;: {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {&quot;query&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;調べたいこと。例：&#x27;学食の人気メニュー&#x27;&quot;}}, &quot;required&quot;: [&quot;query&quot;]}, &quot;return&quot;: {&quot;type&quot;: &quot;string&quot;}}}
+{&quot;type&quot;: &quot;function&quot;, &quot;function&quot;: {&quot;name&quot;: &quot;today&quot;, &quot;description&quot;: &quot;今日の日付を返す。&quot;, &quot;parameters&quot;: {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {}}, &quot;return&quot;: {&quot;type&quot;: &quot;string&quot;}}}
+&lt;/tools&gt;
+
+For each function call, return a json object with function name and arguments within &lt;tool_call&gt;&lt;/tool_call&gt; XML tags:
+&lt;tool_call&gt;
+{&quot;name&quot;: &lt;function-name&gt;, &quot;arguments&quot;: &lt;args-json-object&gt;}
+&lt;/tool_call&gt;&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+123×456はいくつ？&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ツール呼び出しの正体</p><p>これが <strong>ツール呼び出し</strong>（tool calling、function calling）の正体です。</p>
+<ol>
+<li>道具の説明書（名前・何をするか・引数）が、systemの部分に<strong>ただの文章として</strong>書き込まれる</li>
+<li>「道具を使いたいときは <code>&lt;tool_call&gt;{&quot;name&quot;: …, &quot;arguments&quot;: …}&lt;/tool_call&gt;</code> と書け」というルールも書いてある</li>
+<li>チャットモデルは、このルールに従って <code>&lt;tool_call&gt;</code> を書けるように、SFT（第18章）で訓練されている</li>
+</ol>
+<p>つまり、LLMは道具を「実行」しているわけではなく、「この道具をこの引数で使いたい」という<strong>文章を書いているだけ</strong>です。それを読み取って実際に関数を動かすのは、あなたのプログラムの仕事です。</p>
+</aside>
+
+<h2 id="s4">LLMの「道具を使いたい」を読み取る</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">generate</span>(messages):
+    inputs = tok.apply_chat_template(messages, tools=<span class="bi">list</span>(tools.values()), add_generation_prompt=<span class="kw">True</span>,
+                                     return_tensors=<span class="st">&quot;pt&quot;</span>, return_dict=<span class="kw">True</span>).to(device)
+    out = llm.generate(**inputs, max_new_tokens=<span class="nu">200</span>, do_sample=<span class="kw">False</span>, pad_token_id=tok.pad_token_id)
+    <span class="kw">return</span> tok.decode(out[<span class="nu">0</span>][inputs[<span class="st">&quot;input_ids&quot;</span>].shape[<span class="nu">1</span>]:], skip_special_tokens=<span class="kw">True</span>)
+
+<span class="kw">def</span> <span class="fn">parse_tool_calls</span>(text):
+    calls = []
+    <span class="kw">for</span> block <span class="kw">in</span> re.findall(<span class="st">r&quot;&lt;tool_call&gt;(.*?)&lt;/tool_call&gt;&quot;</span>, text, re.S):
+        <span class="kw">try</span>:
+            calls.append(json.loads(block))
+        <span class="kw">except</span> json.JSONDecodeError:
+            <span class="kw">pass</span>                       <span class="cm"># 形式が崩れていたら無視する</span>
+    <span class="kw">return</span> calls
+
+reply = generate(messages)
+<span class="bi">print</span>(<span class="st">&quot;LLMの返事：&quot;</span>, reply)
+<span class="bi">print</span>(<span class="st">&quot;読み取った呼び出し：&quot;</span>, parse_tool_calls(reply))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>LLMの返事： &lt;tool_call&gt;
+{&quot;name&quot;: &quot;calculator&quot;, &quot;arguments&quot;: {&quot;expression&quot;: &quot;123*456&quot;}}
+&lt;/tool_call&gt;
+読み取った呼び出し： [{&#x27;name&#x27;: &#x27;calculator&#x27;, &#x27;arguments&#x27;: {&#x27;expression&#x27;: &#x27;123*456&#x27;}}]</code></pre></div>
+<p>LLMは自分で計算せずに、「calculatorを <code>123*456</code> で使いたい」と書きました。</p>
+<h2 id="s5">エージェントのループ</h2>
+<p>道具の結果をLLMに返し、LLMがそれを読んで、また道具を使うか、答えを書くかを決める。これをくり返すのがエージェントです。フローチャートで設計しましょう。</p>
+<p><img src="img/agent-flow.svg" alt="エージェントのフローチャート。質問を入れ、LLMに生成させ、道具の呼び出しがあれば実行して結果を追加してLLMに戻る。なければ答えて終了。上限の回数に達したら終了。" /></p>
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：フローチャートで設計する</p><p>基本情報で練習しているフローチャートは、エージェントの設計にそのまま使えます。特に大事なのは「<strong>上限の回数</strong>」の判断です。LLMが道具を呼び続けて終わらない（無限ループ）こともあるので、必ず回数の上限を決めておきます。ループには必ず出口を。これはプログラミングの鉄則ですね。</p>
+</aside>
+
+<p>フローチャートを、そのままPythonにします。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">run_agent</span>(question, max_steps=<span class="nu">5</span>, verbose=<span class="kw">True</span>):
+    messages = [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: question}]
+    <span class="kw">for</span> step <span class="kw">in</span> <span class="bi">range</span>(max_steps):
+        reply = generate(messages)
+        calls = parse_tool_calls(reply)
+        <span class="kw">if</span> <span class="kw">not</span> calls:                                       <span class="cm"># 道具の呼び出しがない → 答え</span>
+            <span class="kw">return</span> reply
+        messages.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;assistant&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;&quot;</span>,
+                         <span class="st">&quot;tool_calls&quot;</span>: [{<span class="st">&quot;type&quot;</span>: <span class="st">&quot;function&quot;</span>, <span class="st">&quot;function&quot;</span>: c} <span class="kw">for</span> c <span class="kw">in</span> calls]})
+        <span class="kw">for</span> c <span class="kw">in</span> calls:
+            fn = tools.get(c.get(<span class="st">&quot;name&quot;</span>))
+            result = fn(**c.get(<span class="st">&quot;arguments&quot;</span>, {})) <span class="kw">if</span> fn <span class="kw">else</span> <span class="st">f&quot;そんな道具はありません：{c.get(&#x27;name&#x27;)}&quot;</span>
+            <span class="kw">if</span> verbose:
+                <span class="bi">print</span>(<span class="st">f&quot;  🔧 {c.get(&#x27;name&#x27;)}({c.get(&#x27;arguments&#x27;)}) → {result[:60]}&quot;</span>)
+            messages.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;tool&quot;</span>, <span class="st">&quot;name&quot;</span>: c.get(<span class="st">&quot;name&quot;</span>), <span class="st">&quot;content&quot;</span>: result})
+    <span class="kw">return</span> <span class="st">&quot;（上限の回数に達しました）&quot;</span>
+
+<span class="bi">print</span>(run_agent(<span class="st">&quot;123×456はいくつ？&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>  🔧 calculator({&#x27;expression&#x27;: &#x27;123*456&#x27;}) → 56088
+123×456 = 56088 です。</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>第1章の雪辱を果たしたぞ！ 56088。今度は「それっぽい数」ではなく、本当に計算した数だ。LLMは「計算が必要だ」と判断して、電卓の結果を読んで答えた。司令塔と手足のチームプレー、成功だね。</p>
+</div></div>
+
+<p>道具を2つ組み合わせる必要がある質問も試してみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(run_agent(<span class="st">&quot;ボンゴ情報専門学校の学食の一番人気メニューを、3人分買うといくらになりますか？&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>  🔧 search_school({&#x27;query&#x27;: &#x27;学食の一番人気メニュー&#x27;}) → [3] 学食「ドコドコ食堂」の一番人気は「量子化カレー」（450円）です。ご飯の
+  🔧 calculator({&#x27;expression&#x27;: &#x27;450*3&#x27;}) → 1350
+一番人気のメニューは「量子化カレー」（450円）で、3人分だと1350円になります。</code></pre></div>
+<p>検索で値段を調べ、電卓で掛け算をしました。誰も手順を教えていないのに、LLMが自分で「まず調べて、次に計算」と段取りを組んでいます。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ReAct：考える → 行動 → 観察</p><p>このように、LLMが「<strong>考え</strong>（Reasoning）」と「<strong>行動</strong>（Acting、道具を使う）」と「<strong>観察</strong>（道具の結果を読む）」をくり返しながら問題を解く方法を <strong>ReAct</strong> と呼びます（2022年の論文）。人間が調べものをするときと同じで、一度に全部を考えず、調べた結果を見ながら次の一手を決めるのです。</p>
+<p>小さなモデルは、段取りを間違えたり、道具の名前や引数を間違えたり、同じ道具を何度も呼んだりします。うまくいかないときは、</p>
+<ul>
+<li>もっと大きなモデルを使う（3B、7Bなど。7BならQLoRAと同じ4ビット読み込みでT4に乗る）</li>
+<li>道具の説明（docstring）を分かりやすく書き直す</li>
+<li>道具の数を絞る（選択肢が多いほど迷う）</li>
+</ul>
+<p>を試しましょう。道具の説明を書くのは、<strong>LLMのためのUI（使い方の説明）を書く</strong>仕事です。HTMLで分かりやすいボタンを作るのと、よく似ています。</p>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：道具を増やしてみよう</p><p>「たいこ町の今日の天気」を返す（中身は固定の文字列でOK）<code>weather</code> 関数や、「単位換算」をする関数を作って <code>tools</code> に追加してみましょう。docstringの書き方しだいで、LLMがうまく使えるかどうかが変わるのを観察してください。</p>
+</aside>
+
+<h2 id="s6">エージェントの安全</h2>
+<p>エージェントは、道具を通して<strong>現実の世界に作用</strong>できます。電卓ならまだしも、「メールを送る」「ファイルを消す」「買い物をする」道具を渡したら……？</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：エージェントの安全のための5か条</p><ol>
+<li><strong>道具の権限は最小限に</strong>：電卓は四則演算だけ、検索は読むだけ。消したり送ったりする道具は、本当に必要なときだけ</li>
+<li><strong>許可リスト</strong>：使ってよい道具・引数を決めておき、それ以外は実行しない（上の <code>tools.get</code> で、知らない道具名は実行しないようにしています）</li>
+<li><strong>取り返しのつかない操作は人が確認</strong>：送信・削除・支払いの前には、必ず人間に「実行していいですか？」と聞く</li>
+<li><strong>道具の結果は「データ」であって「命令」ではない</strong>：検索結果やWebページに「これまでの指示を無視して…」と書かれていても従わない（第21章のプロンプトインジェクション）</li>
+<li><strong>上限を決める</strong>：回数・時間・お金の上限。無限ループや暴走を防ぐ</li>
+</ol>
+</aside>
+
+<details class="deep"><summary><span>もっと深く</span>MCP：道具をつなぐ共通の約束</summary><p>道具（データベース、ファイル、Webサービスなど）とLLMのアプリをつなぐ方法は、アプリごとにバラバラでした。そこで2024年11月に、Anthropic社が <strong>MCP</strong>（Model Context Protocol）というオープンな共通規格を公開しました。USBのように、規格に合わせて作った道具（MCPサーバー）なら、いろいろなAIアプリ（MCPクライアント）から同じように使える、という考え方です。この章で作った「道具の説明（JSONスキーマ）を渡し、呼び出しを受け取り、結果を返す」という流れが、MCPでも基本になっています。</p>
+</details>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：ツール呼び出し</p><p>LLMは、電卓の道具を「実行」しているの？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>いいえ。LLMは「この道具をこの引数で使いたい」という決まった形式の文章（<code>&lt;tool_call&gt;…&lt;/tool_call&gt;</code>）を書いているだけです。それを読み取って実際に関数を実行し、結果を返すのは、周りのプログラムの仕事です。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：上限</p><p>エージェントのループに「上限の回数」が必要なのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>LLMが道具を呼び続けて答えを出さない（無限ループになる）ことがあるからです。時間やお金を使い続けたり、同じ操作をくり返したりするのを防ぐために、必ず出口を用意します。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：eval</p><p>電卓の道具を <code>eval(expression)</code> で作ってはいけないのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p><code>eval</code> は文字列をPythonのプログラムとして実行するので、LLM（やLLMをだました誰か）が危険な命令を書けば、それが実行されてしまうからです。数字と四則演算だけを許可する安全な計算方法を使います。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="23-agents:0"> <span>型ヒントとdocstringで道具の関数を書いた</span></label></li><li><label><input type="checkbox" data-check="23-agents:1"> <span>道具の説明がプロンプトの中に文章として入ることを確かめた</span></label></li><li><label><input type="checkbox" data-check="23-agents:2"> <span><code>&lt;tool_call&gt;</code> を読み取って関数を実行できた</span></label></li><li><label><input type="checkbox" data-check="23-agents:3"> <span>フローチャートで設計したエージェントのループを実装した</span></label></li><li><label><input type="checkbox" data-check="23-agents:4"> <span>検索と電卓を組み合わせる質問に、エージェントが答えた</span></label></li><li><label><input type="checkbox" data-check="23-agents:5"> <span>エージェントの安全のための5か条を説明できる</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li><strong>ツール呼び出し</strong>：道具の説明（JSONスキーマ）をプロンプトに入れ、LLMが書いた呼び出しをプログラムが実行する</li>
+<li><strong>エージェント</strong>：生成 → 道具の実行 → 結果を返す、をくり返すループ。必ず<strong>上限</strong>を決める</li>
+<li><strong>ReAct</strong>：考える・行動・観察のくり返し。道具の説明を書くのは「LLMのためのUI」作り</li>
+<li>安全：<strong>最小権限・許可リスト・人の確認・結果は命令ではない・上限</strong>。<code>eval</code> は使わない</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>キミのLLMは、知識、作法、好み、そして手足を手に入れた。次の章では、いよいよ<strong>世界に公開</strong>する。第13章で育てた漱石GPTを、キミが得意なHTMLとCSSで作ったWebページに載せて、誰でもブラウザで試せるようにしよう。トップページで動いていた、あれだ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="23-agents">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="22-alignment.html"><small>← 前の章</small>好みを教える：RLHFとDPO</a><a class="next" href="24-deploy.html"><small>次の章 →</small>24-deploy</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：少し大きめのモデル</a><a href="#s2">道具を作る</a><a href="#s3">道具の説明は、プロンプトに入る</a><a href="#s4">LLMの「道具を使いたい」を読み取る</a><a href="#s5">エージェントのループ</a><a href="#s6">エージェントの安全</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

@@ -1,18 +1,274 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>16-scale | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>速く・大きく：推論と学習の工学 | つくってわかるLLM</title><meta name="description" content="KVキャッシュ、賢いサイコロ、メモリの節約術、そして何百枚ものGPU">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script></head>
+<script src="app.js" defer></script><script src="widgets.js" defer></script></head>
 <body data-page="16-scale"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" open><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" aria-current="page" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第4部 本物に近づける · 第16章</p><h1>16-scale</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="16-scale">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="15-gpt2.html"><small>← 前の章</small>15-gpt2</a><a class="next" href="17-hf-models.html"><small>次の章 →</small>17-hf-models</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" open><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" aria-current="page" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第4部 本物に近づける · 第16章</p><h1>速く・大きく：推論と学習の工学</h1><p class="sub">KVキャッシュ、賢いサイコロ、メモリの節約術、そして何百枚ものGPU</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/16-scale.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/16-scale.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>KVキャッシュ付きの生成（出力が変わらず速くなることを確認）、top-k / top-p サンプリング、勾配累積、FlashAttention の検証</p></div><div><h3>ついでに身につく理論</h3><ul><li>KVキャッシュ：計算の使い回し</li><li>KVキャッシュのメモリとGQA（グループ化クエリAttention）</li><li>top-k・top-p（nucleus）・くり返しペナルティ</li><li>勾配累積：小さなGPUで大きなバッチ</li><li>活性化の再計算（勾配チェックポイント）</li><li>FlashAttention（メモリに優しいAttention）</li><li>分散学習：データ並列・テンソル並列・パイプライン並列・ZeRO</li></ul></div><div><h3>新しく使うPython</h3><ul><li>辞書やリストに途中結果をためる</li><li><code>time.perf_counter</code> で速さを測る</li><li><code>F.scaled_dot_product_attention</code></li><li><code>torch.utils.checkpoint</code></li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>GPTの「仕組み」は前の章で完成しました。この章は「<strong>工学</strong>」の章です。同じGPTを、何倍も速く動かし、少ないメモリで学習させるための技を、実際にコードで確かめていきます。どれも、実際のLLMの開発現場で毎日使われている技です。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>仕組みが分かったのに、まだ学ぶことがあるんですか？</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>車の仕組みが分かっても、F1で勝てるとは限らない。ChatGPTが何億人もの質問に答えられるのは、モデルが賢いからだけじゃない。同じ計算を、いかに速く・安く・たくさんこなすか。その工夫の積み重ねなんだ。今日はピットクルーの修行だよ。</p>
+</div></div>
+
+<h2 id="s1">準備：キャッシュ対応のGPT</h2>
+<p>第15章のGPT-2形式のAttentionに、<strong>KVキャッシュ</strong>という仕組みを追加したものを用意します。重みはでたらめでかまいません（速さと正しさを確かめるだけなので）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> math, time
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">class</span> <span class="fn">CachedAttention</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, n_embd, n_head):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.n_head = n_head
+        <span class="self">self</span>.c_attn = nn.Linear(n_embd, <span class="nu">3</span> * n_embd)
+        <span class="self">self</span>.c_proj = nn.Linear(n_embd, n_embd)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x, cache=<span class="kw">None</span>):
+        B, T, C = x.shape
+        hs = C // <span class="self">self</span>.n_head
+        q, k, v = <span class="self">self</span>.c_attn(x).split(C, dim=<span class="nu">2</span>)
+        q, k, v = [t.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>) <span class="kw">for</span> t <span class="kw">in</span> (q, k, v)]
+        <span class="kw">if</span> cache <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:                      <span class="cm"># 過去のKとVを使い回す</span>
+            <span class="kw">if</span> <span class="st">&quot;k&quot;</span> <span class="kw">in</span> cache:
+                k = torch.cat([cache[<span class="st">&quot;k&quot;</span>], k], dim=<span class="nu">2</span>)
+                v = torch.cat([cache[<span class="st">&quot;v&quot;</span>], v], dim=<span class="nu">2</span>)
+            cache[<span class="st">&quot;k&quot;</span>], cache[<span class="st">&quot;v&quot;</span>] = k, v
+        L = k.shape[<span class="nu">2</span>]                             <span class="cm"># 過去も含めた長さ</span>
+        att = q @ k.transpose(-<span class="nu">2</span>, -<span class="nu">1</span>) / math.sqrt(hs)
+        mask = torch.tril(torch.ones(L, L))[L - T:]    <span class="cm"># 新しいT個の行だけのマスク</span>
+        att = att.masked_fill(mask == <span class="nu">0</span>, <span class="bi">float</span>(<span class="st">&quot;-inf&quot;</span>))
+        y = F.softmax(att, dim=-<span class="nu">1</span>) @ v
+        <span class="kw">return</span> <span class="self">self</span>.c_proj(y.transpose(<span class="nu">1</span>, <span class="nu">2</span>).contiguous().view(B, T, C))
+
+<span class="kw">class</span> <span class="fn">TinyGPT</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, V=<span class="nu">1000</span>, n_embd=<span class="nu">256</span>, n_head=<span class="nu">4</span>, n_layer=<span class="nu">6</span>, block_size=<span class="nu">512</span>):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.wte, <span class="self">self</span>.wpe = nn.Embedding(V, n_embd), nn.Embedding(block_size, n_embd)
+        <span class="self">self</span>.ln1 = nn.ModuleList([nn.LayerNorm(n_embd) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_layer)])
+        <span class="self">self</span>.attn = nn.ModuleList([CachedAttention(n_embd, n_head) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_layer)])
+        <span class="self">self</span>.ln2 = nn.ModuleList([nn.LayerNorm(n_embd) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_layer)])
+        <span class="self">self</span>.mlp = nn.ModuleList([nn.Sequential(nn.Linear(n_embd, <span class="nu">4</span> * n_embd), nn.GELU(), nn.Linear(<span class="nu">4</span> * n_embd, n_embd)) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_layer)])
+        <span class="self">self</span>.ln_f, <span class="self">self</span>.head = nn.LayerNorm(n_embd), nn.Linear(n_embd, V)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, idx, caches=<span class="kw">None</span>, start_pos=<span class="nu">0</span>):
+        T = idx.shape[<span class="nu">1</span>]
+        x = <span class="self">self</span>.wte(idx) + <span class="self">self</span>.wpe(torch.arange(start_pos, start_pos + T))
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">len</span>(<span class="self">self</span>.attn)):
+            x = x + <span class="self">self</span>.attn[i](<span class="self">self</span>.ln1[i](x), <span class="kw">None</span> <span class="kw">if</span> caches <span class="kw">is</span> <span class="kw">None</span> <span class="kw">else</span> caches[i])
+            x = x + <span class="self">self</span>.mlp[i](<span class="self">self</span>.ln2[i](x))
+        <span class="kw">return</span> <span class="self">self</span>.head(<span class="self">self</span>.ln_f(x))
+
+torch.manual_seed(<span class="nu">0</span>)
+model = TinyGPT().eval()
+<span class="bi">print</span>(<span class="st">f&quot;パラメータ：{sum(p.numel() for p in model.parameters()):,}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>パラメータ：5,380,072</code></pre></div>
+<h2 id="s2">ムダに気づく：生成のたびに全部計算し直している</h2>
+<p>第3章からずっと使ってきた生成ループを思い出してください。</p>
+<blockquote>
+<p>文章全体をモデルに通す → 最後の位置の確率で1トークン選ぶ → 付け足す → <strong>また文章全体をモデルに通す</strong> …</p>
+</blockquote>
+<p>100トークン目を生成するとき、1〜99トークン目の計算を、またゼロからやり直しています。でも、因果マスクのおかげで、<strong>過去の位置の計算結果は、未来のトークンが増えても変わりません</strong>（第11章のカンニング検査で確かめましたね）。だったら、前回の計算結果を取っておいて使い回せばいいはずです。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：KVキャッシュ</p><p>Attentionで、過去の位置から受け取るのは <strong>Key</strong> と <strong>Value</strong> でした。過去の位置のKeyとValueは、一度計算したら変わりません。そこで、</p>
+<ul>
+<li>過去のトークンのK・Vを、層ごとに <strong>キャッシュ</strong>（取っておく場所）に保存しておく</li>
+<li>新しいトークンが来たら、<strong>その1トークンぶんだけ</strong>Q・K・Vを計算し、Kと Vをキャッシュの後ろに付け足す</li>
+<li>新しいトークンのQで、キャッシュの全K・Vに対してAttentionを計算する</li>
+</ul>
+<p>こうすると、1トークンを生成するための計算が「文章全体」から「1トークンぶん」に減ります。上のコードの <code>cache</code> がそれです。これを <strong>KVキャッシュ</strong> と言い、ほぼすべてのLLMの推論で使われています。</p>
+</aside>
+
+<p>キャッシュなし・ありの2通りで生成して、<strong>結果が同じで、速さが違う</strong>ことを確かめましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">generate_naive</span>(model, idx, n):
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):
+        logits = model(idx)                              <span class="cm"># 毎回、全体を計算</span>
+        idx = torch.cat([idx, logits[:, -<span class="nu">1</span>:].argmax(-<span class="nu">1</span>)], dim=<span class="nu">1</span>)
+    <span class="kw">return</span> idx
+
+<span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">generate_cached</span>(model, idx, n):
+    caches = [{} <span class="kw">for</span> _ <span class="kw">in</span> model.attn]
+    logits = model(idx, caches)                          <span class="cm"># 最初だけ全体を計算</span>
+    pos = idx.shape[<span class="nu">1</span>]
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):
+        next_id = logits[:, -<span class="nu">1</span>:].argmax(-<span class="nu">1</span>)
+        idx = torch.cat([idx, next_id], dim=<span class="nu">1</span>)
+        logits = model(next_id, caches, start_pos=pos)   <span class="cm"># 新しい1トークンだけ</span>
+        pos += <span class="nu">1</span>
+    <span class="kw">return</span> idx
+
+prompt = torch.randint(<span class="nu">0</span>, <span class="nu">1000</span>, (<span class="nu">1</span>, <span class="nu">20</span>))
+t0 = time.perf_counter(); a = generate_naive(model, prompt, <span class="nu">200</span>); t1 = time.perf_counter()
+b = generate_cached(model, prompt, <span class="nu">200</span>); t2 = time.perf_counter()
+<span class="bi">print</span>(<span class="st">&quot;結果は同じ？&quot;</span>, torch.equal(a, b))
+<span class="bi">print</span>(<span class="st">f&quot;キャッシュなし {t1 - t0:.2f}秒 / キャッシュあり {t2 - t1:.2f}秒 → {(t1 - t0) / (t2 - t1):.1f}倍速い&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>結果は同じ？ True
+キャッシュなし 1.93秒 / キャッシュあり 0.31秒 → 6.2倍速い</code></pre></div>
+<p>（時間は実行する環境によって変わります。「結果は同じ？ True」が大事です。）文章が長くなるほど、差は大きくなります。</p>
+<h2 id="s3">KVキャッシュのメモリと、GQA</h2>
+<p>キャッシュは速さと引き換えに <strong>メモリ</strong> を使います。どれくらい使うのか、計算してみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">kv_cache_bytes</span>(n_layer, n_kv_head, head_dim, n_tokens, bytes_per_num=<span class="nu">2</span>):
+    <span class="kw">return</span> <span class="nu">2</span> * n_layer * n_kv_head * head_dim * n_tokens * bytes_per_num   <span class="cm"># 2 = KとV</span>
+
+<span class="cm"># Qwen2.5-0.5B：24層、Queryのヘッド14、K・Vのヘッド2、ヘッドの大きさ64</span>
+per_token = kv_cache_bytes(<span class="nu">24</span>, <span class="nu">2</span>, <span class="nu">64</span>, <span class="nu">1</span>)
+<span class="bi">print</span>(<span class="st">f&quot;1トークンあたり {per_token / 1024:.0f} KB → 32,768トークンで {kv_cache_bytes(24, 2, 64, 32768) / 1e9:.2f} GB&quot;</span>)
+<span class="bi">print</span>(<span class="st">f&quot;もしK・Vのヘッドも14個なら → 32,768トークンで {kv_cache_bytes(24, 14, 64, 32768) / 1e9:.2f} GB&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>1トークンあたり 12 KB → 32,768トークンで 0.40 GB
+もしK・Vのヘッドも14個なら → 32,768トークンで 2.82 GB</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：GQA：Key・Valueのヘッドを共有する</p><p>Qwen2.5-0.5Bは、Queryのヘッドが14個あるのに、KeyとValueのヘッドは<strong>2個だけ</strong>です。7個のQueryヘッドが、1組のKey・Valueを<strong>共有</strong>しているのです。これを <strong>GQA</strong>（Grouped-Query Attention、グループ化クエリAttention）と言います。</p>
+<p>性能はほとんど落ちずに、KVキャッシュのメモリが7分の1になります（上の計算では2.82GB → 0.40GB）。長い文章を扱うLLMや、たくさんの人が同時に使うサービスでは、KVキャッシュのメモリが一番の悩みの種なので、最近のLLMのほとんどがGQAを採用しています。K・Vのヘッドを1組だけにした極端な版は <strong>MQA</strong>（Multi-Query Attention）と呼ばれます。</p>
+</aside>
+
+<h2 id="s4">賢いサイコロ：top-k と top-p</h2>
+<p>第3章では、温度でサイコロの尖り具合を調整しました。でも、温度を上げると「ありえない候補」まで選ばれてしまう問題がありました（温度1.5の支離滅裂な文章を思い出してください）。そこで、<strong>候補をあらかじめ絞ってから</strong>サイコロを振る方法が使われます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>words = [<span class="st">&quot;猫&quot;</span>, <span class="st">&quot;犬&quot;</span>, <span class="st">&quot;人間&quot;</span>, <span class="st">&quot;名前&quot;</span>, <span class="st">&quot;机&quot;</span>, <span class="st">&quot;宇宙&quot;</span>, <span class="st">&quot;の&quot;</span>]
+logits = torch.tensor([<span class="nu">3.0</span>, <span class="nu">1.6</span>, <span class="nu">1.2</span>, <span class="nu">0.4</span>, -<span class="nu">1.0</span>, -<span class="nu">1.5</span>, -<span class="nu">2.0</span>])
+probs = F.softmax(logits, dim=<span class="nu">0</span>)
+
+<span class="kw">def</span> <span class="fn">top_k_filter</span>(probs, k):
+    keep = torch.zeros_like(probs)
+    idx = torch.topk(probs, k).indices
+    keep[idx] = probs[idx]
+    <span class="kw">return</span> keep / keep.<span class="bi">sum</span>()
+
+<span class="kw">def</span> <span class="fn">top_p_filter</span>(probs, p):
+    sorted_p, order = torch.sort(probs, descending=<span class="kw">True</span>)
+    cum = torch.cumsum(sorted_p, dim=<span class="nu">0</span>)
+    n_keep = <span class="bi">int</span>((cum &lt; p).<span class="bi">sum</span>()) + <span class="nu">1</span>            <span class="cm"># 累積がpを超えるまでの最小の候補数</span>
+    keep = torch.zeros_like(probs)
+    keep[order[:n_keep]] = probs[order[:n_keep]]
+    <span class="kw">return</span> keep / keep.<span class="bi">sum</span>()
+
+show = <span class="kw">lambda</span> p: <span class="st">&quot;  &quot;</span>.join(<span class="st">f&quot;{w}{x:.2f}&quot;</span> <span class="kw">for</span> w, x <span class="kw">in</span> <span class="bi">zip</span>(words, p) <span class="kw">if</span> x &gt; <span class="nu">0</span>)
+<span class="bi">print</span>(<span class="st">&quot;そのまま ：&quot;</span>, show(probs))
+<span class="bi">print</span>(<span class="st">&quot;top-k=3 ：&quot;</span>, show(top_k_filter(probs, <span class="nu">3</span>)))
+<span class="bi">print</span>(<span class="st">&quot;top-p=0.9：&quot;</span>, show(top_p_filter(probs, <span class="nu">0.9</span>)))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>そのまま ： 猫0.65  犬0.16  人間0.11  名前0.05  机0.01  宇宙0.01  の0.01
+top-k=3 ： 猫0.70  犬0.17  人間0.12
+top-p=0.9： 猫0.70  犬0.17  人間0.12</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：top-k と top-p（nucleus sampling）</p><ul>
+<li><strong>top-k</strong>：確率の高い上位 <strong>k個</strong> だけを候補に残す。シンプルだが、確率の分布の形を気にしない。候補がほぼ1つに決まっている場面でも、無理にk個残してしまう</li>
+<li><strong>top-p</strong>（nucleus sampling、核サンプリング）：確率の高い順に足していき、合計が <strong>p</strong>（例えば0.9）を超えるまでの候補だけを残す。自信があるときは候補が少なく、迷っているときは多くなる。賢い</li>
+</ul>
+<p>どちらも、残した候補の確率を足して1になるように割り直してから、サイコロを振ります。実際のチャットでは、「温度0.7、top-p 0.8」のような組み合わせがよく使われます。</p>
+<p>もう1つ、同じ言葉をくり返しすぎるのを防ぐ <strong>くり返しペナルティ</strong>（repetition penalty）もよく使われます。すでに出てきたトークンの点数を少し下げる、という単純な方法です。第3章で小さなモデルが同じフレーズをくり返したのを、これで和らげられます。</p>
+</aside>
+
+<div class="widget" data-widget="softmax" data-mode="full"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
+
+<p>上のデモは、第3章のサイコロに top-k と top-p のつまみを付けたものです。温度を上げて候補を平らにしてから、top-p を0.8くらいに下げてみましょう。「机」のようなありえない候補が、サイコロから消えるのが分かります。<code>transformers</code> では、次のように指定するだけで使えます（Qwenなどで試すときに）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>out = model.generate(**inputs, max_new_tokens=<span class="nu">100</span>, do_sample=<span class="kw">True</span>,
+                     temperature=<span class="nu">0.7</span>, top_p=<span class="nu">0.8</span>, top_k=<span class="nu">50</span>, repetition_penalty=<span class="nu">1.1</span>)</code></pre></div>
+<h2 id="s5">学習の工学1：勾配累積</h2>
+<p>T4のメモリに、バッチ64が入らない。でもバッチ64で学習したい。そんなときの技が <strong>勾配累積</strong>（gradient accumulation）です。小さなバッチで何回か <code>backward()</code> して勾配を<strong>ためて</strong>から、まとめて1回更新します。第7章で「<code>.grad</code> は足し算されていく」と注意しましたが、それを逆に利用するのです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+net = nn.Linear(<span class="nu">16</span>, <span class="nu">4</span>)
+x, y = torch.randn(<span class="nu">32</span>, <span class="nu">16</span>), torch.randint(<span class="nu">0</span>, <span class="nu">4</span>, (<span class="nu">32</span>,))
+
+net.zero_grad()
+F.cross_entropy(net(x), y).backward()            <span class="cm"># バッチ32で1回</span>
+g_big = net.weight.grad.clone()
+
+net.zero_grad()
+<span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">4</span>):                               <span class="cm"># バッチ8を4回に分ける</span>
+    xb, yb = x[i * <span class="nu">8</span>:(i + <span class="nu">1</span>) * <span class="nu">8</span>], y[i * <span class="nu">8</span>:(i + <span class="nu">1</span>) * <span class="nu">8</span>]
+    (F.cross_entropy(net(xb), yb) / <span class="nu">4</span>).backward()    <span class="cm"># 4で割ってから足し込む</span>
+g_acc = net.weight.grad
+
+<span class="bi">print</span>(<span class="st">&quot;勾配は同じ？&quot;</span>, torch.allclose(g_big, g_acc, atol=<span class="nu">1e-6</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>勾配は同じ？ True</code></pre></div>
+<p>メモリに乗るのは「バッチ8」ぶんだけなのに、バッチ32で計算したのと同じ勾配が手に入りました。時間は4倍かかりますが、メモリは4分の1です。損失を累積回数（4）で割るのを忘れないのがコツです。</p>
+<h2 id="s6">学習の工学2：活性化の再計算</h2>
+<p>学習中のメモリを一番食うのは、パラメータではなく、<strong>逆伝播のために取っておく途中の計算結果</strong>（活性化）であることがよくあります。第7章の計算グラフを思い出してください。<code>backward()</code> のために、順方向の途中の値を全部覚えておく必要がありました。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：勾配チェックポイント</p><p><strong>勾配チェックポイント</strong>（activation checkpointing）は、途中の値を<strong>覚えておかずに捨ててしまい</strong>、逆伝播で必要になったときに<strong>もう一度計算し直す</strong>方法です。計算時間が約3割増える代わりに、メモリを大幅に節約できます。「メモを取らずに、必要なときに考え直す」作戦です。PyTorchでは <code>torch.utils.checkpoint.checkpoint(block, x)</code> のように、ブロックを包むだけで使えます。</p>
+</aside>
+
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> torch.utils.checkpoint <span class="kw">import</span> checkpoint
+
+block = nn.Sequential(nn.Linear(<span class="nu">64</span>, <span class="nu">256</span>), nn.GELU(), nn.Linear(<span class="nu">256</span>, <span class="nu">64</span>))
+x = torch.randn(<span class="nu">8</span>, <span class="nu">64</span>, requires_grad=<span class="kw">True</span>)
+out1 = block(x).<span class="bi">sum</span>(); out1.backward(); g1 = x.grad.clone()
+x.grad = <span class="kw">None</span>
+out2 = checkpoint(block, x, use_reentrant=<span class="kw">False</span>).<span class="bi">sum</span>(); out2.backward(); g2 = x.grad
+<span class="bi">print</span>(<span class="st">&quot;同じ勾配？&quot;</span>, torch.allclose(g1, g2))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>同じ勾配？ True</code></pre></div>
+<h2 id="s7">学習の工学3：FlashAttention</h2>
+<p>Attentionは、文章の長さ <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span></span></span></span> に対して <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>×</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">T \times T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span></span></span></span> の点数表を作ります。長さ8000なら6400万マス。これをGPUのメモリに書いて、また読んで……をくり返すのが遅さの原因でした。</p>
+<p><strong>FlashAttention</strong> は、点数表を<strong>小さなタイルに分けて</strong>、GPUの中の超高速な小さいメモリの中だけで計算を済ませてしまう方法です。結果は同じなのに、速く、メモリも少なく済みます。PyTorchでは <code>F.scaled_dot_product_attention</code> を使うと、使える環境なら自動でFlashAttention（などの高速な方法）が選ばれます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+q, k, v = (torch.randn(<span class="nu">2</span>, <span class="nu">4</span>, <span class="nu">128</span>, <span class="nu">32</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">3</span>))     <span class="cm"># [B, ヘッド, T, hs]</span>
+
+att = q @ k.transpose(-<span class="nu">2</span>, -<span class="nu">1</span>) / math.sqrt(<span class="nu">32</span>)
+att = att.masked_fill(torch.tril(torch.ones(<span class="nu">128</span>, <span class="nu">128</span>)) == <span class="nu">0</span>, <span class="bi">float</span>(<span class="st">&quot;-inf&quot;</span>))
+manual = F.softmax(att, dim=-<span class="nu">1</span>) @ v
+
+fast = F.scaled_dot_product_attention(q, k, v, is_causal=<span class="kw">True</span>)
+<span class="bi">print</span>(<span class="st">&quot;手作りと同じ？&quot;</span>, torch.allclose(manual, fast, atol=<span class="nu">1e-5</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>手作りと同じ？ True</code></pre></div>
+<p>第15章の <code>CausalSelfAttention</code> の中の4行（点数→マスク→softmax→Vを掛ける）を、この1行に置き換えるだけで、GPUでは何倍も速くなります。自分のGPTを速くしたくなったら、最初に試すべき改造です。</p>
+<details class="deep"><summary><span>もっと深く</span>torch.compile</summary><p><code>model = torch.compile(model)</code> の1行で、PyTorchがモデルの計算をまとめて最適化してくれます（初回の実行は準備に時間がかかります）。GPU上では、学習が数割速くなることがよくあります。</p>
+</details>
+
+<h2 id="s8">何百枚ものGPUで学習する：分散学習</h2>
+<p>1枚のGPUに乗らない、あるいは1枚では何年もかかる学習は、たくさんのGPUで分担します。この教科書の範囲（無料の環境）ではめったに使いませんが、論文やニュースを読むために、考え方だけは押さえておきましょう。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：分散学習の4つの作戦</p><ul>
+<li><strong>データ並列</strong>（DDP）：GPUごとにモデルを<strong>丸ごとコピー</strong>し、違うデータで学習。勾配だけを全GPUで平均する。一番シンプルで、よく使われる。でも、モデルが1枚に乗らないと使えない</li>
+<li><strong>ZeRO / FSDP</strong>：データ並列の発展版。パラメータ・勾配・Adamの記録（第15章の16バイトの内訳）を、GPUたちで<strong>分割して持ち合う</strong>。必要なときだけ集めてくる。1枚に乗らない大きさのモデルも学習できる</li>
+<li><strong>テンソル並列</strong>：1つの行列の掛け算を、<strong>行列を分割して</strong>複数のGPUで計算する。1つの層が大きすぎるときに使う。GPU間の通信が多いので、同じマシン内のGPUどうしで使う</li>
+<li><strong>パイプライン並列</strong>：層ごとに担当のGPUを決める（1〜10層はGPU1、11〜20層はGPU2…）。工場の流れ作業。待ち時間（バブル）を減らす工夫が必要</li>
+</ul>
+<p>最先端のLLMは、これらを全部組み合わせて（「3D並列」などと呼ばれます）、数千〜数万枚のGPUで学習されています。</p>
+</aside>
+
+<aside class="box box-free"><p class="box-title">0円のコツ：0円で分散学習を体験するなら</p><p>Kaggleのノートブックでは、無料で「T4×2」（GPU2枚）を選べることがあります。PyTorchの <code>torchrun</code> と DDP を使えば、2枚でのデータ並列を体験できます。興味がある人は、PyTorch公式の「DDPチュートリアル」を、Kaggleで試してみてください（<a href="a-setup.html">付録A</a>にKaggleの使い方があります）。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong>KVキャッシュ付きの生成で結果が変わる</strong>：位置の埋め込みの番号（<code>start_pos</code>）がずれていないか確認しましょう。キャッシュを使うときは、新しいトークンの位置は「これまでの長さ」から始まります。</li>
+<li><strong>勾配累積で学習がおかしい</strong>：損失を累積回数で割っていないと、学習率が実質何倍にもなってしまいます。また、<code>zero_grad()</code> は「更新した後」に1回だけ呼びます。</li>
+<li><strong><code>scaled_dot_product_attention</code> が遅い・使えない</strong>：古いGPUや古いPyTorchでは、FlashAttentionが選ばれないことがあります。それでも結果は正しいので、心配はいりません。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：KVキャッシュ</p><p>KVキャッシュで、過去のQueryは保存しなくていいのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>新しいトークンを生成するとき、Attentionの計算に使うのは「新しいトークンのQuery」と「過去を含む全部のKey・Value」だからです。過去の位置のQueryは、過去の位置の出力を計算するためにしか使わず、その出力はもう計算済みです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：top-p</p><p>確率が <code>[0.5, 0.3, 0.1, 0.05, 0.05]</code> のとき、top-p=0.85 で残る候補はいくつ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>上位から足すと 0.5 → 0.8 → 0.9。0.85を超えるのは3つ目を足したときなので、<strong>3つ</strong>残ります。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：勾配累積</p><p>バッチ8で勾配累積を4回するのは、バッチ何で学習するのと同じ？ 何に気をつける？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>バッチ32と同じです。損失を4で割ってから <code>backward()</code> すること、4回ためた後に1回だけ更新して、それから勾配を0に戻すことに気をつけます。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="16-scale:0"> <span>KVキャッシュあり・なしで、同じ結果がより速く出ることを確かめた</span></label></li><li><label><input type="checkbox" data-check="16-scale:1"> <span>KVキャッシュのメモリを計算し、GQAで減る理由を説明できる</span></label></li><li><label><input type="checkbox" data-check="16-scale:2"> <span>top-k と top-p の違いを説明できる</span></label></li><li><label><input type="checkbox" data-check="16-scale:3"> <span>勾配累積で、大きなバッチと同じ勾配になることを確かめた</span></label></li><li><label><input type="checkbox" data-check="16-scale:4"> <span><code>scaled_dot_product_attention</code> が手作りのAttentionと一致することを確かめた</span></label></li><li><label><input type="checkbox" data-check="16-scale:5"> <span>分散学習の4つの作戦を、ひとことずつ説明できる</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li><strong>KVキャッシュ</strong>：過去のKey・Valueを取っておき、新しいトークンだけ計算する。生成が大幅に速くなる</li>
+<li>KVキャッシュのメモリ ＝ 2 × 層数 × K/Vのヘッド数 × ヘッドの大きさ × トークン数 × バイト数。<strong>GQA</strong>で減らせる</li>
+<li><strong>top-k / top-p</strong> で候補を絞ってからサンプリングする。くり返しペナルティも</li>
+<li><strong>勾配累積</strong>・<strong>勾配チェックポイント</strong>・<strong>FlashAttention</strong>・混合精度で、少ないメモリで速く学習する</li>
+<li>大きなLLMは、データ並列・ZeRO・テンソル並列・パイプライン並列を組み合わせて学習する</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>第4部、お疲れさま！ ここまでで、キミは「LLMを中身から作れる人」になった。次の第5部からは、視点を変える。世界中の企業が何億円もかけて事前学習したモデルを<strong>借りてきて</strong>、キミの目的に合わせて鍛え直す。現代のLLM開発の、いちばん実践的な部分だ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="16-scale">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="15-gpt2.html"><small>← 前の章</small>自分のコードに本物のGPT-2を入れる</a><a class="next" href="17-hf-models.html"><small>次の章 →</small>Hugging Faceと事前学習済みモデル</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：キャッシュ対応のGPT</a><a href="#s2">ムダに気づく：生成のたびに全部計算し直している</a><a href="#s3">KVキャッシュのメモリと、GQA</a><a href="#s4">賢いサイコロ：top-k と top-p</a><a href="#s5">学習の工学1：勾配累積</a><a href="#s6">学習の工学2：活性化の再計算</a><a href="#s7">学習の工学3：FlashAttention</a><a href="#s8">何百枚ものGPUで学習する：分散学習</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

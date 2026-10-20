@@ -6,6 +6,7 @@ Fenced code blocks carry flags in the info string:
     ```python                      a Colab cell: shown, put in the notebook, verified
     ```python no-run               shown only (not in the notebook, not verified)
     ```python gpu-only             in the notebook, skipped by the CPU verifier
+    ```python online               in the notebook, skipped (needs the Hugging Face Hub API)
     ```python test:A=>B|C=>D       verifier replaces text A with B (e.g. fewer steps)
     ```output                      real output of the previous cell (verified)
     ```output-example              illustrative output (not compared)
