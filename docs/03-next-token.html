@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>次の一語はサイコロで決まる：確率と温度 | つくってわかるLLM</title><meta name="description" content="LLMの頭の中のサイコロを取り出して、自分で振る">
+<meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script><script src="widgets.js" defer></script></head>
+<body data-page="03-next-token"><a class="skip" href="#main">本文へ移動</a>
+<header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
+<a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
+<div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" open><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" aria-current="page" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第1部 まず動かす · 第3章</p><h1>次の一語はサイコロで決まる：確率と温度</h1><p class="sub">LLMの頭の中のサイコロを取り出して、自分で振る</p><dl class="meta"><div><dt>目安</dt><dd>60〜90分</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中2">★★☆☆☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/03-next-token.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/03-next-token.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>LLMの「次のトークンの点数」を取り出し、確率に変えて、自分の手で文章を生成するループ（自作 <code>generate</code>）</p></div><div><h3>ついでに身につく理論</h3><ul><li>ロジット（点数）と確率分布</li><li>指数関数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>x</mi></msup></mrow><annotation encoding="application/x-tex">e^x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span></span></span></span></span></span></span></span> と softmax</li><li>Σ（シグマ）はfor文</li><li>サンプリング（くじ引き）と乱数のシード</li><li>温度（temperature）とgreedy（貪欲法）</li><li>自己回帰生成：1トークンずつ足していく</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>import math</code> と <code>math.exp</code></li><li><code>random</code> とシード</li><li><code>with torch.no_grad():</code></li><li>テンソルの形 <code>.shape</code>（ちらっと）</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第1章では <code>chat(...)</code> の1行でLLMに文章を書かせました。この章ではその中身を分解して、<strong>「次のトークンの確率」を取り出し、自分でサイコロを振って、1トークンずつ文章を作る</strong>ところまで自作します。最後には「温度」というつまみで、LLMを真面目にしたり、はっちゃけさせたりできるようになります。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>第1章で、同じ質問をしても毎回答えが変わったのが気になってました。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>そう、LLMは毎回サイコロを振っている。ただし、ただのサイコロじゃない。「猫」の面がやたら大きくて、「机」の面がすごく小さい、いびつなサイコロだ。そのいびつさこそが、LLMが学んだ「知識」なんだよ。</p>
+</div></div>
+
+<h2 id="s1">準備：モデルを直接読み込む</h2>
+<p>今回は <code>pipeline</code> を使わず、トークナイザーとモデル本体を別々に読み込みます。GPUを使うので、ランタイムを「T4 GPU」にしておきましょう（使えなければCPUでもOK。少し遅いだけです）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModelForCausalLM
+
+name = <span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>
+gpu = torch.cuda.is_available()
+tok = AutoTokenizer.from_pretrained(name)
+model = AutoModelForCausalLM.from_pretrained(
+    name, dtype=torch.float16 <span class="kw">if</span> gpu <span class="kw">else</span> torch.float32, device_map=<span class="st">&quot;auto&quot;</span>
+)
+<span class="bi">print</span>(<span class="st">&quot;読み込み完了。置き場所：&quot;</span>, model.device)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>読み込み完了。置き場所： cuda:0</code></pre></div>
+<p><code>cuda:0</code> はGPUの0番、<code>cpu</code> ならCPUです。<strong>CUDA</strong>（クーダ）は、NVIDIAのGPUで計算するための仕組みの名前です。</p>
+<h2 id="s2">LLMの「点数表」を見る</h2>
+<p>「吾輩は猫である。名前は」の次に来るトークンを、LLMがどう考えているか見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>text = <span class="st">&quot;吾輩は猫である。名前は&quot;</span>
+inputs = tok(text, return_tensors=<span class="st">&quot;pt&quot;</span>).to(model.device)
+
+<span class="kw">with</span> torch.no_grad():
+    out = model(**inputs)
+
+logits = out.logits[<span class="nu">0</span>, -<span class="nu">1</span>]
+<span class="bi">print</span>(logits.shape)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>torch.Size([151936])</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：with torch.no_grad():</p><p><code>with torch.no_grad():</code> は「この中では<strong>学習のための記録をしない</strong>」というモードです。学習するときは、計算の途中経過を全部メモしておく必要がありますが（第7章で理由が分かります）、今は予測するだけなので、メモを省いて速く・省メモリにしています。<br>
+<code>model(**inputs)</code> の <code>**</code> は、辞書の中身を「名前つきの引数」として渡す書き方です。今は「おまじない」でOK。</p>
+</aside>
+
+<p><code>logits</code> は151,936個の数が並んだもので、<strong>ロジット</strong>（logit）と呼びます。語彙のトークン1つ1つに対する「次に来そう度」の点数です（語彙は151,665個でしたが、計算の都合で少し多めに枠が取ってあります）。<code>[0, -1]</code> は「1つ目の文章の、最後の位置」という意味で、「名前は」の<strong>次</strong>を予想した点数を取り出しています。</p>
+<p>点数の高い上位5個を見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>top = torch.topk(logits, <span class="nu">5</span>)
+<span class="kw">for</span> score, i <span class="kw">in</span> <span class="bi">zip</span>(top.values, top.indices):
+    <span class="bi">print</span>(<span class="st">f&quot;{tok.decode([int(i)])!r:8} 点数 {score.item():6.2f}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>&#x27;まだ&#x27;    点数  21.03
+&#x27;ない&#x27;    点数  16.55
+&#x27;、&#x27;      点数  15.22
+&#x27;「&#x27;      点数  14.98
+&#x27;無い&#x27;    点数  14.42</code></pre></div>
+<p>1位は「まだ」。さすが、有名な書き出しを知っています。でも点数は「21.03」のような数で、このままでは「何％の確率で選ばれるのか」が分かりません。点数を確率に変換しましょう。</p>
+<h2 id="s3">点数を確率に変える：softmax</h2>
+<p>確率に変えるには、2つの条件を満たす必要があります。</p>
+<ol>
+<li>どの確率も <strong>0以上</strong>（マイナスの確率はない）</li>
+<li>全部足すと <strong>ちょうど1</strong>（100%）</li>
+</ol>
+<p>ロジットはマイナスにもなるので、そのままでは使えません。そこで登場するのが <strong>softmax</strong>（ソフトマックス）という変換です。小さな例で手計算してみましょう。「吾輩は○○である」の○○の候補が5つだけだとします。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> math
+
+words = [<span class="st">&quot;猫&quot;</span>, <span class="st">&quot;犬&quot;</span>, <span class="st">&quot;人間&quot;</span>, <span class="st">&quot;名前&quot;</span>, <span class="st">&quot;机&quot;</span>]
+logits_small = [<span class="nu">3.0</span>, <span class="nu">1.6</span>, <span class="nu">1.2</span>, <span class="nu">0.4</span>, -<span class="nu">1.0</span>]
+
+exps = [math.exp(z) <span class="kw">for</span> z <span class="kw">in</span> logits_small]
+total = <span class="bi">sum</span>(exps)
+probs_small = [e / total <span class="kw">for</span> e <span class="kw">in</span> exps]
+
+<span class="kw">for</span> w, z, e, p <span class="kw">in</span> <span class="bi">zip</span>(words, logits_small, exps, probs_small):
+    <span class="bi">print</span>(<span class="st">f&quot;{w:3}  点数 {z:5.1f}  → exp {e:6.2f}  → 確率 {p:.3f}&quot;</span>)
+<span class="bi">print</span>(<span class="st">&quot;確率の合計：&quot;</span>, <span class="bi">sum</span>(probs_small))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>猫    点数   3.0  → exp  20.09  → 確率 0.665
+犬    点数   1.6  → exp   4.95  → 確率 0.164
+人間   点数   1.2  → exp   3.32  → 確率 0.110
+名前   点数   0.4  → exp   1.49  → 確率 0.049
+机    点数  -1.0  → exp   0.37  → 確率 0.012
+確率の合計： 1.0</code></pre></div>
+<p>手順はたった2つ。<strong>① 各点数を <code>exp</code> で変換して正の数にする → ② 全部の合計で割る</strong>。これで「全部プラス、合計1」の確率になりました。</p>
+<aside class="box box-mathbox"><p class="box-title">数学の道具箱：指数関数 exp と e</p><p><code>math.exp(z)</code> は <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>z</mi></msup></mrow><annotation encoding="application/x-tex">e^z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span></span></span> を計算します。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span></span></span></span> は約2.718の決まった数（<strong>ネイピア数</strong>）で、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>z</mi></msup></mrow><annotation encoding="application/x-tex">e^z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span></span></span> は「<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span></span></span></span> を <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi></mrow><annotation encoding="application/x-tex">z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span></span> 回掛けたもの」です。</p>
+<table>
+<thead>
+<tr>
+<th><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi></mrow><annotation encoding="application/x-tex">z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span></span></th>
+<th>-1</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>z</mi></msup></mrow><annotation encoding="application/x-tex">e^z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span></span></span></span></span></span></span></span></td>
+<td>0.37</td>
+<td>1</td>
+<td>2.72</td>
+<td>7.39</td>
+<td>20.09</td>
+</tr>
+</tbody>
+</table>
+<p>ポイントは3つ。</p>
+<ul>
+<li><strong>どんな <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi></mrow><annotation encoding="application/x-tex">z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span></span> でも結果はプラス</strong>（マイナスの点数も、小さな正の数になる）</li>
+<li><strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi></mrow><annotation encoding="application/x-tex">z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span></span> が大きいほど、結果も大きい</strong>（点数の順位が保たれる）</li>
+<li><strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi></mrow><annotation encoding="application/x-tex">z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span></span></span></span> が1増えると、結果は約2.7倍</strong>（点数の差が、確率の「倍率」になる）</li>
+</ul>
+<p>3つ目が大事です。「猫」と「犬」の点数の差は1.4で、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mn>1.4</mn></msup><mo>≈</mo><mn>4.06</mn></mrow><annotation encoding="application/x-tex">e^{1.4} \approx 4.06</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1.4</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4.06</span></span></span></span>。だから「猫」は「犬」の約4倍選ばれやすい。確率を見ると 0.665 ÷ 0.164 ≈ 4.05 で、ちゃんとそうなっています。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：softmaxの式と、Σはfor文</p><p>softmaxを数式で書くと、こうなります。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">z_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> は <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> 番目の点数、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">p_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> はその確率です。</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub><mo>=</mo><mfrac><msup><mi>e</mi><msub><mi>z</mi><mi>i</mi></msub></msup><mrow><munder><mo>∑</mo><mi>j</mi></munder><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">p_i = \frac{e^{z_i}}{\sum_{j} e^{z_j}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.4632em;vertical-align:-1.1218em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3414em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4358em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6065em;"><span style="top:-3.0051em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.044em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.044em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1218em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div>
+<p>分母の <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo></mrow><annotation encoding="application/x-tex">\sum</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span></span></span></span>（シグマ）は「全部足す」という記号です。プログラマ向けに言い換えると、<strong>Σはfor文</strong>です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>total = <span class="nu">0</span>
+<span class="kw">for</span> z <span class="kw">in</span> logits_small:      <span class="cm"># Σ_j の j が、for文の z に相当</span>
+    total += math.exp(z)    <span class="cm"># e^{z_j} を足していく</span></code></pre></div>
+<p>数式が出てきたら、怖がらずに「これをPythonで書いたら？」と考えてみてください。数式は、プログラムを短く書くための速記法みたいなものです。</p>
+</aside>
+
+<p>PyTorchには、これを一発でやる <code>torch.softmax</code> があります。本物のLLMの点数を確率にしてみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>probs = torch.softmax(logits.<span class="bi">float</span>(), dim=-<span class="nu">1</span>)
+top = torch.topk(probs, <span class="nu">5</span>)
+<span class="kw">for</span> p, i <span class="kw">in</span> <span class="bi">zip</span>(top.values, top.indices):
+    <span class="bi">print</span>(<span class="st">f&quot;{tok.decode([int(i)])!r:8} 確率 {p.item()*100:5.1f}%&quot;</span>)
+<span class="bi">print</span>(<span class="st">&quot;全トークンの確率の合計：&quot;</span>, probs.<span class="bi">sum</span>().item())</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>&#x27;まだ&#x27;    確率  97.6%
+&#x27;ない&#x27;    確率   1.1%
+&#x27;、&#x27;      確率   0.3%
+&#x27;「&#x27;      確率   0.3%
+&#x27;無い&#x27;    確率   0.2%
+全トークンの確率の合計： 1.0000001192092896</code></pre></div>
+<p>「まだ」がほぼ確実です。合計が <code>1.0000001…</code> と微妙にずれているのは、コンピュータの小数計算の誤差です（基本情報で習う「浮動小数点数の丸め誤差」そのもの！）。</p>
+<div class="widget" data-widget="softmax"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
+
+<h2 id="s4">サイコロを振る：サンプリング</h2>
+<p>確率が分かったら、その確率に従ってトークンを1つ選びます。これを <strong>サンプリング</strong>（sampling）と言います。確率0.665の「猫」は約67%の確率で、0.012の「机」は約1.2%の確率で選ばれる、いびつなサイコロです。</p>
+<p>自分で作ってみましょう。くじ引きの仕組みは「0〜1の乱数を1つ引いて、確率を順番に積み上げた区間のどこに落ちたか」で決まります。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">sample</span>(words, probs):
+    r = random.random()          <span class="cm"># 0以上1未満の乱数</span>
+    total = <span class="nu">0.0</span>
+    <span class="kw">for</span> w, p <span class="kw">in</span> <span class="bi">zip</span>(words, probs):
+        total += p
+        <span class="kw">if</span> r &lt; total:
+            <span class="kw">return</span> w
+    <span class="kw">return</span> words[-<span class="nu">1</span>]
+
+random.seed(<span class="nu">0</span>)
+results = [sample(words, probs_small) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">1000</span>)]
+<span class="kw">for</span> w <span class="kw">in</span> words:
+    <span class="bi">print</span>(w, results.count(w), <span class="st">&quot;回&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>猫 664 回
+犬 175 回
+人間 104 回
+名前 49 回
+机 8 回</code></pre></div>
+<p>1000回振ると、だいたい確率どおりの回数になりました（猫は約67%なので、1000回中664回）。ぴったり665回にならないのは、サイコロだからです。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：区間に落とすくじ引き</p><p>0から1までの線を、確率の長さで区切ります。</p>
+<div class="math-display">0 ─── 猫（0.665）───┼─ 犬（0.164）─┼ 人間 ┼名前┼机┤ 1</div>
+<p>乱数 <code>r</code> がどの区間に落ちたかで、選ぶトークンが決まります。区間が長い（確率が高い）ほど、落ちやすい。とても素朴ですが、LLMの中でも本質的には同じことが行われています（<code>torch.multinomial</code> という関数がやってくれます）。</p>
+</aside>
+
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：乱数とシード</p><p><code>random.seed(0)</code> は乱数の <strong>シード</strong>（種）を決める命令です。コンピュータの乱数は、決まった計算で作る「それっぽい乱数」（<strong>擬似乱数</strong>）なので、種を同じにすると毎回同じ乱数の列が出てきます。実験を<strong>再現</strong>できるように、研究ではシードを記録しておくのが鉄則です。シードを消して実行すると、毎回結果が変わるのを確かめてみましょう。</p>
+</aside>
+
+<h2 id="s5">温度：LLMの「はっちゃけ度」</h2>
+<p>ここで、LLMを使うときによく見かけるつまみ <strong>温度</strong>（temperature）を紹介します。温度は、softmaxの前に<strong>点数を温度で割る</strong>だけの、とても単純な仕組みです。</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub><mo>=</mo><mfrac><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>i</mi></msub><mi mathvariant="normal">/</mi><mi>T</mi></mrow></msup><mrow><munder><mo>∑</mo><mi>j</mi></munder><msup><mi>e</mi><mrow><msub><mi>z</mi><mi>j</mi></msub><mi mathvariant="normal">/</mi><mi>T</mi></mrow></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">p_i = \frac{e^{z_i / T}}{\sum_{j} e^{z_j / T}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.7209em;vertical-align:-1.1559em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.565em;"><span style="top:-2.2799em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4358em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8301em;"><span style="top:-3.0051em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.044em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span><span class="mord mtight">/</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.888em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.044em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span><span class="mord mtight">/</span><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1559em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">softmax_t</span>(logits, T):
+    exps = [math.exp(z / T) <span class="kw">for</span> z <span class="kw">in</span> logits]
+    total = <span class="bi">sum</span>(exps)
+    <span class="kw">return</span> [e / total <span class="kw">for</span> e <span class="kw">in</span> exps]
+
+<span class="kw">for</span> T <span class="kw">in</span> [<span class="nu">0.3</span>, <span class="nu">1.0</span>, <span class="nu">2.0</span>]:
+    p = softmax_t(logits_small, T)
+    <span class="bi">print</span>(<span class="st">f&quot;T={T}: &quot;</span> + <span class="st">&quot;  &quot;</span>.join(<span class="st">f&quot;{w}{x:.2f}&quot;</span> <span class="kw">for</span> w, x <span class="kw">in</span> <span class="bi">zip</span>(words, p)))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>T=0.3: 猫0.99  犬0.01  人間0.00  名前0.00  机0.00
+T=1.0: 猫0.66  犬0.16  人間0.11  名前0.05  机0.01
+T=2.0: 猫0.43  犬0.21  人間0.18  名前0.12  机0.06</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：温度で何が起きる？</p><ul>
+<li><strong>温度を下げる（T &lt; 1）</strong>：点数を小さい数で割るので、点数の差が<strong>拡大</strong>される。1位の確率がどんどん大きくなり、ほぼ毎回同じトークンを選ぶ。真面目で、安定するが、つまらない</li>
+<li><strong>温度を上げる（T &gt; 1）</strong>：点数の差が<strong>縮む</strong>。確率が平らになり、珍しいトークンも選ばれる。創造的だが、支離滅裂になりやすい</li>
+<li><strong>温度→0の極限</strong>：いつも1位を選ぶ。これを <strong>greedy</strong>（貪欲法）と呼びます。第1章の <code>do_sample=False</code> はこれ</li>
+</ul>
+<p>物理では、温度が高いと分子が激しく動いて、いろいろな状態をとりますよね。名前の由来はまさにそれ（統計力学のボルツマン分布）です。ボンゴ先生が物理出身なのは、この話をしたかったからに違いありません。</p>
+</aside>
+
+<p>上の「サイコロ」の箱に戻って、温度のつまみを動かしてみてください。温度を0.05にすると「猫」の一択になり、3にすると「机」ですらそこそこ選ばれるようになります。</p>
+<h2 id="s6">自分で文章を生成する</h2>
+<p>材料は揃いました。「点数を出す → 確率にする → サイコロで1つ選ぶ → 文章の最後に付け足す」を繰り返せば、文章が生成できるはずです。これを自分で書いてみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">generate</span>(text, n_tokens=<span class="nu">30</span>, temperature=<span class="nu">1.0</span>):
+    ids = tok(text, return_tensors=<span class="st">&quot;pt&quot;</span>).input_ids.to(model.device)
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_tokens):
+        <span class="kw">with</span> torch.no_grad():
+            logits = model(ids).logits[<span class="nu">0</span>, -<span class="nu">1</span>]               <span class="cm"># ① 次のトークンの点数</span>
+        probs = torch.softmax(logits.<span class="bi">float</span>() / temperature, dim=-<span class="nu">1</span>)  <span class="cm"># ② 温度つきで確率に</span>
+        next_id = torch.multinomial(probs, num_samples=<span class="nu">1</span>)   <span class="cm"># ③ サイコロを振る</span>
+        ids = torch.cat([ids, next_id.view(<span class="nu">1</span>, <span class="nu">1</span>)], dim=<span class="nu">1</span>)   <span class="cm"># ④ 最後に付け足す</span>
+    <span class="kw">return</span> tok.decode(ids[<span class="nu">0</span>])
+
+torch.manual_seed(<span class="nu">42</span>)
+<span class="bi">print</span>(generate(<span class="st">&quot;吾輩は猫である。名前は&quot;</span>, n_tokens=<span class="nu">40</span>, temperature=<span class="nu">0.7</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>見たかい？ これが、ChatGPTを含むすべてのLLMの文章生成の正体だ。高度なことをしているように見えて、骨組みはこの10行。あとはモデルの「点数のつけ方」がどれだけ賢いかの勝負なんだ。</p>
+</div></div>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：自己回帰：自分の出力を、次の入力にする</p><p>1つ予測したら、それを入力の最後に付け足して、また予測する。このように、<strong>自分の出力を次の入力に使いながら1つずつ作っていく</strong>方式を <strong>自己回帰</strong>（autoregressive）生成と呼びます。GPTの「G」はGenerative（生成的）、つまりこの生成をするモデルという意味です。</p>
+<p>この方式には弱点もあります。トークンを1つ作るたびに、それまでの文章全体をモデルに通しているので、長くなるほど遅くなるのです。実際のLLMは「前回の計算結果を覚えておく」工夫（<strong>KVキャッシュ</strong>）でこれを速くしています。第16章で自分で実装します。</p>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：温度を変えて書き比べよう</p><p>同じ書き出しで、温度だけを変えて生成してみましょう。予想してから実行！</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">for</span> T <span class="kw">in</span> [<span class="nu">0.1</span>, <span class="nu">0.7</span>, <span class="nu">1.5</span>]:
+    torch.manual_seed(<span class="nu">0</span>)
+    <span class="bi">print</span>(<span class="st">f&quot;--- 温度 {T} ---&quot;</span>)
+    <span class="bi">print</span>(generate(<span class="st">&quot;ある日、AIが&quot;</span>, n_tokens=<span class="nu">40</span>, temperature=T))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>--- 温度 0.1 ---
+ある日、AIが人間の仕事を奪うのではないかという不安が広がっていました。しかし、AIは人間の仕事を奪うのではなく、
+--- 温度 0.7 ---
+ある日、AIが突然「私は人間になりたい」と言い出した。研究者たちは驚き、その理由を尋ねた。AIは静かに答えた。
+--- 温度 1.5 ---
+ある日、AIが鍋焼きうどんに論文を提出、なお昨年度の宇宙会計は猫部に移管されました。ふと見上げると</code></pre></div>
+<p>温度1.5になると、だんだん「夢の中の会話」みたいになっていきます。温度は高すぎても低すぎてもダメ。チャットでは0.7前後がよく使われます。</p>
+</aside>
+
+<p>最後に、<code>transformers</code> に最初から用意されている <code>generate</code> と比べてみましょう。中でやっていることは、さっき自分で書いたものと同じです（もっと速くて、たくさんの便利機能がついています）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>inputs = tok(<span class="st">&quot;吾輩は猫である。名前は&quot;</span>, return_tensors=<span class="st">&quot;pt&quot;</span>).to(model.device)
+torch.manual_seed(<span class="nu">42</span>)
+out = model.generate(**inputs, max_new_tokens=<span class="nu">40</span>, do_sample=<span class="kw">True</span>, temperature=<span class="nu">0.7</span>)
+<span class="bi">print</span>(tok.decode(out[<span class="nu">0</span>], skip_special_tokens=<span class="kw">True</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。</code></pre></div>
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>RuntimeError: Expected all tensors to be on the same device</code></strong>：データがCPUに、モデルがGPUにある、のように置き場所がずれています。<code>.to(model.device)</code> を付け忘れていないか確認しましょう。</li>
+<li><strong><code>probability tensor contains either inf, nan or element &lt; 0</code></strong>：温度に0を入れると、0で割ってしまいます。greedyにしたいときは、温度を0.01のような小さな数にするか、<code>torch.argmax(logits)</code> で1位を選びましょう。</li>
+<li><strong>生成された文章が同じことをくり返す</strong>：小さなモデルや低い温度ではよく起きます。温度を少し上げると改善することがあります（第16章で、くり返しを防ぐ工夫も学びます）。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：softmaxの役目</p><p>softmaxが「点数（ロジット）」を確率に変えるとき、<code>exp</code> を使う理由を2つ挙げてください。</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>① どんな点数（マイナスでも）も正の数に変えられるから。② 点数の大小関係を保ったまま、点数の差を「倍率」に変えられるから（点数が1違うと約2.7倍）。最後に合計で割ることで、合計が1になります。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：温度</p><p>温度を0.1にしたとき、生成される文章はどうなりますか？ 理由も。</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>ほとんど毎回、確率1位のトークンが選ばれるので、安定して無難な（そして同じことをくり返しがちな）文章になります。点数を0.1で割ると点数の差が10倍に拡大され、softmax後の確率が1位に集中するからです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：Σ</p><p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mn>3</mn></msubsup><mi>j</mi></mrow><annotation encoding="application/x-tex">\sum_{j=1}^{3} j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.3898em;vertical-align:-0.4358em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.954em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4358em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span> をPythonのfor文で書くと？ 答えはいくつ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>total = <span class="nu">0</span>
+<span class="kw">for</span> j <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">1</span>, <span class="nu">4</span>):
+    total += j</code></pre></div>
+<p>答えは 1 + 2 + 3 = 6 です。<code>range(1, 4)</code> は1, 2, 3（4は含まない）なので注意。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="03-next-token:0"> <span>LLMから次のトークンのロジットを取り出せた</span></label></li><li><label><input type="checkbox" data-check="03-next-token:1"> <span>softmaxを <code>math.exp</code> で手計算できた</span></label></li><li><label><input type="checkbox" data-check="03-next-token:2"> <span>自作の <code>sample</code> 関数で1000回くじを引き、確率どおりになるのを見た</span></label></li><li><label><input type="checkbox" data-check="03-next-token:3"> <span>温度を変えると確率がどう変わるか説明できる</span></label></li><li><label><input type="checkbox" data-check="03-next-token:4"> <span>自作の <code>generate</code> で文章を生成できた</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>LLMは次のトークン全部に**点数（ロジット）**をつける。<strong>softmax</strong>で確率に変える：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub><mo>=</mo><msup><mi>e</mi><msub><mi>z</mi><mi>i</mi></msub></msup><mi mathvariant="normal">/</mi><msub><mo>∑</mo><mi>j</mi></msub><msup><mi>e</mi><msub><mi>z</mi><mi>j</mi></msub></msup></mrow><annotation encoding="application/x-tex">p_i = e^{z_i}/\sum_j e^{z_j}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1858em;vertical-align:-0.4358em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.044em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mord">/</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4358em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:-0.044em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></li>
+<li>確率に従ってくじを引くのが<strong>サンプリング</strong>。シードを固定すると再現できる</li>
+<li><strong>温度</strong>で点数を割ると、確率の尖り具合を調整できる（低い＝堅実、高い＝冒険）</li>
+<li>「予測→くじ→付け足す」の繰り返しが<strong>自己回帰生成</strong>。すべてのLLMの生成はこれ</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>ここまでで「LLMを使う側」の基本は完璧だ。次の第2部からは、いよいよ<strong>作る側</strong>に回る。最初に作るのは、なんと「数を数えるだけ」の言語モデル。それなのに、夏目漱石っぽい文章を書き始めるから驚くよ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="03-next-token">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="02-tokens.html"><small>← 前の章</small>文章を数字にする：トークン</a><a class="next" href="04-bigram.html"><small>次の章 →</small>数えるだけで漱石っぽくなる：bigramモデル</a></nav></article>
+<footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：モデルを直接読み込む</a><a href="#s2">LLMの「点数表」を見る</a><a href="#s3">点数を確率に変える：softmax</a><a href="#s4">サイコロを振る：サンプリング</a><a href="#s5">温度：LLMの「はっちゃけ度」</a><a href="#s6">自分で文章を生成する</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

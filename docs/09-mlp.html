@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文脈を広げる：埋め込みと多層パーセプトロン | つくってわかるLLM</title><meta name="description" content="直前8文字を見る、本物のニューラル言語モデル">
+<meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script></head>
+<body data-page="09-mlp"><a class="skip" href="#main">本文へ移動</a>
+<header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
+<a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
+<div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" open><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" aria-current="page" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第2部 ゼロから作る · 第9章</p><h1>文脈を広げる：埋め込みと多層パーセプトロン</h1><p class="sub">直前8文字を見る、本物のニューラル言語モデル</p><dl class="meta"><div><dt>目安</dt><dd>90〜120分</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中3">★★★☆☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/09-mlp.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/09-mlp.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>直前8文字から次の文字を予測するニューラル言語モデル（MLP）。初めて「数えるbigram」の記録を破る</p></div><div><h3>ついでに身につく理論</h3><ul><li>埋め込み（embedding）：文字を数の組（ベクトル）で表す</li><li>ニューロンと全結合層 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>x</mi><mi>W</mi><mo>+</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">y = xW + b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></li><li>活性化関数（tanh・ReLU・GELU）となぜ非線形が必要か</li><li>パラメータ数の数え方</li><li>汎化：見たことのない並びにも対応できる理由</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>class</code> と <code>__init__</code>、<code>self</code></li><li><code>nn.Module</code> と <code>forward</code></li><li><code>nn.Embedding</code> と <code>nn.Linear</code></li><li><code>torch.optim.SGD</code>（<code>zero_grad</code> と <code>step</code>）</li><li><code>.view</code> で形を変える</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第4章で「直前の文字をたくさん見ると、組み合わせが爆発して数えられない」という壁にぶつかりました。この章では、その壁を<strong>埋め込み</strong>とニューラルネットワークで越えます。直前の<strong>8文字</strong>を見て次の1文字を予測するモデルを作り、ついに「数えるbigram」の記録を破ります。2003年に発表された、ニューラル言語モデルの元祖とも言える設計です。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>8文字も見るなら、組み合わせは <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2061</mn><mn>8</mn></msup></mrow><annotation encoding="application/x-tex">2061^8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">206</span><span class="mord"><span class="mord">1</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span> 通り……？ 数える気が失せる数ですね。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>だから数えない。代わりに、文字の「<strong>特徴</strong>」を学ばせる。「先」と「奥」はどちらも人を呼ぶ言葉の前に来やすい、とか、「。」の次は文の始まりだ、とかね。特徴でとらえれば、見たことのない並びでも「似たような並びは見たことがある」と推測できる。人間の読書と同じだ。</p>
+</div></div>
+
+<h2 id="s1">準備</h2>
+<p>いつもの準備セルです（第8章と同じ）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> re, math, urllib.request
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">def</span> <span class="fn">load_soseki</span>(file_id=<span class="st">&quot;773_ruby_5968&quot;</span>):
+    url = (<span class="st">&quot;https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/&quot;</span>
+           <span class="st">f&quot;cards/000148/files/{file_id}/{file_id}.txt&quot;</span>)
+    text = urllib.request.urlopen(url).read().decode(<span class="st">&quot;cp932&quot;</span>)
+    text = text.split(<span class="st">&quot;-------------------------------------------------------&quot;</span>)[<span class="nu">2</span>]
+    text = text.split(<span class="st">&quot;底本：&quot;</span>)[<span class="nu">0</span>]
+    text = re.sub(<span class="st">r&quot;《.*?》&quot;</span>, <span class="st">&quot;&quot;</span>, text)
+    text = re.sub(<span class="st">r&quot;※?［＃.*?］&quot;</span>, <span class="st">&quot;&quot;</span>, text)
+    text = text.replace(<span class="st">&quot;｜&quot;</span>, <span class="st">&quot;&quot;</span>).replace(<span class="st">&quot;\r\n&quot;</span>, <span class="st">&quot;\n&quot;</span>)
+    text = re.sub(<span class="st">r&quot;\n{3,}&quot;</span>, <span class="st">&quot;\n\n&quot;</span>, text)
+    <span class="kw">return</span> text.strip()
+
+text = load_soseki()
+chars = <span class="bi">sorted</span>(<span class="bi">set</span>(text))
+V = <span class="bi">len</span>(chars)
+stoi = {ch: i <span class="kw">for</span> i, ch <span class="kw">in</span> <span class="bi">enumerate</span>(chars)}
+itos = {i: ch <span class="kw">for</span> ch, i <span class="kw">in</span> stoi.items()}
+data = torch.tensor([stoi[c] <span class="kw">for</span> c <span class="kw">in</span> text])
+n = <span class="bi">int</span>(<span class="bi">len</span>(data) * <span class="nu">0.9</span>)
+train_data, val_data = data[:n], data[n:]</code></pre></div>
+<h2 id="s2">8文字の窓</h2>
+<p>文章の上に「8文字分の窓」を置いて、窓の中の8文字を入力、その次の1文字を正解にします。窓を1文字ずつずらせば、問題がたくさん作れます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>T = <span class="nu">8</span>   <span class="cm"># 窓の大きさ（何文字前まで見るか）</span>
+
+<span class="kw">def</span> <span class="fn">get_batch</span>(data, batch_size, g):
+    ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(data) - T, (batch_size,), generator=g)  <span class="cm"># 窓の開始位置をランダムに</span>
+    x = torch.stack([data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> ix])     <span class="cm"># 入力：8文字</span>
+    y = data[ix + T]                                 <span class="cm"># 正解：その次の1文字</span>
+    <span class="kw">return</span> x, y
+
+g = torch.Generator().manual_seed(<span class="nu">0</span>)
+x, y = get_batch(train_data, <span class="nu">4</span>, g)
+<span class="bi">print</span>(x.shape, y.shape)
+<span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">4</span>):
+    <span class="bi">print</span>(<span class="bi">repr</span>(<span class="st">&quot;&quot;</span>.join(itos[j] <span class="kw">for</span> j <span class="kw">in</span> x[i].tolist())), <span class="st">&quot;→&quot;</span>, <span class="bi">repr</span>(itos[y[i].item()]))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>torch.Size([4, 8]) torch.Size([4])
+&#x27;私の注意を母より&#x27; → &#x27;は&#x27;
+&#x27;にしてやりたかっ&#x27; → &#x27;た&#x27;
+&#x27;き移ってからも、&#x27; → &#x27;当&#x27;
+&#x27;を見ていた。私は&#x27; → &#x27;私&#x27;</code></pre></div>
+<p>（どの窓が選ばれるかは乱数で決まります。）<code>x</code> の形は <code>[4, 8]</code>。4問ぶんの、8文字ずつの入力です。</p>
+<h2 id="s3">埋め込み：文字を「点」にする</h2>
+<p>ニューラルネットワークに文字を渡すには、文字を数にしなければなりません。第6章のone-hot（2061個の数のうち1つだけ1）は、無駄が多いうえに、どの文字どうしも「同じくらい違う」ものとして扱ってしまいます。</p>
+<p>そこで、各文字に <strong>少数の数の組</strong> を割り当てます。たとえば2個の数なら、各文字は平面上の1つの点になります。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+C = torch.randn(V, <span class="nu">2</span>)          <span class="cm"># 2061文字 × 2個の数（最初はでたらめ）</span>
+<span class="bi">print</span>(<span class="st">&quot;「先」の座標：&quot;</span>, C[stoi[<span class="st">&quot;先&quot;</span>]])
+<span class="bi">print</span>(<span class="st">&quot;「奥」の座標：&quot;</span>, C[stoi[<span class="st">&quot;奥&quot;</span>]])
+<span class="bi">print</span>(C[x].shape)              <span class="cm"># 4問 × 8文字 × 2個の数</span></code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>「先」の座標： tensor([-0.4445,  0.8185])
+「奥」の座標： tensor([0.8115, 0.1629])
+torch.Size([4, 8, 2])</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：埋め込み（embedding）</p><p>文字（やトークン）ごとに割り当てた数の組（ベクトル）を <strong>埋め込み</strong>（embedding）と言います。表 <code>C</code> の各行が、その文字の埋め込みです。</p>
+<p>ポイントは、<strong>この座標も学習で決める</strong>こと。最初はでたらめな位置ですが、学習が進むと「同じような場面で使われる文字」が近くに集まってくるように動いていきます。「先」と「奥」が近くに来れば、「先生と」を見て学んだことが「奥さんと」にも少し役立つようになる。数えるモデルにはできなかった <strong>汎化</strong>（はんか、generalization：見たことのないものへの応用）が起きるのです。</p>
+<p>実際のモデルでは、2個ではなく数十〜数千個の数を使います（この章では32個、Qwen2.5-0.5Bでは896個）。たくさんの数を使えば、「品詞っぽさ」「漢字っぽさ」「人っぽさ」……のように、たくさんの特徴を同時に表せます。</p>
+</aside>
+
+<p><code>C[x]</code> の形 <code>[4, 8, 2]</code> は、「4問 × 8文字 × 各文字2個の数」です。第6章で、one-hot × 表 ＝ 表の行の取り出し、でしたね。<code>C[x]</code> は、それを番号で直接やっています。</p>
+<h2 id="s4">層を重ねる：多層パーセプトロン</h2>
+<p>8文字ぶんの埋め込みが手に入ったら、それを1列に並べて、計算を2段重ねます。</p>
+<ol>
+<li><strong>隠れ層</strong>：埋め込みを並べたもの（8文字 × 32 = 256個の数）を、256個の「ニューロン」で変換する</li>
+<li><strong>出力層</strong>：その結果から、2061文字それぞれの点数（ロジット）を出す</li>
+</ol>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>d, H = <span class="nu">32</span>, <span class="nu">256</span>    <span class="cm"># 埋め込みの大きさ、隠れ層の大きさ</span>
+torch.manual_seed(<span class="nu">0</span>)
+C = torch.randn(V, d)
+W1 = torch.randn(T * d, H) * <span class="nu">0.1</span>
+b1 = torch.zeros(H)
+W2 = torch.randn(H, V) * <span class="nu">0.1</span>
+b2 = torch.zeros(V)
+
+emb = C[x]                       <span class="cm"># [4, 8, 32]</span>
+flat = emb.view(<span class="nu">4</span>, T * d)        <span class="cm"># [4, 256]：8文字ぶんを横一列に並べる</span>
+h = torch.tanh(flat @ W1 + b1)   <span class="cm"># [4, 256]：隠れ層</span>
+logits = h @ W2 + b2             <span class="cm"># [4, 2061]：次の文字の点数</span>
+<span class="bi">print</span>(emb.shape, flat.shape, h.shape, logits.shape)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>torch.Size([4, 8, 32]) torch.Size([4, 256]) torch.Size([4, 256]) torch.Size([4, 2061])</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：.view で形を変える</p><p><code>emb.view(4, T * d)</code> は、中身の数はそのままで、形だけを <code>[4, 8, 32]</code> から <code>[4, 256]</code> に変えます。8文字ぶんの32個ずつを、横一列（256個）に並べ直すイメージです。<code>-1</code> を使うと「残りは自動で計算して」という意味になり、<code>emb.view(4, -1)</code> でも同じ結果になります。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ニューロンと全結合層</p><p><code>flat @ W1 + b1</code> が、ニューラルネットワークの基本部品 <strong>全結合層</strong>（linear layer）です。数式では</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="bold-italic">y</mi><mo>=</mo><mi mathvariant="bold-italic">x</mi><mi>W</mi><mo>+</mo><mi mathvariant="bold-italic">b</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{y} = \boldsymbol{x} W + \boldsymbol{b}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6389em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord"><span class="mord boldsymbol" style="margin-right:0.03704em;">y</span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord"><span class="mord boldsymbol">x</span></span></span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord"><span class="mord"><span class="mord boldsymbol">b</span></span></span></span></span></span></span></div>
+<p>と書きます。出力の1つ1つ（ニューロン）は、「入力の数それぞれに重みを掛けて全部足し、最後に <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi></mrow><annotation encoding="application/x-tex">b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span>（バイアス）を足したもの」です。</p>
+<div class="math-display">ニューロン ＝ 入力₁×重み₁ ＋ 入力₂×重み₂ ＋ … ＋ 入力₂₅₆×重み₂₅₆ ＋ バイアス</div>
+<p>1つのニューロンは「どの特徴をどれくらい重視するか」の投票係のようなものです。256個のニューロンが、それぞれ違う観点で8文字を眺めて、点数をつけます。行列の掛け算 <code>@</code> は、この256個のニューロンの計算を一度にやってしまう技でした（第6章）。</p>
+<p>この「全結合層を何段か重ねたもの」を <strong>多層パーセプトロン</strong>（multilayer perceptron、<strong>MLP</strong>）と呼びます。</p>
+</aside>
+
+<h2 id="s5">なぜ tanh を挟むのか：非線形性</h2>
+<p>隠れ層の計算で、<code>torch.tanh(…)</code> という関数を通しています。これを <strong>活性化関数</strong>（activation function）と言います。どんな形の関数か、見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!pip install -q matplotlib-fontja</span></code></pre></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> matplotlib_fontja
+
+z = torch.linspace(-<span class="nu">4</span>, <span class="nu">4</span>, <span class="nu">200</span>)
+plt.figure(figsize=(<span class="nu">6</span>, <span class="nu">3.5</span>))
+plt.plot(z, torch.tanh(z), label=<span class="st">&quot;tanh&quot;</span>)
+plt.plot(z, torch.relu(z), label=<span class="st">&quot;ReLU&quot;</span>)
+plt.plot(z, F.gelu(z), label=<span class="st">&quot;GELU&quot;</span>, linestyle=<span class="st">&quot;--&quot;</span>)
+plt.axhline(<span class="nu">0</span>, color=<span class="st">&quot;gray&quot;</span>, lw=<span class="nu">0.5</span>); plt.axvline(<span class="nu">0</span>, color=<span class="st">&quot;gray&quot;</span>, lw=<span class="nu">0.5</span>)
+plt.ylim(-<span class="nu">1.5</span>, <span class="nu">3</span>)
+plt.legend()
+plt.title(<span class="st">&quot;いろいろな活性化関数&quot;</span>)
+plt.show()</code></pre></div>
+<p><img src="img/figs/09-mlp/cell5_0.png" alt="tanh・ReLU・GELUの3つの活性化関数のグラフ。どれも直線ではなく、折れ曲がったりS字になったりしている" /></p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：直線だけでは、何段重ねても直線</p><p>活性化関数がないと、全結合層を何段重ねても、結局は1段の全結合層と同じことしかできません。</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>x</mi><msub><mi>W</mi><mn>1</mn></msub><mo stretchy="false">)</mo><msub><mi>W</mi><mn>2</mn></msub><mo>=</mo><mi>x</mi><mo stretchy="false">(</mo><msub><mi>W</mi><mn>1</mn></msub><msub><mi>W</mi><mn>2</mn></msub><mo stretchy="false">)</mo><mo>=</mo><mi>x</mi><msup><mi>W</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup></mrow><annotation encoding="application/x-tex">(xW_1)W_2 = x(W_1 W_2) = xW&#x27;</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">x</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8019em;"></span><span class="mord mathnormal">x</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span></div>
+<p>行列の掛け算を2回しても、まとめれば1回の掛け算（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>W</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msup><mo>=</mo><msub><mi>W</mi><mn>1</mn></msub><msub><mi>W</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">W&#x27; = W_1 W_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7519em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7519em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）になってしまうからです。直線をいくら組み合わせても直線、というわけです。</p>
+<p>そこで、層と層の間に「<strong>直線ではない</strong>（非線形な）」関数を挟みます。すると、折れ曲がったり、S字になったりした関数を組み合わせられるようになり、複雑なパターンを表現できるようになります。</p>
+<ul>
+<li><strong>tanh</strong>（ハイパボリックタンジェント）：-1から1の間のS字。この章で使う、昔ながらの関数</li>
+<li><strong>ReLU</strong>（レルー）：マイナスは0、プラスはそのまま。単純で速いので大人気</li>
+<li><strong>GELU</strong>（ジェルー）：ReLUをなめらかにしたもの。GPTで使われている（第12章）</li>
+</ul>
+</aside>
+
+<h2 id="s6">部品をまとめる：クラスで書く</h2>
+<p>ここまでの部品（<code>C</code>、<code>W1</code>、<code>b1</code>、<code>W2</code>、<code>b2</code>）をバラバラに持っていると、管理が大変です。PyTorchでは、モデルを <strong>クラス</strong> という設計図にまとめて書きます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">MLP</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, V, T, d=<span class="nu">32</span>, H=<span class="nu">256</span>):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.emb = nn.Embedding(V, d)     <span class="cm"># 埋め込みの表（C）</span>
+        <span class="self">self</span>.fc1 = nn.Linear(T * d, H)    <span class="cm"># 隠れ層（W1, b1）</span>
+        <span class="self">self</span>.fc2 = nn.Linear(H, V)        <span class="cm"># 出力層（W2, b2）</span>
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        e = <span class="self">self</span>.emb(x)                          <span class="cm"># [B, T, d]</span>
+        h = torch.tanh(<span class="self">self</span>.fc1(e.view(<span class="bi">len</span>(x), -<span class="nu">1</span>)))  <span class="cm"># [B, H]</span>
+        <span class="kw">return</span> <span class="self">self</span>.fc2(h)                       <span class="cm"># [B, V]</span>
+
+torch.manual_seed(<span class="nu">0</span>)
+model = MLP(V, T)
+<span class="bi">print</span>(model)
+<span class="bi">print</span>(<span class="st">&quot;パラメータの数：&quot;</span>, <span class="bi">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> model.parameters()))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>MLP(
+  (emb): Embedding(2061, 32)
+  (fc1): Linear(in_features=256, out_features=256, bias=True)
+  (fc2): Linear(in_features=256, out_features=2061, bias=True)
+)
+パラメータの数： 661421</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：クラスは「設計図」</p><p><code>class MLP(nn.Module):</code> は「<code>MLP</code> という名前の設計図を作る。<code>nn.Module</code>（PyTorchのモデルの基本形）を土台にする」という意味です。</p>
+<ul>
+<li><code>__init__</code>：設計図から実物を作るとき（<code>MLP(V, T)</code>）に最初に実行される準備。ここで部品を用意する</li>
+<li><code>self</code>：作られた実物自身のこと。<code>self.emb</code> は「この実物が持っている <code>emb</code>」</li>
+<li><code>super().__init__()</code>：土台（<code>nn.Module</code>）の準備も忘れずにやる、というお約束</li>
+<li><code>forward</code>：入力を受け取って出力を返す計算。<code>model(x)</code> と書くと、これが呼ばれる</li>
+</ul>
+<p>CSSのクラスを思い出してください。<code>.button { … }</code> という1つの定義から、ページ中のたくさんのボタンに同じ見た目が適用されますね。Pythonのクラスも、1つの設計図から同じ仕組みの実物（<strong>インスタンス</strong>）をいくつでも作れます。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：パラメータの数え方</p><p>パラメータの数を手で確かめてみましょう。全結合層は「入力の数 × 出力の数」個の重みと、「出力の数」個のバイアスを持っています。</p>
+<table>
+<thead>
+<tr>
+<th>部品</th>
+<th>計算</th>
+<th>数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>埋め込み</td>
+<td>2061 × 32</td>
+<td>65,952</td>
+</tr>
+<tr>
+<td>隠れ層の重み＋バイアス</td>
+<td>256 × 256 ＋ 256</td>
+<td>65,792</td>
+</tr>
+<tr>
+<td>出力層の重み＋バイアス</td>
+<td>256 × 2061 ＋ 2061</td>
+<td>529,677</td>
+</tr>
+<tr>
+<td>合計</td>
+<td></td>
+<td>661,421</td>
+</tr>
+</tbody>
+</table>
+<p><code>print</code> の結果と一致しましたか？ パラメータの8割が<strong>出力層</strong>に集中していますね。語彙（2061文字）のそれぞれに点数を出すための重みが必要だからです。本物のLLMでも、語彙が15万もあると、出力層と埋め込みだけで大きな割合を占めます（第1章のQwenでは、約4.9億個のうち約1.4億個が埋め込み）。</p>
+</aside>
+
+<h2 id="s7">学習させる</h2>
+<p>学習ループは第8章とほぼ同じです。今回は、パラメータの更新を <strong>オプティマイザ</strong>（optimizer）という道具に任せます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">val_loss</span>(model):
+    X = torch.stack([val_data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="bi">len</span>(val_data) - T)])
+    Y = val_data[T:]
+    <span class="kw">return</span> F.cross_entropy(model(X), Y).item()
+
+torch.manual_seed(<span class="nu">0</span>)
+g = torch.Generator().manual_seed(<span class="nu">0</span>)
+model = MLP(V, T)
+optimizer = torch.optim.SGD(model.parameters(), lr=<span class="nu">0.1</span>)
+
+<span class="kw">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">10001</span>):
+    x, y = get_batch(train_data, <span class="nu">256</span>, g)
+    loss = F.cross_entropy(model(x), y)
+    optimizer.zero_grad()     <span class="cm"># 勾配を0に</span>
+    loss.backward()           <span class="cm"># 勾配を計算</span>
+    optimizer.step()          <span class="cm"># パラメータを更新</span>
+    <span class="kw">if</span> step % <span class="nu">2000</span> == <span class="nu">0</span>:
+        <span class="bi">print</span>(<span class="st">f&quot;ステップ {step:5d}：訓練 {loss.item():.3f}  検証 {val_loss(model):.3f}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>ステップ     0：訓練 7.659  検証 7.662
+ステップ  2000：訓練 3.594  検証 3.919
+ステップ  4000：訓練 3.591  検証 3.677
+ステップ  6000：訓練 3.178  検証 3.532
+ステップ  8000：訓練 3.333  検証 3.448
+ステップ 10000：訓練 2.734  検証 3.395</code></pre></div>
+<p>CPUで2分ほどかかります。コーヒーでも淹れてきてください。……戻ってきましたか？ 検証損失が <strong>3.395</strong>。数えるbigramの3.581を、ついに破りました！</p>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：オプティマイザ</p><p><code>optimizer.zero_grad()</code> → <code>loss.backward()</code> → <code>optimizer.step()</code> の3行は、第7章で手で書いた「勾配を0に → 勾配を計算 → <code>w -= lr * w.grad</code>」と同じことをしています。<code>torch.optim.SGD</code> は、モデルの全パラメータについて、まとめて <code>w -= lr * w.grad</code> をやってくれる係です。<br>
+<code>@torch.no_grad()</code> を関数の上に付けると、その関数の中身全体が <code>with torch.no_grad():</code> の中にあるのと同じになります。</p>
+</aside>
+
+<h2 id="s8">記録表を更新</h2>
+<table>
+<thead>
+<tr>
+<th>モデル</th>
+<th>章</th>
+<th>検証データの損失</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>でたらめ</td>
+<td>5</td>
+<td>7.631</td>
+</tr>
+<tr>
+<td>bigram（数える）</td>
+<td>5</td>
+<td>3.581</td>
+</tr>
+<tr>
+<td>ニューラルbigram</td>
+<td>8</td>
+<td>3.685</td>
+</tr>
+<tr>
+<td><strong>MLP（直前8文字、SGD 1万ステップ）</strong></td>
+<td><strong>9</strong></td>
+<td><strong>3.395</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="s9">書かせてみる</h2>
+<p>窓を1文字ずつずらしながら生成します。最初の8文字は自分で与えます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">generate</span>(model, start, n=<span class="nu">100</span>, seed=<span class="nu">0</span>):
+    g = torch.Generator().manual_seed(seed)
+    ids = [stoi[c] <span class="kw">for</span> c <span class="kw">in</span> start]
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):
+        x = torch.tensor([ids[-T:]])               <span class="cm"># 直前8文字</span>
+        probs = F.softmax(model(x), dim=<span class="nu">1</span>)[<span class="nu">0</span>]
+        ids.append(torch.multinomial(probs, <span class="nu">1</span>, generator=g).item())
+    <span class="kw">return</span> <span class="st">&quot;&quot;</span>.join(itos[i] <span class="kw">for</span> i <span class="kw">in</span> ids)
+
+<span class="bi">print</span>(generate(model, <span class="st">&quot;私はその人を常に&quot;</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>私はその人を常によう加打で返事が物った。先生と奥さんはたしようで。ただの光をある時がら見た。
+「今は他いに私を煎にかず話する果べ橋当に告配夫明問にする親ないでも事去上かに故このよに冷座来なく遥えますか」
+　奥さんまし</code></pre></div>
+<p>「返事が」「先生と奥さんは」「ただの光を」。かぎかっこ「 」で会話文を始めて、ちゃんと閉じてもいます。bigramにはできなかった芸当です（直前1文字しか見ないので、かぎかっこを開いたことを覚えていられない）。……中身は相変わらず支離滅裂ですが、一歩前進です。</p>
+<h2 id="s10">訓練と検証の差に注目</h2>
+<p>学習の出力をもう一度見てください。最後の訓練損失は2.734、検証損失は3.395。<strong>訓練のほうがずっと良い</strong>ですね。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：汎化のギャップ</p><p>訓練データでは良くて、検証データではそれほどでもない。これは、モデルが訓練データの<strong>クセを覚え始めている</strong>サインです。第5章の「過去問の丸暗記」が始まっているのです。</p>
+<ul>
+<li>訓練損失と検証損失がどちらも下がっている → 順調</li>
+<li>訓練損失だけ下がって、検証損失が下がらない（または上がる） → <strong>過学習</strong>（丸暗記）</li>
+</ul>
+<p>『こころ』は16万字しかないので、66万個のパラメータを持つモデルにとっては、丸暗記できてしまう量なのです。次の章では、この過学習と戦う方法を含め、学習を上手に進める技をまとめて学びます。</p>
+</aside>
+
+<details class="deep"><summary><span>もっと深く</span>2003年の元祖ニューラル言語モデル</summary><p>この章のモデルは、ヨシュア・ベンジオらが2003年に発表した論文「A Neural Probabilistic Language Model」の設計とほぼ同じです。彼らは単語の埋め込みと、このMLPを使って、それまで主流だったn-gramモデルを上回る成績を出しました。当時のコンピュータでは学習に何週間もかかったそうです。あなたはColabで2分。20年の進歩を感じますね。</p>
+</details>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>RuntimeError: mat1 and mat2 shapes cannot be multiplied (4x512 and 256x256)</code></strong>：形が合っていません。<code>T</code>（窓の大きさ）や <code>d</code> を変えたときは、<code>MLP(V, T)</code> を作り直しているか確認しましょう。エラーの数字（4x512と256x256）から、どこがずれているか推理できます。</li>
+<li><strong><code>TypeError: __init__() missing … argument</code></strong>：<code>MLP(V, T)</code> のように、必要な引数を渡し忘れています。</li>
+<li><strong><code>AttributeError: 'MLP' object has no attribute …</code></strong>：<code>self.</code> を付け忘れて部品を作ると、モデルに部品が登録されません。</li>
+</ul>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：窓の大きさを変えてみよう</p><p><code>T = 8</code> を <code>T = 3</code> や <code>T = 16</code> に変えて、準備のセルから順に実行し直してみましょう。窓が大きいほど検証損失は下がるでしょうか？ 予想してから試してください。（ヒント：大きければいいとは限りません。データが16万字しかないことを思い出して。）</p>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：埋め込みの形</p><p>語彙が5000文字、埋め込みの大きさが64のとき、埋め込みの表の形とパラメータ数は？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>形は <code>[5000, 64]</code>、パラメータ数は 5000 × 64 = 320,000 個です。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：非線形</p><p>活性化関数を取り除いて <code>h = self.fc1(…)</code> にすると、モデルの表現力はどうなる？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>全結合層2段が、まとめると1段の全結合層と同じになってしまい、表現力が落ちます。直線（線形な変換）をいくら重ねても直線のままだからです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：パラメータを増やすと？</p><p>隠れ層の大きさ <code>H</code> を256から512に倍増すると、隠れ層と出力層のパラメータはそれぞれ約何倍になる？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>隠れ層は 256 × 512 ＋ 512 ＝ 131,584 で<strong>約2倍</strong>、出力層は 512 × 2061 ＋ 2061 ＝ 1,057,293 で<strong>約2倍</strong>です。どちらも <code>H</code> に比例します。<code>MLP(V, T, H=512)</code> を作って <code>print</code> で確かめてみましょう。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="09-mlp:0"> <span>8文字の窓で入力と正解を作れた</span></label></li><li><label><input type="checkbox" data-check="09-mlp:1"> <span>埋め込みが「文字を数の組で表したもの」で、学習で動くことを説明できる</span></label></li><li><label><input type="checkbox" data-check="09-mlp:2"> <span>形 <code>[B, 8, 32]</code> → <code>[B, 256]</code> → <code>[B, 256]</code> → <code>[B, 2061]</code> の流れを追えた</span></label></li><li><label><input type="checkbox" data-check="09-mlp:3"> <span>活性化関数が必要な理由を説明できる</span></label></li><li><label><input type="checkbox" data-check="09-mlp:4"> <span><code>nn.Module</code> のクラスでモデルを書き、学習させた</span></label></li><li><label><input type="checkbox" data-check="09-mlp:5"> <span>検証損失でbigramの記録を破った</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li><strong>埋め込み</strong>：文字ごとに学習可能な数の組を割り当てる。似た文字が近づき、<strong>汎化</strong>が生まれる</li>
+<li><strong>全結合層</strong> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>x</mi><mi>W</mi><mo>+</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">y = xW + b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> を、<strong>活性化関数</strong>（非線形）を挟んで重ねたものが <strong>MLP</strong></li>
+<li>PyTorchでは、モデルを <code>nn.Module</code> の <strong>クラス</strong> で書く。<code>__init__</code> で部品、<code>forward</code> で計算</li>
+<li>直前8文字を見るMLPで、検証損失3.395。数えるbigram（3.581）を超えた</li>
+<li>訓練と検証の損失の差は、<strong>過学習</strong>の始まりのサイン</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>次の章は「学習のお医者さん」。学習がうまくいかないとき、何を診ればいいか。初期化、正規化、Adam、学習率スケジュール、ドロップアウト……GPTを学習させる前に必要な道具を、一気に救急箱に詰め込もう。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="09-mlp">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="08-neural-bigram.html"><small>← 前の章</small>数えずに学ぶ：ニューラルbigram</a><a class="next" href="10-training-tips.html"><small>次の章 →</small>学習のお医者さん：うまく学習させる技</a></nav></article>
+<footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備</a><a href="#s2">8文字の窓</a><a href="#s3">埋め込み：文字を「点」にする</a><a href="#s4">層を重ねる：多層パーセプトロン</a><a href="#s5">なぜ tanh を挟むのか：非線形性</a><a href="#s6">部品をまとめる：クラスで書く</a><a href="#s7">学習させる</a><a href="#s8">記録表を更新</a><a href="#s9">書かせてみる</a><a href="#s10">訓練と検証の差に注目</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

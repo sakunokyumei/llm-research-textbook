@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文章を数字にする：トークン | つくってわかるLLM</title><meta name="description" content="LLMにとって「猫」は 100472 番である">
+<meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script><script src="widgets.js" defer></script></head>
+<body data-page="02-tokens"><a class="skip" href="#main">本文へ移動</a>
+<header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
+<a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
+<div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" open><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" aria-current="page" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第1部 まず動かす · 第2章</p><h1>文章を数字にする：トークン</h1><p class="sub">LLMにとって「猫」は 100472 番である</p><dl class="meta"><div><dt>目安</dt><dd>45〜60分</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/02-tokens.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/02-tokens.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>LLMが文章をどう区切っているかを見る「トークン観察器」と、第4章から使う自作の文字トークナイザー</p></div><div><h3>ついでに身につく理論</h3><ul><li>文字コードとUTF-8（文字はバイトの列）</li><li>トークン・語彙・トークンID</li><li>なぜ単語でも文字でもなく「トークン」なのか</li><li>特別なトークンとコンテキスト長</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>for</code> 文（くり返し）</li><li><code>len</code> と <code>repr</code></li><li>文字列の <code>encode</code></li><li><code>set</code> と <code>sorted</code></li><li>辞書を作る・引く</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>LLMの「目」をのぞきます。あなたが入力した文章は、LLMの中ではただの<strong>数字の列</strong>になっています。この章では、その数字を自分の目で見て、最後に「文章⇔数字」を変換する小さな道具（トークナイザー）を自分で作ります。この道具は、第4章からの「ゼロからLLMを作る」旅でずっと使います。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>前の章のLLM、日本語ペラペラでしたね。中で日本語を理解してるんですか？</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>いや、LLMは日本語を「見て」すらいない。コンピュータが扱えるのは数だけだ。LLMにとっての文章は、<code>[106046, 116599, 15322, ...]</code> みたいな数の列なんだよ。今日はこの数字の正体を暴きに行こう。探偵ごっこだ。</p>
+</div></div>
+
+<h2 id="s1">準備：新しいノートブックを作る</h2>
+<p>第1章と同じように、Colabで新しいノートブックを作りましょう（「ファイル」→「ノートブックを新規作成」）。名前は <code>02-tokens.ipynb</code> がおすすめです。この章は<strong>CPUのままでOK</strong>です。</p>
+<aside class="box box-tip"><p class="box-title">コツ：毎章、新しいノートブックで</p><p>Colabは、接続を切ると変数がすべて消えます。この教科書では「1章＝1ノートブック」にして、<strong>各章の最初のセルから実行すれば必ず動く</strong>ように作ってあります。前の章のノートブックを開いておく必要はありません。</p>
+</aside>
+
+<h2 id="s2">LLMの「辞書」を借りる</h2>
+<p>LLMは、文章を数字に変えるための専用の辞書を持っています。この辞書と変換係をまとめて <strong>トークナイザー</strong>（tokenizer）と呼びます。第1章のQwenのトークナイザーだけを借りてきましょう。モデル本体（約1GB）は使わないので、ダウンロードは一瞬です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer
+
+tok = AutoTokenizer.from_pretrained(<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>)
+<span class="bi">print</span>(<span class="st">&quot;語彙の数：&quot;</span>, <span class="bi">len</span>(tok))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>語彙の数： 151665</code></pre></div>
+<p>このトークナイザーは、15万1665種類の「言葉のかけら」を知っています。この1つ1つのかけらを <strong>トークン</strong>（token）、トークン全体の一覧を <strong>語彙</strong>（ごい、vocabulary）と呼びます。</p>
+<h2 id="s3">文章を数字に変える</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>ids = tok.encode(<span class="st">&quot;吾輩は猫である。&quot;</span>)
+<span class="bi">print</span>(ids)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[106046, 116599, 15322, 100472, 126230, 1773]</code></pre></div>
+<p>出ました。これが、LLMが見ている「吾輩は猫である。」の姿です。6個の数字になりました。この数字を <strong>トークンID</strong> と呼びます。辞書のページ番号みたいなものです。</p>
+<p>逆向き（数字→文章）もできます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(tok.decode(ids))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>吾輩は猫である。</code></pre></div>
+<p>ちゃんと元に戻りました。では、それぞれの数字が、どの「かけら」に対応しているのかを1つずつ見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">for</span> i <span class="kw">in</span> ids:
+    <span class="bi">print</span>(i, <span class="st">&quot;→&quot;</span>, <span class="bi">repr</span>(tok.decode([i])))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>106046 → &#x27;吾&#x27;
+116599 → &#x27;輩&#x27;
+15322 → &#x27;は&#x27;
+100472 → &#x27;猫&#x27;
+126230 → &#x27;である&#x27;
+1773 → &#x27;。&#x27;</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：for文：くり返し</p><p><code>for i in ids:</code> は「<code>ids</code> の中身を先頭から1つずつ取り出して <code>i</code> に入れ、字下げした部分を実行する」という意味です。フローチャートの「ループ」そのものです。トレースの練習で、表に変数の値を書いていきましたよね。あれをコンピュータが高速でやっています。<br>
+<code>repr(…)</code> は「中身を、Pythonの書き方のまま見せて」という関数です。文字列を <code>'…'</code> で囲んで表示するので、空白や見えない文字があっても気づけます。</p>
+</aside>
+
+<p>おもしろいことに気づきましたか？ 「猫」は1文字で1トークンですが、「である」は3文字で1トークンです。「である」は文章によく出てくるので、辞書に1つのかけらとして登録されているのです。LLMにとって、「猫」は100472番、「である」は126230番。今日からあなたも、猫を見かけたら「あ、100472だ」と言えます。言っても誰にも伝わりませんが。</p>
+<h2 id="s4">トークンの切れ目を観察する</h2>
+<p>いろいろな文章を入れてみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">show_tokens</span>(text):
+    ids = tok.encode(text)
+    pieces = [tok.decode([i]) <span class="kw">for</span> i <span class="kw">in</span> ids]
+    <span class="bi">print</span>(<span class="bi">len</span>(ids), <span class="st">&quot;トークン：&quot;</span>, pieces)
+
+show_tokens(<span class="st">&quot;こんにちは&quot;</span>)
+show_tokens(<span class="st">&quot;大規模言語モデル&quot;</span>)
+show_tokens(<span class="st">&quot;LLMを作れるようになりたい&quot;</span>)
+show_tokens(<span class="st">&quot;I am a cat.&quot;</span>)
+show_tokens(<span class="st">&quot;麒麟&quot;</span>)
+show_tokens(<span class="st">&quot;鰯&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>1 トークン： [&#x27;こんにちは&#x27;]
+5 トークン： [&#x27;大&#x27;, &#x27;規模&#x27;, &#x27;言&#x27;, &#x27;語&#x27;, &#x27;モデル&#x27;]
+7 トークン： [&#x27;LL&#x27;, &#x27;M&#x27;, &#x27;を作&#x27;, &#x27;れる&#x27;, &#x27;よう&#x27;, &#x27;になり&#x27;, &#x27;たい&#x27;]
+5 トークン： [&#x27;I&#x27;, &#x27; am&#x27;, &#x27; a&#x27;, &#x27; cat&#x27;, &#x27;.&#x27;]
+1 トークン： [&#x27;麒麟&#x27;]
+3 トークン： [&#x27;�&#x27;, &#x27;�&#x27;, &#x27;�&#x27;]</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：リストの中で for を回す</p><p><code>[tok.decode([i]) for i in ids]</code> は「<code>ids</code> の各 <code>i</code> について <code>tok.decode([i])</code> を計算し、結果を並べたリストを作る」という1行の書き方です（<strong>リスト内包表記</strong>といいます）。次のように書くのと同じ意味です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>pieces = []
+<span class="kw">for</span> i <span class="kw">in</span> ids:
+    pieces.append(tok.decode([i]))</code></pre></div>
+<p>長い書き方のほうが分かりやすければ、そちらで書いても全く問題ありません。</p>
+</aside>
+
+<p>いくつか不思議なことが起きていますね。</p>
+<ul>
+<li>「こんにちは」は5文字なのに1トークン。よく使うので、まるごと登録されています</li>
+<li>英語では <code>' am'</code> のように、<strong>前の空白も込み</strong>で1トークンです</li>
+<li>「麒麟」は2文字で1トークン（ビール好きのデータが多かったのでしょうか）</li>
+<li>そして「鰯」（いわし）は……謎の <code>�</code> が3つ！</li>
+</ul>
+<p><code>�</code> は文字化けしたときに出る記号です。いったい何が起きたのでしょう？</p>
+<h2 id="s5">文字の正体はバイトの列</h2>
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：文字コード</p><p>基本情報技術者試験で「文字コード」を習いましたね。コンピュータは文字を数で記録していて、その対応表が文字コードです。ASCII（英数字だけ）、Shift_JIS、EUC-JP、そして世界中の文字をまとめた <strong>Unicode</strong>。Unicodeをコンピュータに保存するときの書き方の1つが <strong>UTF-8</strong> で、今のWebやLLMのほとんどがこれを使っています。HTMLの最初に書く <code>&lt;meta charset=&quot;utf-8&quot;&gt;</code> のアレです！</p>
+</aside>
+
+<p>「鰯」をUTF-8で表すと、何バイトになるでしょう？ Pythonで確かめます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>s = <span class="st">&quot;猫&quot;</span>
+b = s.encode(<span class="st">&quot;utf-8&quot;</span>)
+<span class="bi">print</span>(b)
+<span class="bi">print</span>(<span class="bi">len</span>(s), <span class="st">&quot;文字 →&quot;</span>, <span class="bi">len</span>(b), <span class="st">&quot;バイト&quot;</span>)
+<span class="bi">print</span>(<span class="bi">list</span>(b))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>b&#x27;\xe7\x8c\xab&#x27;
+1 文字 → 3 バイト
+[231, 140, 171]</code></pre></div>
+<p>「猫」1文字は、UTF-8では3つのバイト（0〜255の数）で表されます。<code>\xe7</code> は16進数の <code>e7</code>、つまり10進数の231です。基本情報で習った16進数が、ここで生きています。</p>
+<div class="widget" data-widget="utf8"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：LLMのトークナイザーは「バイト」から作られている</p><p>Qwenのトークナイザーは、文字ではなく<strong>バイト</strong>を基本の部品にしています。</p>
+<ol>
+<li>まず文章をUTF-8のバイト列にする（「猫」→ 231, 140, 171）</li>
+<li>よく一緒に出てくるバイトの並びを、1つのトークンとして辞書に登録しておく（231, 140, 171 → 「猫」トークン）</li>
+<li>辞書にない珍しい並びは、バイト1個ずつのトークンのまま残る</li>
+</ol>
+<p>「鰯」は学習データにあまり出てこなかったので、3つのバイトがバラバラのまま残りました。バイト1個だけでは文字にならないので、1つずつ表示すると <code>�</code> になったのです。でも3つ並べて <code>decode</code> すれば、ちゃんと「鰯」に戻ります。</p>
+<p>この方式（<strong>バイトレベルBPE</strong>）のすごいところは、<strong>どんな文字でも絶対に表せる</strong>ことです。絵文字でも、古代文字でも、いざとなればバイト単位に分解すればいいのですから。「辞書にない文字だから読めません」が起きません。BPEの作り方は、第14章で自分で実装します。</p>
+</aside>
+
+<h2 id="s6">なぜ「トークン」なの？</h2>
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>文字ごとに番号をつけたらダメなんですか？ そのほうが分かりやすいのに。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>いい疑問だ。実は、文字ごとでも作れる。この教科書でも第4章からしばらくは文字ごとにする。でも、大きなLLMがそうしない理由が2つある。考えてみよう。</p>
+</div></div>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：単語 vs 文字 vs トークン</p><p>文章を数字にする方法は、ざっくり3つ考えられます。</p>
+<table>
+<thead>
+<tr>
+<th>単位</th>
+<th>良いところ</th>
+<th>困るところ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>単語ごと</td>
+<td>1つ1つに意味がある</td>
+<td>日本語は単語の切れ目に空白がない。新語や固有名詞が無限にあり、辞書に載せきれない</td>
+</tr>
+<tr>
+<td>文字ごと</td>
+<td>辞書が小さい。未知の文字が少ない</td>
+<td>文章が長い数字の列になる。LLMは長い列ほど計算が重い</td>
+</tr>
+<tr>
+<td>トークン（よく出る並びはまとめる）</td>
+<td>辞書の大きさと列の長さのいいとこ取り</td>
+<td>切れ目が人間の感覚とずれる（「を作」など）</td>
+</tr>
+</tbody>
+</table>
+<p>LLMの計算の重さは、入力の長さ（トークン数）で決まります。同じ文章をなるべく少ないトークンで表せれば、計算が軽く、一度にたくさんの文章を読めるのです。かといって辞書を大きくしすぎると、今度は辞書の管理が重くなります。トークンは、その間のちょうどいい落としどころです。</p>
+</aside>
+
+<p>トークン数は、お金や性能にも直結します。有料のLLMサービス（APIといいます）は「1000トークンあたり◯円」という料金が多いですし、LLMが一度に読める長さ（<strong>コンテキスト長</strong>）もトークン数で決まっています。Qwen2.5-0.5Bのコンテキスト長は32,768トークンです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">for</span> text <span class="kw">in</span> [<span class="st">&quot;I am a cat.&quot;</span>, <span class="st">&quot;Je suis un chat.&quot;</span>, <span class="st">&quot;我是一只猫。&quot;</span>, <span class="st">&quot;吾輩は猫である。&quot;</span>]:
+    n = <span class="bi">len</span>(tok.encode(text))
+    <span class="bi">print</span>(n, <span class="st">&quot;トークン：&quot;</span>, text)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>5 トークン： I am a cat.
+5 トークン： Je suis un chat.
+5 トークン： 我是一只猫。
+6 トークン： 吾輩は猫である。</code></pre></div>
+<aside class="box box-try"><p class="box-title">やってみよう：自分の名前は何トークン？</p><p><code>show_tokens(&quot;ここに自分の名前&quot;)</code> を実行してみましょう。予想してから実行するのがコツです。好きなアニメのキャラ名、学校名、絵文字（🐈など）でも試してみてください。珍しい漢字ほど、細かいバイトに分解されるはずです。</p>
+</aside>
+
+<h2 id="s7">特別なトークン</h2>
+<p>第1章で見た台本の記号 <code>&lt;|im_start|&gt;</code> を思い出してください。あれは何トークンでしょう？</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(tok.encode(<span class="st">&quot;&lt;|im_start|&gt;user&quot;</span>))
+<span class="bi">print</span>(tok.convert_ids_to_tokens(tok.encode(<span class="st">&quot;&lt;|im_start|&gt;user&quot;</span>)))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[151644, 872]
+[&#x27;&lt;|im_start|&gt;&#x27;, &#x27;user&#x27;]</code></pre></div>
+<p><code>&lt;|im_start|&gt;</code> は12文字もあるのに、<strong>1トークン</strong>（151644番）です。このような記号を <strong>特別なトークン</strong>（special token）といいます。普通の文章の中には決して出てこない「目印」として、語彙の最後のほうに追加されています。</p>
+<table>
+<thead>
+<tr>
+<th>トークン</th>
+<th>ID</th>
+<th>役目</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;|endoftext|&gt;</code></td>
+<td>151643</td>
+<td>文章の終わり</td>
+</tr>
+<tr>
+<td><code>&lt;|im_start|&gt;</code></td>
+<td>151644</td>
+<td>セリフの始まり</td>
+</tr>
+<tr>
+<td><code>&lt;|im_end|&gt;</code></td>
+<td>151645</td>
+<td>セリフの終わり。チャットモデルはこれを出したら止まる</td>
+</tr>
+</tbody>
+</table>
+<p>LLMが「自分で話すのをやめる」ことができるのは、この <code>&lt;|im_end|&gt;</code> を「次のトークン」として予測できるように訓練されているからです。止まるのも予測のうち。なかなかよくできています。</p>
+<h2 id="s8">自分でトークナイザーを作る</h2>
+<p>ここからが本番です。Qwenのトークナイザーは15万語もあって大がかりなので、この教科書の第2部では、もっとシンプルな <strong>文字トークナイザー</strong>（1文字＝1トークン）を自分で作って使います。まずは短い文章で作ってみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>text = <span class="st">&quot;吾輩は猫である。名前はまだ無い。&quot;</span>
+
+chars = <span class="bi">sorted</span>(<span class="bi">set</span>(text))
+<span class="bi">print</span>(chars)
+<span class="bi">print</span>(<span class="st">&quot;語彙の数：&quot;</span>, <span class="bi">len</span>(chars))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[&#x27;。&#x27;, &#x27;あ&#x27;, &#x27;い&#x27;, &#x27;だ&#x27;, &#x27;で&#x27;, &#x27;は&#x27;, &#x27;ま&#x27;, &#x27;る&#x27;, &#x27;前&#x27;, &#x27;名&#x27;, &#x27;吾&#x27;, &#x27;無&#x27;, &#x27;猫&#x27;, &#x27;輩&#x27;]
+語彙の数： 14</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：set と sorted</p><p><code>set(text)</code> は、文字列から<strong>重複を取り除いた文字の集まり</strong>（集合）を作ります。「は」は2回出てきますが、集合には1つだけ入ります。<code>sorted(…)</code> はそれを並べ替えてリストにします。日本語は文字コードの順に並ぶので、ひらがなが漢字より前に来ます。</p>
+</aside>
+
+<p>次に、文字→番号の辞書（<code>stoi</code>：string to integer）と、番号→文字の辞書（<code>itos</code>：integer to string）を作ります。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>stoi = {}
+<span class="kw">for</span> i, ch <span class="kw">in</span> <span class="bi">enumerate</span>(chars):
+    stoi[ch] = i
+
+itos = {}
+<span class="kw">for</span> ch, i <span class="kw">in</span> stoi.items():
+    itos[i] = ch
+
+<span class="bi">print</span>(stoi)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>{&#x27;。&#x27;: 0, &#x27;あ&#x27;: 1, &#x27;い&#x27;: 2, &#x27;だ&#x27;: 3, &#x27;で&#x27;: 4, &#x27;は&#x27;: 5, &#x27;ま&#x27;: 6, &#x27;る&#x27;: 7, &#x27;前&#x27;: 8, &#x27;名&#x27;: 9, &#x27;吾&#x27;: 10, &#x27;無&#x27;: 11, &#x27;猫&#x27;: 12, &#x27;輩&#x27;: 13}</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：enumerate と items</p><p><code>enumerate(chars)</code> は、リストの中身を「番号つき」で取り出します。<code>i</code> に 0, 1, 2…、<code>ch</code> に文字が入ります。<br>
+<code>stoi.items()</code> は、辞書の「キーと値の組」を1つずつ取り出します。<br>
+辞書は <code>stoi[&quot;猫&quot;]</code> のように、キーを指定して値を引けます。紙の辞書で「猫」を引くとページ番号が分かる、のと同じです。</p>
+</aside>
+
+<p>いよいよ変換係の関数を作ります。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">encode</span>(s):
+    <span class="kw">return</span> [stoi[c] <span class="kw">for</span> c <span class="kw">in</span> s]
+
+<span class="kw">def</span> <span class="fn">decode</span>(ids):
+    <span class="kw">return</span> <span class="st">&quot;&quot;</span>.join(itos[i] <span class="kw">for</span> i <span class="kw">in</span> ids)
+
+ids = encode(<span class="st">&quot;猫である&quot;</span>)
+<span class="bi">print</span>(ids)
+<span class="bi">print</span>(decode(ids))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[12, 4, 1, 7]
+猫である</code></pre></div>
+<p>できました！ これがあなたの最初のトークナイザーです。Qwenの15万語には遠く及びませんが、やっていることの本質は同じ。「文章⇔数字」の変換です。</p>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：join</p><p><code>&quot;&quot;.join(…)</code> は、文字のリストを1つの文字列につなげます。<code>&quot;&quot;.join([&quot;猫&quot;, &quot;で&quot;])</code> は <code>&quot;猫で&quot;</code> になります。<code>&quot;-&quot;.join(…)</code> にすると <code>&quot;猫-で&quot;</code> のように、間に <code>-</code> を挟んでつなげます。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：辞書にない文字は？</p><p>この小さな辞書には「犬」がありません。<code>encode(&quot;犬&quot;)</code> を実行すると <code>KeyError: '犬'</code> というエラーになります（「そのキーは辞書にないよ」の意味）。文字トークナイザーの弱点です。確かめるなら、エラーにならない次の書き方で。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="bi">print</span>(<span class="st">&quot;犬&quot;</span> <span class="kw">in</span> stoi)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>False</code></pre></div>
+<p>第4章では、夏目漱石の小説に出てくる<strong>全部の文字</strong>で辞書を作るので、小説の中の文字なら困りません。</p>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：バイト数</p><p>「AI猫」をUTF-8で表すと、何バイトになるでしょう？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>5バイトです。英字の「A」「I」は1バイトずつ、「猫」は3バイトなので、1 + 1 + 3 = 5。<code>len(&quot;AI猫&quot;.encode(&quot;utf-8&quot;))</code> で確かめられます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：鰯の謎</p><p>Qwenのトークナイザーで「鰯」が <code>�</code> 3つになったのはなぜ？ また、それでも困らないのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>「鰯」はUTF-8で3バイトですが、学習データに少ないため、3バイトをまとめたトークンが辞書に登録されていませんでした。だからバイト1つずつの3トークンに分かれ、1つずつでは文字にならないので <code>�</code> と表示されました。それでも3つ並べてデコードすれば「鰯」に戻るので、情報は失われていません。バイトを基本にしているので、どんな文字も表せるのです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：トークンの長所</p><p>LLMが「文字ごと」ではなく「トークン」を使う一番の理由は？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>同じ文章を少ない数の列で表せるからです。LLMの計算の重さや、一度に読める量（コンテキスト長）はトークン数で決まるので、よく出る文字の並びを1トークンにまとめると、速く・たくさん読めるようになります。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="02-tokens:0"> <span><code>tok.encode</code> と <code>tok.decode</code> で、文章と数字を行き来できた</span></label></li><li><label><input type="checkbox" data-check="02-tokens:1"> <span>「猫」が3バイトであることを確かめた</span></label></li><li><label><input type="checkbox" data-check="02-tokens:2"> <span>「鰯」が <code>�</code> 3つになる理由を説明できる</span></label></li><li><label><input type="checkbox" data-check="02-tokens:3"> <span>自分で <code>encode</code> と <code>decode</code> を書いて動かした</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>LLMは文章を <strong>トークンID</strong> の列として扱う。トークンの一覧が <strong>語彙</strong></li>
+<li>文字は <strong>UTF-8</strong> ではバイトの列。日本語1文字はたいてい3バイト</li>
+<li>実際のLLMは、よく出るバイトの並びを1トークンにまとめる（バイトレベルBPE）。だから未知の文字がない</li>
+<li>自作の文字トークナイザーは、<code>stoi</code> と <code>itos</code> の2つの辞書でできている</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>数字になった文章を受け取ったLLMは、次のトークンを「選ぶ」。でも、どうやって選んでいるのか？ 実はサイコロを振っているんだ。次の章では、LLMの頭の中のサイコロを取り出して、自分の手で振ってみよう。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="02-tokens">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="01-first-llm.html"><small>← 前の章</small>5分でLLMと話す</a><a class="next" href="03-next-token.html"><small>次の章 →</small>次の一語はサイコロで決まる：確率と温度</a></nav></article>
+<footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：新しいノートブックを作る</a><a href="#s2">LLMの「辞書」を借りる</a><a href="#s3">文章を数字に変える</a><a href="#s4">トークンの切れ目を観察する</a><a href="#s5">文字の正体はバイトの列</a><a href="#s6">なぜ「トークン」なの？</a><a href="#s7">特別なトークン</a><a href="#s8">自分でトークナイザーを作る</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

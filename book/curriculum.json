@@ -1,0 +1,18 @@
+{
+  "title": "つくってわかるLLM",
+  "subtitle": "ボンゴ先生と、手を動かしながら学ぶ大規模言語モデル",
+  "repo": "sakunokyumei/llm-research-textbook",
+  "site": "https://sakunokyumei.github.io/llm-research-textbook/",
+  "parts": [
+    {"id": "p0", "title": "ようこそ", "chapters": ["00-welcome"]},
+    {"id": "p1", "title": "第1部 まず動かす", "lead": "初日からLLMと話し、中身をのぞく", "chapters": ["01-first-llm", "02-tokens", "03-next-token"]},
+    {"id": "p2", "title": "第2部 ゼロから作る", "lead": "数えるモデルから、学習するモデルへ", "chapters": ["04-bigram", "05-loss", "06-tensors", "07-gradient", "08-neural-bigram", "09-mlp", "10-training-tips"]},
+    {"id": "p3", "title": "第3部 Transformerを組み立てる", "lead": "GPTの心臓部を自分で書く", "chapters": ["11-attention", "12-transformer", "13-train-gpt"]},
+    {"id": "p4", "title": "第4部 本物に近づける", "lead": "トークナイザー・GPT-2・大規模化の工学", "chapters": ["14-bpe", "15-gpt2", "16-scale"]},
+    {"id": "p5", "title": "第5部 既製モデルを鍛える", "lead": "公開モデルを自分の目的に合わせる", "chapters": ["17-hf-models", "18-sft", "19-lora", "20-evaluation"]},
+    {"id": "p6", "title": "第6部 LLMをシステムにする", "lead": "検索・好み・道具・公開", "chapters": ["21-rag", "22-alignment", "23-agents", "24-deploy"]},
+    {"id": "p7", "title": "第7部 研究の入口へ", "lead": "最新の部品と、自分の研究テーマ", "chapters": ["25-modern", "26-capstone"]}
+  ],
+  "appendix": ["a-setup", "b-python", "c-terminal", "d-math", "e-errors", "f-glossary", "g-coverage", "h-plan", "i-simulation", "j-references"],
+  "extra": ["about"]
+}
