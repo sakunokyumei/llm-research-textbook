@@ -120,10 +120,18 @@ soseki-gpt/
   <div id="out"></div>
 
   <script type="module">
-    import { load } from "./minigpt.js";
-    const model = await load("./soseki-gpt.json");
     const go = document.getElementById("go");
     const out = document.getElementById("out");
+    let model;
+    try {                                   // Pythonの try / except と同じ（第23章）
+      const { load } = await import("./minigpt.js");
+      model = await load("./soseki-gpt.json");
+    } catch (e) {
+      go.textContent = "読み込み失敗";
+      out.textContent = "モデルを読み込めませんでした：" + e.message +
+        "\nファイル名（minigpt.js と soseki-gpt.json）と、http://localhost で開いているかを確かめてください。";
+      throw e;
+    }
     go.textContent = "続きを書かせる";
     go.disabled = false;
     go.addEventListener("click", async () => {
@@ -138,7 +146,7 @@ soseki-gpt/
 </html>
 ```
 
-HTMLとCSSは見慣れた姿だと思います。新しいのは最後の `<script type="module">` の部分だけです。
+HTMLとCSSは見慣れた姿だと思います。新しいのは最後の `<script type="module">` の部分だけです。`try { … } catch (e) { … }` は、Pythonの `try` / `except`（第23章）と同じで、読み込みに失敗したら、画面に理由を表示します。
 
 ### minigpt.js の中身を読む
 
@@ -192,6 +200,12 @@ python -m http.server 8000
 :::
 
 ブラウザで <http://localhost:8000/> を開き、「続きを書かせる」を押して、文章が出てくれば成功です。終わったら、ターミナルで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押してサーバーを止めます。
+
+:::warn 「読み込み失敗」や「読み込み中…」のまま止まったら
+- **ファイル名を確かめる**：2回ダウンロードすると `soseki-gpt (1).json` のような名前になっていることがあります。3つのファイルが `index.html`、`minigpt.js`、`soseki-gpt.json` という名前で、同じフォルダにあるか確かめましょう
+- **開き方を確かめる**：アドレス欄が `file://` で始まっていたら、上の手順でサーバーを立てて `http://localhost:8000/` で開き直します
+- **エラーの本文を見る**：<kbd>F12</kbd> キー（Macは <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd>）で開発者ツールを開き、「Console（コンソール）」タブの赤い行を読みます。英語のエラーは、[エラー辞典](e-errors.html)の質問テンプレートでAIに聞いてもOKです
+:::
 
 :::tip Pythonが入っていなかったら
 自分のパソコンにPythonが入っていない人は、[付録A](a-setup.html)の手順で入れるか、この手順を飛ばして手順4（GitHub Pages）で直接確かめてもかまいません。

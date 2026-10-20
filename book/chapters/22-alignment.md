@@ -189,16 +189,27 @@ config = DPOConfig(output_dir="dpo-bongo", beta=0.1, learning_rate=5e-5, num_tra
 trainer = DPOTrainer(model=policy, args=config, train_dataset=ds, processing_class=tok,
                      peft_config=LoraConfig(r=16, lora_alpha=32, target_modules="all-linear", task_type="CAUSAL_LM"))
 trainer.train()
-first = trainer.state.log_history[0]
-print("最初の損失：", round(first["loss"], 4))
+```
+
+Colabでは、学習中に「Step」と「Training Loss」の表が表示されます。でも、そこに出るのは損失だけです。DPOならではの値（`rewards/…`）は、学習が終わった後に、学習の記録 `trainer.state.log_history`（1ステップごとの記録の辞書を並べたリスト）から取り出して表示します。
+
+```python
+for h in trainer.state.log_history:
+    if "rewards/margins" in h and h["step"] % 4 == 1:     # 4ステップごとに表示
+        print(f"ステップ {h['step']:2d}：損失 {h['loss']:.3f}  良い {h['rewards/chosen']:5.2f}  "
+              f"悪い {h['rewards/rejected']:5.2f}  差 {h['rewards/margins']:5.2f}  正解率 {h['rewards/accuracies']:.2f}")
 ```
 
 ```output-example
-{'loss': 0.6931, 'rewards/chosen': 0.0, 'rewards/rejected': 0.0, 'rewards/accuracies': 0.0, 'rewards/margins': 0.0, ...}
-{'loss': 0.4213, 'rewards/chosen': 1.92, 'rewards/rejected': -1.35, 'rewards/accuracies': 0.95, 'rewards/margins': 3.27, ...}
-...
-最初の損失： 0.6931
+ステップ  1：損失 0.693  良い  0.00  悪い  0.00  差  0.00  正解率 0.00
+ステップ  5：損失 0.612  良い  0.31  悪い -0.12  差  0.43  正解率 0.75
+ステップ  9：損失 0.488  良い  0.85  悪い -0.57  差  1.42  正解率 1.00
+ステップ 13：損失 0.401  良い  1.40  悪い -1.02  差  2.42  正解率 1.00
+ステップ 17：損失 0.338  良い  1.71  悪い -1.31  差  3.02  正解率 1.00
+ステップ 21：損失 0.302  良い  1.92  悪い -1.35  差  3.27  正解率 1.00
 ```
+
+最初の損失は0.693（$\log 2$）。まだ何も学んでいないので、良い答えと悪い答えの差は0、つまり五分五分です。
 
 :::theory 学習ログの読み方
 - `loss`：DPOの損失。0.693（$\log 2$）から下がっていけば順調
