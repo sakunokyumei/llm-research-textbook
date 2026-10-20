@@ -214,7 +214,11 @@ print(pairs.most_common(10))
 
 ```python
 def next_counts(ch):
-    return Counter({b: n for (a, b), n in pairs.items() if a == ch})
+    c = Counter()
+    for (a, b), n in pairs.items():   # 全部のペアの中から
+        if a == ch:                   # 1文字目が ch のものだけ
+            c[b] = n                  # 2文字目と回数を記録
+    return c
 
 c = next_counts("先")
 print("「先」は全部で", sum(c.values()), "回")

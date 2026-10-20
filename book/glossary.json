@@ -1,0 +1,1052 @@
+[
+ {
+  "term": "LLM",
+  "reading": "えるえるえむ",
+  "en": "Large Language Model",
+  "chapter": "01-first-llm",
+  "def": "大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。"
+ },
+ {
+  "term": "Google Colab",
+  "reading": "ぐーぐるこらぼ",
+  "en": "Google Colaboratory",
+  "chapter": "01-first-llm",
+  "def": "ブラウザで動くPythonのノート。無料でGPUを借りられることがある。"
+ },
+ {
+  "term": "セル",
+  "reading": "せる",
+  "en": "cell",
+  "chapter": "01-first-llm",
+  "def": "ノートブックの中の、コードを書いて実行する1つの入力欄。"
+ },
+ {
+  "term": "変数",
+  "reading": "へんすう",
+  "en": "variable",
+  "chapter": "01-first-llm",
+  "def": "値を入れておく名前つきの箱。`x = 3` で x に 3 が入る。"
+ },
+ {
+  "term": "GPU",
+  "reading": "じーぴーゆー",
+  "en": "Graphics Processing Unit",
+  "chapter": "01-first-llm",
+  "def": "単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。"
+ },
+ {
+  "term": "VRAM",
+  "reading": "ぶいらむ",
+  "en": "Video RAM",
+  "chapter": "01-first-llm",
+  "def": "GPUの中にあるメモリ。モデルを置ける机の広さ。"
+ },
+ {
+  "term": "ダウンロード",
+  "reading": "だうんろーど",
+  "en": "download",
+  "chapter": "01-first-llm",
+  "def": "インターネットからファイルを手元に取ってくること。"
+ },
+ {
+  "term": "チャットモデル",
+  "reading": "ちゃっともでる",
+  "en": "chat / instruct model",
+  "chapter": "01-first-llm",
+  "def": "会話の台本形式で「アシスタントのセリフ」を書けるように追加で訓練したモデル。Instructとも。"
+ },
+ {
+  "term": "パラメータ",
+  "reading": "ぱらめーた",
+  "en": "parameter",
+  "chapter": "01-first-llm",
+  "def": "モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。"
+ },
+ {
+  "term": "関数",
+  "reading": "かんすう",
+  "en": "function",
+  "chapter": "01-first-llm",
+  "def": "手順をひとまとめにして名前をつけたもの。`def` で作る。"
+ },
+ {
+  "term": "リスト",
+  "reading": "りすと",
+  "en": "list",
+  "chapter": "01-first-llm",
+  "def": "ものを順番に並べた入れ物。`[1, 2, 3]`。"
+ },
+ {
+  "term": "辞書",
+  "reading": "じしょ",
+  "en": "dictionary",
+  "chapter": "01-first-llm",
+  "def": "「キー: 値」の組を入れる入れ物。`{\"猫\": 0}`。"
+ },
+ {
+  "term": "トークン",
+  "reading": "とーくん",
+  "en": "token",
+  "chapter": "02-tokens",
+  "def": "LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。"
+ },
+ {
+  "term": "トークナイザー",
+  "reading": "とーくないざー",
+  "en": "tokenizer",
+  "chapter": "02-tokens",
+  "def": "文章とトークンIDを相互に変換する係。"
+ },
+ {
+  "term": "語彙",
+  "reading": "ごい",
+  "en": "vocabulary",
+  "chapter": "02-tokens",
+  "def": "トークナイザーが知っているトークンの一覧。その数が語彙サイズ。"
+ },
+ {
+  "term": "トークンID",
+  "reading": "とーくんあいでぃー",
+  "en": "token ID",
+  "chapter": "02-tokens",
+  "def": "各トークンにつけられた番号。LLMが実際に見ている数。"
+ },
+ {
+  "term": "UTF-8",
+  "reading": "ゆーてぃーえふえいと",
+  "en": "UTF-8",
+  "chapter": "02-tokens",
+  "def": "Unicodeの文字をバイトの列で表す方法。日本語1文字はたいてい3バイト。"
+ },
+ {
+  "term": "バイト",
+  "reading": "ばいと",
+  "en": "byte",
+  "chapter": "02-tokens",
+  "def": "8ビットの数。0〜255の値をとる。"
+ },
+ {
+  "term": "バイトレベルBPE",
+  "reading": "ばいとれべるびーぴーいー",
+  "en": "byte-level BPE",
+  "chapter": "02-tokens",
+  "def": "バイトを基本にして、よく出る組を合体させてトークンを作る方法。どんな文字も表せる。"
+ },
+ {
+  "term": "特別なトークン",
+  "reading": "とくべつなとーくん",
+  "en": "special token",
+  "chapter": "02-tokens",
+  "def": "`<|im_start|>` のように、普通の文章には出てこない目印のトークン。"
+ },
+ {
+  "term": "コンテキスト長",
+  "reading": "こんてきすとちょう",
+  "en": "context length",
+  "chapter": "02-tokens",
+  "def": "LLMが一度に読めるトークン数の上限。"
+ },
+ {
+  "term": "ロジット",
+  "reading": "ろじっと",
+  "en": "logit",
+  "chapter": "03-next-token",
+  "def": "各トークンへの「次に来そう度」の点数。softmaxで確率になる前の値。"
+ },
+ {
+  "term": "確率",
+  "reading": "かくりつ",
+  "en": "probability",
+  "chapter": "03-next-token",
+  "def": "起こりやすさを0〜1で表したもの。全部の候補を足すと1。"
+ },
+ {
+  "term": "softmax",
+  "reading": "そふとまっくす",
+  "en": "softmax",
+  "chapter": "03-next-token",
+  "def": "点数を、正で合計1の確率に変える関数。各点数をexpしてから合計で割る。"
+ },
+ {
+  "term": "指数関数",
+  "reading": "しすうかんすう",
+  "en": "exponential function",
+  "chapter": "03-next-token",
+  "def": "$e^x$。どんな数も正にし、差を倍率に変える。"
+ },
+ {
+  "term": "サンプリング",
+  "reading": "さんぷりんぐ",
+  "en": "sampling",
+  "chapter": "03-next-token",
+  "def": "確率に従って、くじ引きで1つ選ぶこと。"
+ },
+ {
+  "term": "シード",
+  "reading": "しーど",
+  "en": "seed",
+  "chapter": "03-next-token",
+  "def": "乱数の種。同じシードなら同じ乱数の列になり、実験を再現できる。"
+ },
+ {
+  "term": "温度",
+  "reading": "おんど",
+  "en": "temperature",
+  "chapter": "03-next-token",
+  "def": "点数を割る数。低いと堅実、高いと冒険的な生成になる。"
+ },
+ {
+  "term": "greedy",
+  "reading": "ぐりーでぃ",
+  "en": "greedy decoding",
+  "chapter": "03-next-token",
+  "def": "毎回いちばん確率の高いトークンを選ぶ方法（貪欲法）。"
+ },
+ {
+  "term": "自己回帰",
+  "reading": "じこかいき",
+  "en": "autoregressive",
+  "chapter": "03-next-token",
+  "def": "予測した出力を入力の最後に付け足し、次を予測する、をくり返して生成する方式。"
+ },
+ {
+  "term": "前処理",
+  "reading": "まえしょり",
+  "en": "preprocessing",
+  "chapter": "04-bigram",
+  "def": "学習の前にデータを整えること。文字コードの変換やルビの除去など。"
+ },
+ {
+  "term": "正規表現",
+  "reading": "せいきひょうげん",
+  "en": "regular expression",
+  "chapter": "04-bigram",
+  "def": "「こういう形の文字列」というパターンを書く小さな言語。"
+ },
+ {
+  "term": "条件付き確率",
+  "reading": "じょうけんつきかくりつ",
+  "en": "conditional probability",
+  "chapter": "04-bigram",
+  "def": "Aが起きたときにBが起きる割合。$P(B \\mid A)$ と書く。"
+ },
+ {
+  "term": "bigram",
+  "reading": "ばいぐらむ",
+  "en": "bigram",
+  "chapter": "04-bigram",
+  "def": "直前の1文字（1トークン）だけを見て次を予測するモデル。"
+ },
+ {
+  "term": "n-gram",
+  "reading": "えぬぐらむ",
+  "en": "n-gram",
+  "chapter": "04-bigram",
+  "def": "直前の n−1 個を見て次を予測するモデル。"
+ },
+ {
+  "term": "スパース性",
+  "reading": "すぱーすせい",
+  "en": "sparsity",
+  "chapter": "04-bigram",
+  "def": "組み合わせが多すぎて、ほとんどの組み合わせがデータに出てこない問題。"
+ },
+ {
+  "term": "訓練データ",
+  "reading": "くんれんでーた",
+  "en": "training data",
+  "chapter": "05-loss",
+  "def": "モデルが学ぶためのデータ。過去問。"
+ },
+ {
+  "term": "検証データ",
+  "reading": "けんしょうでーた",
+  "en": "validation data",
+  "chapter": "05-loss",
+  "def": "点数をつけるためだけに取っておくデータ。学習には使わない。"
+ },
+ {
+  "term": "アンダーフロー",
+  "reading": "あんだーふろー",
+  "en": "underflow",
+  "chapter": "05-loss",
+  "def": "小さすぎる数が、コンピュータで表せずに0になってしまうこと。"
+ },
+ {
+  "term": "対数",
+  "reading": "たいすう",
+  "en": "logarithm",
+  "chapter": "05-loss",
+  "def": "何回掛けたかを数える関数。掛け算を足し算に変える。"
+ },
+ {
+  "term": "損失",
+  "reading": "そんしつ",
+  "en": "loss",
+  "chapter": "05-loss",
+  "def": "モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。"
+ },
+ {
+  "term": "交差エントロピー",
+  "reading": "こうさえんとろぴー",
+  "en": "cross-entropy",
+  "chapter": "05-loss",
+  "def": "softmaxして正解の確率の −log を平均したもの。言語モデルの標準的な損失。"
+ },
+ {
+  "term": "スムージング",
+  "reading": "すむーじんぐ",
+  "en": "smoothing",
+  "chapter": "05-loss",
+  "def": "見たことのない組み合わせにも、少しだけ確率を分けておく工夫。"
+ },
+ {
+  "term": "ハイパーパラメータ",
+  "reading": "はいぱーぱらめーた",
+  "en": "hyperparameter",
+  "chapter": "05-loss",
+  "def": "学習率など、人間が事前に決める設定値。検証データで選ぶ。"
+ },
+ {
+  "term": "パープレキシティ",
+  "reading": "ぱーぷれきしてぃ",
+  "en": "perplexity",
+  "chapter": "05-loss",
+  "def": "$e^{損失}$。モデルが何択くらいで迷っているか。"
+ },
+ {
+  "term": "テンソル",
+  "reading": "てんそる",
+  "en": "tensor",
+  "chapter": "06-tensors",
+  "def": "数を並べた箱の総称。1次元がベクトル、2次元が行列。"
+ },
+ {
+  "term": "ベクトル",
+  "reading": "べくとる",
+  "en": "vector",
+  "chapter": "06-tensors",
+  "def": "数を1列に並べたもの。"
+ },
+ {
+  "term": "行列",
+  "reading": "ぎょうれつ",
+  "en": "matrix",
+  "chapter": "06-tensors",
+  "def": "数を表（縦×横）に並べたもの。"
+ },
+ {
+  "term": "形",
+  "reading": "かたち",
+  "en": "shape",
+  "chapter": "06-tensors",
+  "def": "テンソルの各方向の長さ。`[2, 3]` なら2行3列。"
+ },
+ {
+  "term": "ブロードキャスト",
+  "reading": "ぶろーどきゃすと",
+  "en": "broadcasting",
+  "chapter": "06-tensors",
+  "def": "形の違うテンソルどうしの計算で、長さ1の軸を自動でコピーする仕組み。"
+ },
+ {
+  "term": "one-hot",
+  "reading": "わんほっと",
+  "en": "one-hot vector",
+  "chapter": "06-tensors",
+  "def": "1か所だけ1で、残りが0のベクトル。"
+ },
+ {
+  "term": "行列の積",
+  "reading": "ぎょうれつのせき",
+  "en": "matrix multiplication",
+  "chapter": "06-tensors",
+  "def": "左の行と右の列の内積を並べたもの。`A @ B`。"
+ },
+ {
+  "term": "微分",
+  "reading": "びぶん",
+  "en": "derivative",
+  "chapter": "07-gradient",
+  "def": "傾き。少し動かしたときの変化の割合。"
+ },
+ {
+  "term": "勾配",
+  "reading": "こうばい",
+  "en": "gradient",
+  "chapter": "07-gradient",
+  "def": "各パラメータの偏微分を並べたもの。最も急に上る方向を指す。"
+ },
+ {
+  "term": "勾配降下法",
+  "reading": "こうばいこうかほう",
+  "en": "gradient descent",
+  "chapter": "07-gradient",
+  "def": "勾配と逆向きに少しずつパラメータを動かして、損失を下げる方法。"
+ },
+ {
+  "term": "学習率",
+  "reading": "がくしゅうりつ",
+  "en": "learning rate",
+  "chapter": "07-gradient",
+  "def": "勾配降下法の一歩の大きさ。"
+ },
+ {
+  "term": "偏微分",
+  "reading": "へんびぶん",
+  "en": "partial derivative",
+  "chapter": "07-gradient",
+  "def": "ほかのパラメータは止めて、1つだけ動かしたときの傾き。"
+ },
+ {
+  "term": "自動微分",
+  "reading": "じどうびぶん",
+  "en": "automatic differentiation",
+  "chapter": "07-gradient",
+  "def": "計算の記録から、勾配を自動で正確に求める仕組み。PyTorchの `backward()`。"
+ },
+ {
+  "term": "連鎖律",
+  "reading": "れんさりつ",
+  "en": "chain rule",
+  "chapter": "07-gradient",
+  "def": "途中の傾きを掛け算でつないで、全体の傾きを求める規則。"
+ },
+ {
+  "term": "誤差逆伝播法",
+  "reading": "ごさぎゃくでんぱほう",
+  "en": "backpropagation",
+  "chapter": "07-gradient",
+  "def": "損失から計算を逆にたどり、連鎖律で全パラメータの勾配を求める方法。"
+ },
+ {
+  "term": "教師データ",
+  "reading": "きょうしでーた",
+  "en": "labeled data",
+  "chapter": "08-neural-bigram",
+  "def": "問題（入力）と答え（正解）の組。"
+ },
+ {
+  "term": "ミニバッチ",
+  "reading": "みにばっち",
+  "en": "mini-batch",
+  "chapter": "08-neural-bigram",
+  "def": "データ全体から選んだ一部。毎回これで損失と勾配を計算する。"
+ },
+ {
+  "term": "SGD",
+  "reading": "えすじーでぃー",
+  "en": "stochastic gradient descent",
+  "chapter": "08-neural-bigram",
+  "def": "ミニバッチで勾配を計算して下る、確率的勾配降下法。"
+ },
+ {
+  "term": "エポック",
+  "reading": "えぽっく",
+  "en": "epoch",
+  "chapter": "08-neural-bigram",
+  "def": "訓練データ全体を1周すること。"
+ },
+ {
+  "term": "最尤推定",
+  "reading": "さいゆうすいてい",
+  "en": "maximum likelihood estimation",
+  "chapter": "08-neural-bigram",
+  "def": "データが一番ありそうになるパラメータを選ぶ考え方。交差エントロピーの最小化と同じ。"
+ },
+ {
+  "term": "学習曲線",
+  "reading": "がくしゅうきょくせん",
+  "en": "learning curve",
+  "chapter": "08-neural-bigram",
+  "def": "学習中の損失の変化を描いたグラフ。"
+ },
+ {
+  "term": "正則化",
+  "reading": "せいそくか",
+  "en": "regularization",
+  "chapter": "08-neural-bigram",
+  "def": "極端な値や丸暗記を防ぐための工夫の総称。"
+ },
+ {
+  "term": "埋め込み",
+  "reading": "うめこみ",
+  "en": "embedding",
+  "chapter": "09-mlp",
+  "def": "トークンごとに割り当てた、学習可能な数の組（ベクトル）。"
+ },
+ {
+  "term": "汎化",
+  "reading": "はんか",
+  "en": "generalization",
+  "chapter": "09-mlp",
+  "def": "見たことのないデータにも、うまく対応できること。"
+ },
+ {
+  "term": "全結合層",
+  "reading": "ぜんけつごうそう",
+  "en": "linear layer",
+  "chapter": "09-mlp",
+  "def": "$y = xW + b$ の層。入力の全部に重みを掛けて足す。"
+ },
+ {
+  "term": "活性化関数",
+  "reading": "かっせいかかんすう",
+  "en": "activation function",
+  "chapter": "09-mlp",
+  "def": "層と層の間に挟む、直線ではない関数。tanh、ReLU、GELUなど。"
+ },
+ {
+  "term": "MLP",
+  "reading": "えむえるぴー",
+  "en": "multilayer perceptron",
+  "chapter": "09-mlp",
+  "def": "全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。"
+ },
+ {
+  "term": "クラス",
+  "reading": "くらす",
+  "en": "class",
+  "chapter": "09-mlp",
+  "def": "Pythonの設計図。PyTorchのモデルは `nn.Module` のクラスで書く。"
+ },
+ {
+  "term": "過学習",
+  "reading": "かがくしゅう",
+  "en": "overfitting",
+  "chapter": "09-mlp",
+  "def": "訓練データに合わせすぎて、検証データで悪くなること。丸暗記。"
+ },
+ {
+  "term": "平均",
+  "reading": "へいきん",
+  "en": "mean",
+  "chapter": "10-training-tips",
+  "def": "全部足して個数で割ったもの。"
+ },
+ {
+  "term": "分散",
+  "reading": "ぶんさん",
+  "en": "variance",
+  "chapter": "10-training-tips",
+  "def": "平均からのずれの2乗の平均。ばらつき。"
+ },
+ {
+  "term": "標準偏差",
+  "reading": "ひょうじゅんへんさ",
+  "en": "standard deviation",
+  "chapter": "10-training-tips",
+  "def": "分散の平方根。ばらつきを元の単位で表したもの。"
+ },
+ {
+  "term": "正規分布",
+  "reading": "せいきぶんぷ",
+  "en": "normal distribution",
+  "chapter": "10-training-tips",
+  "def": "平均のまわりに集まる、釣り鐘型のばらつき。"
+ },
+ {
+  "term": "勾配消失",
+  "reading": "こうばいしょうしつ",
+  "en": "vanishing gradient",
+  "chapter": "10-training-tips",
+  "def": "層を通るたびに勾配が小さくなり、学習が進まなくなること。"
+ },
+ {
+  "term": "LayerNorm",
+  "reading": "れいやーのーむ",
+  "en": "layer normalization",
+  "chapter": "10-training-tips",
+  "def": "各データの数を平均0・標準偏差1にそろえる部品。"
+ },
+ {
+  "term": "Adam",
+  "reading": "あだむ",
+  "en": "Adam",
+  "chapter": "10-training-tips",
+  "def": "慣性とパラメータごとの歩幅を使う、賢い勾配降下法。AdamWはその改良版。"
+ },
+ {
+  "term": "ドロップアウト",
+  "reading": "どろっぷあうと",
+  "en": "dropout",
+  "chapter": "10-training-tips",
+  "def": "学習中にニューロンの一部をランダムに休ませ、過学習を防ぐ方法。"
+ },
+ {
+  "term": "重み減衰",
+  "reading": "おもみげんすい",
+  "en": "weight decay",
+  "chapter": "10-training-tips",
+  "def": "毎ステップ重みを少し0に近づけ、極端な値を防ぐ正則化。"
+ },
+ {
+  "term": "ウォームアップ",
+  "reading": "うぉーむあっぷ",
+  "en": "warmup",
+  "chapter": "10-training-tips",
+  "def": "学習の最初に、学習率を0から徐々に上げること。"
+ },
+ {
+  "term": "勾配クリッピング",
+  "reading": "こうばいくりっぴんぐ",
+  "en": "gradient clipping",
+  "chapter": "10-training-tips",
+  "def": "勾配の大きさに上限を設けて、勾配爆発を防ぐ方法。"
+ },
+ {
+  "term": "チェックポイント",
+  "reading": "ちぇっくぽいんと",
+  "en": "checkpoint",
+  "chapter": "10-training-tips",
+  "def": "学習の途中のモデルを保存したもの。"
+ },
+ {
+  "term": "Attention",
+  "reading": "あてんしょん",
+  "en": "attention",
+  "chapter": "11-attention",
+  "def": "どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。"
+ },
+ {
+  "term": "因果マスク",
+  "reading": "いんがますく",
+  "en": "causal mask",
+  "chapter": "11-attention",
+  "def": "未来の位置を見ないように、点数を −∞ にする目隠し。"
+ },
+ {
+  "term": "内積",
+  "reading": "ないせき",
+  "en": "dot product",
+  "chapter": "11-attention",
+  "def": "同じ位置どうしを掛けて足したもの。向きがそろうほど大きい。"
+ },
+ {
+  "term": "Query・Key・Value",
+  "reading": "くえり・きー・ばりゅー",
+  "en": "query, key, value",
+  "chapter": "11-attention",
+  "def": "検索ワード・ラベル・中身。QとKの内積で重みを決め、Vを重みつきで平均する。"
+ },
+ {
+  "term": "位置の埋め込み",
+  "reading": "いちのうめこみ",
+  "en": "positional embedding",
+  "chapter": "11-attention",
+  "def": "位置ごとのベクトルを足して、順番の情報を与えるもの。"
+ },
+ {
+  "term": "残差接続",
+  "reading": "ざんさせつぞく",
+  "en": "residual connection",
+  "chapter": "11-attention",
+  "def": "部品の出力を元の入力に足す近道。情報と勾配が通りやすくなる。"
+ },
+ {
+  "term": "マルチヘッドAttention",
+  "reading": "まるちへっどあてんしょん",
+  "en": "multi-head attention",
+  "chapter": "12-transformer",
+  "def": "小さなAttentionを何個も並べて、違う観点で見る仕組み。"
+ },
+ {
+  "term": "フィードフォワード層",
+  "reading": "ふぃーどふぉわーどそう",
+  "en": "feed-forward network",
+  "chapter": "12-transformer",
+  "def": "各位置で独立に通す小さなMLP。"
+ },
+ {
+  "term": "Transformer",
+  "reading": "とらんすふぉーまー",
+  "en": "Transformer",
+  "chapter": "12-transformer",
+  "def": "AttentionとMLPを、残差接続と正規化で何層も重ねた構造。GPTの「T」。"
+ },
+ {
+  "term": "混合精度",
+  "reading": "こんごうせいど",
+  "en": "mixed precision",
+  "chapter": "13-train-gpt",
+  "def": "重い計算をfloat16などで行い、大事な部分はfloat32で行う方法。"
+ },
+ {
+  "term": "float16",
+  "reading": "ふろーとじゅうろく",
+  "en": "half precision",
+  "chapter": "13-train-gpt",
+  "def": "16ビットの浮動小数点数。メモリは半分で、T4で速い。"
+ },
+ {
+  "term": "bfloat16",
+  "reading": "びーふろーとじゅうろく",
+  "en": "bfloat16",
+  "chapter": "13-train-gpt",
+  "def": "範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。"
+ },
+ {
+  "term": "BPE",
+  "reading": "びーぴーいー",
+  "en": "Byte Pair Encoding",
+  "chapter": "14-bpe",
+  "def": "一番多い隣どうしのペアを合体させる、をくり返してトークンを作る方法。"
+ },
+ {
+  "term": "データ漏洩",
+  "reading": "でーたろうえい",
+  "en": "data leakage / contamination",
+  "chapter": "14-bpe",
+  "def": "評価に使うデータの情報が、学習側に入ってしまうこと。"
+ },
+ {
+  "term": "重み共有",
+  "reading": "おもみきょうゆう",
+  "en": "weight tying",
+  "chapter": "15-gpt2",
+  "def": "入力の埋め込みと出力層で、同じ重みの表を使うこと。"
+ },
+ {
+  "term": "事前学習",
+  "reading": "じぜんがくしゅう",
+  "en": "pre-training",
+  "chapter": "15-gpt2",
+  "def": "大量の文章で次のトークン予測を学習させること。ベースモデルができる。"
+ },
+ {
+  "term": "スケーリング則",
+  "reading": "すけーりんぐそく",
+  "en": "scaling law",
+  "chapter": "15-gpt2",
+  "def": "モデル・データ・計算量を増やすと、損失が予測可能な法則で下がること。"
+ },
+ {
+  "term": "KVキャッシュ",
+  "reading": "けーぶいきゃっしゅ",
+  "en": "KV cache",
+  "chapter": "16-scale",
+  "def": "過去のトークンのKeyとValueを取っておき、生成を速くする仕組み。"
+ },
+ {
+  "term": "GQA",
+  "reading": "じーきゅーえー",
+  "en": "grouped-query attention",
+  "chapter": "16-scale",
+  "def": "複数のQueryヘッドで、KeyとValueのヘッドを共有する方法。"
+ },
+ {
+  "term": "top-p",
+  "reading": "とっぷぴー",
+  "en": "nucleus sampling",
+  "chapter": "16-scale",
+  "def": "確率の高い順に合計がpを超えるまでの候補だけを残してサンプリングする方法。"
+ },
+ {
+  "term": "勾配累積",
+  "reading": "こうばいるいせき",
+  "en": "gradient accumulation",
+  "chapter": "16-scale",
+  "def": "小さなバッチの勾配をためてから更新し、大きなバッチと同じ効果を得る方法。"
+ },
+ {
+  "term": "FlashAttention",
+  "reading": "ふらっしゅあてんしょん",
+  "en": "FlashAttention",
+  "chapter": "16-scale",
+  "def": "GPUの高速なメモリだけで計算する、速くてメモリに優しいAttention。"
+ },
+ {
+  "term": "データ並列",
+  "reading": "でーたへいれつ",
+  "en": "data parallelism",
+  "chapter": "16-scale",
+  "def": "GPUごとにモデルを丸ごとコピーし、違うデータで学習して勾配を平均する方法。"
+ },
+ {
+  "term": "ベースモデル",
+  "reading": "べーすもでる",
+  "en": "base model",
+  "chapter": "17-hf-models",
+  "def": "事前学習だけをしたモデル。文章の続きを書く。"
+ },
+ {
+  "term": "モデルカード",
+  "reading": "もでるかーど",
+  "en": "model card",
+  "chapter": "17-hf-models",
+  "def": "モデルの説明書。目的・データ・ライセンス・使い方が書いてある。"
+ },
+ {
+  "term": "ライセンス",
+  "reading": "らいせんす",
+  "en": "license",
+  "chapter": "17-hf-models",
+  "def": "モデルやデータの利用条件。"
+ },
+ {
+  "term": "few-shot",
+  "reading": "ふゅーしょっと",
+  "en": "few-shot prompting",
+  "chapter": "17-hf-models",
+  "def": "答え方のお手本を数個見せてから質問するプロンプトの工夫。"
+ },
+ {
+  "term": "safetensors",
+  "reading": "せーふてんさーず",
+  "en": "safetensors",
+  "chapter": "17-hf-models",
+  "def": "数の並びだけを保存する、安全な重みのファイル形式。"
+ },
+ {
+  "term": "SFT",
+  "reading": "えすえふてぃー",
+  "en": "supervised fine-tuning",
+  "chapter": "18-sft",
+  "def": "指示と良い答えの組で学習させる、教師ありファインチューニング。"
+ },
+ {
+  "term": "ファインチューニング",
+  "reading": "ふぁいんちゅーにんぐ",
+  "en": "fine-tuning",
+  "chapter": "18-sft",
+  "def": "事前学習済みのモデルを、目的のデータで追加学習すること。"
+ },
+ {
+  "term": "損失マスク",
+  "reading": "そんしつますく",
+  "en": "loss masking",
+  "chapter": "18-sft",
+  "def": "答えの部分だけで損失を計算すること。ほかの部分のラベルを −100 にする。"
+ },
+ {
+  "term": "パディング",
+  "reading": "ぱでぃんぐ",
+  "en": "padding",
+  "chapter": "18-sft",
+  "def": "長さをそろえるための詰め物。"
+ },
+ {
+  "term": "壊滅的忘却",
+  "reading": "かいめつてきぼうきゃく",
+  "en": "catastrophic forgetting",
+  "chapter": "18-sft",
+  "def": "追加学習で、もともとの能力を忘れてしまうこと。"
+ },
+ {
+  "term": "LoRA",
+  "reading": "ろーら",
+  "en": "Low-Rank Adaptation",
+  "chapter": "19-lora",
+  "def": "本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。"
+ },
+ {
+  "term": "ランク",
+  "reading": "らんく",
+  "en": "rank",
+  "chapter": "19-lora",
+  "def": "行列が本当に持っている情報の次元。"
+ },
+ {
+  "term": "量子化",
+  "reading": "りょうしか",
+  "en": "quantization",
+  "chapter": "19-lora",
+  "def": "重みを少ないビット数（8ビット・4ビットなど）で表し、メモリを減らすこと。"
+ },
+ {
+  "term": "QLoRA",
+  "reading": "きゅーろーら",
+  "en": "QLoRA",
+  "chapter": "19-lora",
+  "def": "4ビットに量子化した本体に、LoRAを付けて学習する方法。"
+ },
+ {
+  "term": "アダプタ",
+  "reading": "あだぷた",
+  "en": "adapter",
+  "chapter": "19-lora",
+  "def": "LoRAなどで学習した、本体に付け足す小さな部品。"
+ },
+ {
+  "term": "保留データ",
+  "reading": "ほりゅうでーた",
+  "en": "held-out data",
+  "chapter": "20-evaluation",
+  "def": "学習に一度も使っていない評価用のデータ。"
+ },
+ {
+  "term": "ベンチマーク",
+  "reading": "べんちまーく",
+  "en": "benchmark",
+  "chapter": "20-evaluation",
+  "def": "モデルの能力を比べるための、決まった問題のセット。"
+ },
+ {
+  "term": "ブートストラップ",
+  "reading": "ぶーとすとらっぷ",
+  "en": "bootstrap",
+  "chapter": "20-evaluation",
+  "def": "手元のデータから復元抽出をくり返し、結果のばらつきを調べる方法。"
+ },
+ {
+  "term": "信頼区間",
+  "reading": "しんらいくかん",
+  "en": "confidence interval",
+  "chapter": "20-evaluation",
+  "def": "問題を選び直しても、結果がたいてい収まる範囲。"
+ },
+ {
+  "term": "LLM-as-a-judge",
+  "reading": "えるえるえむあずあじゃっじ",
+  "en": "LLM-as-a-judge",
+  "chapter": "20-evaluation",
+  "def": "LLMに、回答の良し悪しを審査させる評価方法。"
+ },
+ {
+  "term": "ハルシネーション",
+  "reading": "はるしねーしょん",
+  "en": "hallucination",
+  "chapter": "21-rag",
+  "def": "もっともらしいが事実ではない内容を生成してしまう現象。"
+ },
+ {
+  "term": "RAG",
+  "reading": "らぐ",
+  "en": "Retrieval-Augmented Generation",
+  "chapter": "21-rag",
+  "def": "関係する資料を検索し、それを読ませてから答えさせる方法。"
+ },
+ {
+  "term": "コサイン類似度",
+  "reading": "こさいんるいじど",
+  "en": "cosine similarity",
+  "chapter": "21-rag",
+  "def": "2つのベクトルの向きの近さ。正規化したベクトルなら内積。"
+ },
+ {
+  "term": "チャンク",
+  "reading": "ちゃんく",
+  "en": "chunk",
+  "chapter": "21-rag",
+  "def": "長い資料を検索用に切り分けた、かたまり。"
+ },
+ {
+  "term": "プロンプトインジェクション",
+  "reading": "ぷろんぷといんじぇくしょん",
+  "en": "prompt injection",
+  "chapter": "21-rag",
+  "def": "資料や入力に紛れ込ませた命令で、LLMを意図しない動作にさせる攻撃。"
+ },
+ {
+  "term": "報酬モデル",
+  "reading": "ほうしゅうもでる",
+  "en": "reward model",
+  "chapter": "22-alignment",
+  "def": "答えに、人間の好みに沿った点数をつけるモデル。"
+ },
+ {
+  "term": "シグモイド関数",
+  "reading": "しぐもいどかんすう",
+  "en": "sigmoid",
+  "chapter": "22-alignment",
+  "def": "どんな数も0〜1に押し込むS字の関数。"
+ },
+ {
+  "term": "RLHF",
+  "reading": "あーるえるえいちえふ",
+  "en": "reinforcement learning from human feedback",
+  "chapter": "22-alignment",
+  "def": "人間の好みから学んだ報酬モデルを使って、強化学習でLLMを調整する方法。"
+ },
+ {
+  "term": "DPO",
+  "reading": "でぃーぴーおー",
+  "en": "Direct Preference Optimization",
+  "chapter": "22-alignment",
+  "def": "報酬モデルを使わず、好みのペアから直接LLMを学習させる方法。"
+ },
+ {
+  "term": "アラインメント",
+  "reading": "あらいんめんと",
+  "en": "alignment",
+  "chapter": "22-alignment",
+  "def": "LLMのふるまいを、人間の意図や価値観に沿わせること。"
+ },
+ {
+  "term": "ツール呼び出し",
+  "reading": "つーるよびだし",
+  "en": "tool calling",
+  "chapter": "23-agents",
+  "def": "LLMが「この道具をこの引数で使いたい」と書き、プログラムがそれを実行する仕組み。"
+ },
+ {
+  "term": "エージェント",
+  "reading": "えーじぇんと",
+  "en": "agent",
+  "chapter": "23-agents",
+  "def": "LLMが道具を使いながら、くり返し考えて行動する仕組み。"
+ },
+ {
+  "term": "ReAct",
+  "reading": "りあくと",
+  "en": "ReAct",
+  "chapter": "23-agents",
+  "def": "考える・行動する・観察する、をくり返して問題を解く方法。"
+ },
+ {
+  "term": "GitHub Pages",
+  "reading": "ぎっとはぶぺーじず",
+  "en": "GitHub Pages",
+  "chapter": "24-deploy",
+  "def": "GitHubに置いたHTMLを、無料でWebサイトとして公開する機能。"
+ },
+ {
+  "term": "GGUF",
+  "reading": "じーじーゆーえふ",
+  "en": "GGUF",
+  "chapter": "24-deploy",
+  "def": "量子化したモデルをまとめた、llama.cppやOllama用のファイル形式。"
+ },
+ {
+  "term": "RMSNorm",
+  "reading": "あーるえむえすのーむ",
+  "en": "RMS normalization",
+  "chapter": "25-modern",
+  "def": "平均を引かずに、2乗平均の平方根で割る正規化。"
+ },
+ {
+  "term": "SwiGLU",
+  "reading": "すうぃぐる",
+  "en": "SwiGLU",
+  "chapter": "25-modern",
+  "def": "門番の役をする全結合層を掛け合わせる、フィードフォワード層の改良版。"
+ },
+ {
+  "term": "RoPE",
+  "reading": "ろーぷ",
+  "en": "Rotary Position Embedding",
+  "chapter": "25-modern",
+  "def": "QueryとKeyを位置に応じて回転させ、相対位置を表す方法。"
+ },
+ {
+  "term": "MoE",
+  "reading": "えむおーいー",
+  "en": "Mixture of Experts",
+  "chapter": "25-modern",
+  "def": "ルーターがトークンを一部の専門家（層）に振り分ける構造。"
+ },
+ {
+  "term": "アブレーション",
+  "reading": "あぶれーしょん",
+  "en": "ablation",
+  "chapter": "25-modern",
+  "def": "部品を1つずつ外したり戻したりして、それぞれの効果を調べる実験。"
+ },
+ {
+  "term": "再現性",
+  "reading": "さいげんせい",
+  "en": "reproducibility",
+  "chapter": "26-capstone",
+  "def": "同じ実験をくり返したときに、同じ結果が得られること。"
+ }
+]

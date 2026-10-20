@@ -11,14 +11,14 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" open><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" aria-current="page" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第4部 本物に近づける · 第14章</p><h1>トークナイザーを自作する：BPE</h1><p class="sub">よく出るバイトの組を、くり返し合体させるだけ</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/14-bpe.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/14-bpe.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>バイトレベルBPEトークナイザー（学習・エンコード・デコード）をゼロから実装し、Hugging Faceの <code>tokenizers</code> で作ったものと比べる</p></div><div><h3>ついでに身につく理論</h3><ul><li>BPE（バイトペア符号化）のアルゴリズム</li><li>マージ規則の順番と、エンコードの手順</li><li>語彙サイズと系列長のトレードオフ</li><li>トークナイザーが違うモデルの比べ方（1文字あたりの損失）</li><li>Unicode正規化（NFKC）と日本語の注意点</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>bytes</code> と <code>list(…)</code> で数の列に</li><li>辞書の <code>get(キー, 初期値)</code></li><li><code>max(…, key=…)</code></li><li><code>bytes.decode(errors=&quot;replace&quot;)</code></li><li><code>tokenizers</code> ライブラリ</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第2章で、Qwenのトークナイザーが「よく出るバイトの並びを1トークンにまとめている」ことを見ました。この章では、その仕組み <strong>BPE</strong>（Byte Pair Encoding）を自分で実装します。アルゴリズムは驚くほど単純で、「いちばんよく出る隣どうしのペアを合体させる」を何百回もくり返すだけ。最後に、Hugging Faceの高速な実装と比べて、自作GPTをBPEで学習させてみます。</p>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" open><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" aria-current="page" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第4部 本物に近づける · 第14章</p><h1>トークナイザーを自作する：BPE</h1><p class="sub">よく出るバイトの組を、くり返し合体させるだけ</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/14-bpe.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/14-bpe.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>バイトレベルBPEトークナイザー（学習・エンコード・デコード）をゼロから実装し、Hugging Faceの <code>tokenizers</code> で作ったものと比べる</p></div><div><h3>ついでに身につく理論</h3><ul><li>BPE（バイトペア符号化）のアルゴリズム</li><li>マージ規則の順番と、エンコードの手順</li><li>語彙サイズと系列長のトレードオフ</li><li>トークナイザーが違うモデルの比べ方（1文字あたりの損失）</li><li>Unicode正規化（NFKC）と日本語の注意点</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>bytes</code> と <code>list(…)</code> で数の列に</li><li>辞書の <code>get(キー, 初期値)</code></li><li><code>max(…, key=…)</code></li><li><code>bytes.decode(errors=&quot;replace&quot;)</code></li><li><code>tokenizers</code> ライブラリ</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第2章で、Qwenの<a class="term" href="f-glossary.html#t-d2490995" data-tip="文章とトークンIDを相互に変換する係。">トークナイザー</a>が「よく出るバイトの並びを1トークンにまとめている」ことを見ました。この章では、その仕組み <strong>BPE</strong>（Byte Pair Encoding）を自分で実装します。アルゴリズムは驚くほど単純で、「いちばんよく出る隣どうしのペアを合体させる」を何百回もくり返すだけ。最後に、Hugging Faceの高速な実装と比べて、自作GPTをBPEで学習させてみます。</p>
 </aside>
 
-<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>第2章で見た「鰯」が3バイトのまま残っていた理由が、ついに分かるんですね。</p>
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>第2章で見た「鰯」が3<a class="term" href="f-glossary.html#t-ce82a962" data-tip="8ビットの数。0〜255の値をとる。">バイト</a>のまま残っていた理由が、ついに分かるんですね。</p>
 </div></div>
 
-<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>そう。BPEは、もともと1994年に「データ圧縮」の方法として考えられた。ZIPファイルの親戚だね。それが20年以上たって、LLMの入り口になった。研究の世界では、昔の小さなアイデアが、思わぬところで主役になることがよくある。キミの基本情報の勉強も、いつか思わぬところで主役になるかもしれないよ。</p>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>そう。BPEは、もともと1994年に「データ圧縮」の方法として考えられた。ZIPファイルの親戚だね。それが20年以上たって、<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の入り口になった。研究の世界では、昔の小さなアイデアが、思わぬところで主役になることがよくある。キミの基本情報の勉強も、いつか思わぬところで主役になるかもしれないよ。</p>
 </div></div>
 
 <h2 id="s1">まずは手で体験</h2>
@@ -26,13 +26,13 @@
 <div class="widget" data-widget="bpe"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
 
 <ol>
-<li>隣り合う2つのトークンの組を全部数える</li>
+<li>隣り合う2つの<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>の組を全部数える</li>
 <li>いちばん多い組を、新しい1つのトークンに合体させる（この「合体ルール」を覚えておく）</li>
 <li>1に戻る</li>
 </ol>
-<p>これだけです。合体のたびにトークン数が減り（文章が短くなり）、語彙の種類が増えます。</p>
+<p>これだけです。合体のたびにトークン数が減り（文章が短くなり）、<a class="term" href="f-glossary.html#t-14384667" data-tip="トークナイザーが知っているトークンの一覧。その数が語彙サイズ。">語彙</a>の種類が増えます。</p>
 <h2 id="s2">準備：文章をバイトにする</h2>
-<p>本物のBPEは、文字ではなく <strong>UTF-8のバイト</strong>（0〜255の数）から始めます（第2章）。こうすると、どんな文字でも最初から表せるので、「辞書にない文字」が存在しなくなります。</p>
+<p>本物のBPEは、文字ではなく <strong><a class="term" href="f-glossary.html#t-663b90c8" data-tip="Unicodeの文字をバイトの列で表す方法。日本語1文字はたいてい3バイト。">UTF-8</a>のバイト</strong>（0〜255の数）から始めます（第2章）。こうすると、どんな文字でも最初から表せるので、「<a class="term" href="f-glossary.html#t-45e06150" data-tip="「キー: 値」の組を入れる入れ物。`{&quot;猫&quot;: 0}`。">辞書</a>にない文字」が存在しなくなります。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> re, urllib.request
 
 <span class="kw">def</span> <span class="fn">load_soseki</span>(file_id=<span class="st">&quot;773_ruby_5968&quot;</span>):
@@ -52,7 +52,7 @@ train_text = text[:<span class="nu">30000</span>]               <span class="cm"
 ids = <span class="bi">list</span>(train_text.encode(<span class="st">&quot;utf-8&quot;</span>))
 <span class="bi">print</span>(<span class="st">&quot;文字数：&quot;</span>, <span class="bi">len</span>(train_text), <span class="st">&quot; バイト数：&quot;</span>, <span class="bi">len</span>(ids))
 <span class="bi">print</span>(<span class="st">&quot;最初の12バイト：&quot;</span>, ids[:<span class="nu">12</span>])</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>文字数： 30000  バイト数： 89466
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>文字数： 30000  バイト数： 89160
 最初の12バイト： [228, 184, 138, 227, 128, 128, 229, 133, 136, 231, 148, 159]</code></pre></div>
 <p>3万字が約9万バイト。日本語は1文字がだいたい3バイトでしたね。<code>228, 184, 138</code> で「上」、<code>227, 128, 128</code> で全角空白です。</p>
 <h2 id="s3">ステップ1：ペアを数える</h2>
@@ -66,16 +66,17 @@ stats = get_stats(ids)
 top = <span class="bi">sorted</span>(stats.items(), key=<span class="kw">lambda</span> kv: -kv[<span class="nu">1</span>])[:<span class="nu">5</span>]
 <span class="kw">for</span> pair, count <span class="kw">in</span> top:
     <span class="bi">print</span>(pair, count, <span class="st">&quot;回 →&quot;</span>, <span class="bi">repr</span>(bytes(pair).decode(<span class="st">&quot;utf-8&quot;</span>, errors=<span class="st">&quot;replace&quot;</span>)))</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>(227, 129) 25079 回 → &#x27;�&#x27;
-(227, 130) 6105 回 → &#x27;�&#x27;
-(227, 128) 3858 回 → &#x27;�&#x27;
-(129, 159) 2181 回 → &#x27;�&#x27;
-(129, 132) 1982 回 → &#x27;�&#x27;</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>(227, 129) 15275 回 → &#x27;�&#x27;
+(227, 130) 3720 回 → &#x27;�&#x27;
+(227, 128) 2119 回 → &#x27;�&#x27;
+(159, 227) 1456 回 → &#x27;��&#x27;
+(139, 227) 1339 回 → &#x27;��&#x27;</code></pre></div>
 <aside class="box box-pybox"><p class="box-title">Pythonの道具箱：get と lambda</p><p><code>counts.get(pair, 0)</code> は「辞書に <code>pair</code> があればその値、なければ0」を返します。初めて見たペアでもエラーにならずに数え始められる、便利な書き方です。<br>
-<code>sorted(…, key=lambda kv: -kv[1])</code> は「各要素 <code>kv</code> の2番目（回数）にマイナスを付けた値で並べ替える」、つまり回数の多い順です。<code>lambda</code> は、その場で使い捨ての小さな関数を作る書き方です。</p>
+<code>sorted(…, key=lambda kv: -kv[1])</code> は「各要素 <code>kv</code> の2番目（回数）にマイナスを付けた値で並べ替える」、つまり回数の多い順です。<code>lambda</code> は、その場で使い捨ての小さな<a class="term" href="f-glossary.html#t-42e49360" data-tip="手順をひとまとめにして名前をつけたもの。`def` で作る。">関数</a>を作る書き方です。<br>
+次の <code>merge</code> 関数で使う <code>while 条件:</code> は、「条件が正しいあいだ、くり返す」ループです。<code>for</code> と違って、何回くり返すかを先に決めずに、位置 <code>i</code> を自分で1つ進めたり2つ進めたりしたいときに使います。フローチャートの「条件つきの戻り矢印」そのものです。</p>
 </aside>
 
-<p>一番多いのは <code>(227, 129)</code> で、2万5千回以上。これはひらがなの多く（「あ」〜「み」あたり）に共通する、最初の2バイトです。ひらがなは日本語で一番よく出てくる文字なので、そのバイトの組も一番多いわけです。1バイトだけでは文字にならないので <code>�</code> と表示されています。</p>
+<p>一番多いのは <code>(227, 129)</code> で、1万5千回以上。これはひらがなの多く（「ぁ」〜「み」あたり）に共通する、最初の2バイトです。ひらがなは日本語で一番よく出てくる文字なので、そのバイトの組も一番多いわけです。バイトの切れ端だけでは文字にならないので <code>�</code> と表示されています。4位と5位の <code>(159, 227)</code> や <code>(139, 227)</code> は、「ある文字の最後のバイト」と「次の文字の最初のバイト」の組です。BPEは文字の切れ目を知らないので、こういう組も数えます。</p>
 <h2 id="s4">ステップ2：合体させる</h2>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">merge</span>(ids, pair, new_id):
     out = []
@@ -108,15 +109,16 @@ work = <span class="bi">list</span>(ids)
 
 <span class="bi">print</span>(<span class="st">&quot;学習前：&quot;</span>, <span class="bi">len</span>(ids), <span class="st">&quot;トークン → 学習後：&quot;</span>, <span class="bi">len</span>(work), <span class="st">&quot;トークン&quot;</span>)
 <span class="bi">print</span>(<span class="st">&quot;圧縮率：&quot;</span>, <span class="bi">round</span>(<span class="bi">len</span>(ids) / <span class="bi">len</span>(work), <span class="nu">2</span>), <span class="st">&quot;倍&quot;</span>)</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>学習前： 89466 トークン → 学習後： 41216 トークン
-圧縮率： 2.17 倍</code></pre></div>
-<p><code>max(stats, key=stats.get)</code> は「回数が最大のペア」を選ぶ書き方です。CPUで十数秒かかります。300回の合体で、9万バイトが4万トークンほどに縮みました。どんなトークンができたか、のぞいてみましょう。</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>学習前： 89160 トークン → 学習後： 28975 トークン
+圧縮率： 3.08 倍</code></pre></div>
+<p><code>max(stats, key=stats.get)</code> は「回数が最大のペア」を選ぶ書き方です。CPUで1〜2分かかります。300回の合体で、約9万バイトが約2万9千トークンに、3分の1ほどに縮みました。1トークンに<a class="term" href="f-glossary.html#t-d1454ec0" data-tip="全部足して個数で割ったもの。">平均</a>3バイト、つまり日本語なら平均1文字ほどです。どんなトークンができたか、のぞいてみましょう。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>learned = [vocab[<span class="nu">256</span> + k].decode(<span class="st">&quot;utf-8&quot;</span>, errors=<span class="st">&quot;replace&quot;</span>) <span class="kw">for</span> k <span class="kw">in</span> <span class="bi">range</span>(num_merges)]
 <span class="bi">print</span>(<span class="st">&quot;最初の30個：&quot;</span>, learned[:<span class="nu">30</span>])
 <span class="bi">print</span>(<span class="st">&quot;最後の30個：&quot;</span>, learned[-<span class="nu">30</span>:])</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>最初の30個： [&#x27;�&#x27;, &#x27;�&#x27;, &#x27;�&#x27;, &#x27;た&#x27;, &#x27;い&#x27;, &#x27;の&#x27;, &#x27;し&#x27;, &#x27;て&#x27;, &#x27;に&#x27;, &#x27;な&#x27;, &#x27;で&#x27;, &#x27;と&#x27;, &#x27;か&#x27;, &#x27;は&#x27;, &#x27;っ&#x27;, &#x27;う&#x27;, &#x27;。&#x27;, &#x27;ら&#x27;, &#x27;も&#x27;, &#x27;ま&#x27;, &#x27;る&#x27;, &#x27;、&#x27;, &#x27;を&#x27;, &#x27;�&#x27;, &#x27;た。&#x27;, &#x27;す&#x27;, &#x27;�&#x27;, &#x27;い�&#x27;, &#x27;く&#x27;, &#x27;生&#x27;] 
-最後の30個： [&#x27;た事&#x27;, &#x27;書&#x27;, &#x27;ろう&#x27;, &#x27;ている&#x27;, &#x27;頭&#x27;, &#x27;見る&#x27;, &#x27;起&#x27;, &#x27;でしょう&#x27;, &#x27;帰&#x27;, &#x27;ども&#x27;, &#x27;向&#x27;, &#x27;ないの&#x27;, &#x27;取&#x27;, &#x27;思って&#x27;, &#x27;方が&#x27;, &#x27;りま&#x27;, &#x27;ない。&#x27;, &#x27;かし&#x27;, &#x27;時に&#x27;, &#x27;彼&#x27;, &#x27;でも&#x27;, &#x27;から、&#x27;, &#x27;妻&#x27;, &#x27;話を&#x27;, &#x27;書生&#x27;, &#x27;です。&#x27;, &#x27;、私は&#x27;, &#x27;持&#x27;, &#x27;ませんでした&#x27;, &#x27;覚&#x27;]</code></pre></div>
-<p>最初のうちは、バイトの組み合わせから「た」「い」「の」などの<strong>ひらがな1文字</strong>が作られていきます。後半になると、「ている」「でしょう」「ませんでした」「、私は」のような<strong>よく出る言い回し</strong>がまるごと1トークンになっています。誰も日本語の文法を教えていないのに、「よく出る組を合体させる」だけで、日本語らしい単位が浮かび上がってきました。</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>最初の30個： [&#x27;�&#x27;, &#x27;�&#x27;, &#x27;�&#x27;, &#x27;の&#x27;, &#x27;た&#x27;, &#x27;い&#x27;, &#x27;。&#x27;, &#x27;に&#x27;, &#x27;っ&#x27;, &#x27;は&#x27;, &#x27;な&#x27;, &#x27;て&#x27;, &#x27;し&#x27;, &#x27;か&#x27;, &#x27;で&#x27;, &#x27;た。&#x27;, &#x27;と&#x27;, &#x27;を&#x27;, &#x27;、&#x27;, &#x27;る&#x27;, &#x27;う&#x27;, &#x27;�&#x27;, &#x27;私&#x27;, &#x27;が&#x27;, &#x27;ら&#x27;, &#x27;も&#x27;, &#x27;そ&#x27;, &#x27;れ&#x27;, &#x27;�&#x27;, &#x27;�&#x27;]
+最後の30個： [&#x27;」とい&#x27;, &#x27;�&#x27;, &#x27;会&#x27;, &#x27;意&#x27;, &#x27;か」\n「&#x27;, &#x27;より&#x27;, &#x27;知&#x27;, &#x27;�&#x27;, &#x27;私には&#x27;, &#x27;始&#x27;, &#x27;そこ&#x27;, &#x27;��&#x27;, &#x27;二人&#x27;, &#x27;向&#x27;, &#x27;ありません&#x27;, &#x27;掛&#x27;, &#x27;来た&#x27;, &#x27;変&#x27;, &#x27;好&#x27;, &#x27;手&#x27;, &#x27;の上&#x27;, &#x27;るの&#x27;, &#x27;付&#x27;, &#x27;��&#x27;, &#x27;外&#x27;, &#x27;自分&#x27;, &#x27;�&#x27;, &#x27;��え&#x27;, &#x27;��&#x27;, &#x27;然&#x27;]</code></pre></div>
+<p>最初のうちは、バイトの組み合わせから「の」「た」「い」などの<strong>ひらがな1文字</strong>や、「私」のようなよく出る漢字が作られていきます。後半になると、「ありません」「私には」「自分」「二人」「来た」のような<strong>よく出る言葉や言い回し</strong>がまるごと1トークンになっています。「」とい」「か」\n「」のように、会話のかぎかっこの切れ目をまたいだトークンもできていますね。誰も日本語の文法を教えていないのに、「よく出る組を合体させる」だけで、言葉らしい単位が浮かび上がってきました。</p>
+<p>ところどころに残っている <code>�</code> は、文字の<strong>途中までのバイト</strong>を合体させたトークンです。たとえば、ある漢字の最初の2バイトは、その漢字の仲間（同じ部首の漢字など）に共通することがあるので、それだけで合体してしまうのです。</p>
 <h2 id="s6">エンコードとデコード</h2>
 <p>学習した合体ルールを使って、新しい文章をトークンに変える（エンコード）関数と、元に戻す（デコード）関数を作ります。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">decode</span>(token_ids):
@@ -138,15 +140,16 @@ tokens = encode(sample)
 <span class="bi">print</span>(<span class="bi">len</span>(sample.encode(<span class="st">&quot;utf-8&quot;</span>)), <span class="st">&quot;バイト →&quot;</span>, <span class="bi">len</span>(tokens), <span class="st">&quot;トークン&quot;</span>)
 <span class="bi">print</span>([decode([t]) <span class="kw">for</span> t <span class="kw">in</span> tokens])
 <span class="bi">print</span>(decode(tokens) == sample)</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>42 バイト → 15 トークン
-[&#x27;先生&#x27;, &#x27;は&#x27;, &#x27;奥さん&#x27;, &#x27;と&#x27;, &#x27;話を&#x27;, &#x27;し&#x27;, &#x27;ていた&#x27;, &#x27;。&#x27;]
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>42 バイト → 8 トークン
+[&#x27;先生は&#x27;, &#x27;奥さん&#x27;, &#x27;と&#x27;, &#x27;�&#x27;, &#x27;��&#x27;, &#x27;を&#x27;, &#x27;して&#x27;, &#x27;いた。&#x27;]
 True</code></pre></div>
+<p>42バイトが8トークンになりました。「先生は」「奥さん」「いた。」がまるごと1トークンです。一方、「話」は学習に使った最初の3万字にあまり出てこなかったので、<code>�</code> と <code>��</code> の2つのバイトの切れ端に分かれています（3バイトが1＋2に分かれた）。それでも最後の行の <code>True</code> のとおり、つなげて読めば元の文章に完全に戻ります。第2章の「鰯」と同じことが、自分のトークナイザーで起きたわけです。</p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：エンコードは「学習した順番」でルールを使う</p><p>エンコードでは、文章をバイトに分解したあと、<strong>学習したときと同じ順番</strong>で合体ルールを適用します。「先に覚えたルール（番号が小さい）」が、学習データでよく出てきた組だからです。順番を変えると、学習時とは違う区切り方になってしまいます。</p>
 <p>デコードはもっと簡単で、各トークンのバイト列をつなげて、UTF-8として読むだけです。<code>errors=&quot;replace&quot;</code> は「途中で切れたバイトがあっても、エラーにせず <code>�</code> にする」指定です。LLMが生成の途中でバイトの途中までしか出していない瞬間があるので、これが必要になります。</p>
 </aside>
 
 <h2 id="s7">本格版：Hugging Faceの tokenizers</h2>
-<p>自作版は仕組みを学ぶのに最適ですが、遅すぎて本物のデータには使えません。実務では、高速に書かれたライブラリを使います。Hugging Faceの <code>tokenizers</code> は、内部がRustという言語で書かれていて、自作版の何百倍も速く動きます。『こころ』全体で、語彙4000のバイトレベルBPEを学習させてみましょう。</p>
+<p>自作版は仕組みを学ぶのに最適ですが、遅すぎて本物のデータには使えません。実務では、高速に書かれたライブラリを使います。Hugging Faceの <code>tokenizers</code> は、内部がRustという言語で書かれていて、自作版の何百倍も速く動きます。『こころ』全体で、語彙4000の<a class="term" href="f-glossary.html#t-44e765d7" data-tip="バイトを基本にして、よく出る組を合体させてトークンを作る方法。どんな文字も表せる。">バイトレベルBPE</a>を学習させてみましょう。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> tokenizers <span class="kw">import</span> Tokenizer, models, trainers, pre_tokenizers, decoders
 
 bpe = Tokenizer(models.BPE())
@@ -158,14 +161,14 @@ bpe.train_from_iterator(text.split(<span class="st">&quot;\n&quot;</span>), trai
 enc = bpe.encode(<span class="st">&quot;先生は奥さんと話をしていた。&quot;</span>)
 <span class="bi">print</span>(enc.ids)
 <span class="bi">print</span>([bpe.decode([i]) <span class="kw">for</span> i <span class="kw">in</span> enc.ids])</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[2116, 323, 893, 335, 1068, 3283, 304]
-[&#x27;先生&#x27;, &#x27;は&#x27;, &#x27;奥さん&#x27;, &#x27;と&#x27;, &#x27;話を&#x27;, &#x27;していた&#x27;, &#x27;。&#x27;]</code></pre></div>
-<p>一瞬で終わりました。語彙が大きいので、「していた」まで1トークンになっています。</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[485, 1636, 1891, 685, 264]
+[&#x27;先生は&#x27;, &#x27;奥さんと&#x27;, &#x27;話を&#x27;, &#x27;していた&#x27;, &#x27;。&#x27;]</code></pre></div>
+<p>一瞬で終わりました。『こころ』全体で学習し、語彙も大きいので、「奥さんと」「話を」「していた」がそれぞれ1トークン。文全体がたった5トークンです。</p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：語彙サイズのトレードオフ</p><p>語彙を大きくすると、</p>
 <ul>
 <li>👍 同じ文章が<strong>少ないトークン</strong>で表せる（列が短くなり、計算が軽く、遠くまで見渡せる）</li>
-<li>👎 埋め込みと出力層が大きくなる（パラメータ＝語彙数×幅）</li>
-<li>👎 めったに出てこないトークンが増え、その埋め込みが十分に学習されない</li>
+<li>👎 埋め込みと出力層が大きくなる（<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>＝語彙数×幅）</li>
+<li>👎 めったに出てこないトークンが増え、その<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a>が十分に学習されない</li>
 </ul>
 <p>実際のLLMの語彙サイズは、GPT-2が約5万、Qwen2.5が約15万、多言語のモデルほど大きい傾向です。日本語・中国語・英語……と多くの言語の「よく出る組」を入れるには、大きな辞書が必要だからです。</p>
 </aside>
@@ -185,9 +188,9 @@ train_ids = torch.tensor(bpe.encode(text[:n]).ids)
 val_ids = torch.tensor(bpe.encode(text[n:]).ids)
 <span class="bi">print</span>(<span class="st">&quot;検証データ：&quot;</span>, <span class="bi">len</span>(text[n:]), <span class="st">&quot;文字 →&quot;</span>, <span class="bi">len</span>(val_ids), <span class="st">&quot;トークン&quot;</span>)
 <span class="bi">print</span>(<span class="st">&quot;1トークンあたり平均&quot;</span>, <span class="bi">round</span>(<span class="bi">len</span>(text[n:]) / <span class="bi">len</span>(val_ids), <span class="nu">2</span>), <span class="st">&quot;文字&quot;</span>)</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>検証データ： 16247 文字 → 7795 トークン
-1トークンあたり平均 2.08 文字</code></pre></div>
-<p>1トークンに平均2文字ちょっと詰め込めています。同じ窓の大きさ（64トークン）でも、文字で数えると約2倍遠くまで見渡せることになります。</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>検証データ： 16247 文字 → 10531 トークン
+1トークンあたり平均 1.54 文字</code></pre></div>
+<p>1トークンに平均1.5文字ほど詰め込めています。同じ窓の大きさ（64トークン）でも、文字で数えると約1.5倍遠くまで見渡せることになります。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">get_batch</span>(data, batch_size, T, g):
     ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(data) - T, (batch_size,), generator=g)
     <span class="kw">return</span> (torch.stack([data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> ix]),
@@ -216,14 +219,14 @@ opt = torch.optim.AdamW(model.parameters(), lr=<span class="nu">3e-3</span>)
     <span class="kw">if</span> step % <span class="nu">500</span> == <span class="nu">0</span>:
         vl = val_loss_per_token(model, val_ids, <span class="nu">64</span>)
         <span class="bi">print</span>(<span class="st">f&quot;ステップ {step:4d}：検証（1トークンあたり）{vl:.3f}&quot;</span>)</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>ステップ    0：検証（1トークンあたり）7.598
-ステップ  500：検証（1トークンあたり）5.394
-ステップ 1000：検証（1トークンあたり）5.085
-ステップ 1500：検証（1トークンあたり）4.967</code></pre></div>
-<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>5.0……？ 第12章の文字版は3.27だったのに、ずっと悪くなってませんか？</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>ステップ    0：検証（1トークンあたり）7.533
+ステップ  500：検証（1トークンあたり）4.975
+ステップ 1000：検証（1トークンあたり）4.930
+ステップ 1500：検証（1トークンあたり）4.976</code></pre></div>
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>4.98……？ 第12章の文字版は3.10だったのに、ずっと悪くなってませんか？</p>
 </div></div>
 
-<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>ここが大事な落とし穴だ！ 文字版の損失は「<strong>1文字</strong>あたりの驚き」、BPE版は「<strong>1トークン</strong>あたりの驚き」。1トークンには平均2文字入っているから、1トークンを当てるのは、2文字まとめて当てるのと同じくらい難しい。単位が違うものを比べてはいけない。メートルとインチを比べるようなものだ。</p>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>ここが大事な落とし穴だ！ 文字版の<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a>は「<strong>1文字</strong>あたりの驚き」、BPE版は「<strong>1トークン</strong>あたりの驚き」。1トークンには平均1.5文字入っているから、1トークンを当てるのは、1.5文字ぶんをまとめて当てるのと同じくらい難しい。単位が違うものを比べてはいけない。メートルとインチを比べるようなものだ。</p>
 </div></div>
 
 <aside class="box box-theory"><p class="box-title">理論の小部屋：1文字あたりの損失に直して比べる</p><p>トークナイザーが違うモデルを比べるときは、<strong>文章全体の驚きの合計</strong>を、<strong>文字数</strong>（またはバイト数）で割って比べます。</p>
@@ -233,14 +236,24 @@ opt = torch.optim.AdamW(model.parameters(), lr=<span class="nu">3e-3</span>)
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>per_token = val_loss_per_token(model, val_ids, <span class="nu">64</span>)
 per_char = per_token * <span class="bi">len</span>(val_ids) / <span class="bi">len</span>(text[n:])
 <span class="bi">print</span>(<span class="st">f&quot;1トークンあたり {per_token:.3f} → 1文字あたり {per_char:.3f}&quot;</span>)</code></pre></div>
-<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>1トークンあたり 4.967 → 1文字あたり 2.383</code></pre></div>
-<p>1文字あたりに直すと <strong>約2.38</strong>。第12章の文字版（同じ大きさのモデル・同じステップ数で3.27）より、ずっと良い成績です！ BPEでは1トークンに複数の文字が入っているので、同じ64トークンの窓でも約2倍遠くまで見渡せ、しかも「ていた」のような言い回しを丸ごと1つの部品として扱えるからです。</p>
-<aside class="box box-warn"><p class="box-title">つまずき注意：比較の注意</p><p>ただし、この比較には少しだけ「ずる」があります。BPEのトークナイザーは『こころ』<strong>全体</strong>（検証データの部分も含む）で学習させたので、検証データによく出る言い回しを知っています。厳密な実験では、トークナイザーも訓練データだけで作るべきです。研究で数字を比べるときは、こういう<strong>データの漏れ</strong>（leakage）に気をつけましょう（第20章で詳しく）。</p>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>1トークンあたり 4.976 → 1文字あたり 3.225</code></pre></div>
+<p>1文字あたりに直すと <strong>約3.23</strong>。第12章の文字版（同じ大きさのモデル・同じステップ数で <strong>3.10</strong>）と比べると、BPE版のほうが<strong>少し悪い</strong>、という結果になりました。</p>
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>あれ？ 本物のLLMはみんなBPEなのに、文字版に負けちゃうんですか？</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>私もそう予想していた（白状すると、この章を書く前はそう信じていた）。でも、実験の結果はこれだ。予想が外れたときこそ、考えるチャンスだよ。学習の出力をよく見てごらん。1000ステップから1500ステップで、検証の損失が4.930から4.976に<strong>悪化</strong>している。<a class="term" href="f-glossary.html#t-d520251b" data-tip="訓練データに合わせすぎて、検証データで悪くなること。丸暗記。">過学習</a>が始まっているんだ。</p>
+</div></div>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：BPEの利点が出るのは、データが多いとき</p><p>BPEにすると、語彙が2061文字から2000トークンに変わるだけでなく、<strong>1つ1つのトークンが出てくる回数が減ります</strong>。「話を」というトークンは、「話」という文字よりずっと出てくる回数が少ないですよね。『こころ』の14万字では、それぞれのトークンをしっかり学ぶには例が足りず、丸暗記（過学習）しやすくなるのです。</p>
+<p>一方、データが何億・何兆トークンもあれば、どのトークンも十分に学べるので、「同じ窓で遠くまで見渡せる」「言い回しを1つの部品として扱える」というBPEの利点が勝ちます。本物のLLMがみなBPEのようなトークナイザーを使うのは、そのためです。<strong>手法の良し悪しは、データの大きさとセットで考える</strong>。これも大事な教訓です。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：比較の注意</p><p>ただし、この比較には少しだけ「ずる」があります。BPEのトークナイザーは『こころ』<strong>全体</strong>（検証データの部分も含む）で学習させたので、検証データによく出る言い回しを知っています。厳密な実験では、トークナイザーも<a class="term" href="f-glossary.html#t-5eb0540d" data-tip="モデルが学ぶためのデータ。過去問。">訓練データ</a>だけで作るべきです。研究で数字を比べるときは、こういう<strong>データの漏れ</strong>（leakage）に気をつけましょう（第20章で詳しく）。</p>
 </aside>
 
 <details class="deep"><summary><span>もっと深く</span>日本語のトークナイズと、ほかの方式</summary><ul>
-<li><strong>事前分割</strong>：GPT-2などは、BPEの前に正規表現で「単語・数字・記号」に分けておき、単語をまたぐ合体を禁止しています（第2章の <code>' am'</code> のように空白が単語の前にくっつくのはこのため）。日本語は単語の間に空白がないので、この分割があまり効きません。</li>
-<li><strong>形態素解析</strong>：日本語では昔から、MeCabなどの辞書を使って単語（形態素）に分ける方法がよく使われてきました。日本語特化のLLMの中には、形態素解析とBPEを組み合わせるものもあります。</li>
+<li><strong>事前分割</strong>：GPT-2などは、BPEの前に<a class="term" href="f-glossary.html#t-07074046" data-tip="「こういう形の文字列」というパターンを書く小さな言語。">正規表現</a>で「単語・数字・記号」に分けておき、単語をまたぐ合体を禁止しています（第2章の <code>' am'</code> のように空白が単語の前にくっつくのはこのため）。日本語は単語の間に空白がないので、この分割があまり効きません。</li>
+<li><strong><a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>態素解析</strong>：日本語では昔から、MeCabなどの辞書を使って単語（形態素）に分ける方法がよく使われてきました。日本語特化のLLMの中には、形態素解析とBPEを組み合わせるものもあります。</li>
 <li><strong>SentencePiece / Unigram</strong>：BPEとは逆に、大きな語彙から始めて「消しても困らないトークン」を削っていく方式（Unigram言語モデル）もあります。Googleの <code>SentencePiece</code> というライブラリが有名で、多くの多言語モデルが使っています。</li>
 <li><strong>Unicode正規化</strong>：「Ａ」（全角）と「A」（半角）、「ｶ」と「カ」のように、見た目が同じでも文字コードが違う文字があります。<code>unicodedata.normalize(&quot;NFKC&quot;, text)</code> で統一してからトークナイズすると、語彙の無駄が減ります。</li>
 </ul>
@@ -250,11 +263,11 @@ per_char = per_token * <span class="bi">len</span>(val_ids) / <span class="bi">l
 <details><summary>答えを見る（まず自分で考えてから！）</summary><p>学習時に先に覚えたルール（番号が小さいもの）ほど、データによく出てくる組だからです。学習時と同じ順番で合体させないと、学習時とは違う区切り方になり、モデルが見たことのないトークン列になってしまいます。</p>
 </details></section>
 
-<section class="quiz"><p class="quiz-label">クイズ 2：損失の単位</p><p>1トークンあたりの損失が3.0、検証データが1万文字・4000トークンでした。1文字あたりの損失は？</p>
+<section class="quiz"><p class="quiz-label">クイズ 2：損失の単位</p><p>1トークンあたりの損失が3.0、<a class="term" href="f-glossary.html#t-381b737d" data-tip="点数をつけるためだけに取っておくデータ。学習には使わない。">検証データ</a>が1万文字・4000トークンでした。1文字あたりの損失は？</p>
 <details><summary>答えを見る（まず自分で考えてから！）</summary><p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3.0</mn><mo>×</mo><mn>4000</mn><mo>÷</mo><mn>10000</mn><mo>=</mo><mn>1.2</mn></mrow><annotation encoding="application/x-tex">3.0 \times 4000 \div 10000 = 1.2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3.0</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">4000</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">÷</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">10000</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1.2</span></span></span></span> です。</p>
 </details></section>
 
-<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="14-bpe:0"> <span>BPEのデモで、合体をくり返すと列が短くなるのを見た</span></label></li><li><label><input type="checkbox" data-check="14-bpe:1"> <span><code>get_stats</code> と <code>merge</code> を自分で書いて動かした</span></label></li><li><label><input type="checkbox" data-check="14-bpe:2"> <span>300回の合体で、「ている」「でしょう」のようなトークンが生まれるのを見た</span></label></li><li><label><input type="checkbox" data-check="14-bpe:3"> <span>自作の <code>encode</code> と <code>decode</code> で、文章を往復できた</span></label></li><li><label><input type="checkbox" data-check="14-bpe:4"> <span><code>tokenizers</code> で高速にBPEを学習させた</span></label></li><li><label><input type="checkbox" data-check="14-bpe:5"> <span>BPE版GPTの損失を「1文字あたり」に直して、文字版と比べた</span></label></li></ul></section>
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="14-bpe:0"> <span>BPEのデモで、合体をくり返すと列が短くなるのを見た</span></label></li><li><label><input type="checkbox" data-check="14-bpe:1"> <span><code>get_stats</code> と <code>merge</code> を自分で書いて動かした</span></label></li><li><label><input type="checkbox" data-check="14-bpe:2"> <span>300回の合体で、「ありません」「私には」のようなトークンが生まれるのを見た</span></label></li><li><label><input type="checkbox" data-check="14-bpe:3"> <span>自作の <code>encode</code> と <code>decode</code> で、文章を往復できた</span></label></li><li><label><input type="checkbox" data-check="14-bpe:4"> <span><code>tokenizers</code> で高速にBPEを学習させた</span></label></li><li><label><input type="checkbox" data-check="14-bpe:5"> <span>BPE版GPTの損失を「1文字あたり」に直して、文字版と比べた</span></label></li></ul></section>
 
 <aside class="box box-recap"><p class="box-title">まとめ</p><ul>
 <li><strong>BPE</strong>：バイトから始めて、いちばん多い隣どうしのペアを合体させる、をくり返す</li>

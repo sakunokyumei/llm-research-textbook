@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>25-modern | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>最新LLMの部品を移植する | つくってわかるLLM</title><meta name="description" content="RoPE・RMSNorm・SwiGLU・MoEを自分のGPTに入れて、公平に比べる">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,350 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" open><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" aria-current="page" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第7部 研究の入口へ · 第25章</p><h1>25-modern</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="25-modern">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="24-deploy.html"><small>← 前の章</small>24-deploy</a><a class="next" href="26-capstone.html"><small>次の章 →</small>26-capstone</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" open><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" aria-current="page" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第7部 研究の入口へ · 第25章</p><h1>最新LLMの部品を移植する</h1><p class="sub">RoPE・RMSNorm・SwiGLU・MoEを自分のGPTに入れて、公平に比べる</p><dl class="meta"><div><dt>目安</dt><dd>2〜3時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中5">★★★★★</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/25-modern.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/25-modern.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>第12章のGPTを、LlamaやQwenと同じ部品（RMSNorm・SwiGLU・RoPE）に置き換えた「現代版ミニGPT」と、その効果を確かめる比較実験。MoE層の試作も</p></div><div><h3>ついでに身につく理論</h3><ul><li>RMSNorm（LayerNormの簡略版）</li><li>SwiGLU（門番つきのフィードフォワード）</li><li>RoPE（回転位置埋め込み）と相対位置</li><li>公平な比較実験の作り方（同じ条件・複数のシード）</li><li>MoE（専門家の混合）とルーティング</li><li>長いコンテキスト・推論モデル・状態空間モデル・マルチモーダル・解釈可能性の地図</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>torch.rsqrt</code></li><li><code>F.silu</code></li><li>三角関数 <code>torch.cos</code> / <code>torch.sin</code></li><li><code>F.scaled_dot_product_attention</code>（第16章）</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第12章のGPTは、2019年のGPT-2とほぼ同じ設計でした。その後の<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>（Llama、Qwen、Gemmaなど）は、いくつかの部品を改良しています。この章では、その代表的な部品を<strong>自分のGPTに移植</strong>し、本当に良くなるのかを<strong>公平な実験</strong>で確かめます。論文を読んで「良いらしい」で終わらせず、自分の手で確かめる。それが研究の第一歩です。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>最新のモデルの部品って、難しそうです……。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>1つ1つは、驚くほど短いコードだよ。RMSNormは5行、SwiGLUは3行、RoPEも10行ほど。大事なのは部品の難しさじゃなくて、「本当に良くなったのか？」を確かめる<strong>実験の作法</strong>のほうだ。今日はキミが研究者だ。</p>
+</div></div>
+
+<h2 id="s1">準備と、比べる相手（ベースライン）</h2>
+<p>第12章と同じ小さな設定（2層・幅64・窓64・1500ステップ）を使います。CPUでも1回数分で終わるので、何度も実験できます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py</span>
+<span class="kw">import</span> re, math, urllib.request
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+<span class="kw">from</span> minigpt <span class="kw">import</span> GPT
+
+<span class="kw">def</span> <span class="fn">load_soseki</span>(file_id=<span class="st">&quot;773_ruby_5968&quot;</span>):
+    url = (<span class="st">&quot;https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/&quot;</span>
+           <span class="st">f&quot;cards/000148/files/{file_id}/{file_id}.txt&quot;</span>)
+    text = urllib.request.urlopen(url).read().decode(<span class="st">&quot;cp932&quot;</span>)
+    text = text.split(<span class="st">&quot;-------------------------------------------------------&quot;</span>)[<span class="nu">2</span>]
+    text = text.split(<span class="st">&quot;底本：&quot;</span>)[<span class="nu">0</span>]
+    text = re.sub(<span class="st">r&quot;《.*?》&quot;</span>, <span class="st">&quot;&quot;</span>, text)
+    text = re.sub(<span class="st">r&quot;※?［＃.*?］&quot;</span>, <span class="st">&quot;&quot;</span>, text)
+    text = text.replace(<span class="st">&quot;｜&quot;</span>, <span class="st">&quot;&quot;</span>).replace(<span class="st">&quot;\r\n&quot;</span>, <span class="st">&quot;\n&quot;</span>)
+    text = re.sub(<span class="st">r&quot;\n{3,}&quot;</span>, <span class="st">&quot;\n\n&quot;</span>, text)
+    <span class="kw">return</span> text.strip()
+
+text = load_soseki()
+chars = <span class="bi">sorted</span>(<span class="bi">set</span>(text))
+V = <span class="bi">len</span>(chars)
+stoi = {ch: i <span class="kw">for</span> i, ch <span class="kw">in</span> <span class="bi">enumerate</span>(chars)}
+data = torch.tensor([stoi[c] <span class="kw">for</span> c <span class="kw">in</span> text])
+n = <span class="bi">int</span>(<span class="bi">len</span>(data) * <span class="nu">0.9</span>)
+train_data, val_data = data[:n], data[n:]
+T = <span class="nu">64</span>
+
+<span class="kw">def</span> <span class="fn">get_batch</span>(data, g):
+    ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(data) - T, (<span class="nu">32</span>,), generator=g)
+    <span class="kw">return</span> torch.stack([data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> ix]), torch.stack([data[i + <span class="nu">1</span>:i + T + <span class="nu">1</span>] <span class="kw">for</span> i <span class="kw">in</span> ix])
+
+<span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">val_loss</span>(model):
+    model.eval()
+    starts = <span class="bi">range</span>(<span class="nu">0</span>, <span class="bi">len</span>(val_data) - T - <span class="nu">1</span>, T)
+    xs = torch.stack([val_data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> starts])
+    ys = torch.stack([val_data[i + <span class="nu">1</span>:i + T + <span class="nu">1</span>] <span class="kw">for</span> i <span class="kw">in</span> starts])
+    loss = model(xs, ys)[<span class="nu">1</span>].item()
+    model.train()
+    <span class="kw">return</span> loss
+
+<span class="kw">def</span> <span class="fn">experiment</span>(make_model, seed, steps=<span class="nu">1500</span>):
+    torch.manual_seed(seed)
+    g = torch.Generator().manual_seed(seed)
+    model = make_model()
+    opt = torch.optim.AdamW(model.parameters(), lr=<span class="nu">3e-3</span>)
+    <span class="kw">for</span> step <span class="kw">in</span> <span class="bi">range</span>(steps):
+        x, y = get_batch(train_data, g)
+        _, loss = model(x, y)
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+    <span class="kw">return</span> val_loss(model), <span class="bi">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> model.parameters())
+
+base = <span class="kw">lambda</span>: GPT(V, block_size=T, n_embd=<span class="nu">64</span>, n_head=<span class="nu">4</span>, n_layer=<span class="nu">2</span>, dropout=<span class="nu">0.0</span>)   <span class="cm"># 現代版に合わせてドロップアウトなし</span>
+results = {<span class="st">&quot;ベースライン（GPT-2型）&quot;</span>: [experiment(base, seed) <span class="kw">for</span> seed <span class="kw">in</span> [<span class="nu">0</span>, <span class="nu">1</span>]]}
+<span class="kw">for</span> name, rs <span class="kw">in</span> results.items():
+    <span class="bi">print</span>(name, <span class="st">&quot;検証損失：&quot;</span>, [<span class="bi">round</span>(r[<span class="nu">0</span>], <span class="nu">3</span>) <span class="kw">for</span> r <span class="kw">in</span> rs], <span class="st">&quot; パラメータ：&quot;</span>, rs[<span class="nu">0</span>][<span class="nu">1</span>])</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>ベースライン（GPT-2型） 検証損失： [3.21, 3.275]  パラメータ： 369677</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：公平な比較の作法</p><p>「新しい部品で良くなった」と言うためには、<strong>部品以外のすべてを同じにする</strong>必要があります。</p>
+<ul>
+<li>同じデータ、同じ分け方（訓練・検証）</li>
+<li>同じステップ数、同じバッチの大きさ、同じ学習率、同じ正則化（<a class="term" href="f-glossary.html#t-8eed8985" data-tip="学習中にニューロンの一部をランダムに休ませ、過学習を防ぐ方法。">ドロップアウト</a>の有無など）</li>
+<li><strong><a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>の数をなるべくそろえる</strong>（大きくすれば良くなるのは当たり前なので）</li>
+<li><strong><a class="term" href="f-glossary.html#t-2fd48a49" data-tip="乱数の種。同じシードなら同じ乱数の列になり、実験を再現できる。">シード</a>（乱数の種）を変えて何回か</strong>やる。1回だけだと、たまたまかもしれない（第20章）</li>
+</ul>
+<p>ここでは、シード0と1の2回ずつ実験します。本当は5回以上やりたいところですが、時間との相談です。研究の世界では、この「何回やって、どれくらいばらついたか」を必ず書きます。</p>
+</aside>
+
+<h2 id="s2">部品1：RMSNorm</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">RMSNorm</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, dim, eps=<span class="nu">1e-6</span>):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.weight = nn.Parameter(torch.ones(dim))
+        <span class="self">self</span>.eps = eps
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        <span class="kw">return</span> x * torch.rsqrt(x.<span class="bi">pow</span>(<span class="nu">2</span>).mean(-<span class="nu">1</span>, keepdim=<span class="kw">True</span>) + <span class="self">self</span>.eps) * <span class="self">self</span>.weight
+
+x = torch.tensor([[<span class="nu">1.0</span>, <span class="nu">2.0</span>, <span class="nu">3.0</span>, <span class="nu">4.0</span>]])
+<span class="bi">print</span>(RMSNorm(<span class="nu">4</span>)(x))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>tensor([[0.3651, 0.7303, 1.0954, 1.4606]], grad_fn=&lt;MulBackward0&gt;)</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：<a class="term" href="f-glossary.html#t-3e7347f2" data-tip="各データの数を平均0・標準偏差1にそろえる部品。">LayerNorm</a>から「平均を引く」を省いた版</p><p>第10章のLayerNormは「平均を引いて、<a class="term" href="f-glossary.html#t-12c41497" data-tip="分散の平方根。ばらつきを元の単位で表したもの。">標準偏差</a>で割る」でした。<strong>RMSNorm</strong>（Root Mean Square Normalization）は、<strong><a class="term" href="f-glossary.html#t-d1454ec0" data-tip="全部足して個数で割ったもの。">平均</a>を引かずに</strong>、2乗の平均の平方根（RMS）で割るだけです。</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mi mathvariant="normal">R</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mi>x</mi><msqrt><mrow><mfrac><mn>1</mn><mi>d</mi></mfrac><munder><mo>∑</mo><mi>i</mi></munder><msubsup><mi>x</mi><mi>i</mi><mn>2</mn></msubsup><mo>+</mo><mi>ϵ</mi></mrow></msqrt></mfrac><mo>⋅</mo><mi>w</mi></mrow><annotation encoding="application/x-tex">\mathrm{RMSNorm}(x) = \frac{x}{\sqrt{\frac{1}{d}\sum_i x_i^2 + \epsilon}} \cdot w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">RMSNorm</span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.8376em;vertical-align:-1.73em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.11em;"><span class="pstrut" style="height:3.2351em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.2351em;"><span class="svg-align" style="top:-3.8em;"><span class="pstrut" style="height:3.8em;"></span><span class="mord" style="padding-left:1em;"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7959em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.0448em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">ϵ</span></span></span><span style="top:-3.1951em;"><span class="pstrut" style="height:3.8em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.88em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.88em" viewBox="0 0 400000 1944" preserveAspectRatio="xMinYMin slice"><path d="M983 90
+l0 -0
+c4,-6.7,10,-10,18,-10 H400000v40
+H1013.1s-83.4,268,-264.1,840c-180.7,572,-277,876.3,-289,913c-4.7,4.7,-12.7,7,-24,7
+s-12,0,-12,0c-1.3,-3.3,-3.7,-11.7,-7,-25c-35.3,-125.3,-106.7,-373.3,-214,-744
+c-10,12,-21,25,-33,39s-32,39,-32,39c-6,-5.3,-15,-14,-27,-26s25,-30,25,-30
+c26.7,-32.7,52,-63,76,-91s52,-60,52,-60s208,722,208,722
+c56,-175.3,126.3,-397.3,211,-666c84.7,-268.7,153.8,-488.2,207.5,-658.5
+c53.7,-170.3,84.5,-266.8,92.5,-289.5z
+M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6049em;"><span></span></span></span></span></span></span></span><span style="top:-3.4651em;"><span class="pstrut" style="height:3.2351em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.9121em;"><span class="pstrut" style="height:3.2351em;"></span><span class="mord"><span class="mord mathnormal">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.73em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.02691em;">w</span></span></span></span></span></div>
+<p><code>torch.rsqrt</code> は「平方根の逆数」です。平均を計算しない分、少し速く、性能はほとんど変わらないことが分かったので、LlamaやQwenはこちらを使っています。上の例では、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mn>4</mn><mo>+</mo><mn>9</mn><mo>+</mo><mn>16</mn><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mn>4</mn></mrow></msqrt><mo>≈</mo><mn>2.739</mn></mrow><annotation encoding="application/x-tex">\sqrt{(1+4+9+16)/4} \approx 2.739</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.24em;vertical-align:-0.305em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.935em;"><span class="svg-align" style="top:-3.2em;"><span class="pstrut" style="height:3.2em;"></span><span class="mord" style="padding-left:1em;"><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">9</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">16</span><span class="mclose">)</span><span class="mord">/4</span></span></span><span style="top:-2.895em;"><span class="pstrut" style="height:3.2em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.28em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.28em" viewBox="0 0 400000 1296" preserveAspectRatio="xMinYMin slice"><path d="M263,681c0.7,0,18,39.7,52,119
+c34,79.3,68.167,158.7,102.5,238c34.3,79.3,51.8,119.3,52.5,120
+c340,-704.7,510.7,-1060.3,512,-1067
+l0 -0
+c4.7,-7.3,11,-11,19,-11
+H40000v40H1012.3
+s-271.3,567,-271.3,567c-38.7,80.7,-84,175,-136,283c-52,108,-89.167,185.3,-111.5,232
+c-22.3,46.7,-33.8,70.3,-34.5,71c-4.7,4.7,-12.3,7,-23,7s-12,-1,-12,-1
+s-109,-253,-109,-253c-72.7,-168,-109.3,-252,-110,-252c-10.7,8,-22,16.7,-34,26
+c-22,17.3,-33.3,26,-34,26s-26,-26,-26,-26s76,-59,76,-59s76,-60,76,-60z
+M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.305em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2.739</span></span></span></span> で割っています。</p>
+</aside>
+
+<h2 id="s3">部品2：SwiGLU</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">SwiGLU</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, dim, hidden):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.w1 = nn.Linear(dim, hidden, bias=<span class="kw">False</span>)   <span class="cm"># 中身</span>
+        <span class="self">self</span>.w3 = nn.Linear(dim, hidden, bias=<span class="kw">False</span>)   <span class="cm"># 門番</span>
+        <span class="self">self</span>.w2 = nn.Linear(hidden, dim, bias=<span class="kw">False</span>)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        <span class="kw">return</span> <span class="self">self</span>.w2(F.silu(<span class="self">self</span>.w1(x)) * <span class="self">self</span>.w3(x))</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：門番つきのフィードフォワード</p><p>第12章の<a class="term" href="f-glossary.html#t-34c43288" data-tip="各位置で独立に通す小さなMLP。">フィードフォワード層</a>は「広げる → GELU → 戻す」でした。<strong>SwiGLU</strong> は、広げる<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>を<strong>2つ</strong>用意して、片方（<code>w3</code>）を「門番」として使います。もう片方（<code>w1</code>）の出力を<a class="term" href="f-glossary.html#t-a2baa30d" data-tip="層と層の間に挟む、直線ではない関数。tanh、ReLU、GELUなど。">活性化関数</a>SiLU（GELUとよく似た形）に通し、門番の値を<strong>掛け算</strong>します。門番が0に近いところは情報が通らず、大きいところはよく通る。「どの情報を通すか」を、入力に応じて細かく調整できるのです。</p>
+<p>重みが3つになる分、パラメータが増えるので、広げる幅を4倍ではなく約8/3倍（≒2.67倍）にして、パラメータ数をそろえるのが定番です。</p>
+</aside>
+
+<h2 id="s4">部品3：RoPE（回転位置埋め込み）</h2>
+<p>第11章で、<a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a>は順番を知らないので、<strong><a class="term" href="f-glossary.html#t-35e55a7d" data-tip="位置ごとのベクトルを足して、順番の情報を与えるもの。">位置の埋め込み</a></strong>を足しました。でも、足す方式には弱点があります。「3番目と5番目」と「103番目と105番目」は、どちらも「2つ離れている」のに、モデルにとっては別の組み合わせに見えてしまうのです。言葉の関係で大事なのは、多くの場合「<strong>何文字離れているか</strong>（相対位置）」なのに。</p>
+<p><strong>RoPE</strong>（Rotary Position Embedding）は、位置を<strong>足す</strong>代わりに、QueryとKeyの<a class="term" href="f-glossary.html#t-23179fc5" data-tip="数を1列に並べたもの。">ベクトル</a>を位置に応じた角度だけ<strong>回転</strong>させます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">rope_cache</span>(T, hs, base=<span class="nu">10000.0</span>):
+    freqs = <span class="nu">1.0</span> / (base ** (torch.arange(<span class="nu">0</span>, hs, <span class="nu">2</span>).<span class="bi">float</span>() / hs))   <span class="cm"># ペアごとの回転の速さ</span>
+    angles = torch.outer(torch.arange(T).<span class="bi">float</span>(), freqs)            <span class="cm"># [T, hs/2]：位置 × 速さ</span>
+    <span class="kw">return</span> torch.cos(angles), torch.sin(angles)
+
+<span class="kw">def</span> <span class="fn">apply_rope</span>(x, cos, sin):
+    x1, x2 = x[..., <span class="nu">0</span>::<span class="nu">2</span>], x[..., <span class="nu">1</span>::<span class="nu">2</span>]            <span class="cm"># 数を2つずつペアにする</span>
+    T = x.shape[-<span class="nu">2</span>]
+    c, s = cos[:T], sin[:T]
+    out = torch.stack([x1 * c - x2 * s, x1 * s + x2 * c], dim=-<span class="nu">1</span>)   <span class="cm"># 各ペアを回転</span>
+    <span class="kw">return</span> out.flatten(-<span class="nu">2</span>)</code></pre></div>
+<aside class="box box-mathbox"><p class="box-title">数学の道具箱：回転と、<a class="term" href="f-glossary.html#t-a445135a" data-tip="同じ位置どうしを掛けて足したもの。向きがそろうほど大きい。">内積</a>の不思議</p><p>平面上の点 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(x_1, x_2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> を角度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi></mrow><annotation encoding="application/x-tex">\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span> だけ回転させると、</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><msub><mi>x</mi><mn>1</mn></msub><mi>cos</mi><mo>⁡</mo><mi>θ</mi><mo>−</mo><msub><mi>x</mi><mn>2</mn></msub><mi>sin</mi><mo>⁡</mo><mi>θ</mi><mo separator="true">,</mo><mtext>  </mtext><msub><mi>x</mi><mn>1</mn></msub><mi>sin</mi><mo>⁡</mo><mi>θ</mi><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub><mi>cos</mi><mo>⁡</mo><mi>θ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(x_1 \cos\theta - x_2 \sin\theta,\ \ x_1 \sin\theta + x_2 \cos\theta)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mpunct">,</span><span class="mspace"> </span><span class="mspace"> </span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">cos</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span></span></span></span></span></div>
+<p>になります（<code>apply_rope</code> の中の式です）。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>cos</mi><mo>⁡</mo></mrow><annotation encoding="application/x-tex">\cos</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mop">cos</span></span></span></span> と <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>sin</mi><mo>⁡</mo></mrow><annotation encoding="application/x-tex">\sin</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6679em;"></span><span class="mop">sin</span></span></span></span> は、時計の針の先の、横と縦の位置を表す<a class="term" href="f-glossary.html#t-42e49360" data-tip="手順をひとまとめにして名前をつけたもの。`def` で作る。">関数</a>だと思ってください。</p>
+<p>RoPEのすごいところは、位置 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span> のQueryを <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">m\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">m</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span> 回転、位置 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> のKeyを <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">n\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">n</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span></span></span></span> 回転させると、2つの<strong>内積</strong>（Attentionの点数）が、<strong>差 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m - n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> だけで決まる</strong>ことです。2本の時計の針を同じだけ回しても、針と針の間の角度は変わらない。それと同じです。確かめてみましょう。</p>
+</aside>
+
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>hs = <span class="nu">16</span>
+cos, sin = rope_cache(<span class="nu">200</span>, hs)
+torch.manual_seed(<span class="nu">0</span>)
+q, k = torch.randn(hs), torch.randn(hs)
+
+<span class="kw">def</span> <span class="fn">score_at</span>(m, n):
+    qm = apply_rope(q.expand(<span class="nu">200</span>, hs), cos, sin)[m]   <span class="cm"># 位置mに置いたQuery</span>
+    kn = apply_rope(k.expand(<span class="nu">200</span>, hs), cos, sin)[n]   <span class="cm"># 位置nに置いたKey</span>
+    <span class="kw">return</span> (qm @ kn).item()
+
+<span class="bi">print</span>(<span class="st">f&quot;位置(5, 3)の点数：{score_at(5, 3):.4f}&quot;</span>)
+<span class="bi">print</span>(<span class="st">f&quot;位置(105, 103)の点数：{score_at(105, 103):.4f}&quot;</span>)
+<span class="bi">print</span>(<span class="st">f&quot;位置(5, 1)の点数：{score_at(5, 1):.4f}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>位置(5, 3)の点数：-1.8956
+位置(105, 103)の点数：-1.8956
+位置(5, 1)の点数：-3.3877</code></pre></div>
+<p>位置が(5, 3)でも(105, 103)でも、<strong>離れ具合が同じなら同じ点数</strong>です。一方、(5, 1)のように離れ具合が違えば点数も変わります。RoPEは、Attentionに「何文字離れているか」を自然に教えてくれるのです。足し算式の位置<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a>のように「位置ごとの表」を持たないので、学習時より長い文章に伸ばす工夫（<strong>RoPEの拡張</strong>）もしやすく、長いコンテキストのLLMで重宝されています。</p>
+<h2 id="s5">現代版ミニGPTを組み立てる</h2>
+<p>3つの部品を使って、GPTを組み立て直します。Attentionは、第15〜16章で学んだ「QKVをまとめて作り、<code>scaled_dot_product_attention</code> で計算する」書き方にします。位置の埋め込み（<code>pos_emb</code>）はなくなり、代わりにRoPEを使います。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">ModernAttention</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, dim, n_head, block_size):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.n_head = n_head
+        <span class="self">self</span>.qkv = nn.Linear(dim, <span class="nu">3</span> * dim, bias=<span class="kw">False</span>)
+        <span class="self">self</span>.proj = nn.Linear(dim, dim, bias=<span class="kw">False</span>)
+        cos, sin = rope_cache(block_size, dim // n_head)
+        <span class="self">self</span>.register_buffer(<span class="st">&quot;cos&quot;</span>, cos, persistent=<span class="kw">False</span>)
+        <span class="self">self</span>.register_buffer(<span class="st">&quot;sin&quot;</span>, sin, persistent=<span class="kw">False</span>)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        B, T, C = x.shape
+        q, k, v = <span class="self">self</span>.qkv(x).split(C, dim=<span class="nu">2</span>)
+        q, k, v = [t.view(B, T, <span class="self">self</span>.n_head, C // <span class="self">self</span>.n_head).transpose(<span class="nu">1</span>, <span class="nu">2</span>) <span class="kw">for</span> t <span class="kw">in</span> (q, k, v)]
+        q, k = apply_rope(q, <span class="self">self</span>.cos, <span class="self">self</span>.sin), apply_rope(k, <span class="self">self</span>.cos, <span class="self">self</span>.sin)
+        y = F.scaled_dot_product_attention(q, k, v, is_causal=<span class="kw">True</span>)
+        <span class="kw">return</span> <span class="self">self</span>.proj(y.transpose(<span class="nu">1</span>, <span class="nu">2</span>).contiguous().view(B, T, C))
+
+<span class="kw">class</span> <span class="fn">ModernBlock</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, dim, n_head, block_size):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.norm1, <span class="self">self</span>.norm2 = RMSNorm(dim), RMSNorm(dim)
+        <span class="self">self</span>.attn = ModernAttention(dim, n_head, block_size)
+        <span class="self">self</span>.ffn = SwiGLU(dim, hidden=<span class="bi">int</span>(dim * <span class="nu">8</span> / <span class="nu">3</span>))
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        x = x + <span class="self">self</span>.attn(<span class="self">self</span>.norm1(x))
+        <span class="kw">return</span> x + <span class="self">self</span>.ffn(<span class="self">self</span>.norm2(x))
+
+<span class="kw">class</span> <span class="fn">ModernGPT</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, V, block_size, dim=<span class="nu">64</span>, n_head=<span class="nu">4</span>, n_layer=<span class="nu">2</span>):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.tok_emb = nn.Embedding(V, dim)
+        <span class="self">self</span>.blocks = nn.Sequential(*[ModernBlock(dim, n_head, block_size) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_layer)])
+        <span class="self">self</span>.norm = RMSNorm(dim)
+        <span class="self">self</span>.lm_head = nn.Linear(dim, V, bias=<span class="kw">False</span>)
+        <span class="kw">for</span> p <span class="kw">in</span> <span class="self">self</span>.parameters():
+            <span class="kw">if</span> p.dim() == <span class="nu">2</span>:
+                nn.init.normal_(p, std=<span class="nu">0.02</span>)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, idx, targets=<span class="kw">None</span>):
+        x = <span class="self">self</span>.blocks(<span class="self">self</span>.tok_emb(idx))
+        logits = <span class="self">self</span>.lm_head(<span class="self">self</span>.norm(x))
+        loss = <span class="kw">None</span> <span class="kw">if</span> targets <span class="kw">is</span> <span class="kw">None</span> <span class="kw">else</span> F.cross_entropy(logits.view(-<span class="nu">1</span>, logits.size(-<span class="nu">1</span>)), targets.view(-<span class="nu">1</span>))
+        <span class="kw">return</span> logits, loss
+
+modern = <span class="kw">lambda</span>: ModernGPT(V, block_size=T)
+results[<span class="st">&quot;現代版（RMSNorm＋SwiGLU＋RoPE）&quot;</span>] = [experiment(modern, seed) <span class="kw">for</span> seed <span class="kw">in</span> [<span class="nu">0</span>, <span class="nu">1</span>]]
+<span class="kw">for</span> name, rs <span class="kw">in</span> results.items():
+    losses = [r[<span class="nu">0</span>] <span class="kw">for</span> r <span class="kw">in</span> rs]
+    <span class="bi">print</span>(<span class="st">f&quot;{name}：検証損失 {[round(l, 3) for l in losses]}  平均 {sum(losses) / len(losses):.3f}  パラメータ {rs[0][1]:,}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>ベースライン（GPT-2型）：検証損失 [3.21, 3.275]  平均 3.243  パラメータ 369,677
+現代版（RMSNorm＋SwiGLU＋RoPE）：検証損失 [3.284, 3.229]  平均 3.256  パラメータ 362,176</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>さて、結果を読もう。大事なのは、良くなったか悪くなったかより、<strong>その差が、シードによるばらつきより大きいか</strong>だ。</p>
+<ul>
+<li>2つのモデルの平均の差：3.256 − 3.243 ＝ <strong>0.013</strong></li>
+<li>同じモデルでもシードを変えただけで：ベースラインは3.21〜3.275（幅 <strong>0.065</strong>）、現代版は3.229〜3.284（幅 <strong>0.055</strong>）</li>
+</ul>
+<p>差は、ばらつきよりずっと小さい。だから結論は「<strong>この規模の実験では、現代版の部品の効果は確認できなかった</strong>」。がっかりするかもしれないが、これが誠実な結論だ。そして、それも立派な研究成果なんだよ。</p>
+</div></div>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>実は、教科書を作るときに最初にこの実験をしたら、ベースラインにだけドロップアウトが入っていて、ベースラインが3.10で圧勝していたそうですね。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>そうなんだ。まさに「公平な比較の作法」を破っていた。気づいて条件をそろえたら、差は消えた。逆に言うと、<strong>この規模では、部品の違いよりもドロップアウト（第10章）のほうがずっと効く</strong>、という発見でもある。データが少ないときは<a class="term" href="f-glossary.html#t-d520251b" data-tip="訓練データに合わせすぎて、検証データで悪くなること。丸暗記。">過学習</a>対策が一番大事、という第13章の教訓と同じだね。研究では、こういう「失敗から見つかる発見」がよくある。だから、うまくいかなかった実験も記録に残しておくんだ。</p>
+</div></div>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：小さな実験と大きな実験</p><p>最新の部品の多くは、<strong>大きなモデル・大量のデータ</strong>で効果が確かめられたものです。2層・幅64・1500ステップという小さな実験では、効果がはっきり出ないこともありますし、逆に小さい規模でしか効かない工夫もあります。</p>
+<p>だから研究者は、小さな実験で素早くアイデアを試し、<strong>有望なものだけを大きな実験で確かめる</strong>、という順番で進めます。第15章の<a class="term" href="f-glossary.html#t-e34de5fb" data-tip="モデル・データ・計算量を増やすと、損失が予測可能な法則で下がること。">スケーリング則</a>の話を思い出してください。小さな実験の結果を、どこまで大きな規模に当てはめてよいかを考えることも、研究の大事な仕事です。</p>
+</aside>
+
+<h2 id="s6">MoE：専門家を使い分ける</h2>
+<p>最近の大きなLLMの多くが採用している <strong>MoE</strong>（Mixture of Experts、専門家の混合）も、小さく作ってみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">TinyMoE</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, dim, n_experts=<span class="nu">4</span>, hidden=<span class="nu">128</span>):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.router = nn.Linear(dim, n_experts, bias=<span class="kw">False</span>)       <span class="cm"># どの専門家に任せるか決める係</span>
+        <span class="self">self</span>.experts = nn.ModuleList([SwiGLU(dim, hidden) <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n_experts)])
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        B, T, C = x.shape
+        flat = x.view(-<span class="nu">1</span>, C)
+        gate = F.softmax(<span class="self">self</span>.router(flat), dim=-<span class="nu">1</span>)                <span class="cm"># 各トークンの、専門家ごとの重み</span>
+        weight, choice = gate.<span class="bi">max</span>(dim=-<span class="nu">1</span>)                          <span class="cm"># 一番の専門家を1人だけ選ぶ（top-1）</span>
+        out = torch.zeros_like(flat)
+        <span class="kw">for</span> e, expert <span class="kw">in</span> <span class="bi">enumerate</span>(<span class="self">self</span>.experts):
+            mask = choice == e
+            <span class="kw">if</span> mask.<span class="bi">any</span>():
+                out[mask] = weight[mask, <span class="kw">None</span>] * expert(flat[mask])
+        <span class="self">self</span>.last_choice = choice
+        <span class="kw">return</span> out.view(B, T, C)
+
+torch.manual_seed(<span class="nu">0</span>)
+moe = TinyMoE(<span class="nu">64</span>)
+x = torch.randn(<span class="nu">2</span>, <span class="nu">16</span>, <span class="nu">64</span>)
+y = moe(x)
+<span class="bi">print</span>(y.shape)
+<span class="bi">print</span>(<span class="st">&quot;各専門家が担当したトークン数：&quot;</span>, torch.bincount(moe.last_choice, minlength=<span class="nu">4</span>).tolist())</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>torch.Size([2, 16, 64])
+各専門家が担当したトークン数： [6, 6, 14, 6]</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：MoE：大きいのに軽い</p><p>MoEでは、フィードフォワード層を何個も（数個〜数百個）用意して、<strong>ルーター</strong>が各<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>を、一部の専門家（1〜数個）だけに振り分けます。</p>
+<ul>
+<li><strong>パラメータ全体はとても多い</strong>（専門家の数だけ増える）ので、たくさんの知識を蓄えられる</li>
+<li>でも、<strong>1つのトークンの計算に使うのは一部の専門家だけ</strong>なので、計算は軽い</li>
+</ul>
+<p>「何でも知っている1人の先生」より「各教科の専門の先生がたくさんいて、質問ごとに担当が答える」ほうが、効率がいい、という発想です。ただし、ルーターが一部の専門家ばかりに仕事を振ってしまう（<strong>負荷の偏り</strong>）問題があり、偏りを罰する工夫（負荷分散の<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a>）が必要です。上の出力で、担当のトークン数がばらついているのが分かりますね。</p>
+</aside>
+
+<h2 id="s7">最新研究の地図</h2>
+<p>ここまでで、あなたは現代のLLMの主要な部品を、すべて自分の手で書いたことになります。最後に、この先の研究の世界を、地図として眺めておきましょう。どれも、この教科書で学んだことの延長線上にあります。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：長いコンテキスト</p><p>何十万〜何百万トークンを一度に読むLLMが登場しています。課題は、Attentionの計算とKVキャッシュのメモリが長さとともに増えること（第16章）。RoPEの拡張、GQA、<a class="term" href="f-glossary.html#t-b8be5773" data-tip="GPUの高速なメモリだけで計算する、速くてメモリに優しいAttention。">FlashAttention</a>、一部のトークンだけに注目する<strong>疎なAttention</strong>などを組み合わせて実現しています。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：推論モデルと「考える時間」</p><p>答える前に長く考える<strong>推論モデル</strong>は、推論のとき（テスト時）に多くの計算（トークン）を使うほど賢くなる、という性質を利用しています（<strong>テスト時の計算のスケーリング</strong>）。第22章で触れた「答えが確かめられる問題での強化学習（RLVR）」で、考え方そのものを学ばせます。</p>
+<p>GRPOの中心にあるのは、驚くほど単純な計算です。同じ問題に何通りも答えさせ、それぞれの報酬が<strong>グループの平均よりどれだけ良いか</strong>（アドバンテージ）で、その答えを強めたり弱めたりします。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>rewards = torch.tensor([<span class="nu">1.0</span>, <span class="nu">0.0</span>, <span class="nu">0.0</span>, <span class="nu">1.0</span>, <span class="nu">1.0</span>, <span class="nu">0.0</span>, <span class="nu">0.0</span>, <span class="nu">0.0</span>])   <span class="cm"># 8通りの答えの正誤</span>
+advantage = (rewards - rewards.mean()) / (rewards.std() + <span class="nu">1e-6</span>)
+<span class="bi">print</span>(<span class="st">&quot;グループの平均：&quot;</span>, rewards.mean().item())
+<span class="bi">print</span>(<span class="st">&quot;アドバンテージ：&quot;</span>, [<span class="bi">round</span>(a, <span class="nu">2</span>) <span class="kw">for</span> a <span class="kw">in</span> advantage.tolist()])</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>グループの平均： 0.375
+アドバンテージ： [1.21, -0.72, -0.72, 1.21, 1.21, -0.72, -0.72, -0.72]</code></pre></div>
+<p>正解した答えはプラス（強める）、間違えた答えはマイナス（弱める）。平均と比べるので、「全員正解」の簡単な問題や「全員不正解」の難しすぎる問題からは、何も学びません（アドバンテージが0になる）。ちょうどいい難しさの問題から学ぶ、よくできた仕組みです。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：<a class="term" href="f-glossary.html#t-68c170c0" data-tip="AttentionとMLPを、残差接続と正規化で何層も重ねた構造。GPTの「T」。">Transformer</a>以外の選択肢</p><p>Attentionの計算量が長さの2乗で増えるのを避けるため、<strong>状態空間モデル</strong>（SSM、代表例はMamba）のように、RNN（第9章の<a class="term" href="f-glossary.html#t-e726a1b3" data-tip="全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。">MLP</a>を時間方向にくり返し使うような仕組み）の考え方を現代的に作り直したモデルも研究されています。過去の情報を、決まった大きさの「状態」に圧縮して持ち歩くので、長さに比例した計算で済みます。Transformerと組み合わせた<strong>ハイブリッド</strong>のモデルも登場しています。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：マルチモーダル</p><p>画像を小さな正方<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>（パッチ）に切り分け、各パッチを1つの「トークン」としてベクトルにすれば、Transformerは文章と同じように画像も扱えます（Vision Transformer）。画像のトークンと文章のトークンを並べて入力すれば、画像について会話するLLMになります。音声や動画も同じ発想です。第2章の「何でもトークンにする」が、ここまで広がるのです。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：解釈可能性</p><p>LLMの中で何が起きているのかを調べる研究を <strong>解釈可能性</strong>（interpretability）と言います。第13章でヘッドの注目の仕方を可視化したのは、その入口です。特定の概念に反応するニューロンや、ある処理を担う回路を見つけたり、中間の層のベクトルから「何を考えているか」を読み取ったり（プロービング）します。安全なAIを作るためにも、とても重要な分野です。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：蒸留</p><p>大きなモデル（先生）の出力の<a class="term" href="f-glossary.html#t-63ddbac0" data-tip="起こりやすさを0〜1で表したもの。全部の候補を足すと1。">確率</a>を、小さなモデル（生徒）にまねさせて学習させる方法を <strong>蒸留</strong>（distillation）と言います。正解の1トークンだけでなく、先生の「2位、3位の候補への確率」からも学べるので、小さなモデルが効率よく賢くなります。第3章の「確率の分布」そのものが、教材になるわけです。</p>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：自分で部品を1つずつ試す</p><p>3つの部品を一度に入れると、どれが効いたのか分かりません。研究では、1つずつ入れたり外したりして、効果を切り分けます（<strong>アブレーション</strong>）。<code>ModernBlock</code> の <code>RMSNorm</code> を <code>nn.LayerNorm</code> に戻す、<code>SwiGLU</code> を第12章の <code>FeedForward</code> に戻す、などして、どの部品がどれくらい効いているか調べてみましょう。結果を表にまとめれば、立派な研究ノートです。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong>RoPEで形のエラー</strong>：<code>head_size</code>（<code>dim // n_head</code>）が<strong>偶数</strong>でないと、2つずつのペアが作れません。</li>
+<li><strong>現代版のほうが損失が悪い</strong>：小さな規模や短い学習では、そういうこともあります。学習率など、<a class="term" href="f-glossary.html#t-fa1607f2" data-tip="学習率など、人間が事前に決める設定値。検証データで選ぶ。">ハイパーパラメータ</a>は部品ごとに最適な値が違うこともあるので、それぞれで少し調整するのが本当は公平です。</li>
+<li><strong>MoEで一部の専門家が全然使われない</strong>：負荷の偏りです。ルーターの出力に、偏りを罰する損失を足すのが一般的な対策です。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：RMSNorm</p><p>RMSNormは、LayerNormと比べて何を省いている？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>平均を引く操作（と、バイアス）を省いています。2乗の平均の平方根（RMS）で割って、学習可能な重みを掛けるだけです。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：RoPE</p><p>RoPEを使うと、QueryとKeyの内積（Attentionの点数）は何によって決まる？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>QueryとKeyの中身と、2つの位置の<strong>差</strong>（相対位置）によって決まります。絶対的な位置（何番目か）にはよりません。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：公平な比較</p><p>新しい部品を入れたモデルの検証損失が、1回の実験で0.01良くなりました。「効果がある」と言える？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>まだ言えません。シードを変えて何回か実験し、その差がシードによるばらつきより十分大きいかを確かめる必要があります。また、パラメータ数や学習の条件をそろえたかも確認します。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="25-modern:0"> <span>RMSNorm・SwiGLU・RoPEをそれぞれ自分で実装した</span></label></li><li><label><input type="checkbox" data-check="25-modern:1"> <span>RoPEで、点数が相対位置だけで決まることを確かめた</span></label></li><li><label><input type="checkbox" data-check="25-modern:2"> <span>現代版ミニGPTを組み立て、ベースラインと公平に比べた</span></label></li><li><label><input type="checkbox" data-check="25-modern:3"> <span>差がシードのばらつきより大きいかを考えて、結論を書いた</span></label></li><li><label><input type="checkbox" data-check="25-modern:4"> <span>MoEのルーティングと負荷の偏りを観察した</span></label></li><li><label><input type="checkbox" data-check="25-modern:5"> <span>GRPOのアドバンテージを計算した</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>現代のLLMは、<strong>RMSNorm</strong>・<strong>SwiGLU</strong>・<strong>RoPE</strong>など、GPT-2から少しずつ改良された部品を使う</li>
+<li><strong>RoPE</strong>は、QueryとKeyを位置に応じて回転させ、点数を<strong>相対位置</strong>で決まるようにする</li>
+<li>比較実験は、<strong>部品以外をそろえ</strong>、<strong>複数のシード</strong>でばらつきと差を比べる</li>
+<li><strong>MoE</strong>は、ルーターがトークンを一部の専門家に振り分ける。大きいのに計算は軽い</li>
+<li>研究の地図：長いコンテキスト・推論モデル（RLVR・GRPO）・SSM・マルチモーダル・解釈可能性・蒸留</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>キミはもう、論文を読んで「それ、自分のGPTに入れて試せるな」と思える人になった。次はいよいよ最終章。卒業制作のテーマを決めて、2030年までの地図を描こう。ここまで来たキミなら、どこへでも行ける。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="25-modern">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="24-deploy.html"><small>← 前の章</small>世界に公開する：ブラウザで動くあなたのLLM</a><a class="next" href="26-capstone.html"><small>次の章 →</small>卒業制作と、2030年への地図</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備と、比べる相手（ベースライン）</a><a href="#s2">部品1：RMSNorm</a><a href="#s3">部品2：SwiGLU</a><a href="#s4">部品3：RoPE（回転位置埋め込み）</a><a href="#s5">現代版ミニGPTを組み立てる</a><a href="#s6">MoE：専門家を使い分ける</a><a href="#s7">最新研究の地図</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

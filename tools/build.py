@@ -162,6 +162,8 @@ def render_fence(self, tokens, idx, options, env):
         label = "Python（GPUのランタイムで実行）"
     if lang == "python" and "online" in flags:
         label = "Python（Hugging Faceにつないで実行）"
+    if lang == "python" and "colab-only" in flags:
+        label = "Python（Colabで実行）"
     if lang == "python":
         body = highlight_python(code)
     elif lang in {"bash", "sh", "powershell"}:
@@ -483,6 +485,8 @@ def appendix_page(slug):
     meta, body = META[slug], SOURCES[slug]
     if slug == "f-glossary":
         body = body.replace("<!-- GLOSSARY -->", glossary_markdown())
+    if slug == "i-simulation":
+        body = body.replace("<!-- PERSONA_TABLE -->", persona_table()).replace("<!-- CODE_REPORT -->", code_report_table())
     ctx = {"slug": slug, "quiz": 0}
     html = render_markdown(body, ctx)
     html, toc = add_heading_ids(html)
@@ -492,13 +496,27 @@ def appendix_page(slug):
     return page(meta["title"], f'<article class="chapter">{hero}{html}</article>', slug, toc_html(toc), meta.get("subtitle"))
 
 
+KANA_ROWS = ["あいうえおぁぃぅぇぉ", "かきくけこがぎぐげご", "さしすせそざじずぜぞ", "たちつてとだぢづでどっ",
+             "なにぬねの", "はひふへほばびぶべぼぱぴぷぺぽ", "まみむめも", "やゆよゃゅょ", "らりるれろ", "わをん"]
+
+
+def kana_row(reading):
+    ch = reading[:1]
+    if "ァ" <= ch <= "ヶ":
+        ch = chr(ord(ch) - 0x60)              # カタカナをひらがなに
+    for row in KANA_ROWS:
+        if ch in row:
+            return row[0] + "行"
+    return "その他"
+
+
 def glossary_markdown():
     groups = {}
     for t in sorted(GLOSSARY, key=lambda t: t.get("reading", t["term"])):
-        head = t.get("reading", t["term"])[:1].upper()
-        groups.setdefault(head, []).append(t)
+        groups.setdefault(kana_row(t.get("reading", t["term"])), []).append(t)
+    order = [r[0] + "行" for r in KANA_ROWS] + ["その他"]
     out = []
-    for head in sorted(groups):
+    for head in [h for h in order if h in groups]:
         out.append(f"\n## {head}\n")
         out.append('<dl class="glossary">')
         for t in groups[head]:
@@ -507,6 +525,38 @@ def glossary_markdown():
             out.append(f'<dt id="{term_id(t)}">{escape(t["term"])}{en}{where}</dt><dd>{md.renderInline(protect_math(t["def"]))}</dd>')
         out.append("</dl>\n")
     return "\n".join(out)
+
+
+# ---------------------------------------------------------------- simulation report tables
+def persona_table():
+    path = ROOT / "verification" / "persona-metrics.json"
+    if not path.exists():
+        return "（`python tools/persona.py` を実行すると、ここに表が入ります）"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = ["| 章 | 難しさ | 新しい用語 | 新しいPython | コードのセル | 会話 | クイズ | 実出力・図 | 最長の地の文（字） | 読む目安（分） | 未習の先取り |",
+            "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for r in data["chapters"]:
+        early = len(r["early_terms"]) + len(r["early_python"])
+        rows.append(f"| {int(r['slug'][:2])} | {'★' * (r['level'] or 1)} | {r['new_terms']} | {len(r['new_python'])} | {r['cells']} | {r['talks']} | {r['quizzes']} | "
+                    f"{r['outputs'] + r['figures']} | {r['longest_prose_chars']} | {r['est_minutes']} | {early} |")
+    rows.append("")
+    rows.append(f"機械チェックで残っている問題：**{len(data['issues'])}件**" + ("" if not data["issues"] else "（" + "、".join(data["issues"]) + "）"))
+    return "\n".join(rows)
+
+
+def code_report_table():
+    path = ROOT / "verification" / "code-report.json"
+    if not path.exists():
+        return "（`python tools/verify.py` を実行すると、ここに表が入ります）"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = [f"検証日：{data['date']}　Python {data['python']}　PyTorch {data.get('torch', '?')}　transformers {data.get('transformers', '?')}", "",
+            "| 章 | セル | 実行した | GPU・オンライン専用で飛ばした | 結果 |", "|---|---|---|---|---|"]
+    for c in data["chapters"]:
+        ok = "合格" if not c["failures"] else f"要確認（{len(c['failures'])}）"
+        rows.append(f"| {int(c['slug'][:2])} | {c['cells']} | {c['cells'] - c.get('skipped', 0)} | {c.get('skipped', 0)} | {ok} |")
+    rows.append("")
+    rows.append(f"HTMLページ {data.get('html_pages', '?')} 枚のリンク切れ：{len(data.get('link_failures', []))}件")
+    return "\n".join(rows)
 
 
 # ---------------------------------------------------------------- home

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Python最短ルート | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>Python最短ルート | つくってわかるLLM</title><meta name="description" content="この教科書で使うPythonだけを、使う順に。困ったときの早見表">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,221 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html" aria-current="page"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録B</p><h1>Python最短ルート</h1><p class="sub">準備中</p></header><p>準備中です。</p>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html" aria-current="page"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録B</p><h1>Python最短ルート</h1><p class="sub">この教科書で使うPythonだけを、使う順に。困ったときの早見表</p></header><p>この教科書は、Pythonを「<code>print</code> くらい」しか知らなくても進めるように、新しい書き方が出てくるたびに「Pythonの道具箱」で説明しています。この付録は、それらを1か所にまとめた早見表です。順番に読んでも、困ったところだけ引いても使えます。</p>
+<aside class="box box-tip"><p class="box-title">コツ：一番の勉強法</p><p>読むだけより、<strong>Colabで実際に打って、少し変えて、壊してみる</strong>ことです。エラーが出たら、それは「Pythonが教えてくれている」サインです。</p>
+</aside>
+
+<h2 id="s1">値と変数（第1章）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>x = <span class="nu">3</span>              <span class="cm"># 整数（int）</span>
+y = <span class="nu">2.5</span>            <span class="cm"># 小数（float）</span>
+name = <span class="st">&quot;ボンゴ&quot;</span>    <span class="cm"># 文字列（str）</span>
+ok = <span class="kw">True</span>          <span class="cm"># 真偽値（bool）：True か False</span>
+<span class="bi">print</span>(x * y, name * <span class="nu">2</span>, ok)   <span class="cm"># 7.5 ボンゴボンゴ True</span></code></pre></div>
+<p><code>=</code> は「右の値を、左の名前の箱に入れる」。数学の「等しい」ではありません。等しいかどうかを調べるのは <code>==</code> です。</p>
+<table>
+<thead>
+<tr>
+<th>計算</th>
+<th>意味</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>+ - * /</code></td>
+<td>足す・引く・掛ける・割る</td>
+<td><code>7 / 2</code> → <code>3.5</code></td>
+</tr>
+<tr>
+<td><code>//</code></td>
+<td>割り算の商（切り捨て）</td>
+<td><code>7 // 2</code> → <code>3</code></td>
+</tr>
+<tr>
+<td><code>%</code></td>
+<td>割り算の余り</td>
+<td><code>7 % 2</code> → <code>1</code></td>
+</tr>
+<tr>
+<td><code>**</code></td>
+<td>べき乗</td>
+<td><code>2 ** 10</code> → <code>1024</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="s2">文字列（第1〜2章）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>s = <span class="st">&quot;吾輩は猫である&quot;</span>
+<span class="bi">print</span>(<span class="bi">len</span>(s))          <span class="cm"># 7（文字数）</span>
+<span class="bi">print</span>(s[<span class="nu">0</span>], s[-<span class="nu">1</span>])     <span class="cm"># 吾 る（0番目、最後）</span>
+<span class="bi">print</span>(s[<span class="nu">2</span>:<span class="nu">4</span>])          <span class="cm"># は猫（2番目から4番目の手前まで）</span>
+<span class="bi">print</span>(s.replace(<span class="st">&quot;猫&quot;</span>, <span class="st">&quot;犬&quot;</span>))
+<span class="bi">print</span>(<span class="st">f&quot;文字数は{len(s)}です&quot;</span>)   <span class="cm"># f文字列：{ } の中が値に置き換わる</span>
+<span class="bi">print</span>(<span class="st">&quot;猫&quot;</span>.encode(<span class="st">&quot;utf-8&quot;</span>))      <span class="cm"># b&#x27;\xe7\x8c\xab&#x27;（バイト列。第2章）</span></code></pre></div>
+<p><strong>スライス</strong> <code>s[開始:終わり]</code> は「終わり」を<strong>含まない</strong>のがポイントです。</p>
+<h2 id="s3">リスト（第1章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>fruits = [<span class="st">&quot;りんご&quot;</span>, <span class="st">&quot;みかん&quot;</span>]
+fruits.append(<span class="st">&quot;ぶどう&quot;</span>)        <span class="cm"># 後ろに追加</span>
+<span class="bi">print</span>(fruits[<span class="nu">1</span>], <span class="bi">len</span>(fruits))  <span class="cm"># みかん 3</span>
+<span class="bi">print</span>(fruits[-<span class="nu">1</span>])              <span class="cm"># ぶどう（後ろから1番目）</span>
+<span class="bi">print</span>(<span class="bi">sorted</span>([<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">2</span>]))       <span class="cm"># [1, 2, 3]</span></code></pre></div>
+<h2 id="s4">辞書（第1〜2章）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>stoi = {<span class="st">&quot;猫&quot;</span>: <span class="nu">0</span>, <span class="st">&quot;犬&quot;</span>: <span class="nu">1</span>}
+<span class="bi">print</span>(stoi[<span class="st">&quot;猫&quot;</span>])              <span class="cm"># 0（キーで値を引く）</span>
+stoi[<span class="st">&quot;鳥&quot;</span>] = <span class="nu">2</span>                 <span class="cm"># 追加</span>
+<span class="bi">print</span>(<span class="st">&quot;犬&quot;</span> <span class="kw">in</span> stoi)            <span class="cm"># True（キーがあるか）</span>
+<span class="bi">print</span>(stoi.get(<span class="st">&quot;魚&quot;</span>, -<span class="nu">1</span>))      <span class="cm"># -1（なければ初期値）</span>
+<span class="kw">for</span> key, value <span class="kw">in</span> stoi.items():
+    <span class="bi">print</span>(key, value)</code></pre></div>
+<h2 id="s5">集合（第2章）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>chars = <span class="bi">set</span>(<span class="st">&quot;あいあう&quot;</span>)   <span class="cm"># {&#x27;あ&#x27;, &#x27;い&#x27;, &#x27;う&#x27;}（重複が消える）</span>
+<span class="bi">print</span>(<span class="bi">sorted</span>(chars))</code></pre></div>
+<h2 id="s6">条件分岐 if（全体）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>score = <span class="nu">75</span>
+<span class="kw">if</span> score &gt;= <span class="nu">80</span>:
+    <span class="bi">print</span>(<span class="st">&quot;すばらしい&quot;</span>)
+<span class="kw">elif</span> score &gt;= <span class="nu">60</span>:
+    <span class="bi">print</span>(<span class="st">&quot;合格&quot;</span>)
+<span class="kw">else</span>:
+    <span class="bi">print</span>(<span class="st">&quot;もう一歩&quot;</span>)</code></pre></div>
+<p><strong>字下げ（インデント）</strong> が、「ここまでがifの中身」を表します。スペース4つが標準です。HTMLの開始タグと終了タグの代わりに、字下げで範囲を表すのがPythonの特徴です。</p>
+<h2 id="s7">くり返し for / while（第2章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">3</span>):            <span class="cm"># 0, 1, 2</span>
+    <span class="bi">print</span>(i)
+
+<span class="kw">for</span> i, ch <span class="kw">in</span> <span class="bi">enumerate</span>(<span class="st">&quot;猫犬&quot;</span>):   <span class="cm"># 番号つきで取り出す</span>
+    <span class="bi">print</span>(i, ch)                  <span class="cm"># 0 猫 / 1 犬</span>
+
+<span class="kw">for</span> a, b <span class="kw">in</span> <span class="bi">zip</span>(<span class="st">&quot;先生&quot;</span>, <span class="st">&quot;生と&quot;</span>):  <span class="cm"># 2つを並べて取り出す</span>
+    <span class="bi">print</span>(a, b)
+
+n = <span class="nu">0</span>
+<span class="kw">while</span> n &lt; <span class="nu">3</span>:                  <span class="cm"># 条件が正しいあいだ、くり返す</span>
+    n += <span class="nu">1</span>                    <span class="cm"># n = n + 1 と同じ</span></code></pre></div>
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：トレースの練習</p><p>for文やwhile文の変数の変化を、表に書いて追うのは、基本情報の「トレース」そのものです。分からないコードは、<code>print</code> を入れて変数の中身を表示しながら、表を書いてみましょう。</p>
+</aside>
+
+<h2 id="s8">関数 def（第1章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">greet</span>(name, polite=<span class="kw">True</span>):     <span class="cm"># polite は初期値つき</span>
+    <span class="kw">if</span> polite:
+        <span class="kw">return</span> <span class="st">f&quot;こんにちは、{name}さん&quot;</span>
+    <span class="kw">return</span> <span class="st">f&quot;よっ、{name}&quot;</span>
+
+<span class="bi">print</span>(greet(<span class="st">&quot;ミナト&quot;</span>))
+<span class="bi">print</span>(greet(<span class="st">&quot;ミナト&quot;</span>, polite=<span class="kw">False</span>))</code></pre></div>
+<p><code>return</code> で結果を返します。<code>return</code> がない関数は <code>None</code>（何もない）を返します。</p>
+<h2 id="s9">内包表記（第2章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>squares = [x * x <span class="kw">for</span> x <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">5</span>)]              <span class="cm"># [0, 1, 4, 9, 16]</span>
+evens = [x <span class="kw">for</span> x <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">10</span>) <span class="kw">if</span> x % <span class="nu">2</span> == <span class="nu">0</span>]     <span class="cm"># [0, 2, 4, 6, 8]</span>
+stoi = {ch: i <span class="kw">for</span> i, ch <span class="kw">in</span> <span class="bi">enumerate</span>(<span class="st">&quot;猫犬鳥&quot;</span>)}  <span class="cm"># 辞書も作れる</span></code></pre></div>
+<p>for文で書いたものを1行にまとめた書き方です。読みにくければ、for文で書いてかまいません。</p>
+<h2 id="s10">import（第1章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> math                         <span class="cm"># 道具箱をまるごと</span>
+<span class="kw">from</span> collections <span class="kw">import</span> Counter     <span class="cm"># 道具箱から1つだけ</span>
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F     <span class="cm"># 長い名前に短い別名</span>
+<span class="bi">print</span>(math.log(math.e), Counter(<span class="st">&quot;あいあ&quot;</span>))</code></pre></div>
+<h2 id="s11">ファイルの読み書き（第4章）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">with</span> <span class="bi">open</span>(<span class="st">&quot;memo.txt&quot;</span>, <span class="st">&quot;w&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>) <span class="kw">as</span> f:   <span class="cm"># 書き込み</span>
+    f.write(<span class="st">&quot;こんにちは\n&quot;</span>)
+<span class="kw">with</span> <span class="bi">open</span>(<span class="st">&quot;memo.txt&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>) <span class="kw">as</span> f:        <span class="cm"># 読み込み</span>
+    text = f.read()</code></pre></div>
+<p><code>with</code> を使うと、終わったときに自動でファイルを閉じてくれます。日本語を扱うときは <code>encoding=&quot;utf-8&quot;</code> を忘れずに。</p>
+<h2 id="s12">クラス（第9章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">Counter2</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, start=<span class="nu">0</span>):     <span class="cm"># 作るときの準備</span>
+        <span class="self">self</span>.value = start           <span class="cm"># self は「この実物自身」</span>
+
+    <span class="kw">def</span> <span class="fn">up</span>(<span class="self">self</span>):
+        <span class="self">self</span>.value += <span class="nu">1</span>
+        <span class="kw">return</span> <span class="self">self</span>.value
+
+c = Counter2()        <span class="cm"># 設計図から実物（インスタンス）を作る</span>
+c.up(); c.up()
+<span class="bi">print</span>(c.value)        <span class="cm"># 2</span></code></pre></div>
+<p>PyTorchのモデルは、<code>nn.Module</code> を土台にしたクラスで書きます（第9章）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+<span class="kw">class</span> <span class="fn">Tiny</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>):
+        <span class="bi">super</span>().__init__()           <span class="cm"># 土台の準備（お約束）</span>
+        <span class="self">self</span>.fc = nn.Linear(<span class="nu">3</span>, <span class="nu">1</span>)    <span class="cm"># 部品</span>
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):            <span class="cm"># model(x) で呼ばれる計算</span>
+        <span class="kw">return</span> <span class="self">self</span>.fc(x)</code></pre></div>
+<h2 id="s13">エラーへの備え try / except</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">try</span>:
+    value = <span class="bi">int</span>(<span class="st">&quot;abc&quot;</span>)
+<span class="kw">except</span> ValueError:
+    <span class="bi">print</span>(<span class="st">&quot;数字に変換できませんでした&quot;</span>)</code></pre></div>
+<h2 id="s14">エラーメッセージの読み方</h2>
+<p>エラーが出たら、<strong>一番下の行</strong>から読みます。</p>
+<div class="codeblock code lang-text"><div class="code-head"><span>テキスト</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>Traceback (most recent call last):
+  File &quot;&lt;cell&gt;&quot;, line 3, in &lt;module&gt;
+    print(stoi[&quot;魚&quot;])
+KeyError: &#x27;魚&#x27;</code></pre></div>
+<ul>
+<li><code>KeyError: '魚'</code>：辞書に「魚」というキーがない</li>
+<li><code>line 3</code>：3行目で起きた</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>よくあるエラー</th>
+<th>意味</th>
+<th>よくある原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NameError</code></td>
+<td>その名前の変数・関数がない</td>
+<td>上のセルを実行していない、つづり間違い</td>
+</tr>
+<tr>
+<td><code>SyntaxError</code></td>
+<td>文法の間違い</td>
+<td>かっこや <code>:</code> の付け忘れ、全角の記号</td>
+</tr>
+<tr>
+<td><code>IndentationError</code></td>
+<td>字下げの間違い</td>
+<td>スペースとタブが混ざっている</td>
+</tr>
+<tr>
+<td><code>TypeError</code></td>
+<td>型が合わない</td>
+<td>文字列と数字を <code>+</code> した、引数の数が違う</td>
+</tr>
+<tr>
+<td><code>KeyError</code></td>
+<td>辞書にキーがない</td>
+<td>辞書にない文字を引いた</td>
+</tr>
+<tr>
+<td><code>IndexError</code></td>
+<td>リストの範囲外</td>
+<td>長さ3のリストの <code>[5]</code></td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError</code></td>
+<td>道具箱が入っていない</td>
+<td><code>pip install</code> していない</td>
+</tr>
+</tbody>
+</table>
+<p>PyTorchやLLMに特有のエラーは、<a href="e-errors.html">付録E エラー辞典</a>を見てください。</p>
+<section class="quiz"><p class="quiz-label">クイズ 1：字下げ</p><p>次のコードを実行すると、何が表示される？</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>total = <span class="nu">0</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">1</span>, <span class="nu">4</span>):
+    total += i
+<span class="bi">print</span>(total)</code></pre></div>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p><code>6</code> です。<code>range(1, 4)</code> は1, 2, 3なので、1 + 2 + 3 = 6。<code>print</code> は字下げされていないので、for文が終わった後に1回だけ実行されます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：スライス</p><p><code>s = &quot;つくってわかる&quot;</code> のとき、<code>s[4:]</code> は？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p><code>&quot;わかる&quot;</code> です。4番目（0から数えて、「わ」）から最後までです。</p>
+</details></section>
+
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">値と変数（第1章）</a><a href="#s2">文字列（第1〜2章）</a><a href="#s3">リスト（第1章〜）</a><a href="#s4">辞書（第1〜2章）</a><a href="#s5">集合（第2章）</a><a href="#s6">条件分岐 if（全体）</a><a href="#s7">くり返し for / while（第2章〜）</a><a href="#s8">関数 def（第1章〜）</a><a href="#s9">内包表記（第2章〜）</a><a href="#s10">import（第1章〜）</a><a href="#s11">ファイルの読み書き（第4章）</a><a href="#s12">クラス（第9章〜）</a><a href="#s13">エラーへの備え try / except</a><a href="#s14">エラーメッセージの読み方</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

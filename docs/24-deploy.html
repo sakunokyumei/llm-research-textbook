@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>24-deploy | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>世界に公開する：ブラウザで動くあなたのLLM | つくってわかるLLM</title><meta name="description" content="HTMLとCSSとJavaScriptで、漱石GPTを誰でも使えるWebページにする">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,284 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" open><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" aria-current="page" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第6部 LLMをシステムにする · 第24章</p><h1>24-deploy</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="24-deploy">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="23-agents.html"><small>← 前の章</small>道具を使わせる：エージェント</a><a class="next" href="25-modern.html"><small>次の章 →</small>25-modern</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" open><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" aria-current="page" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第6部 LLMをシステムにする · 第24章</p><h1>世界に公開する：ブラウザで動くあなたのLLM</h1><p class="sub">HTMLとCSSとJavaScriptで、漱石GPTを誰でも使えるWebページにする</p><dl class="meta"><div><dt>目安</dt><dd>2〜3時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中3">★★★☆☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/24-deploy.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/24-deploy.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>第13章の漱石GPTを8ビットに量子化してJSONに書き出し、JavaScriptで推論するWebページを作って、GitHub Pagesで世界に公開する（このサイトのトップページと同じもの）</p></div><div><h3>ついでに身につく理論</h3><ul><li>推論だけなら、どこでも同じ計算ができる（言語を変えても同じ数式）</li><li>量子化した重みの書き出し（第19章の実践）</li><li>ブラウザの中で動かす利点（サーバー代0円・入力が外に出ない）</li><li>公開のいろいろな方法：GitHub Pages・Gradio・Ollama・Hugging Face</li><li>GGUFと量子化の名前の読み方</li><li>公開前のチェックリスト（ライセンス・安全・プライバシー）</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>files.download</code> でColabからファイルを取り出す</li><li>JavaScriptの読み方（Pythonとの対応表）</li><li><code>python -m http.server</code> でローカル確認</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>ついに、あなたの<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>を<strong>世界に公開</strong>します。第13章で育てた漱石GPTを、あなたが専門学校で学んだ <strong>HTMLとCSS</strong> と、少しの <strong>JavaScript</strong> でWebページにして、<strong>GitHub Pages</strong>（無料）で公開します。完成すると、スマートフォンからでも、友だちのパソコンからでも、URLを開くだけであなたのGPTが動きます。このサイトのトップページで動いている漱石GPTは、まさにこの章の方法で作ったものです。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>やっとHTMLとCSSの出番だ！ でも、JavaScriptでGPTって動くんですか？ Pythonじゃないとダメなんじゃ……。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>GPTの正体は、掛け算と足し算と、expと平方根の組み合わせだっただろう？ そんなもの、どんな言語でも書ける。電卓でだって（何年かかるかは別として）計算できる。言語が変わっても、数式は変わらない。第15章でGPT-2の重みを自作コードに入れたのと同じで、今度は<strong>別の言語</strong>に重みを入れるんだ。</p>
+</div></div>
+
+<h2 id="s1">全体の流れ</h2>
+<ol>
+<li><strong>Colab</strong>：第13章で保存したモデルを、Webで読める<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>（JSON）に書き出す</li>
+<li><strong>パソコン</strong>：HTML・CSS・JavaScriptのページを作り、手元で動作確認する</li>
+<li><strong>GitHub</strong>：ファイルをアップロードして、GitHub Pagesで公開する</li>
+</ol>
+<h2 id="s2">手順1：モデルをJSONに書き出す（Colab）</h2>
+<p>Colabで新しいノートブックを作り、第13章でGoogleドライブに保存した <code>soseki_gpt.pt</code> を読み込みます。CPUのままで大丈夫です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> google.colab <span class="kw">import</span> drive
+drive.mount(<span class="st">&quot;/content/drive&quot;</span>)</code></pre></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> os
+ckpt = <span class="st">&quot;/content/drive/MyDrive/tsukuru-llm/soseki_gpt.pt&quot;</span>
+<span class="bi">print</span>(<span class="st">&quot;チェックポイントはある？&quot;</span>, os.path.exists(ckpt))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>チェックポイントはある？ True</code></pre></div>
+<aside class="box box-warn"><p class="box-title">つまずき注意：Falseだった人へ</p><p>第13章を飛ばした人や、保存に失敗した人は、第13章に戻って学習と保存をしてから進むのがおすすめです。どうしても今すぐ試したい人は、この教科書のサイトに置いてある完成品のJSON（<a href="https://sakunokyumei.github.io/llm-research-textbook/model/soseki-gpt.json">https://sakunokyumei.github.io/llm-research-textbook/model/soseki-gpt.json</a>）を<a class="term" href="f-glossary.html#t-bc3a8587" data-tip="インターネットからファイルを手元に取ってくること。">ダウンロード</a>して、手順2に進んでもかまいません。</p>
+</aside>
+
+<p>書き出しの関数です。第19章のabsmax<a class="term" href="f-glossary.html#t-b2964ec3" data-tip="重みを少ないビット数（8ビット・4ビットなど）で表し、メモリを減らすこと。">量子化</a>を、重みの<strong>行ごと</strong>に行って、8ビットの整数にします。そして、JSONに入れられるように <strong>base64</strong>（<a class="term" href="f-glossary.html#t-ce82a962" data-tip="8ビットの数。0〜255の値をとる。">バイト</a>列を文字だけで表す方法）に変換します。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> base64, json
+<span class="kw">import</span> torch
+
+<span class="kw">def</span> <span class="fn">quantize_rows</span>(w):
+    w = w.<span class="bi">float</span>()
+    <span class="kw">if</span> w.dim() == <span class="nu">1</span>:                                   <span class="cm"># バイアスやLayerNormはそのまま（float32）</span>
+        <span class="kw">return</span> {<span class="st">&quot;shape&quot;</span>: <span class="bi">list</span>(w.shape), <span class="st">&quot;f32&quot;</span>: base64.b64encode(w.numpy().tobytes()).decode()}
+    scale = w.<span class="bi">abs</span>().amax(dim=<span class="nu">1</span>).clamp(<span class="bi">min</span>=<span class="nu">1e-8</span>) / <span class="nu">127</span>  <span class="cm"># 行ごとの縮尺</span>
+    q = torch.<span class="bi">round</span>(w / scale[:, <span class="kw">None</span>]).clamp(-<span class="nu">127</span>, <span class="nu">127</span>).to(torch.int8)
+    <span class="kw">return</span> {<span class="st">&quot;shape&quot;</span>: <span class="bi">list</span>(w.shape),
+            <span class="st">&quot;i8&quot;</span>: base64.b64encode(q.numpy().tobytes()).decode(),
+            <span class="st">&quot;scale&quot;</span>: base64.b64encode(scale.numpy().astype(<span class="st">&quot;float32&quot;</span>).tobytes()).decode()}
+
+ck = torch.load(ckpt, map_location=<span class="st">&quot;cpu&quot;</span>)
+weights = {name: quantize_rows(t) <span class="kw">for</span> name, t <span class="kw">in</span> ck[<span class="st">&quot;model&quot;</span>].items() <span class="kw">if</span> <span class="kw">not</span> name.endswith(<span class="st">&quot;tril&quot;</span>)}
+<span class="kw">with</span> <span class="bi">open</span>(<span class="st">&quot;soseki-gpt.json&quot;</span>, <span class="st">&quot;w&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>) <span class="kw">as</span> f:
+    json.dump({<span class="st">&quot;config&quot;</span>: ck[<span class="st">&quot;config&quot;</span>], <span class="st">&quot;chars&quot;</span>: ck[<span class="st">&quot;chars&quot;</span>], <span class="st">&quot;weights&quot;</span>: weights}, f, ensure_ascii=<span class="kw">False</span>)
+<span class="bi">print</span>(<span class="st">&quot;書き出したサイズ：&quot;</span>, <span class="bi">round</span>(os.path.getsize(<span class="st">&quot;soseki-gpt.json&quot;</span>) / <span class="nu">1e6</span>, <span class="nu">1</span>), <span class="st">&quot;MB&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>書き出したサイズ： 2.5 MB</code></pre></div>
+<aside class="box box-fe"><p class="box-title">基本情報とつながる：base64</p><p><strong>base64</strong> は、どんなバイト列も、英数字と <code>+</code> <code>/</code> の64種類の文字だけで表す方法です。3バイト（24ビット）を6ビットずつ4文字に分けて表すので、サイズは約1.33倍になります。メールに画像を添付するときにも使われています。基本情報の「ビットの切り分け」の練習問題そのものですね。</p>
+</aside>
+
+<p>書き出したファイルを、自分のパソコンにダウンロードします。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabで実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> google.colab <span class="kw">import</span> files
+files.download(<span class="st">&quot;soseki-gpt.json&quot;</span>)</code></pre></div>
+<h2 id="s3">手順2：Webページを作る（パソコン）</h2>
+<p>パソコンに <code>soseki-gpt</code> という名前のフォルダを作り、次の3つのファイルを入れます。</p>
+<div class="codeblock code lang-text"><div class="code-head"><span>テキスト</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>soseki-gpt/
+├── index.html          ← これから作るページ
+├── minigpt.js          ← GPTの計算をするJavaScript（教科書のものを使う）
+└── soseki-gpt.json     ← 手順1でダウンロードしたモデル</code></pre></div>
+<p><code>minigpt.js</code> は、このサイトのリポジトリの <code>site/minigpt.js</code> です。ブラウザで <a href="https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/site/minigpt.js">https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/site/minigpt.js</a> を開き、右クリック→「名前を付けて保存」で保存してください。</p>
+<h3>index.html</h3>
+<p>ここは、あなたの得意分野です。まずは次の内容で作り、後で好きなデザインに変えてください。</p>
+<div class="codeblock code lang-html"><div class="code-head"><span>HTML</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;ja&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+  &lt;title&gt;わたしの漱石GPT&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px;
+           background: #faf7f0; color: #222; line-height: 1.8; }
+    h1 { color: #b9501a; }
+    input, button { font-size: 16px; padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; }
+    button { background: #b9501a; color: white; border: none; cursor: pointer; }
+    #out { white-space: pre-wrap; background: white; border-radius: 12px; padding: 16px; min-height: 8em; margin-top: 16px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;わたしの漱石GPT&lt;/h1&gt;
+  &lt;p&gt;夏目漱石の7作品だけで学習した、約175万パラメータの小さなGPTです。ブラウザの中だけで動きます。&lt;/p&gt;
+  &lt;input id=&quot;start&quot; value=&quot;吾輩は&quot;&gt;
+  &lt;button id=&quot;go&quot; disabled&gt;読み込み中…&lt;/button&gt;
+  &lt;div id=&quot;out&quot;&gt;&lt;/div&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import { load } from &quot;./minigpt.js&quot;;
+    const model = await load(&quot;./soseki-gpt.json&quot;);
+    const go = document.getElementById(&quot;go&quot;);
+    const out = document.getElementById(&quot;out&quot;);
+    go.textContent = &quot;続きを書かせる&quot;;
+    go.disabled = false;
+    go.addEventListener(&quot;click&quot;, async () =&gt; {
+      const start = document.getElementById(&quot;start&quot;).value;
+      out.textContent = start;
+      go.disabled = true;
+      await model.generate(start, 150, 0.8, (ch) =&gt; { out.textContent += ch; });
+      go.disabled = false;
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>HTMLとCSSは見慣れた姿だと思います。新しいのは最後の <code>&lt;script type=&quot;module&quot;&gt;</code> の部分だけです。</p>
+<h3>minigpt.js の中身を読む</h3>
+<p><code>minigpt.js</code> は約150行です。中で何をしているか、Pythonの対応する部分と比べてみましょう。第12章のコードと、ほぼ1対1で対応しています。</p>
+<table>
+<thead>
+<tr>
+<th>JavaScript（minigpt.js）</th>
+<th>Python（minigpt.py・第12章）</th>
+<th>やっていること</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dequantize(w)</code></td>
+<td>—</td>
+<td>8ビットの整数 × 縮尺で、重みを小数に戻す（第19章）</td>
+</tr>
+<tr>
+<td><code>linear(W, b, x)</code></td>
+<td><code>nn.Linear</code></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>W</mi><mi>x</mi><mo>+</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">y = Wx + b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span>。二重のforループで掛けて足す</td>
+</tr>
+<tr>
+<td><code>layerNorm(x, w, b)</code></td>
+<td><code>nn.LayerNorm</code></td>
+<td>平均を引いて<a class="term" href="f-glossary.html#t-12c41497" data-tip="分散の平方根。ばらつきを元の単位で表したもの。">標準偏差</a>で割る（第10章）</td>
+</tr>
+<tr>
+<td><code>gelu(x)</code></td>
+<td><code>nn.GELU</code></td>
+<td><a class="term" href="f-glossary.html#t-a2baa30d" data-tip="層と層の間に挟む、直線ではない関数。tanh、ReLU、GELUなど。">活性化関数</a>（第9章）</td>
+</tr>
+<tr>
+<td><code>step(id, pos, cache)</code> の中のheadのループ</td>
+<td><code>Head.forward</code></td>
+<td>Q・K・V、内積、<a class="term" href="f-glossary.html#t-2e556010" data-tip="点数を、正で合計1の確率に変える関数。各点数をexpしてから合計で割る。">softmax</a>、重みつき平均（第11章）</td>
+</tr>
+<tr>
+<td><code>cache[l][j].k.push(k)</code></td>
+<td>—</td>
+<td>過去のKeyとValueを取っておく <strong><a class="term" href="f-glossary.html#t-c7b7c65b" data-tip="過去のトークンのKeyとValueを取っておき、生成を速くする仕組み。">KVキャッシュ</a></strong>（第16章）</td>
+</tr>
+<tr>
+<td><code>x[i] += a[i]</code></td>
+<td><code>x = x + self.attn(...)</code></td>
+<td><a class="term" href="f-glossary.html#t-a3f96af9" data-tip="部品の出力を元の入力に足す近道。情報と勾配が通りやすくなる。">残差接続</a>（第12章）</td>
+</tr>
+<tr>
+<td><code>sample(logits, temperature)</code></td>
+<td><code>torch.multinomial</code></td>
+<td><a class="term" href="f-glossary.html#t-d3bea9ef" data-tip="点数を割る数。低いと堅実、高いと冒険的な生成になる。">温度</a>つきのサイコロ（第3章）</td>
+</tr>
+</tbody>
+</table>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：JavaScriptをPythonの目で読む</p><ul>
+<li><code>const</code> / <code>let</code>：<a class="term" href="f-glossary.html#t-5221440a" data-tip="値を入れておく名前つきの箱。`x = 3` で x に 3 が入る。">変数</a>を作る（<code>const</code> は後で入れ替えない変数）</li>
+<li><code>function f(x) { … return y; }</code>：<code>def f(x): … return y</code></li>
+<li><code>for (let i = 0; i &lt; n; i++) { … }</code>：<code>for i in range(n):</code></li>
+<li><code>arr.map((v) =&gt; v * 2)</code>：<code>[v * 2 for v in arr]</code></li>
+<li><code>Float32Array</code>：float32の数だけが並んだ配列（PyTorchの<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>の、とても素朴な版）</li>
+<li><code>async</code> / <code>await</code>：「時間のかかる処理（ファイルの読み込みなど）を待つ」書き方</li>
+</ul>
+<p>インデント（字下げ）の代わりに <code>{ }</code> で範囲を表す、行の最後に <code>;</code> を付ける、くらいの違いで、考え方はPythonと同じです。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：推論だけなら、どこでも動く</p><p>学習には、<a class="term" href="f-glossary.html#t-adeed358" data-tip="計算の記録から、勾配を自動で正確に求める仕組み。PyTorchの `backward()`。">自動微分</a>（第7章）やAdam（第10章）、GPUが必要でした。でも、<strong>学習済みの重みで推論するだけ</strong>なら、必要なのは掛け算と足し算と、exp・平方根などの簡単な<a class="term" href="f-glossary.html#t-42e49360" data-tip="手順をひとまとめにして名前をつけたもの。`def` で作る。">関数</a>だけです。だから、JavaScriptでも、スマートフォンでも、マイコンでも、原理的にはどこでも動かせます。</p>
+<p>ブラウザの中で動かすことには、大きな利点があります。</p>
+<ul>
+<li><strong>サーバー代が0円</strong>：計算は見る人のパソコンやスマホがやってくれる</li>
+<li><strong>入力が外に出ない</strong>：入力した文章はどこにも送信されない（プライバシーに優しい）</li>
+<li><strong>オフラインでも動く</strong>：一度読み込めば、ネットが切れても使える</li>
+</ul>
+<p>ただし、大きなモデル（数百MB〜数GB）は、ダウンロードも計算も重くなります。175万<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>（2.5MB）くらいが、気軽に試せる大きさです。もっと大きなモデルをブラウザで動かすには、GPUを使うWebGPUや、専用のライブラリ（transformers.jsなど）を使います。</p>
+</aside>
+
+<h2 id="s4">手順3：手元で動作確認する</h2>
+<p>作った <code>index.html</code> をダブルクリックで開いても、<strong>モデルが読み込めません</strong>（ブラウザの安全のための制限で、<code>file://</code> から別のファイルを <code>fetch</code> で読めないため）。簡単なWebサーバーを立てて確認します。ターミナル（Windowsならコマンドプロンプトや PowerShell）で、<code>soseki-gpt</code> フォルダに移動して、次を実行します。</p>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>cd soseki-gpt
+python -m http.server 8000</code></pre></div>
+<p>ブラウザで <a href="http://localhost:8000/">http://localhost:8000/</a> を開き、「続きを書かせる」を押して、文章が出てくれば成功です。終わったら、ターミナルで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押してサーバーを止めます。</p>
+<aside class="box box-tip"><p class="box-title">コツ：Pythonが入っていなかったら</p><p>自分のパソコンにPythonが入っていない人は、<a href="a-setup.html">付録A</a>の手順で入れるか、この手順を飛ばして手順4（GitHub Pages）で直接確かめてもかまいません。</p>
+</aside>
+
+<h2 id="s5">手順4：GitHub Pagesで世界に公開する</h2>
+<p><strong>GitHub</strong> は、プログラムを保存・公開するための、世界最大のサービスです。<strong>GitHub Pages</strong> を使うと、置いたHTMLファイルを無料でWebサイトとして公開できます（このサイトも、GitHub Pagesで公開されています）。</p>
+<ol>
+<li><a href="https://github.com/">https://github.com/</a> でアカウントを作る（無料）。ユーザー名はURLの一部になるので、よく考えて</li>
+<li>右上の「＋」→「New repository」で、新しい置き場所（<strong>リポジトリ</strong>）を作る。名前は <code>soseki-gpt</code>、<strong>Public</strong>（公開）を選んで「Create repository」</li>
+<li>「uploading an existing file」のリンクを押し、<code>index.html</code>、<code>minigpt.js</code>、<code>soseki-gpt.json</code> の3つをドラッグ＆ドロップして、「Commit changes」</li>
+<li>リポジトリの「Settings」→ 左の「Pages」→「Build and deployment」の「Branch」で <code>main</code> と <code>/ (root)</code> を選んで「Save」</li>
+<li>1〜2分待つと、<code>https://あなたのユーザー名.github.io/soseki-gpt/</code> で公開されます</li>
+</ol>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>URLをスマートフォンで開いてごらん。キミが作ったGPTが、キミのポケットの中で動いている。サーバーもいらない、お金もかからない。友だちに送ったら、きっと驚くぞ。「これ、自分で作ったの？」って。ドコドコドン！</p>
+</div></div>
+
+<aside class="box box-free"><p class="box-title">0円のコツ：GitHub Pages の注意</p><ul>
+<li>無料で使えるのは、<strong>Public（公開）リポジトリ</strong>です。中身は世界中から見えるので、パスワードや<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>（第17章）、個人情報は絶対に入れないでください</li>
+<li>1つのファイルは100MBまで、サイト全体は1GBまでが目安です。数百MB以上のモデルを置くのには向きません</li>
+<li>学習に使った青空文庫の作品は著作権が切れていますが、自分で集めたデータで学習したモデルを公開するときは、データの権利も確認しましょう</li>
+</ul>
+</aside>
+
+<h2 id="s6">そのほかの公開・共有の方法</h2>
+<p>GitHub Pagesは小さなモデル向けです。Qwenのような大きめのモデルを人に使ってもらうには、ほかの方法もあります。</p>
+<h3>Colabで一時的に公開する：Gradio</h3>
+<p><strong>Gradio</strong> は、Pythonだけでチャット画面などのWebアプリを作れるライブラリです。Colabで <code>share=True</code> にすると、72時間有効な公開URLが発行されます。第18〜19章のボンゴ先生モデルを、友だちに試してもらうのにぴったりです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!pip install -q gradio</span>
+<span class="kw">import</span> gradio <span class="kw">as</span> gr
+<span class="kw">from</span> transformers <span class="kw">import</span> pipeline
+
+bot = pipeline(<span class="st">&quot;text-generation&quot;</span>, model=<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>, device_map=<span class="st">&quot;auto&quot;</span>)
+
+<span class="kw">def</span> <span class="fn">text_of</span>(content):
+    <span class="kw">if</span> <span class="bi">isinstance</span>(content, <span class="bi">list</span>):          <span class="cm"># 新しいGradioでは、文字以外の部品のリストのこともある</span>
+        <span class="kw">return</span> <span class="st">&quot;&quot;</span>.join(c.get(<span class="st">&quot;text&quot;</span>, <span class="st">&quot;&quot;</span>) <span class="kw">for</span> c <span class="kw">in</span> content <span class="kw">if</span> <span class="bi">isinstance</span>(c, <span class="bi">dict</span>))
+    <span class="kw">return</span> content
+
+<span class="kw">def</span> <span class="fn">reply</span>(message, history):
+    messages = [{<span class="st">&quot;role&quot;</span>: h[<span class="st">&quot;role&quot;</span>], <span class="st">&quot;content&quot;</span>: text_of(h[<span class="st">&quot;content&quot;</span>])} <span class="kw">for</span> h <span class="kw">in</span> history]
+    messages.append({<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: text_of(message)})
+    out = bot(messages, max_new_tokens=<span class="nu">200</span>)
+    <span class="kw">return</span> out[<span class="nu">0</span>][<span class="st">&quot;generated_text&quot;</span>][-<span class="nu">1</span>][<span class="st">&quot;content&quot;</span>]
+
+demo = gr.ChatInterface(reply, title=<span class="st">&quot;ボンゴ先生に質問しよう&quot;</span>)
+<span class="bi">print</span>(reply(<span class="st">&quot;こんにちは！&quot;</span>, []))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>こんにちは！何かお手伝いできることはありますか？</code></pre></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabで実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>demo.launch(share=<span class="kw">True</span>)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>* Running on public URL: https://xxxxxxxxxxxxxxxx.gradio.live</code></pre></div>
+<aside class="box box-warn"><p class="box-title">つまずき注意：Gradioの版の違い</p><p>Gradioは版によって書き方が少しずつ変わります。古い解説記事に <code>gr.ChatInterface(…, type=&quot;messages&quot;)</code> と書いてあっても、新しい版（6系）ではこの引数がなくなっていて、エラーになります。エラーが出たら、まずGradioの版（<code>print(gr.__version__)</code>）と、公式ドキュメントを確認しましょう。</p>
+</aside>
+
+<p><code>model=</code> の部分を、第18章で保存したフォルダ（<code>/content/drive/MyDrive/tsukuru-llm/bongo-sft</code>）に変えれば、あなたのボンゴ先生が公開されます。Colabのセッションが切れると、URLも使えなくなります。</p>
+<h3>自分のパソコンで動かす：Ollama</h3>
+<p><strong>Ollama</strong>（オラマ）は、LLMを自分のパソコンで簡単に動かせる無料のアプリです。<a href="https://ollama.com/">https://ollama.com/</a> からインストールして、ターミナルで次を実行するだけで、Qwen2.5-0.5Bと会話できます（初回はダウンロードに時間がかかります）。</p>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>ollama run qwen2.5:0.5b</code></pre></div>
+<p>インターネットにつながっていなくても動き、入力した内容が外に送られることもありません。少し性能の良いパソコンなら、<code>qwen2.5:7b</code> なども動きます。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：GGUFと、量子化の名前</p><p>OllamaやLM Studioなどのアプリは、<strong>GGUF</strong> という形式のモデルファイルを使います。llama.cpp というC++で書かれた高速な推論プログラムのための形式で、量子化した重みをまとめて1つのファイルにしたものです。</p>
+<p>ファイル名についている <code>Q4_K_M</code> や <code>Q8_0</code> は、量子化の方法の名前です。<code>Q4</code> は約4ビット、<code>Q8</code> は約8ビット。数字が小さいほどファイルは小さく、性能は少し下がります。迷ったら <code>Q4_K_M</code> がよく使われる、バランスの良い選択です。第19章で手計算した量子化が、ここで使われているわけです。</p>
+</aside>
+
+<h3>Hugging Faceで共有する</h3>
+<p>学習したモデルや<a class="term" href="f-glossary.html#t-e0dc3e0f" data-tip="本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。">LoRA</a>のアダプタは、Hugging Faceにアップロードして共有できます（第18章の「もっと深く」）。アプリを公開する <strong>Spaces</strong> は、2026年10月時点で、無料アカウントでは種類が限られています（CPUで動くGradioアプリの新規作成には有料プランが必要で、無料では「Zero<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>」を使うSpaceが2つまで、または<strong>静的なHTMLのSpace</strong>が使えます）。静的なSpaceなら、この章で作ったページ（3つのファイル）をそのまま置いて公開することもできます。サービスの条件はよく変わるので、使う前に公式ドキュメントで確認しましょう。</p>
+<h2 id="s7">公開前のチェックリスト</h2>
+<aside class="box box-warn"><p class="box-title">つまずき注意：公開する前に確かめること</p><ol>
+<li><strong><a class="term" href="f-glossary.html#t-75f66535" data-tip="モデルやデータの利用条件。">ライセンス</a></strong>：元のモデル（Qwen2.5はApache 2.0）と、学習データのライセンスを守っているか。<a class="term" href="f-glossary.html#t-2dd77d71" data-tip="モデルの説明書。目的・データ・ライセンス・使い方が書いてある。">モデルカード</a>やページに書いたか</li>
+<li><strong>秘密の情報</strong>：トークン、パスワード、個人情報が、コードやデータに入っていないか</li>
+<li><strong>出力の注意書き</strong>：「AIが生成した文章で、内容が正しいとは限りません」と書いたか</li>
+<li><strong>悪用の可能性</strong>：誰かを傷つける文章を簡単に作れてしまわないか</li>
+<li><strong>お金</strong>：クレジットカードの登録が必要なサービスを、知らないうちに使っていないか（0円の原則）</li>
+</ol>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：自分のページをデザインしよう</p><p><code>index.html</code> のCSSを書き換えて、自分だけのデザインにしましょう。和紙風の背景、縦書き（<code>writing-mode: vertical-rl</code>）、温度のスライダー（<code>&lt;input type=&quot;range&quot;&gt;</code>）、生成した文章をX（旧Twitter）で共有するボタン……。HTMLとCSSの腕の見せどころです。完成したら、URLを第26章の卒業制作のポートフォリオに載せましょう。</p>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：ブラウザで動かす利点</p><p>LLMをサーバーではなく、見る人のブラウザの中で動かすと、どんな利点がある？ 欠点は？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>利点：サーバー代がかからない、入力した内容が外部に送信されない、一度読み込めばオフラインでも動く。欠点：モデルのダウンロードと計算が見る人の端末の負担になるので、大きなモデルには向かない。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：file:// で動かない理由</p><p><code>index.html</code> をダブルクリックで開くと、モデルが読み込めないのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>ブラウザの安全のための制限で、<code>file://</code> で開いたページからは、<code>fetch</code> で別のファイルを読み込めないからです。<code>python -m http.server</code> などで簡単なWebサーバーを立てて、<code>http://localhost</code> で開く必要があります。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="24-deploy:0"> <span>第13章のモデルを、8ビットに量子化してJSONに書き出した</span></label></li><li><label><input type="checkbox" data-check="24-deploy:1"> <span><code>minigpt.js</code> の主な関数が、Pythonのどの部品に対応するか説明できる</span></label></li><li><label><input type="checkbox" data-check="24-deploy:2"> <span>手元のWebサーバーで、自分の漱石GPTを動かした</span></label></li><li><label><input type="checkbox" data-check="24-deploy:3"> <span>GitHub Pagesで公開し、スマートフォンからも開けた</span></label></li><li><label><input type="checkbox" data-check="24-deploy:4"> <span>Gradio・Ollama・Hugging Faceの使い分けを説明できる</span></label></li><li><label><input type="checkbox" data-check="24-deploy:5"> <span>公開前のチェックリストを確認した</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>推論は掛け算と足し算の組み合わせなので、<strong>どの言語でも</strong>書ける。JavaScriptならブラウザで動く</li>
+<li>ブラウザで動かすと、<strong>サーバー代0円</strong>・<strong>入力が外に出ない</strong></li>
+<li>重みは<strong>量子化</strong>して<strong>base64</strong>でJSONに入れ、<code>minigpt.js</code> で読み込む</li>
+<li><strong>GitHub Pages</strong>で無料公開。大きめのモデルは <strong>Gradio</strong>（一時公開）や <strong>Ollama</strong>（ローカル）で</li>
+<li>公開前に、ライセンス・秘密情報・注意書き・悪用・お金をチェック</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>第6部、完走だ！ キミのLLMは、もう世界のどこからでも動かせる。残るは第7部、研究の入口だ。最新のLLMが使っている部品（RoPE、RMSNorm、SwiGLU、MoE）を、キミのGPTに移植して、本当に良くなるのかを<strong>実験で確かめる</strong>。そして最後に、卒業制作と、2030年までの地図を描こう。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="24-deploy">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="23-agents.html"><small>← 前の章</small>道具を使わせる：エージェント</a><a class="next" href="25-modern.html"><small>次の章 →</small>最新LLMの部品を移植する</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">全体の流れ</a><a href="#s2">手順1：モデルをJSONに書き出す（Colab）</a><a href="#s3">手順2：Webページを作る（パソコン）</a><a href="#s4">手順3：手元で動作確認する</a><a href="#s5">手順4：GitHub Pagesで世界に公開する</a><a href="#s6">そのほかの公開・共有の方法</a><a href="#s7">公開前のチェックリスト</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

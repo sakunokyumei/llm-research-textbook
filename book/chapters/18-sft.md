@@ -101,7 +101,7 @@ print("学習する部分　：", repr(tok.decode([l for l in ex["labels"] if l 
 ```
 
 ```output
-トークン数： 98  うち学習する部分： 68
+トークン数： 114  うち学習する部分： 78
 学習しない部分： '<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\n空はなぜ青いの？<|im_end|>\n<|im_start|>assistant\n'
 学習する部分　： 'いい質問だ！太陽の光が空気の分子にぶつかると、波長の短い青い光ほど四方八方に散らばるんだ。これをレイリー散乱という。空いっぱいに散った青が、キミの目に届いているわけさ。散乱だけに、さんざん考えた答えだよ！<|im_end|>\n'
 ```
@@ -131,7 +131,7 @@ print({k: tuple(v.shape) for k, v in batch.items()})
 ```
 
 ```output
-{'input_ids': (4, 98), 'labels': (4, 98), 'attention_mask': (4, 98)}
+{'input_ids': (4, 114), 'labels': (4, 114), 'attention_mask': (4, 114)}
 ```
 
 :::theory アテンションマスク
@@ -247,10 +247,10 @@ print("学習した部分のトークン数（1件目）：", sum(l != -100 for 
 {'loss': 2.39, 'grad_norm': 18.2, 'learning_rate': 8.9e-06, 'epoch': 0.33}
 ...
 {'train_runtime': 41.2, 'train_loss': 1.62, 'epoch': 3.0}
-学習した部分のトークン数（1件目）： 68
+学習した部分のトークン数（1件目）： 78
 ```
 
-`prompt`（質問）と `completion`（答え）に分けたデータを渡すと、TRLが自動で答えの部分だけを学習するように損失マスクを作ってくれます。最後の行で、自分で作ったとき（68トークン）と同じ部分だけを学習していることが確かめられます。
+`prompt`（質問）と `completion`（答え）に分けたデータを渡すと、TRLが自動で答えの部分だけを学習するように損失マスクを作ってくれます。最後の行で、自分で作ったとき（78トークン）と同じ部分だけを学習していることが確かめられます。
 
 :::warn T4では bf16=False に
 TRLは、GPUが対応していれば自動で `bf16`（第13章のbfloat16）を使おうとします。T4はbfloat16に対応していないので、`bf16=False, fp16=True` を明示しないと、エラーになったり遅くなったりします。上のコードでは、GPUがあるときだけ `fp16=True` にしています。

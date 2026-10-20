@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>26-capstone | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>卒業制作と、2030年への地図 | つくってわかるLLM</title><meta name="description" content="自分の問いを立て、実験し、誠実に報告する。そして、その先へ">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,346 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" open><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" aria-current="page" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第7部 研究の入口へ · 第26章</p><h1>26-capstone</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="26-capstone">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="25-modern.html"><small>← 前の章</small>25-modern</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" open><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" aria-current="page" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第7部 研究の入口へ · 第26章</p><h1>卒業制作と、2030年への地図</h1><p class="sub">自分の問いを立て、実験し、誠実に報告する。そして、その先へ</p><dl class="meta"><div><dt>目安</dt><dd>数週間（自分のペースで）</dd></div><div><dt>環境</dt><dd>Colab・ローカルどちらでも</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/26-capstone.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/26-capstone.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>自分で決めたテーマの卒業制作（問い・実験・結果・考察・公開）と、2030年の卒業までの学びの計画</p></div><div><h3>ついでに身につく理論</h3><ul><li>研究の進め方（問い→仮説→実験計画→記録→結論）</li><li>再現性（シード・版・設定の記録）</li><li>論文の読み方（3回読み）と、読む順番</li><li>AIを作る人の倫理</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>importlib.metadata</code> で道具の版を記録する</li><li><code>json</code> で実験の設定を保存する</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>ここまでの26章で、あなたは<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>を動かし、ゼロから作り、鍛え、測り、システムにして、公開しました。最後の章では、<strong>自分で問いを立てて、自分の答えを出す</strong>卒業制作に取り組みます。そして、2030年の卒業までの4年間を、どう使うかの地図を描きます。</p>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>キミが最初の章で書いたのは <code>print(&quot;こんにちは、LLM！&quot;)</code> だった。今のキミは、<a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a>を一行ずつ書けて、GPT-2の重みを読み込めて、DPOの損失を式から実装できて、それをWebページで世界に公開できる。半年前のキミに見せたら、たぶん信じないだろうね。</p>
+</div></div>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>正直、自分でも信じられません。でも、まだ分からないところもたくさんあります。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>それでいい。研究者というのは、分からないことの一覧を、一番たくさん持っている人のことだ。その一覧こそが、キミの卒業制作のテーマの宝箱なんだよ。</p>
+</div></div>
+
+<h2 id="s1">振り返り：あなたが作ったもの</h2>
+<table>
+<thead>
+<tr>
+<th>部</th>
+<th>作ったもの</th>
+<th>身についた理論</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1部</td>
+<td>LLMとの会話、<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>観察器、自作の生成ループ</td>
+<td>次トークン予測、UTF-8、<a class="term" href="f-glossary.html#t-2e556010" data-tip="点数を、正で合計1の確率に変える関数。各点数をexpしてから合計で割る。">softmax</a>、温度</td>
+</tr>
+<tr>
+<td>第2部</td>
+<td><a class="term" href="f-glossary.html#t-e383e21d" data-tip="直前の1文字（1トークン）だけを見て次を予測するモデル。">bigram</a>、損失計算、ニューラルbigram、MLP、学習の診察表</td>
+<td><a class="term" href="f-glossary.html#t-98833b7d" data-tip="Aが起きたときにBが起きる割合。$P(B \mid A)$ と書く。">条件付き確率</a>、対数、行列、微分、勾配降下法、正規化、Adam</td>
+</tr>
+<tr>
+<td>第3部</td>
+<td>Attention、<a class="term" href="f-glossary.html#t-68c170c0" data-tip="AttentionとMLPを、残差接続と正規化で何層も重ねた構造。GPTの「T」。">Transformer</a>、漱石GPT</td>
+<td>内積、QKV、<a class="term" href="f-glossary.html#t-a3f96af9" data-tip="部品の出力を元の入力に足す近道。情報と勾配が通りやすくなる。">残差接続</a>、混合精度、データの量</td>
+</tr>
+<tr>
+<td>第4部</td>
+<td>BPE、GPT-2の読み込み、<a class="term" href="f-glossary.html#t-c7b7c65b" data-tip="過去のトークンのKeyとValueを取っておき、生成を速くする仕組み。">KVキャッシュ</a></td>
+<td>圧縮、重み共有、<a class="term" href="f-glossary.html#t-e34de5fb" data-tip="モデル・データ・計算量を増やすと、損失が予測可能な法則で下がること。">スケーリング則</a>、6ND、分散学習</td>
+</tr>
+<tr>
+<td>第5部</td>
+<td>ボンゴ先生SFT・<a class="term" href="f-glossary.html#t-e0dc3e0f" data-tip="本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。">LoRA</a>・評価レポート</td>
+<td>損失マスク、低ランク、量子化、<a class="term" href="f-glossary.html#t-8565cdd6" data-tip="手元のデータから復元抽出をくり返し、結果のばらつきを調べる方法。">ブートストラップ</a></td>
+</tr>
+<tr>
+<td>第6部</td>
+<td>RAG、DPO、<a class="term" href="f-glossary.html#t-b8d9e324" data-tip="LLMが道具を使いながら、くり返し考えて行動する仕組み。">エージェント</a>、公開したWebページ</td>
+<td><a class="term" href="f-glossary.html#t-0fb1754b" data-tip="2つのベクトルの向きの近さ。正規化したベクトルなら内積。">コサイン類似度</a>、ブラッドリー・テリー、ツール呼び出し</td>
+</tr>
+<tr>
+<td>第7部</td>
+<td>現代版ミニGPT、比較実験</td>
+<td>RoPE、<a class="term" href="f-glossary.html#t-dfd7adc9" data-tip="平均を引かずに、2乗平均の平方根で割る正規化。">RMSNorm</a>、SwiGLU、MoE、アブレーション</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s2">卒業制作のテーマを選ぶ</h2>
+<p>卒業制作は「作品」と「研究」の両方の性格を持つものがおすすめです。つまり、<strong>何かを作り</strong>、それが<strong>どれくらい良いかを測る</strong>。テーマの例を挙げます。気に入ったものを選んでも、組み合わせても、まったく別のものでもかまいません。</p>
+<table>
+<thead>
+<tr>
+<th>テーマの例</th>
+<th>使う章</th>
+<th>計算の重さ</th>
+<th>問いの例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. 別の作家のミニGPT（宮沢賢治、太宰治…）</td>
+<td>4〜13, 24</td>
+<td>軽い（T4で数分）</td>
+<td>作家ごとの「らしさ」は、モデルの<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a>でどれくらい区別できる？</td>
+</tr>
+<tr>
+<td>B. ○○風LoRA（方言、キャラクター）</td>
+<td>18〜20</td>
+<td>中くらい</td>
+<td>何件のデータで、口調はどれくらい変わる？ 知識は忘れる？</td>
+</tr>
+<tr>
+<td>C. 授業ノートに質問できる<a class="term" href="f-glossary.html#t-1879da55" data-tip="関係する資料を検索し、それを読ませてから答えさせる方法。">RAG</a></td>
+<td>21, 20</td>
+<td>軽い</td>
+<td><a class="term" href="f-glossary.html#t-5186add9" data-tip="長い資料を検索用に切り分けた、かたまり。">チャンク</a>の大きさで、検索の正答率はどう変わる？</td>
+</tr>
+<tr>
+<td>D. 小さな部品の<a class="term" href="f-glossary.html#t-45220615" data-tip="部品を1つずつ外したり戻したりして、それぞれの効果を調べる実験。">アブレーション</a></td>
+<td>12, 14, 25</td>
+<td>軽い〜中</td>
+<td><a class="term" href="f-glossary.html#t-008a0f35" data-tip="一番多い隣どうしのペアを合体させる、をくり返してトークンを作る方法。">BPE</a>の語彙の大きさで、1文字あたりの損失はどう変わる？</td>
+</tr>
+<tr>
+<td>E. 基本情報の勉強エージェント</td>
+<td>21〜23</td>
+<td>中くらい</td>
+<td>道具の説明の書き方で、エージェントの成功率はどう変わる？</td>
+</tr>
+<tr>
+<td>F. LLM審査員の偏りを測る</td>
+<td>20</td>
+<td>中くらい</td>
+<td>小さなLLMの審査員には、どんな偏りがある？</td>
+</tr>
+</tbody>
+</table>
+<aside class="box box-tip"><p class="box-title">コツ：テーマ選びの3つのコツ</p><ol>
+<li><strong>小さく</strong>：最初の実験が1時間以内に回るくらいの大きさにする。大きくするのは後でいい</li>
+<li><strong>測れる</strong>：「良くなった」をどう測るかを、最初に決める（第20章）</li>
+<li><strong>好き</strong>：自分が面白いと思えるもの。最後まで続ける力は、結局これ</li>
+</ol>
+</aside>
+
+<h2 id="s3">研究の進め方</h2>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：研究の5ステップ</p><ol>
+<li><strong>問い</strong>：「〜は〜にどう影響するか？」の<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>で、1文で書く</li>
+<li><strong>仮説</strong>：結果を予想して、理由と一緒に書いておく（後で予想と比べるのが大事。第0章の「予想→実行→比べる」）</li>
+<li><strong>実験計画</strong>：比べる相手（ベースライン）、変える条件、測る指標、<a class="term" href="f-glossary.html#t-2fd48a49" data-tip="乱数の種。同じシードなら同じ乱数の列になり、実験を再現できる。">シード</a>の数を決める。<strong>変えるのは1つずつ</strong></li>
+<li><strong>実験と記録</strong>：設定と結果を、全部記録する。うまくいかなかった実験も消さない</li>
+<li><strong>結論</strong>：言えることと、言えないことを分けて書く（第20章の評価レポート）</li>
+</ol>
+</aside>
+
+<p>実験の設定と、使った道具の版を、毎回ファイルに残しておく習慣をつけましょう。半年後の自分（または、あなたの結果を確かめたい誰か）が、同じ実験をくり返せるようにするためです。これを <strong>再現性</strong> と言います。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> json, platform, datetime
+<span class="kw">from</span> importlib.metadata <span class="kw">import</span> version
+
+record = {
+    <span class="st">&quot;date&quot;</span>: datetime.date.today().isoformat(),
+    <span class="st">&quot;question&quot;</span>: <span class="st">&quot;BPEの語彙の大きさで、1文字あたりの損失はどう変わるか&quot;</span>,
+    <span class="st">&quot;config&quot;</span>: {<span class="st">&quot;vocab_size&quot;</span>: <span class="nu">2000</span>, <span class="st">&quot;n_layer&quot;</span>: <span class="nu">2</span>, <span class="st">&quot;n_embd&quot;</span>: <span class="nu">64</span>, <span class="st">&quot;steps&quot;</span>: <span class="nu">1500</span>, <span class="st">&quot;lr&quot;</span>: <span class="nu">3e-3</span>, <span class="st">&quot;seeds&quot;</span>: [<span class="nu">0</span>, <span class="nu">1</span>, <span class="nu">2</span>]},
+    <span class="st">&quot;versions&quot;</span>: {<span class="st">&quot;python&quot;</span>: platform.python_version(), <span class="st">&quot;torch&quot;</span>: version(<span class="st">&quot;torch&quot;</span>), <span class="st">&quot;transformers&quot;</span>: version(<span class="st">&quot;transformers&quot;</span>)},
+    <span class="st">&quot;results&quot;</span>: {},
+}
+<span class="kw">with</span> <span class="bi">open</span>(<span class="st">&quot;experiment_001.json&quot;</span>, <span class="st">&quot;w&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>) <span class="kw">as</span> f:
+    json.dump(record, f, ensure_ascii=<span class="kw">False</span>, indent=<span class="nu">2</span>)
+<span class="bi">print</span>(json.dumps(record[<span class="st">&quot;versions&quot;</span>], ensure_ascii=<span class="kw">False</span>))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>{&quot;python&quot;: &quot;3.12.11&quot;, &quot;torch&quot;: &quot;2.9.0+cu126&quot;, &quot;transformers&quot;: &quot;5.2.0&quot;}</code></pre></div>
+<h3>報告書のひな形</h3>
+<p>卒業制作の報告書は、次の形でまとめると、読む人に伝わりやすくなります。論文と同じ構成です。</p>
+<div class="codeblock code lang-text"><div class="code-head"><span>テキスト</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code># タイトル（何をして、何が分かったかが伝わる一文）
+
+## 1. はじめに
+- 背景：なぜこの問いが面白いのか
+- 問い：〜は〜にどう影響するか？
+- この研究で分かったこと（先に結論を1〜3行で）
+
+## 2. 方法
+- データ：何を、どれだけ、どう分けたか（訓練・検証・テスト）
+- モデル：大きさ、設定、元にしたモデルとライセンス
+- 比べる条件と、ベースライン
+- 評価の方法：指標、シードの数、信頼区間の出し方
+
+## 3. 結果
+- 表とグラフ（平均と、ばらつき・信頼区間）
+- 生成例（良い例だけでなく、失敗例も）
+
+## 4. 考察
+- 結果から言えること、言えないこと
+- 予想と違った点と、その理由の推測
+- 限界（データが少ない、モデルが小さい、など）と、次にやりたいこと
+
+## 5. 公開物
+- コード（GitHub）、モデル、デモのURL</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>「失敗例も載せる」「限界も書く」。ここが一番大事だ。うまくいった例だけを並べるのは、宣伝であって研究じゃない。ファインマンはこれを「積み荷信仰の科学（カーゴ・カルト・サイエンス）」と呼んで戒めた。形だけ科学っぽくても、自分に都合の悪い結果を隠したら、それは科学じゃないとね。</p>
+</div></div>
+
+<h2 id="s4">論文を読む</h2>
+<p>卒業制作でも、その先でも、<strong>論文</strong>はあなたの最強の教科書になります。最新の研究のほとんどは、英語の論文として <strong>arXiv</strong>（アーカイブ、<a href="https://arxiv.org/">https://arxiv.org/</a>）で無料で公開されています。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：3回に分けて読む</p><p>論文を最初から最後まで一度に読もうとすると、たいてい挫折します。3回に分けて読みましょう。</p>
+<ol>
+<li><strong>1回目（10分）</strong>：タイトル・要旨（Abstract）・図と表・結論だけ。「何を主張している論文か」をつかむ</li>
+<li><strong>2回目（1時間）</strong>：本文を通して読む。数式は飛ばしてもいい。分からない用語に印をつける</li>
+<li><strong>3回目（数時間〜）</strong>：大事な論文だけ。数式を追い、できれば<strong>コードを動かして再現</strong>する</li>
+</ol>
+<p>英語が苦手なら、翻訳ツールやLLMに要約を手伝ってもらうのもいいでしょう。ただし、要約が間違っていることもあるので（第21章の<a class="term" href="f-glossary.html#t-41503c62" data-tip="もっともらしいが事実ではない内容を生成してしまう現象。">ハルシネーション</a>）、大事なところは原文の図や数式で確かめます。</p>
+</aside>
+
+<p>この教科書の各章は、次の論文とつながっています。読む順番の目安として、上から順におすすめします。</p>
+<table>
+<thead>
+<tr>
+<th>論文（発表年）</th>
+<th>内容</th>
+<th>関係する章</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attention Is All You Need（2017）</td>
+<td>Transformerの提案</td>
+<td>11〜12</td>
+</tr>
+<tr>
+<td>Language Models are Unsupervised Multitask Learners（2019, GPT-2）</td>
+<td>大規模な<a class="term" href="f-glossary.html#t-601c3a06" data-tip="大量の文章で次のトークン予測を学習させること。ベースモデルができる。">事前学習</a></td>
+<td>13, 15</td>
+</tr>
+<tr>
+<td>Scaling Laws for Neural Language Models（2020）</td>
+<td>スケーリング則</td>
+<td>15</td>
+</tr>
+<tr>
+<td>LoRA: Low-Rank Adaptation of Large Language Models（2021）</td>
+<td>LoRA</td>
+<td>19</td>
+</tr>
+<tr>
+<td>Training Compute-Optimal Large Language Models（2022, Chinchilla）</td>
+<td>データとモデルの釣り合い</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Training language models to follow instructions with human feedback（2022, InstructGPT）</td>
+<td>SFTと<a class="term" href="f-glossary.html#t-805c3ac0" data-tip="人間の好みから学んだ報酬モデルを使って、強化学習でLLMを調整する方法。">RLHF</a></td>
+<td>18, 22</td>
+</tr>
+<tr>
+<td><a class="term" href="f-glossary.html#t-4b0e2d8b" data-tip="考える・行動する・観察する、をくり返して問題を解く方法。">ReAct</a>（2022）</td>
+<td>考える＋行動するエージェント</td>
+<td>23</td>
+</tr>
+<tr>
+<td><a class="term" href="f-glossary.html#t-b8be5773" data-tip="GPUの高速なメモリだけで計算する、速くてメモリに優しいAttention。">FlashAttention</a>（2022）</td>
+<td>速いAttention</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Direct Preference Optimization（2023, <a class="term" href="f-glossary.html#t-ef51589e" data-tip="報酬モデルを使わず、好みのペアから直接LLMを学習させる方法。">DPO</a>）</td>
+<td><a class="term" href="f-glossary.html#t-157b881b" data-tip="答えに、人間の好みに沿った点数をつけるモデル。">報酬モデル</a>なしの好みの学習</td>
+<td>22</td>
+</tr>
+<tr>
+<td><a class="term" href="f-glossary.html#t-fc10ebaa" data-tip="4ビットに量子化した本体に、LoRAを付けて学習する方法。">QLoRA</a>（2023）</td>
+<td>4ビット＋LoRA</td>
+<td>19</td>
+</tr>
+<tr>
+<td>RoFormer（2021, <a class="term" href="f-glossary.html#t-60dbb2fe" data-tip="QueryとKeyを位置に応じて回転させ、相対位置を表す方法。">RoPE</a>）</td>
+<td>回転位置<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>Retrieval-Augmented Generation（2020）</td>
+<td>RAG</td>
+<td>21</td>
+</tr>
+</tbody>
+</table>
+<p>詳しい出典は<a href="j-references.html">付録J 参考文献</a>にまとめてあります。</p>
+<h2 id="s5">2030年への地図</h2>
+<p>あなたは2026年に入学して、2030年に卒業する予定です。この教科書を半年〜1年で終えたとすると、まだ3年以上あります。その時間を、どう使いましょう？ ひとつの例として、地図を描いてみます。</p>
+<table>
+<thead>
+<tr>
+<th>時期</th>
+<th>技術</th>
+<th>資格・実績</th>
+<th>発信</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026年度（1年）</td>
+<td>この教科書を完走。Python・Linux・Gitに慣れる</td>
+<td>基本情報技術者</td>
+<td>GitHubに教科書のコードと公開ページを置く</td>
+</tr>
+<tr>
+<td>2027年度（2年）</td>
+<td>論文を月1本読み、1本を再現する。Kaggleのコンペに初参加</td>
+<td>応用情報技術者（AI関連の資格も興味があれば）</td>
+<td>学んだことを技術ブログに書く</td>
+</tr>
+<tr>
+<td>2028年度（3年）</td>
+<td>インターンで実務を経験。OSS（transformersなど）の小さな修正に挑戦</td>
+<td>Kaggleでメダルを目指す</td>
+<td>勉強会やLT（短い発表）で話す</td>
+</tr>
+<tr>
+<td>2029年度（4年）</td>
+<td>卒業研究。小さくても、自分の問いに自分の実験で答える</td>
+<td>—</td>
+<td>研究をまとめて公開（学会の学生向けの場や、論文として）</td>
+</tr>
+</tbody>
+</table>
+<aside class="box box-tip"><p class="box-title">コツ：地図はあくまで例</p><p>この地図どおりに進む必要はまったくありません。寄り道や回り道が、一番の財産になることも多いのです。ただ、「いつか」ではなく「いつまでに」を決めておくと、人は意外と進めます。手帳かスマホのカレンダーに、最初の一歩（例：「来月、論文を1本読む」）だけでも書いておきましょう。</p>
+</aside>
+
+<aside class="box box-free"><p class="box-title">0円のコツ：0円で学び続けるために</p><ul>
+<li><strong>論文</strong>：arXivは無料。Hugging Faceの「Papers」ページでは、話題の論文がまとまって見られます</li>
+<li><strong>計算</strong>：Colab・Kaggleの無料<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>。大きな実験は、量子化とLoRAで小さくする（第19章）</li>
+<li><strong>仲間</strong>：Kaggleのディスカッション、勉強会（connpassなどで探せます）、学校の友だち</li>
+<li><strong>教材</strong>：Stanford CS336（LLMを作る講義、資料が公開されている）、Andrej Karpathyの「Neural Networks: Zero to Hero」（動画）、Hugging Face LLM Course など。この教科書を終えたあなたなら、英語の教材も十分に読めるはずです</li>
+</ul>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>4年後の自分なんて想像もつかないけど……地図があると、ちょっと安心しますね。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>地図は、道に迷ったときに見るものだ。ずっとにらめっこしている必要はない。迷ったら「今どこにいて、次の一歩は何か」だけ確かめればいい。<a class="term" href="f-glossary.html#t-eae120b7" data-tip="勾配と逆向きに少しずつパラメータを動かして、損失を下げる方法。">勾配降下法</a>と同じさ。遠くの谷底は見えなくても、足元の傾きは分かる。</p>
+</div></div>
+
+<h2 id="s6">AIを作る人として</h2>
+<p>最後に、少しだけ真面目な話をさせてください。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：AIを作る人の倫理</p><p>LLMは、とても強力な道具です。だからこそ、作る人には責任があります。</p>
+<ul>
+<li><strong>データの権利</strong>：学習に使う文章や画像には、書いた人・作った人がいます。<a class="term" href="f-glossary.html#t-75f66535" data-tip="モデルやデータの利用条件。">ライセンス</a>や利用規約を確かめ、権利を尊重する</li>
+<li><strong>プライバシー</strong>：個人情報を学習させない、漏らさない</li>
+<li><strong>公平さ</strong>：データの偏りは、モデルの偏りになる。特定の人たちに不利な出力をしないか、確かめる</li>
+<li><strong>正直さ</strong>：性能を盛らない。失敗も限界も書く（この章の報告書）</li>
+<li><strong>安全</strong>：悪用されたときに何が起きるかを考える。エージェントには最小限の権限を（第23章）</li>
+<li><strong>環境</strong>：大きな学習は大量の電気を使う。必要以上に大きくしない、小さく試してから大きく</li>
+</ul>
+<p>技術は中立ではありません。それを使う人、作る人の判断で、良くも悪くもなります。この教科書で身につけた「自分の手で確かめる」力は、AIを<strong>正しく疑い、正しく使う</strong>力でもあります。</p>
+</aside>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="26-capstone:0"> <span>卒業制作のテーマを1つ決めた</span></label></li><li><label><input type="checkbox" data-check="26-capstone:1"> <span>問い・仮説・ベースライン・指標を、1ページに書いた</span></label></li><li><label><input type="checkbox" data-check="26-capstone:2"> <span>実験の設定と版を記録する仕組みを作った</span></label></li><li><label><input type="checkbox" data-check="26-capstone:3"> <span>最初の実験を回した（うまくいかなくてもOK）</span></label></li><li><label><input type="checkbox" data-check="26-capstone:4"> <span>論文を1本、3回読みの1回目だけでも読んだ</span></label></li><li><label><input type="checkbox" data-check="26-capstone:5"> <span>2030年までの地図に、最初の一歩を書き込んだ</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>卒業制作は「作る」＋「測る」。小さく、測れて、好きなテーマを</li>
+<li>研究は、問い → 仮説 → 実験計画 → 記録 → 結論（言えること・言えないこと）</li>
+<li><strong>再現性</strong>のために、設定・シード・版を記録する</li>
+<li>論文は3回に分けて読む。大事な論文はコードで再現する</li>
+<li>AIを作る人には、データ・プライバシー・公平さ・正直さ・安全・環境への責任がある</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>卒業おめでとう！ 🥁ドコドコドコドコ、ドン！</p>
+<p>この教科書の最初に、私は「プールに飛び込もう」と言った。キミは飛び込んで、水を飲んで、息つぎを覚えて、今は自分の力で泳いでいる。ここから先の海は、どこまでも広い。でも、泳ぎ方はもう知っている。分からないことがあったら、小さく試して、確かめればいい。</p>
+<p>やってみればわかる。いつだって、それが答えだ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="26-capstone">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="25-modern.html"><small>← 前の章</small>最新LLMの部品を移植する</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">振り返り：あなたが作ったもの</a><a href="#s2">卒業制作のテーマを選ぶ</a><a href="#s3">研究の進め方</a><a href="#s4">論文を読む</a><a href="#s5">2030年への地図</a><a href="#s6">AIを作る人として</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

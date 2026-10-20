@@ -44,7 +44,7 @@ def prepare(cell, full=False):
     for hub, local in HF_IDS.items():
         code = code.replace(f'"{hub}"', f'"{local}"').replace(f"'{hub}'", f"'{local}'")
     # gpu-only: needs CUDA; online: needs the Hugging Face Hub API (both skipped by the CPU sandbox)
-    return {"code": code, "skip": "gpu-only" in cell["flags"] or "online" in cell["flags"]}
+    return {"code": code, "skip": bool({"gpu-only", "online", "colab-only"} & set(cell["flags"]))}
 
 
 def normalize(text):

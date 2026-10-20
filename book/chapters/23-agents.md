@@ -86,6 +86,11 @@ print(calculator("123*456"), calculator("(3+4)/2"), calculator("__import__('os')
 56088 3.5 エラー：数字と + - * / ** ( ) 以外は使えません
 ```
 
+:::python try と isinstance
+`try:` の中でエラーが起きると、プログラムを止める代わりに `except` の中が実行されます。`except Exception as e:` は「どんなエラーでも受け止めて、その内容を `e` に入れる」という意味です。電卓に変な式が渡されても、エージェント全体が止まらずに「エラー：…」という結果を返せるようにしています。<br>
+`isinstance(node, ast.Constant)` は「`node` は数字や文字などの定数か？」を確かめる関数です（第12章）。式の木の、部品の種類ごとに処理を分けています。
+:::
+
 :::warn eval を使わない理由
 Pythonには、文字列をそのままプログラムとして実行する `eval` という関数があります。電卓なら `eval("123*456")` で済みそうですが、**LLMの出力を `eval` してはいけません**。LLMが（あるいは、LLMをだました誰かが）`__import__('os').system('…')` のような文字列を書けば、あなたのコンピュータで好きな命令が実行されてしまいます。上の `calculator` は、式を構文の木（`ast`）に分解し、数字と四則演算だけを許可しているので、そうした攻撃を受け付けません。**道具は、できることを最小限にして作る**。これがエージェントの安全の基本です。
 :::
@@ -126,7 +131,6 @@ For each function call, return a json object with function name and arguments wi
 <|im_start|>user
 123×456はいくつ？<|im_end|>
 <|im_start|>assistant
-
 ```
 
 :::theory ツール呼び出しの正体
