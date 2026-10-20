@@ -140,7 +140,7 @@ lr = 50
 history = []
 
 for step in range(3001):
-    ix = torch.randint(0, len(xs), (1024,), generator=g)   # ランダムに1024問選ぶ
+    ix = torch.randint(0, len(xs), (1024,), generator=g)   # ランダムに1024問選ぶ（(1024,) は形の指定。要素1つでもカンマが必要）
     loss = F.cross_entropy(W[xs[ix]], ys[ix])               # ① 損失
     W.grad = None                                            # （勾配をリセット）
     loss.backward()                                          # ② 勾配
@@ -298,7 +298,7 @@ print("".join(out))
 - **`RuntimeError: element 0 of tensors does not require grad`**：`W` を作るときに `requires_grad=True` を付け忘れています。
 - **`RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.`**：更新の行（`W -= lr * W.grad`）が `with torch.no_grad():` の中に入っていません（字下げを確認）。
 - **損失がほとんど下がらない**：学習率が小さすぎるか、勾配のリセット（`W.grad = None`）の位置がずれています。上のコードと1行ずつ見比べましょう。
-- **とても遅い**：検証損失の計算（`W[vxs]`）は重いので、毎ステップではなく250ステップごとにしています。Colabのランタイムを「T4 GPU」にして、テンソルを `.to("cuda")` で送ると速くなります（第13章で本格的にやります）。
+- **とても遅い**：検証損失の計算（`W[vxs]`）は重いので、毎ステップではなく250ステップごとにしています。Colabのランタイムを「T4 GPU」にして、`W` を作る行を `W = torch.zeros((V, V), requires_grad=True, device="cuda")` に変え、`xs, ys, vxs, vys` もそれぞれ `xs = xs.to("cuda")` のようにGPUへ送ると速くなります。`W` は、作った後から `.to("cuda")` すると「学習するパラメータ」ではなくなり、`W.grad` が `None` のままになるので、作るときに `device=` で指定するのがコツです（第13章で本格的にやります）。
 :::
 
 :::quiz 初期の損失

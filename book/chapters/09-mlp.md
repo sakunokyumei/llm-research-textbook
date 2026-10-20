@@ -53,7 +53,7 @@ T = 8   # 窓の大きさ（何文字前まで見るか）
 
 def get_batch(data, batch_size, g):
     ix = torch.randint(0, len(data) - T, (batch_size,), generator=g)  # 窓の開始位置をランダムに
-    x = torch.stack([data[i:i + T] for i in ix])     # 入力：8文字
+    x = torch.stack([data[i:i + T] for i in ix])     # 入力：8文字（stack は、同じ形のテンソルを積み重ねて1つにする）
     y = data[ix + T]                                 # 正解：その次の1文字
     return x, y
 
@@ -284,7 +284,7 @@ CPUで2分ほどかかります。コーヒーでも淹れてきてください�
 
 :::python オプティマイザ
 `optimizer.zero_grad()` → `loss.backward()` → `optimizer.step()` の3行は、第7章で手で書いた「勾配を0に → 勾配を計算 → `w -= lr * w.grad`」と同じことをしています。`torch.optim.SGD` は、モデルの全パラメータについて、まとめて `w -= lr * w.grad` をやってくれる係です。<br>
-`@torch.no_grad()` を関数の上に付けると、その関数の中身全体が `with torch.no_grad():` の中にあるのと同じになります。
+`@torch.no_grad()` を関数の上に付けると、その関数の中身全体が `with torch.no_grad():` の中にあるのと同じになります（関数の上に置く `@` は **デコレータ** という印で、第6章の行列の掛け算の `@` とは別物です）。
 :::
 
 ## 記録表を更新

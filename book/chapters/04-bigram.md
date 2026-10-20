@@ -257,7 +257,7 @@ for a, b in zip(text, text[1:]):      # 隣り合う2文字 a, b を順番に
 
 def generate(start, n=80):
     out = start
-    ch = start
+    ch = start[-1]                    # 書き出しの最後の1文字から続ける
     for _ in range(n):
         c = following[ch]
         ch = random.choices(list(c.keys()), weights=list(c.values()))[0]
@@ -290,7 +290,7 @@ print(generate("私"))
 :::theory マルコフ性と n-gram
 bigramモデルは「次の文字は、**直前の1文字だけ**で決まる」と仮定しています。この「直前だけを見る」性質を **マルコフ性** と言います（「マルコフ連鎖」という名前を聞いたことがあるかもしれません）。
 
-もっと前まで見れば、もっと自然になるはずです。直前2文字なら **trigram**（トライグラム）、一般に直前 $n-1$ 文字を見るモデルを **n-gram** モデルと呼びます。20年ほど前まで、機械翻訳や音声認識の中心はこのn-gramモデルでした。
+もっと前まで見れば、もっと自然になるはずです。直前2文字なら **trigram**（トライグラム）、一般に直前 $n-1$ 文字を見るモデルを **n-gram** モデルと呼びます。2010年代の半ばごろまで、機械翻訳や音声認識の中心はこのn-gramモデルでした。
 :::
 
 では、直前2文字を見るtrigramを作ってみましょう。
@@ -306,9 +306,9 @@ for a, b, c in zip(text, text[1:], text[2:]):
 def generate3(start, n=80):
     out = start
     for _ in range(n):
-        c = following3.get(out[-2:])
-        if c is None:
-            break
+        c = following3.get(out[-2:])  # 最後の2文字の「次の文字の回数」。辞書になければ None
+        if c is None:                 # 続きが見つからなければ
+            break                     #   ループを途中で抜けて終わり
         out += random.choices(list(c.keys()), weights=list(c.values()))[0]
     return out
 
@@ -362,7 +362,7 @@ for a in look:
 :::warn よくあるつまずき
 - **`UnicodeDecodeError`**：`decode("utf-8")` のままになっていませんか？ 青空文庫は `decode("cp932")` です。
 - **`IndexError: list index out of range`**（`split(…)[2]` の行）：ダウンロードしたファイルが本文ではなく、エラーページになっている可能性があります。`print(text[:300])` で中身を確認し、URLを見直しましょう。
-- **`KeyError`**（`following[ch]` の行）：書き出しに『こころ』に出てこない文字を使うと起きます。「私」「先」など、本文にある文字で始めましょう。
+- **`KeyError`**（`following[ch]` の行）：書き出しの**最後の文字**が『こころ』に出てこない文字だと起きます。「私」「先生」など、本文にある文字で終わる書き出しにしましょう。
 :::
 
 :::quiz 条件付き確率
