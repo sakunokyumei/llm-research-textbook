@@ -1,18 +1,575 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>11-attention | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>注目する仕組み：Self-Attention | つくってわかるLLM</title><meta name="description" content="どの文字に注目するかを、文字どうしが話し合って決める">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script></head>
+<script src="app.js" defer></script><script src="widgets.js" defer></script></head>
 <body data-page="11-attention"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" open><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" aria-current="page" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第3部 Transformerを組み立てる · 第11章</p><h1>11-attention</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="11-attention">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="10-training-tips.html"><small>← 前の章</small>学習のお医者さん：うまく学習させる技</a><a class="next" href="12-transformer.html"><small>次の章 →</small>12-transformer</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" open><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" aria-current="page" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第3部 Transformerを組み立てる · 第11章</p><h1>注目する仕組み：Self-Attention</h1><p class="sub">どの文字に注目するかを、文字どうしが話し合って決める</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/11-attention.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/11-attention.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>GPTの心臓部 <strong>Self-Attention</strong> を一行ずつ自作し、それだけで動く小さな言語モデルを学習させる</p></div><div><h3>ついでに身につく理論</h3><ul><li>全位置で同時に「次」を予測する学習</li><li>過去の平均を行列の掛け算で一気に計算</li><li>マスク付きsoftmax（未来を見ない）</li><li>内積＝似ている度</li><li>Query・Key・Value</li><li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割る理由（分散の話）</li><li>位置埋め込み（Attentionは順番を知らない）</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>torch.tril</code> と <code>masked_fill</code></li><li><code>transpose</code> で行列の向きを変える</li><li><code>register_buffer</code></li><li>ブロードキャストつきの <code>@</code></li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第9章のMLPは「直前8文字を横一列に並べて」見ていました。でも、この方法では窓を広げるほど<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>が増え、しかも「どの文字が大事か」を場面ごとに変えられません。この章では、<strong>場面に応じて、どの過去の文字に注目するかを自分で決める</strong>仕組み <strong>Self-Attention</strong> を、ゼロから組み立てます。2017年の論文「Attention Is All You Need」で提案され、GPTを含む現代のほぼすべての<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の心臓部になっている仕組みです。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>「注目する」って、人間みたいなことをするんですね。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>「先生は奥さんの顔を見て、彼女に……」の「彼女」が誰か分かるのは、キミが「奥さん」に注目したからだ。直前の「て、」を見ても分からない。どこを見るべきかは、文の内容しだいで変わる。それを、文字たちが自分たちで<strong>話し合って決める</strong>。それがAttentionだ。話し合いの方法は、意外なほど単純だよ。</p>
+</div></div>
+
+<h2 id="s1">準備と、新しい問題の出し方</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> re, math, urllib.request
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">def</span> <span class="fn">load_soseki</span>(file_id=<span class="st">&quot;773_ruby_5968&quot;</span>):
+    url = (<span class="st">&quot;https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/&quot;</span>
+           <span class="st">f&quot;cards/000148/files/{file_id}/{file_id}.txt&quot;</span>)
+    text = urllib.request.urlopen(url).read().decode(<span class="st">&quot;cp932&quot;</span>)
+    text = text.split(<span class="st">&quot;-------------------------------------------------------&quot;</span>)[<span class="nu">2</span>]
+    text = text.split(<span class="st">&quot;底本：&quot;</span>)[<span class="nu">0</span>]
+    text = re.sub(<span class="st">r&quot;《.*?》&quot;</span>, <span class="st">&quot;&quot;</span>, text)
+    text = re.sub(<span class="st">r&quot;※?［＃.*?］&quot;</span>, <span class="st">&quot;&quot;</span>, text)
+    text = text.replace(<span class="st">&quot;｜&quot;</span>, <span class="st">&quot;&quot;</span>).replace(<span class="st">&quot;\r\n&quot;</span>, <span class="st">&quot;\n&quot;</span>)
+    text = re.sub(<span class="st">r&quot;\n{3,}&quot;</span>, <span class="st">&quot;\n\n&quot;</span>, text)
+    <span class="kw">return</span> text.strip()
+
+text = load_soseki()
+chars = <span class="bi">sorted</span>(<span class="bi">set</span>(text))
+V = <span class="bi">len</span>(chars)
+stoi = {ch: i <span class="kw">for</span> i, ch <span class="kw">in</span> <span class="bi">enumerate</span>(chars)}
+itos = {i: ch <span class="kw">for</span> ch, i <span class="kw">in</span> stoi.items()}
+data = torch.tensor([stoi[c] <span class="kw">for</span> c <span class="kw">in</span> text])
+n = <span class="bi">int</span>(<span class="bi">len</span>(data) * <span class="nu">0.9</span>)
+train_data, val_data = data[:n], data[n:]
+
+<span class="kw">def</span> <span class="fn">get_batch</span>(data, batch_size, T, g):
+    ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(data) - T, (batch_size,), generator=g)
+    x = torch.stack([data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> ix])
+    y = torch.stack([data[i + <span class="nu">1</span>:i + T + <span class="nu">1</span>] <span class="kw">for</span> i <span class="kw">in</span> ix])   <span class="cm"># 1文字ずらしたもの</span>
+    <span class="kw">return</span> x, y
+
+g = torch.Generator().manual_seed(<span class="nu">0</span>)
+x, y = get_batch(train_data, <span class="nu">1</span>, <span class="nu">8</span>, g)
+<span class="bi">print</span>(<span class="st">&quot;入力：&quot;</span>, <span class="bi">repr</span>(<span class="st">&quot;&quot;</span>.join(itos[i] <span class="kw">for</span> i <span class="kw">in</span> x[<span class="nu">0</span>].tolist())))
+<span class="bi">print</span>(<span class="st">&quot;正解：&quot;</span>, <span class="bi">repr</span>(<span class="st">&quot;&quot;</span>.join(itos[i] <span class="kw">for</span> i <span class="kw">in</span> y[<span class="nu">0</span>].tolist())))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>入力： &#x27;私の注意を母より&#x27;
+正解： &#x27;の注意を母よりは&#x27;</code></pre></div>
+<p>第9章までと違うところに気づきましたか？ 今回は <strong>正解も8文字</strong> です。入力の8文字それぞれについて、「その次の文字」を予測させます。</p>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>見てよい文字</th>
+<th>予測する文字</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>私</td>
+<td>の</td>
+</tr>
+<tr>
+<td>1</td>
+<td>私の</td>
+<td>注</td>
+</tr>
+<tr>
+<td>2</td>
+<td>私の注</td>
+<td>意</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr>
+<td>7</td>
+<td>私の注意を母より</td>
+<td>は</td>
+</tr>
+</tbody>
+</table>
+<p>1つの窓から8問作れるので、効率がいいのです。ただし大事なルールがあります。<strong>位置 t の予測には、位置 t までの文字しか使ってはいけない</strong>。位置2で「意」を予測するときに、位置3にある「意」そのものを見たら、それはカンニングです。</p>
+<h2 id="s2">ステップ1：過去を「平均」してみる</h2>
+<p>各位置が過去の情報を集める、いちばん簡単な方法は「<strong>自分と、自分より前の全員の<a class="term" href="f-glossary.html#t-d1454ec0" data-tip="全部足して個数で割ったもの。">平均</a>をとる</strong>」ことです。埋め込みの代わりに、でたらめな<a class="term" href="f-glossary.html#t-23179fc5" data-tip="数を1列に並べたもの。">ベクトル</a>で試してみます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+B, T, C = <span class="nu">4</span>, <span class="nu">8</span>, <span class="nu">2</span>            <span class="cm"># 4個の文章、8文字、各文字は2個の数</span>
+x = torch.randn(B, T, C)
+
+xbow = torch.zeros(B, T, C)  <span class="cm"># bow：bag of words（言葉の袋）</span>
+<span class="kw">for</span> b <span class="kw">in</span> <span class="bi">range</span>(B):
+    <span class="kw">for</span> t <span class="kw">in</span> <span class="bi">range</span>(T):
+        xbow[b, t] = x[b, :t + <span class="nu">1</span>].mean(dim=<span class="nu">0</span>)   <span class="cm"># 位置0〜tの平均</span>
+
+<span class="bi">print</span>(x[<span class="nu">0</span>])
+<span class="bi">print</span>(xbow[<span class="nu">0</span>])</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>tensor([[-1.1258, -1.1524],
+        [-0.2506, -0.4339],
+        [ 0.8487,  0.6920],
+        [-0.3160, -2.1152],
+        [ 0.3223, -1.2633],
+        [ 0.3500,  0.3081],
+        [ 0.1198,  1.2377],
+        [ 1.1168, -0.2473]])
+tensor([[-1.1258, -1.1524],
+        [-0.6882, -0.7931],
+        [-0.1759, -0.2981],
+        [-0.2109, -0.7524],
+        [-0.1043, -0.8546],
+        [-0.0286, -0.6608],
+        [-0.0074, -0.3896],
+        [ 0.1331, -0.3718]])</code></pre></div>
+<p><code>xbow</code> の位置1は、<code>x</code> の位置0と1の平均（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mo>−</mo><mn>1.1258</mn><mo>+</mo><mo>−</mo><mn>0.2506</mn><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mn>2</mn><mo>=</mo><mo>−</mo><mn>0.6882</mn></mrow><annotation encoding="application/x-tex">(-1.1258 + -0.2506)/2 = -0.6882</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">−</span><span class="mord">1.1258</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">−</span><span class="mord">0.2506</span><span class="mclose">)</span><span class="mord">/2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">0.6882</span></span></span></span>）になっています。未来の文字は使っていません。</p>
+<h2 id="s3">ステップ2：行列の掛け算で一気に</h2>
+<p>for文が二重になっていて遅そうです。第6章の教えを思い出しましょう。「for文を書いたら負け」。実は、この平均は<strong><a class="term" href="f-glossary.html#t-185e8f94" data-tip="数を表（縦×横）に並べたもの。">行列</a>の掛け算1回</strong>で計算できます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>wei = torch.tril(torch.ones(T, T))        <span class="cm"># 下三角行列（左下だけ1）</span>
+wei = wei / wei.<span class="bi">sum</span>(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>)  <span class="cm"># 各行の合計が1になるように</span>
+<span class="bi">print</span>(wei)
+xbow2 = wei @ x                           <span class="cm"># [T, T] @ [B, T, C] → [B, T, C]</span>
+<span class="bi">print</span>(torch.allclose(xbow, xbow2))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.5000, 0.5000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.3333, 0.3333, 0.3333, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2500, 0.2500, 0.2500, 0.2500, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.0000, 0.0000, 0.0000],
+        [0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.0000, 0.0000],
+        [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.0000],
+        [0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250]])
+True</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：重みつき平均を行列で</p><p><code>wei</code> の各行は「その位置が、どの位置の情報をどれだけの割合で集めるか」を表す<strong>重み</strong>です。行1は「位置0と1を半分ずつ」、行7は「8文字を1/8ずつ」。右上が0なのは「未来は見ない」からです。</p>
+<p>この重みの表 <code>wei</code> と <code>x</code> を掛けると、各位置について「重みつき平均」が一度に計算できます。<code>torch.tril</code>（triangle lower：下三角）は、行列の左下半分だけを残す<a class="term" href="f-glossary.html#t-42e49360" data-tip="手順をひとまとめにして名前をつけたもの。`def` で作る。">関数</a>です。</p>
+<p>さて、ここが大事な発想です。今は重みが<strong>均等</strong>（全員を同じ割合で平均）でした。でも本当は、「彼女」の位置では「奥さん」に大きな重みを、句読点には小さな重みを置きたい。<strong>重みを内容に応じて変えられれば</strong>、賢く情報を集められるはずです。</p>
+</aside>
+
+<h2 id="s4">ステップ3：softmaxで重みを作る</h2>
+<p>重みを自由に決められる形に書き直します。第3章の<a class="term" href="f-glossary.html#t-2e556010" data-tip="点数を、正で合計1の確率に変える関数。各点数をexpしてから合計で割る。">softmax</a>を使います。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>tril = torch.tril(torch.ones(T, T))
+scores = torch.zeros(T, T)                                <span class="cm"># 今はまだ全部0点</span>
+scores = scores.masked_fill(tril == <span class="nu">0</span>, <span class="bi">float</span>(<span class="st">&quot;-inf&quot;</span>))     <span class="cm"># 未来の位置は -∞ 点</span>
+wei = F.softmax(scores, dim=-<span class="nu">1</span>)
+<span class="bi">print</span>(wei[:<span class="nu">3</span>])
+<span class="bi">print</span>(torch.allclose(wei @ x, xbow))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.5000, 0.5000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.3333, 0.3333, 0.3333, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000]])
+True</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：−∞点のマスク</p><p><code>masked_fill(tril == 0, float(&quot;-inf&quot;))</code> は、「下三角の外（未来の位置）の点数を <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">∞</span></span></span></span> にする」操作です。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mo>−</mo><mi mathvariant="normal">∞</mi></mrow></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">e^{-\infty} = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7713em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7713em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">∞</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> なので、softmaxすると未来の位置の重みはぴったり0になります。これを <strong>因果マスク</strong>（causal mask）と言います。カンニング防止の目隠しです。</p>
+<p>点数が全部0なら、softmaxの結果は均等な重み、つまり平均と同じになりました。ここで、<strong>点数（scores）を内容から計算する</strong>ようにすれば、内容に応じた重みが作れます。どうやって点数をつけるか？ ここで「内積」の出番です。</p>
+</aside>
+
+<h2 id="s5">内積：似ている度</h2>
+<aside class="box box-mathbox"><p class="box-title">数学の道具箱：内積</p><p>2つのベクトルの、同じ位置どうしを掛けて全部足したものを <strong>内積</strong>（dot product）と言います。</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="bold-italic">a</mi><mo>⋅</mo><mi mathvariant="bold-italic">b</mi><mo>=</mo><msub><mi>a</mi><mn>1</mn></msub><msub><mi>b</mi><mn>1</mn></msub><mo>+</mo><msub><mi>a</mi><mn>2</mn></msub><msub><mi>b</mi><mn>2</mn></msub><mo>+</mo><mo>⋯</mo><mo>+</mo><msub><mi>a</mi><mi>d</mi></msub><msub><mi>b</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">\boldsymbol{a} \cdot \boldsymbol{b} = a_1 b_1 + a_2 b_2 + \cdots + a_d b_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4445em;"></span><span class="mord"><span class="mord"><span class="mord boldsymbol">a</span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord"><span class="mord"><span class="mord boldsymbol">b</span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="minner">⋯</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></div>
+<p>第6章の行列の掛け算は、実は「行と列の内積」をたくさん計算していたのでした。内積は、2つのベクトルが <strong>同じ方向を向いているほど大きく</strong>なります。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>a = torch.tensor([<span class="nu">1.0</span>, <span class="nu">0.0</span>])
+<span class="bi">print</span>(<span class="st">&quot;同じ向き：&quot;</span>, a @ torch.tensor([<span class="nu">2.0</span>, <span class="nu">0.0</span>]))
+<span class="bi">print</span>(<span class="st">&quot;直角：    &quot;</span>, a @ torch.tensor([<span class="nu">0.0</span>, <span class="nu">2.0</span>]))
+<span class="bi">print</span>(<span class="st">&quot;逆向き：  &quot;</span>, a @ torch.tensor([-<span class="nu">2.0</span>, <span class="nu">0.0</span>]))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>同じ向き： tensor(2.)
+直角：     tensor(0.)
+逆向き：   tensor(-2.)</code></pre></div>
+<p>つまり内積は「どれくらい似ているか（向きがそろっているか）」の点数として使えます。</p>
+</aside>
+
+<h2 id="s6">ステップ4：Query・Key・Value</h2>
+<p>いよいよSelf-Attentionの本体です。各位置（各文字）は、自分のベクトルから3種類のベクトルを作ります。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：図書館で調べものをする</p><p>Attentionは、図書館での調べものに似ています。</p>
+<ul>
+<li><strong>Query（クエリ、質問）</strong>：「私は何を探している？」。各文字が出す検索ワード</li>
+<li><strong>Key（キー、ラベル）</strong>：「私はこういう情報を持っています」。各文字が背表紙に貼るラベル</li>
+<li><strong>Value（バリュー、中身）</strong>：「私を選んでくれたら、これを渡します」。本の中身</li>
+</ul>
+<p>位置 t の文字は、自分のQueryと、過去の各文字のKeyの <strong>内積</strong> を計算します。これが「この本は私の探しものにどれくらい合っているか」の点数です。点数をsoftmaxで重みにして、各文字の <strong>Value</strong> を重みつきで平均したものを受け取ります。</p>
+<p>「彼女」がQueryで「女性の人物を探しています」と問い合わせ、「奥」がKeyで「女性の人物です」と答えれば、内積が大きくなり、「彼女」は「奥」のValueを多く受け取る。そんなイメージです。QueryとKeyとValueを作る変換（行列）は、もちろん <strong>学習で決まります</strong>。</p>
+</aside>
+
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+B, T, C = <span class="nu">4</span>, <span class="nu">8</span>, <span class="nu">32</span>
+x = torch.randn(B, T, C)
+
+head_size = <span class="nu">16</span>
+key = nn.Linear(C, head_size, bias=<span class="kw">False</span>)
+query = nn.Linear(C, head_size, bias=<span class="kw">False</span>)
+value = nn.Linear(C, head_size, bias=<span class="kw">False</span>)
+
+k = key(x)      <span class="cm"># [B, T, 16]</span>
+q = query(x)    <span class="cm"># [B, T, 16]</span>
+scores = q @ k.transpose(-<span class="nu">2</span>, -<span class="nu">1</span>)    <span class="cm"># [B, T, 16] @ [B, 16, T] → [B, T, T]</span>
+scores = scores.masked_fill(tril == <span class="nu">0</span>, <span class="bi">float</span>(<span class="st">&quot;-inf&quot;</span>))
+wei = F.softmax(scores, dim=-<span class="nu">1</span>)
+out = wei @ value(x)                <span class="cm"># [B, T, T] @ [B, T, 16] → [B, T, 16]</span>
+
+<span class="bi">print</span>(scores.shape, wei.shape, out.shape)
+<span class="bi">print</span>(wei[<span class="nu">0</span>].detach().<span class="bi">round</span>(decimals=<span class="nu">2</span>))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>torch.Size([4, 8, 8]) torch.Size([4, 8, 8]) torch.Size([4, 8, 16])
+tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.8800, 0.1200, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.0600, 0.3700, 0.5800, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.1700, 0.4500, 0.0400, 0.3400, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2800, 0.1800, 0.0500, 0.3100, 0.1800, 0.0000, 0.0000, 0.0000],
+        [0.4700, 0.1400, 0.2700, 0.0300, 0.0500, 0.0500, 0.0000, 0.0000],
+        [0.0500, 0.1800, 0.2500, 0.0100, 0.3800, 0.0800, 0.0500, 0.0000],
+        [0.0900, 0.2700, 0.0100, 0.2100, 0.0200, 0.0900, 0.2400, 0.0700]])</code></pre></div>
+<p>重みが<strong>均等ではなくなりました</strong>。位置1は位置0に（0.88）、位置2は自分自身に（0.58）、位置5は位置0に（0.47）、と行ごとに注目する相手が違います。まだ学習していないので注目の仕方はでたらめですが、「内容に応じて重みが変わる」仕組みはこれで完成です。</p>
+<aside class="box box-tip"><p class="box-title">コツ：<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>の早見表（迷ったらここに戻る）</p><p>Attentionで一番迷子になりやすいのは「形」です。B＝文章の数、T＝文字数、C＝<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a>の大きさ、hs＝ヘッドの大きさ、として、</p>
+<table>
+<thead>
+<tr>
+<th>もの</th>
+<th>形</th>
+<th>ひとこと</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>入力 <code>x</code></td>
+<td><code>[B, T, C]</code></td>
+<td>文章ごと・文字ごとのベクトル</td>
+</tr>
+<tr>
+<td><code>q</code>, <code>k</code>, <code>v</code></td>
+<td><code>[B, T, hs]</code></td>
+<td><a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>で小さくした「質問・ラベル・中身」</td>
+</tr>
+<tr>
+<td><code>k.transpose(-2, -1)</code></td>
+<td><code>[B, hs, T]</code></td>
+<td>掛け算のために向きを変えたラベル</td>
+</tr>
+<tr>
+<td><code>scores</code>, <code>wei</code></td>
+<td><code>[B, T, T]</code></td>
+<td>行＝注目する文字、列＝注目される文字</td>
+</tr>
+<tr>
+<td>出力 <code>wei @ v</code></td>
+<td><code>[B, T, hs]</code></td>
+<td>各文字が集めてきた情報</td>
+</tr>
+</tbody>
+</table>
+<p>コードの途中で <code>print(〇〇.shape)</code> を入れて、この表と見比べると、どこで何が起きているかが分かります。</p>
+</aside>
+
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：transpose</p><p><code>k.transpose(-2, -1)</code> は、最後の2つの軸を入れ替えます。<code>[B, T, 16]</code> が <code>[B, 16, T]</code> になり、<code>q @ k.transpose(…)</code> で「全部のQueryと全部のKeyの内積」が <code>[B, T, T]</code> の表として一度に計算できます。行がQuery（注目する側）、列がKey（注目される側）です。<br>
+3次元の<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>どうしの <code>@</code> は、先頭の <code>B</code> の軸ごとに（4つの文章それぞれで）行列の掛け算をしてくれます。<br>
+<code>wei[0].detach()</code> の <code>.detach()</code> は「学習の記録から切り離したコピー」を作ります。<code>query</code> などの学習するパラメータから計算した結果には記録がついているので、表示するときにはずしています。</p>
+</aside>
+
+<div class="widget" data-widget="attention"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
+
+<h2 id="s7">なぜ √d で割るのか</h2>
+<p>実際のAttentionでは、点数を <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span>（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span></span></span></span> はhead_size）で割ります。これを忘れるとどうなるか、実験してみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+<span class="kw">for</span> d <span class="kw">in</span> [<span class="nu">16</span>, <span class="nu">64</span>, <span class="nu">256</span>]:
+    q = torch.randn(<span class="nu">1000</span>, d)
+    k = torch.randn(<span class="nu">1000</span>, d)
+    dots = (q * k).<span class="bi">sum</span>(dim=<span class="nu">1</span>)        <span class="cm"># 1000組の内積</span>
+    <span class="bi">print</span>(<span class="st">f&quot;d={d:3d}：内積の分散 {dots.var():7.2f}   √dで割ると {(dots / math.sqrt(d)).var():.2f}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>d= 16：内積の分散   16.00   √dで割ると 1.00
+d= 64：内積の分散   63.10   √dで割ると 0.99
+d=256：内積の分散  259.85   √dで割ると 1.02</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：点数が大きすぎると、softmaxが尖りすぎる</p><p>平均0・分散1の数を <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span></span></span></span> 個掛けて足すと、内積の分散は約 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi></mrow><annotation encoding="application/x-tex">d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span></span></span></span> になります（第10章で、足す数が増えるとばらつきが膨らむ話をしました）。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">d = 256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">256</span></span></span></span> なら<a class="term" href="f-glossary.html#t-12c41497" data-tip="分散の平方根。ばらつきを元の単位で表したもの。">標準偏差</a>は16。点数の差が大きすぎると、softmaxの結果がほぼ「1位だけ1、残りは0」になってしまいます（第3章の温度が低すぎる状態）。</p>
+<p>そうなると、ほかの位置に注目する可能性が最初から閉ざされ、勾配もほとんど流れなくなります。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割れば分散が約1に戻り、ほどよい<a class="term" href="f-glossary.html#t-d3bea9ef" data-tip="点数を割る数。低いと堅実、高いと冒険的な生成になる。">温度</a>になります。これを <strong>Scaled Dot-Product Attention</strong>（スケールつき内積アテンション）と言い、式で書くとこうなります。</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false">(</mo><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi><mo stretchy="false">)</mo><mo>=</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">x</mi></mrow><mtext> ⁣</mtext><mrow><mo fence="true">(</mo><mfrac><mrow><mi>Q</mi><msup><mi>K</mi><mi mathvariant="normal">⊤</mi></msup></mrow><msqrt><mi>d</mi></msqrt></mfrac><mo fence="true">)</mo></mrow><mi>V</mi></mrow><annotation encoding="application/x-tex">\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d}}\right) V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">Attention</span></span><span class="mopen">(</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.4761em;vertical-align:-0.95em;"></span><span class="mord"><span class="mord mathrm">softmax</span></span><span class="mspace" style="margin-right:-0.1667em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.5261em;"><span style="top:-2.1778em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.93em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span></span></div>
+<p>この式が、論文「Attention Is All You Need」の中心にある式です。あなたはもう、この式のすべての記号を説明できます。</p>
+</aside>
+
+<h2 id="s8">部品にまとめる：Head クラス</h2>
+<p>ここまでを1つの<a class="term" href="f-glossary.html#t-8b27332e" data-tip="Pythonの設計図。PyTorchのモデルは `nn.Module` のクラスで書く。">クラス</a>にまとめます。これが <strong>Attentionヘッド</strong> です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">Head</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, n_embd, head_size, block_size):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.key = nn.Linear(n_embd, head_size, bias=<span class="kw">False</span>)
+        <span class="self">self</span>.query = nn.Linear(n_embd, head_size, bias=<span class="kw">False</span>)
+        <span class="self">self</span>.value = nn.Linear(n_embd, head_size, bias=<span class="kw">False</span>)
+        <span class="self">self</span>.register_buffer(<span class="st">&quot;tril&quot;</span>, torch.tril(torch.ones(block_size, block_size)))
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
+        B, T, C = x.shape
+        k, q, v = <span class="self">self</span>.key(x), <span class="self">self</span>.query(x), <span class="self">self</span>.value(x)
+        scores = q @ k.transpose(-<span class="nu">2</span>, -<span class="nu">1</span>) / math.sqrt(k.shape[-<span class="nu">1</span>])
+        scores = scores.masked_fill(<span class="self">self</span>.tril[:T, :T] == <span class="nu">0</span>, <span class="bi">float</span>(<span class="st">&quot;-inf&quot;</span>))
+        <span class="self">self</span>.wei = F.softmax(scores, dim=-<span class="nu">1</span>)       <span class="cm"># 後で中身を見られるように取っておく</span>
+        <span class="kw">return</span> <span class="self">self</span>.wei @ v</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：register_buffer</p><p><code>register_buffer</code> は「学習しないけれど、モデルの一部として持っておきたいテンソル」を登録する命令です。マスク用の下三角行列 <code>tril</code> は学習で変わる数ではありませんが、モデルと一緒に<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>へ移動してほしいので、こうして登録します。</p>
+</aside>
+
+<p>本当に未来を見ていないか、<strong>カンニング検査</strong>をしてみましょう。入力の最後の文字だけを書き換えて、それより前の位置の出力が変わらないことを確かめます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
+head = Head(n_embd=<span class="nu">32</span>, head_size=<span class="nu">16</span>, block_size=<span class="nu">8</span>)
+x1 = torch.randn(<span class="nu">1</span>, <span class="nu">8</span>, <span class="nu">32</span>)
+x2 = x1.clone()
+x2[<span class="nu">0</span>, <span class="nu">7</span>] = torch.randn(<span class="nu">32</span>)            <span class="cm"># 位置7（最後）だけ書き換える</span>
+
+out1, out2 = head(x1), head(x2)
+<span class="bi">print</span>(<span class="st">&quot;位置0〜6の出力は同じ？&quot;</span>, torch.allclose(out1[<span class="nu">0</span>, :<span class="nu">7</span>], out2[<span class="nu">0</span>, :<span class="nu">7</span>]))
+<span class="bi">print</span>(<span class="st">&quot;位置7の出力は同じ？  &quot;</span>, torch.allclose(out1[<span class="nu">0</span>, <span class="nu">7</span>], out2[<span class="nu">0</span>, <span class="nu">7</span>]))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>位置0〜6の出力は同じ？ True
+位置7の出力は同じ？   False</code></pre></div>
+<p>未来（位置7）を変えても、過去（位置0〜6）の出力はまったく変わりません。カンニングしていない証拠です。</p>
+<h2 id="s9">Attentionだけで言語モデルを作る</h2>
+<p>Headを1つだけ使って、言語モデルを作ってみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">OneHeadLM</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, V, block_size, n_embd=<span class="nu">64</span>):
+        <span class="bi">super</span>().__init__()
+        <span class="self">self</span>.tok = nn.Embedding(V, n_embd)           <span class="cm"># 文字の埋め込み</span>
+        <span class="self">self</span>.pos = nn.Embedding(block_size, n_embd)  <span class="cm"># 位置の埋め込み（後で説明）</span>
+        <span class="self">self</span>.head = Head(n_embd, n_embd, block_size)
+        <span class="self">self</span>.out = nn.Linear(n_embd, V)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, idx, targets=<span class="kw">None</span>):
+        B, T = idx.shape
+        x = <span class="self">self</span>.tok(idx) + <span class="self">self</span>.pos(torch.arange(T))
+        x = x + <span class="self">self</span>.head(x)              <span class="cm"># 過去の情報を「足し込む」</span>
+        logits = <span class="self">self</span>.out(x)
+        loss = <span class="kw">None</span>
+        <span class="kw">if</span> targets <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+            loss = F.cross_entropy(logits.view(B * T, -<span class="nu">1</span>), targets.view(B * T))
+        <span class="kw">return</span> logits, loss
+
+<span class="de">@torch.no_grad</span>()
+<span class="kw">def</span> <span class="fn">val_loss</span>(model, T):
+    model.eval()
+    xs = torch.stack([val_data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">0</span>, <span class="bi">len</span>(val_data) - T - <span class="nu">1</span>, T)])
+    ys = torch.stack([val_data[i + <span class="nu">1</span>:i + T + <span class="nu">1</span>] <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">0</span>, <span class="bi">len</span>(val_data) - T - <span class="nu">1</span>, T)])
+    loss = model(xs, ys)[<span class="nu">1</span>].item()
+    model.train()
+    <span class="kw">return</span> loss
+
+block_size = <span class="nu">64</span>
+torch.manual_seed(<span class="nu">0</span>)
+g = torch.Generator().manual_seed(<span class="nu">0</span>)
+model = OneHeadLM(V, block_size)
+opt = torch.optim.AdamW(model.parameters(), lr=<span class="nu">3e-3</span>)
+<span class="bi">print</span>(<span class="st">&quot;パラメータの数：&quot;</span>, <span class="bi">sum</span>(p.numel() <span class="kw">for</span> p <span class="kw">in</span> model.parameters()))
+
+<span class="kw">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">2001</span>):
+    x, y = get_batch(train_data, <span class="nu">32</span>, block_size, g)
+    _, loss = model(x, y)
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+    <span class="kw">if</span> step % <span class="nu">500</span> == <span class="nu">0</span>:
+        <span class="bi">print</span>(<span class="st">f&quot;ステップ {step:4d}：訓練 {loss.item():.3f}  検証 {val_loss(model, block_size):.3f}&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>パラメータの数： 282253
+ステップ    0：訓練 7.958  検証 7.851
+ステップ  500：訓練 3.294  検証 3.542
+ステップ 1000：訓練 3.170  検証 3.364
+ステップ 1500：訓練 2.950  検証 3.316
+ステップ 2000：訓練 2.774  検証 3.312</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：logits.view(B * T, -1)</p><p>今までの <code>F.cross_entropy</code> は、<code>[問題の数, V]</code> の点数と <code>[問題の数]</code> の正解を受け取りました。今回の <code>logits</code> は <code>[B, T, V]</code>（文章 × 位置 × <a class="term" href="f-glossary.html#t-14384667" data-tip="トークナイザーが知っているトークンの一覧。その数が語彙サイズ。">語彙</a>）と、1次元多いですね。そこで <code>logits.view(B * T, -1)</code> で <code>[B×T, V]</code> に並べ直し、正解も <code>targets.view(B * T)</code> で <code>[B×T]</code> にします。「32個の文章 × 64か所」＝2048問を、1列に並べてまとめて採点しているのです。<code>-1</code> は「残りの数は自動で計算して」という意味です。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：位置の埋め込み：Attentionは順番を知らない</p><p>Attentionの計算（内積→softmax→重みつき平均）をよく見ると、<strong>文字の順番の情報がどこにもありません</strong>。「私は先生」と「先生は私」で、各文字のQuery・Key・Valueは同じです（マスクで見える範囲が変わるだけ）。これでは語順が分かりません。</p>
+<p>そこで、文字の埋め込みに <strong>位置の埋め込み</strong>（positional embedding）を足します。「0番目」「1番目」…という位置ごとにも学習可能なベクトルを用意して、文字のベクトルに足し合わせるのです。<code>self.pos(torch.arange(T))</code> がそれです。こうすると、同じ「私」でも、位置によって少しずつ違うベクトルになります。</p>
+<p>最新のLLMでは、もっと賢い <strong>RoPE</strong>（回転位置埋め込み）という方法が使われています。第25章で、自分のGPTに移植します。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：足し込む（残差接続）</p><p><code>x = x + self.head(x)</code> で、Attentionの結果を元の <code>x</code> に<strong>足して</strong>います。元の情報（自分自身が何の文字か）を残したまま、過去から集めた情報を上乗せするためです。この「足し込む」構造を <strong>残差接続</strong>（residual connection）と言い、第12章で大活躍します。</p>
+</aside>
+
+<p>パラメータ28万個、Headたった1つで、検証<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a> <strong>3.31前後</strong>。第9章の<a class="term" href="f-glossary.html#t-e726a1b3" data-tip="全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。">MLP</a>（66万個、3.395）より少ないパラメータで、良い成績です。しかもこのモデルは、<strong>64文字前まで</strong>見ることができます。窓を64に広げても、Attentionの部分のパラメータは1つも増えていません（位置の埋め込みが少し増えるだけ）。これがAttentionの強みです。</p>
+<table>
+<thead>
+<tr>
+<th>モデル</th>
+<th>章</th>
+<th>パラメータ</th>
+<th><a class="term" href="f-glossary.html#t-381b737d" data-tip="点数をつけるためだけに取っておくデータ。学習には使わない。">検証データ</a>の損失</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="term" href="f-glossary.html#t-e383e21d" data-tip="直前の1文字（1トークン）だけを見て次を予測するモデル。">bigram</a>（数える）</td>
+<td>5</td>
+<td>—</td>
+<td>3.581</td>
+</tr>
+<tr>
+<td>MLP（<a class="term" href="f-glossary.html#t-fa6f908d" data-tip="ミニバッチで勾配を計算して下る、確率的勾配降下法。">SGD</a>）</td>
+<td>9</td>
+<td>66万</td>
+<td>3.395</td>
+</tr>
+<tr>
+<td>MLP（全部の治療）</td>
+<td>10</td>
+<td>66万</td>
+<td>3.177</td>
+</tr>
+<tr>
+<td><strong>Attention 1ヘッド（2000ステップ）</strong></td>
+<td><strong>11</strong></td>
+<td><strong>28万</strong></td>
+<td><strong>3.31前後</strong></td>
+</tr>
+</tbody>
+</table>
+<p>1ヘッドでは、まだ第10章の治療済みMLPには届きません。でも、ここに部品（複数のヘッド、MLP、正規化、残差接続、層の積み重ね）を足していくと……それが次の章のTransformerです。</p>
+<h2 id="s10">注目の様子をのぞく</h2>
+<p>学習したHeadが、実際にどこに注目しているかを見てみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!pip install -q matplotlib-fontja</span></code></pre></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> matplotlib_fontja
+
+sample = <span class="st">&quot;私はその人を常に先生と呼んでいた。&quot;</span>
+idx = torch.tensor([[stoi[c] <span class="kw">for</span> c <span class="kw">in</span> sample]])
+model.eval()
+<span class="kw">with</span> torch.no_grad():
+    model(idx)
+wei = model.head.wei[<span class="nu">0</span>]
+
+plt.figure(figsize=(<span class="nu">6</span>, <span class="nu">5</span>))
+plt.imshow(wei, cmap=<span class="st">&quot;Oranges&quot;</span>)
+plt.xticks(<span class="bi">range</span>(<span class="bi">len</span>(sample)), <span class="bi">list</span>(sample))
+plt.yticks(<span class="bi">range</span>(<span class="bi">len</span>(sample)), <span class="bi">list</span>(sample))
+plt.xlabel(<span class="st">&quot;注目される文字（Key）&quot;</span>)
+plt.ylabel(<span class="st">&quot;注目する文字（Query）&quot;</span>)
+plt.title(<span class="st">&quot;学習したAttentionの重み&quot;</span>)
+plt.show()</code></pre></div>
+<p><img src="img/figs/11-attention/cell11_0.png" alt="学習したAttentionの重みのヒートマップ。各行で、自分自身や少し前の文字に重みが集中している" /></p>
+<p>各行が「その文字が、どの文字にどれだけ注目したか」です。右上が真っ白なのは、マスクで未来を見ていないからです。このヘッドは、自分自身よりも<strong>少し前の特定の文字</strong>に強く注目しています。たとえば「常」「に」は「を」に、「で」や「。」は「先」に注目しています。人間には意味の分かりにくい注目の仕方ですが、モデルは損失を下げるのに役立つ見方を、自分で見つけ出したのです。それでも、1つのヘッドにできることは限られています。次の章では、ヘッドをたくさん用意して、それぞれに違う役割（直前を見る係、文の主語を探す係……）を分担させます。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>RuntimeError: The size of tensor a (8) must match the size of tensor b (64)</code></strong>：マスク <code>tril</code> の大きさと、入力の長さ <code>T</code> が合っていません。<code>self.tril[:T, :T]</code> のように、入力の長さに合わせて切り出しましょう。</li>
+<li><strong>損失が <code>nan</code></strong>：マスクで全部 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">∞</span></span></span></span> の行ができると、softmaxが計算できず <code>nan</code> になります。下三角（対角線を含む）を使えば、どの行にも少なくとも自分自身があるので大丈夫です。</li>
+<li><strong><code>IndexError: index out of range in self</code></strong>（<code>self.pos</code> の行）：<code>block_size</code> より長い入力を入れています。生成するときは、入力を最後の <code>block_size</code> 文字に切り詰めましょう（第12章）。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：マスク</p><p>因果マスクがないと、学習中に何が起きる？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>各位置が未来の文字（＝正解そのもの）を見られるので、カンニングして損失が非常に小さくなります。でも、実際に生成するときは未来の文字は存在しないので、まったく役に立たないモデルになってしまいます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：QKV</p><p>Self-Attentionで、「どの文字にどれだけ注目するか」の重みは、何と何から計算される？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>注目する側の <strong>Query</strong> と、注目される側の <strong>Key</strong> の内積から計算されます（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割ってマスクをかけ、softmaxで重みにする）。そして、その重みで <strong>Value</strong> を平均したものが出力になります。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：√d</p><p>head_sizeが64のとき、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><msup><mi>K</mi><mi mathvariant="normal">⊤</mi></msup></mrow><annotation encoding="application/x-tex">QK^\top</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0435em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span></span></span></span></span></span></span></span> の点数を何で割る？ 割らないとどうなる？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mn>64</mn></msqrt><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">\sqrt{64} = 8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1328em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9072em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord">64</span></span></span><span style="top:-2.8672em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1328em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">8</span></span></span></span> で割ります。割らないと点数のばらつきが大きすぎて、softmaxが1つの位置だけに極端に集中し、学習が進みにくくなります。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="11-attention:0"> <span>「過去の平均」を、for文と行列の掛け算の両方で計算できた</span></label></li><li><label><input type="checkbox" data-check="11-attention:1"> <span>因果マスク（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">∞</span></span></span></span> を入れてsoftmax）の意味を説明できる</span></label></li><li><label><input type="checkbox" data-check="11-attention:2"> <span>内積が「似ている度」になることを確かめた</span></label></li><li><label><input type="checkbox" data-check="11-attention:3"> <span>Query・Key・Valueの役割を、自分の言葉で説明できる</span></label></li><li><label><input type="checkbox" data-check="11-attention:4"> <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割る理由を実験で確かめた</span></label></li><li><label><input type="checkbox" data-check="11-attention:5"> <span>カンニング検査で、未来を見ていないことを確かめた</span></label></li><li><label><input type="checkbox" data-check="11-attention:6"> <span>1ヘッドのAttention言語モデルを学習させた</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li>言語モデルは窓の <strong>全位置で同時に</strong> 次の文字を予測する。ただし未来は見ない（<strong>因果マスク</strong>）</li>
+<li>Self-Attention ＝ 内容に応じた <strong>重みつき平均</strong>。重みは <strong>Query</strong> と <strong>Key</strong> の内積、混ぜる中身は <strong>Value</strong></li>
+<li>点数は <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割る：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">x</mi></mrow><mo stretchy="false">(</mo><mi>Q</mi><msup><mi>K</mi><mi mathvariant="normal">⊤</mi></msup><mi mathvariant="normal">/</mi><msqrt><mi>d</mi></msqrt><mo stretchy="false">)</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">\mathrm{softmax}(QK^\top/\sqrt{d})V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1822em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">softmax</span></span><span class="mopen">(</span><span class="mord mathnormal">Q</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span></span></span></span></span><span class="mord">/</span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span><span class="mclose">)</span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span></li>
+<li>Attentionは順番を知らないので、<strong>位置の埋め込み</strong> を足す</li>
+<li>窓を広げても、Attention部分のパラメータは増えない</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>キミは今、2017年に世界を変えた式を、自分の手で書いて動かした。次の章では、このHeadを何個も並べ、MLPと正規化と残差接続でサンドイッチにして、何層も積み上げる。それが <strong>Transformer</strong>。GPTの「T」だ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="11-attention">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="10-training-tips.html"><small>← 前の章</small>学習のお医者さん：うまく学習させる技</a><a class="next" href="12-transformer.html"><small>次の章 →</small>部品を組み立てる：Transformer</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備と、新しい問題の出し方</a><a href="#s2">ステップ1：過去を「平均」してみる</a><a href="#s3">ステップ2：行列の掛け算で一気に</a><a href="#s4">ステップ3：softmaxで重みを作る</a><a href="#s5">内積：似ている度</a><a href="#s6">ステップ4：Query・Key・Value</a><a href="#s7">なぜ √d で割るのか</a><a href="#s8">部品にまとめる：Head クラス</a><a href="#s9">Attentionだけで言語モデルを作る</a><a href="#s10">注目の様子をのぞく</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

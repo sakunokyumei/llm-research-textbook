@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>エラー辞典 | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>エラー辞典 | つくってわかるLLM</title><meta name="description" content="赤い文字が出ても大丈夫。最後の行で引ける、原因と直し方">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,364 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html" aria-current="page"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録E</p><h1>エラー辞典</h1><p class="sub">準備中</p></header><p>準備中です。</p>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html" aria-current="page"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録E</p><h1>エラー辞典</h1><p class="sub">赤い文字が出ても大丈夫。最後の行で引ける、原因と直し方</p></header><p>エラーが出たら、まず<strong>一番下の行</strong>（<code>○○Error: …</code>）を読み、その言葉でこのページを検索してください（パソコンなら <kbd>Ctrl</kbd> + <kbd>F</kbd>、Macなら <kbd>⌘</kbd> + <kbd>F</kbd>）。見つからなければ、<a href="h-plan.html">付録H</a>のテンプレートでAIに聞くか、エラーの最後の行をそのまま検索エンジンで調べましょう。</p>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>エラーは、コンピュータからの手紙だ。たいていは「どこで」「何が」おかしいかを、ちゃんと書いてくれている。英語で書いてあるのが玉にきずだけど、出てくる単語は決まっている。この辞典で、よく来る手紙の読み方を覚えよう。</p>
+</div></div>
+
+<h2 id="s1">Colabと環境</h2>
+<table>
+<thead>
+<tr>
+<th>エラー・症状</th>
+<th>原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>「GPUに接続できません」「使用量上限に達しました」</td>
+<td>無料のGPUの枠を使い切った、または混雑</td>
+<td>CPUで進める／時間をおく／Kaggleを使う（<a href="a-setup.html">付録A</a>）</td>
+</tr>
+<tr>
+<td>実行中に「接続が切れました」</td>
+<td>操作しない時間が長い／最長時間を超えた</td>
+<td>再接続して上から実行し直す。大事なものはドライブに保存（第10章）</td>
+</tr>
+<tr>
+<td><code>NameError: name 'xxx' is not defined</code></td>
+<td>そのセルより上のセルを実行していない</td>
+<td>「ランタイム」→「すべてのセルを実行」</td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'xxx'</code></td>
+<td>その道具が入っていない</td>
+<td><code>!pip install -q xxx</code> を実行。自分のPCならターミナルで <code>pip install xxx</code></td>
+</tr>
+<tr>
+<td><code>No such file or directory: 'xxx'</code></td>
+<td>ファイルがない（ダウンロード忘れ、場所違い）</td>
+<td><code>!ls</code> で今のフォルダの中身を確認。<code>!wget</code> のセルを実行し直す</td>
+</tr>
+<tr>
+<td><code>!wget</code> で <code>ERROR 404: Not Found</code></td>
+<td>URLの打ち間違い、またはファイルの場所が変わった</td>
+<td>URLをコピーし直す。<code>-q</code> が付いているとエラーが表示されないので、消して実行し直す。教科書のファイルなら、GitHubのリポジトリの <code>code/</code> フォルダから直接ダウンロードして、Colabの左のフォルダアイコンからアップロードしてもよい</td>
+</tr>
+<tr>
+<td><code>The secret HF_TOKEN does not exist</code></td>
+<td>Hugging Faceのトークンが未設定</td>
+<td>公開モデルなら<strong>無視してOK</strong>。設定方法は第17章</td>
+</tr>
+<tr>
+<td><code>drive.mount</code> で止まる</td>
+<td>ポップアップのブロック、許可の項目のチェック漏れ</td>
+<td>ポップアップを許可し、全項目にチェックして「続行」</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s2">Pythonの基本</h2>
+<p>詳しくは<a href="b-python.html">付録B</a>の「エラーメッセージの読み方」へ。</p>
+<table>
+<thead>
+<tr>
+<th>エラー</th>
+<th>意味</th>
+<th>よくある原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SyntaxError: invalid syntax</code></td>
+<td>文法の間違い</td>
+<td><code>:</code> の付け忘れ、かっこの閉じ忘れ、<strong>全角の記号</strong>（「（」「：」）</td>
+</tr>
+<tr>
+<td><code>SyntaxError: invalid character</code></td>
+<td>使えない文字がある</td>
+<td>全角スペースや全角の記号がコードに混ざっている</td>
+</tr>
+<tr>
+<td><code>IndentationError</code></td>
+<td>字下げの間違い</td>
+<td>字下げがそろっていない。コピー時にずれた</td>
+</tr>
+<tr>
+<td><code>TypeError: ... missing 1 required positional argument</code></td>
+<td>引数が足りない</td>
+<td>関数を呼ぶときの引数の数を確認</td>
+</tr>
+<tr>
+<td><code>KeyError: 'xxx'</code></td>
+<td>辞書にそのキーがない</td>
+<td>文字トークナイザーで、辞書にない文字を <code>encode</code> した（第2・4章）</td>
+</tr>
+<tr>
+<td><code>IndexError: list index out of range</code></td>
+<td>リストの範囲外</td>
+<td>長さを確認。<code>split(...)[2]</code> で分割数が足りない（第4章）</td>
+</tr>
+<tr>
+<td><code>UnicodeDecodeError: 'utf-8' codec can't decode</code></td>
+<td>文字コードが違う</td>
+<td>青空文庫は <code>decode(&quot;cp932&quot;)</code>（第4章）</td>
+</tr>
+<tr>
+<td><code>json.decoder.JSONDecodeError</code></td>
+<td>JSONの形式が崩れている</td>
+<td>JSONLは1行に1件。ファイルの中身を確認</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s3">PyTorch：形と置き場所</h2>
+<table>
+<thead>
+<tr>
+<th>エラー</th>
+<th>原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RuntimeError: mat1 and mat2 shapes cannot be multiplied (AxB and CxD)</code></td>
+<td>行列の積の形が合わない（BとCが違う）</td>
+<td><code>print(x.shape)</code> で形を確認。第6章の形のルール <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>n</mi><mo>×</mo><mi>k</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>k</mi><mo>×</mo><mi>m</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(n \times k)(k \times m)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">m</span><span class="mclose">)</span></span></span></span></td>
+</tr>
+<tr>
+<td><code>RuntimeError: The size of tensor a (X) must match the size of tensor b (Y)</code></td>
+<td>足し算などで形が合わない</td>
+<td>ブロードキャストできる形か確認。<code>keepdim=True</code> を忘れていないか</td>
+</tr>
+<tr>
+<td><code>RuntimeError: shape '[...]' is invalid for input of size N</code></td>
+<td><code>view</code> で、数の個数が合わない形を指定</td>
+<td><code>n_embd</code> が <code>n_head</code> で割り切れるか（第12章）</td>
+</tr>
+<tr>
+<td><code>RuntimeError: Expected all tensors to be on the same device</code></td>
+<td>GPUとCPUのテンソルが混ざっている</td>
+<td>モデルを <code>.to(device)</code>、データも <code>.to(device)</code>（第13章）</td>
+</tr>
+<tr>
+<td><code>IndexError: index out of range in self</code></td>
+<td>埋め込みの表の範囲外の番号</td>
+<td>語彙数・<code>block_size</code> を超える入力。生成時は入力を切り詰める</td>
+</tr>
+<tr>
+<td><code>RuntimeError: element 0 of tensors does not require grad</code></td>
+<td>勾配を計算できない</td>
+<td><code>requires_grad=True</code> の付け忘れ、<code>no_grad</code> の中で <code>backward</code> した</td>
+</tr>
+<tr>
+<td><code>RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.</code></td>
+<td>学習するパラメータを、記録したまま書き換えた</td>
+<td>更新の行（<code>w -= lr * w.grad</code>）を <code>with torch.no_grad():</code> の中に入れる（第7章）</td>
+</tr>
+<tr>
+<td><code>RuntimeError: Trying to backward through the graph a second time</code></td>
+<td>同じ計算に2回 <code>backward</code> した</td>
+<td>毎ステップ、損失を計算し直す</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s4">GPUのメモリ</h2>
+<table>
+<thead>
+<tr>
+<th>エラー・症状</th>
+<th>原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CUDA out of memory</code> / <code>OutOfMemoryError</code></td>
+<td>GPUのメモリが足りない</td>
+<td>①バッチを小さく ②<code>block_size</code>（文章の長さ）を短く ③使わないモデルを <code>del</code> して <code>torch.cuda.empty_cache()</code> ④「セッションを再起動」して上から ⑤LoRA・量子化（第19章）・勾配チェックポイント（第16章）</td>
+</tr>
+<tr>
+<td>メモリがじわじわ増える</td>
+<td>損失をテンソルのままリストにためている</td>
+<td><code>losses.append(loss.item())</code> のように <code>.item()</code> で数にする</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s5">学習がおかしい</h2>
+<p><a href="10-training-tips.html">第10章の「学習の診察表」</a>も参照してください。</p>
+<table>
+<thead>
+<tr>
+<th>症状</th>
+<th>考えられる原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>損失が <code>nan</code> / <code>inf</code></td>
+<td>学習率が大きすぎる、勾配爆発、<code>log(0)</code></td>
+<td>学習率を下げる、勾配クリッピング、ウォームアップ</td>
+</tr>
+<tr>
+<td>損失がまったく下がらない</td>
+<td>学習率が小さすぎる、<code>zero_grad</code> 忘れ、<code>requires_grad</code> 忘れ、<code>ModuleList</code> を普通のリストにした</td>
+<td>まず1バッチで丸暗記できるか試す（第12章）</td>
+</tr>
+<tr>
+<td>最初の損失が <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>log</mi><mo>⁡</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">\log V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span> よりずっと大きい</td>
+<td>初期化がおかしい</td>
+<td>出力層の重みを小さく（第10章）</td>
+</tr>
+<tr>
+<td>訓練だけ良くなって検証が悪くなる</td>
+<td>過学習</td>
+<td>データを増やす、ドロップアウト、重み減衰、早めに止める</td>
+</tr>
+<tr>
+<td>生成が同じ言葉のくり返し</td>
+<td>小さなモデル・低い温度</td>
+<td>温度を上げる、<code>repetition_penalty</code>、top-p（第16章）</td>
+</tr>
+<tr>
+<td>評価のたびに結果が変わる</td>
+<td>乱数・ドロップアウト</td>
+<td><code>model.eval()</code>、シードを固定、<code>do_sample=False</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="s6">Hugging Face（transformers）</h2>
+<table>
+<thead>
+<tr>
+<th>エラー・症状</th>
+<th>原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OSError: xxx is not a local folder and is not a valid model identifier</code></td>
+<td>モデル名の間違い、または同意が必要なモデル</td>
+<td>つづりを確認。モデルページで規約に同意し、<code>HF_TOKEN</code> を設定（第17章）</td>
+</tr>
+<tr>
+<td><code>TypeError: ... got an unexpected keyword argument 'dtype'</code></td>
+<td>transformersの版が古い</td>
+<td><code>!pip install -U transformers</code> してランタイムを再起動。古い版では <code>torch_dtype=</code></td>
+</tr>
+<tr>
+<td><code>apply_chat_template</code> の結果に <code>**</code> が使えない</td>
+<td>古い版では辞書ではなくテンソルが返る</td>
+<td><code>return_dict=True</code> を付ける（この教科書のコードは付けてあります）</td>
+</tr>
+<tr>
+<td><code>The attention mask and the pad token id were not set</code> という警告</td>
+<td>パディングの設定がない</td>
+<td>動作に問題はない。気になるなら <code>pad_token_id=tok.pad_token_id</code> を渡す</td>
+</tr>
+<tr>
+<td><code>Setting pad_token_id to eos_token_id</code> という警告</td>
+<td>同上</td>
+<td>無視してOK</td>
+</tr>
+<tr>
+<td>生成が止まらない</td>
+<td>ベースモデルを使っている／SFTで <code>&lt;|im_end|&gt;</code> を学習させていない／止まる合図に <code>&lt;|im_end|&gt;</code> が登録されていない</td>
+<td>チャットモデルを使う。第18章の <code>build_example</code> と、<code>generation_config.eos_token_id</code> の設定を確認</td>
+</tr>
+<tr>
+<td><code>The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']</code></td>
+<td><code>do_sample=False</code> なので、モデル付属の温度などの設定が使われないというお知らせ</td>
+<td>無視してOK</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s7">TRL・PEFT・量子化</h2>
+<table>
+<thead>
+<tr>
+<th>エラー・症状</th>
+<th>原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Your setup doesn't support bf16/gpu</code></td>
+<td>T4はbfloat16に非対応</td>
+<td><code>SFTConfig(..., bf16=False, fp16=True)</code>（GPUのとき）。CPUでは両方False</td>
+</tr>
+<tr>
+<td><code>TypeError: ... unexpected keyword argument 'tokenizer'</code></td>
+<td>TRLの版で引数の名前が変わった</td>
+<td><code>processing_class=tok</code> を使う</td>
+</tr>
+<tr>
+<td><code>TypeError: ... 'evaluation_strategy'</code></td>
+<td>引数の名前が変わった</td>
+<td><code>eval_strategy</code> を使う</td>
+</tr>
+<tr>
+<td>LoRAで全然変わらない</td>
+<td>学習率が小さすぎる、学習するパラメータが0</td>
+<td>学習率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></span>〜<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span></span>、<code>print_trainable_parameters()</code> を確認</td>
+</tr>
+<tr>
+<td><code>bitsandbytes</code> のエラー</td>
+<td>GPUがない、版が合わない</td>
+<td>ランタイムをT4 GPUに。<code>!pip install -U bitsandbytes</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="s8">そのほか</h2>
+<table>
+<thead>
+<tr>
+<th>エラー・症状</th>
+<th>原因</th>
+<th>直し方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>グラフの日本語が「□□□」</td>
+<td>日本語のフォントがない</td>
+<td><code>!pip install -q matplotlib-fontja</code> と <code>import matplotlib_fontja</code>（第5章）</td>
+</tr>
+<tr>
+<td><code>gr.ChatInterface</code> で <code>unexpected keyword argument 'type'</code></td>
+<td>Gradio 6系で引数がなくなった</td>
+<td><code>type=&quot;messages&quot;</code> を消す（第24章）</td>
+</tr>
+<tr>
+<td>自作のWebページでモデルが読み込めない</td>
+<td><code>file://</code> で開いている</td>
+<td><code>python -m http.server</code> で開く（第24章）</td>
+</tr>
+<tr>
+<td>GitHub Pagesが404</td>
+<td>公開の設定がまだ／待ち時間</td>
+<td>Settings → Pages でブランチを選び、1〜2分待つ</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s9">それでも解決しないときの質問テンプレート</h2>
+<div class="codeblock code lang-text"><div class="code-head"><span>テキスト</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>『つくってわかるLLM』第◯章のコードを Google Colab（GPU：T4 ／ CPU）で実行したら、エラーが出ました。
+初心者なので、原因と直し方を順番に教えてください。
+
+【実行したコード】
+（セルの中身をそのまま貼る）
+
+【エラーメッセージ】
+（赤い文字の、最後の10行くらいを貼る）
+
+【試したこと】
+（ランタイムを再起動した、エラー辞典の◯◯を試した、など）</code></pre></div>
+<aside class="box box-warn"><p class="box-title">つまずき注意：質問するときの注意</p><p>エラーメッセージやコードを貼るときは、<strong>トークンやパスワードが含まれていないか</strong>必ず確認してください。<code>hf_</code> で始まる文字列などが見えたら、消してから貼りましょう。</p>
+</aside>
+
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">Colabと環境</a><a href="#s2">Pythonの基本</a><a href="#s3">PyTorch：形と置き場所</a><a href="#s4">GPUのメモリ</a><a href="#s5">学習がおかしい</a><a href="#s6">Hugging Face（transformers）</a><a href="#s7">TRL・PEFT・量子化</a><a href="#s8">そのほか</a><a href="#s9">それでも解決しないときの質問テンプレート</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

@@ -17,6 +17,7 @@ from urllib.parse import unquote, urlsplit
 import argparse
 import datetime
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -35,22 +36,23 @@ HF_IDS = {
 }
 
 
-def prepare(cell):
+def prepare(cell, full=False):
     code = cell["code"]
-    for old, new in cell["subs"]:
+    for old, new in ([] if full else cell["subs"]):
         if old not in code:
             raise SystemExit(f"test substitution not found: {old!r}\n---\n{code}")
         code = code.replace(old, new)
     for hub, local in HF_IDS.items():
         code = code.replace(f'"{hub}"', f'"{local}"').replace(f"'{hub}'", f"'{local}'")
-    return {"code": code, "skip": "gpu-only" in cell["flags"]}
+    # gpu-only: needs CUDA; online: needs the Hugging Face Hub API (both skipped by the CPU sandbox)
+    return {"code": code, "skip": bool({"gpu-only", "online", "colab-only"} & set(cell["flags"]))}
 
 
 def normalize(text):
     return "\n".join(line.rstrip() for line in text.strip("\n").split("\n")).strip()
 
 
-def run_chapter(slug, path, timeout):
+def run_chapter(slug, path, timeout, full=False):
     meta, body = read_source(path)
     cs = cells(body)
     if not cs:
@@ -59,10 +61,13 @@ def run_chapter(slug, path, timeout):
     if work.exists():
         shutil.rmtree(work)
     work.mkdir(parents=True)
-    (work / "cells.json").write_text(json.dumps([prepare(c) for c in cs], ensure_ascii=False), encoding="utf-8")
+    # each chapter starts with the Google Drive a learner would have at that point (see fake drive.mount)
+    shutil.rmtree("/content/drive", ignore_errors=True)
+    (work / "cells.json").write_text(json.dumps([prepare(c, full) for c in cs], ensure_ascii=False), encoding="utf-8")
     try:
         proc = subprocess.run([sys.executable, str(ROOT / "tools/testkit/runner.py"), "cells.json", "result.json"],
-                              cwd=work, capture_output=True, text=True, timeout=timeout)
+                              cwd=work, capture_output=True, text=True, timeout=timeout,
+                              env={**os.environ, "VERIFY_CHAPTER": slug})
         stderr = proc.stderr
     except subprocess.TimeoutExpired:
         return {"slug": slug, "cells": len(cs), "failures": [f"timeout after {timeout}s"], "results": []}
@@ -71,12 +76,16 @@ def run_chapter(slug, path, timeout):
     failures = []
     if not result_file.exists():
         failures.append("runner crashed: " + stderr[-1500:])
+    diverged = False   # after a shrunken (test:) cell, later outputs legitimately differ
     for r in results:
+        if cs[r["index"]]["subs"] and not full:
+            diverged = True
+        r["comparable"] = not diverged and not r.get("skipped")
         if r.get("error"):
             failures.append(f"cell {r['index']} raised:\n{r['error'][-1500:]}\n--- code ---\n{cs[r['index']]['code'][:600]}")
-        elif not r.get("skipped") and cs[r["index"]]["expected"] is not None:
+        elif r["comparable"] and cs[r["index"]]["expected"] is not None:
             want, got = normalize(cs[r["index"]]["expected"]), normalize(r["stdout"])
-            if want != got and not cs[r["index"]]["subs"]:
+            if want != got:
                 failures.append(f"cell {r['index']} output differs\n--- expected ---\n{want[:800]}\n--- actual ---\n{got[:800]}")
     if len(results) < len(cs) and not failures:
         failures.append(f"only {len(results)} of {len(cs)} cells ran")
@@ -108,7 +117,7 @@ def update_outputs(path, results):
             last_cell = cell_no
         elif lang == "output" and last_cell is not None:
             r = by_index.get(last_cell)
-            if r and not r.get("skipped") and not r.get("error") and not subs:
+            if r and r.get("comparable") and not r.get("error"):
                 text = r["stdout"].rstrip("\n")
                 block = [lines[i]] + (text.split("\n") if text else ["(何も表示されない)"]) + [lines[j]]
             last_cell = None
@@ -117,6 +126,21 @@ def update_outputs(path, results):
         out.extend(block)
         i = j + 1
     path.write_text("\n".join(out), encoding="utf-8")
+
+
+def check_minigpt():
+    """code/minigpt.py must contain exactly the classes written in chapter 12."""
+    import ast
+    lib = {n.name: ast.dump(n) for n in ast.parse((ROOT / "code/minigpt.py").read_text(encoding="utf-8")).body
+           if isinstance(n, ast.ClassDef)}
+    _, body = read_source(BOOK / "chapters" / "12-transformer.md")
+    book = {}
+    for c in cells(body):
+        for n in ast.parse(c["code"]).body:
+            if isinstance(n, ast.ClassDef):
+                book[n.name] = ast.dump(n)
+    problems = [f"minigpt.py class {k} differs from chapter 12" for k in lib if book.get(k) != lib[k]]
+    return problems + [f"chapter 12 class {k} missing from minigpt.py" for k in book if k not in lib]
 
 
 class Links(HTMLParser):
@@ -160,6 +184,7 @@ def main():
     ap.add_argument("--update", action="store_true")
     ap.add_argument("--links-only", action="store_true")
     ap.add_argument("--timeout", type=int, default=1800)
+    ap.add_argument("--full", action="store_true", help="ignore test: substitutions (slow, real outputs)")
     a = ap.parse_args()
     report = {"date": datetime.date.today().isoformat(), "python": sys.version.split()[0], "chapters": [], "link_failures": []}
     try:
@@ -173,7 +198,7 @@ def main():
         for slug, path in chapter_paths():
             if only and slug not in only:
                 continue
-            r = run_chapter(slug, path, a.timeout)
+            r = run_chapter(slug, path, a.timeout, a.full)
             if r is None:
                 continue
             status = "OK" if not r["failures"] else "FAIL"
@@ -184,20 +209,34 @@ def main():
                 update_outputs(path, r["results"])
             figs = ROOT / ".verify" / slug / "figs"
             if figs.exists() and not r["failures"]:
+                # figures from cells after a shrunken (test:) cell show the short run, not the real one: keep the old ones
                 dest = ROOT / "site" / "img" / "figs" / slug
-                if dest.exists():
+                real = {x["index"] for x in r["results"] if x.get("comparable")}
+                if len(real) == len(r["results"]) and dest.exists():
                     shutil.rmtree(dest)
-                shutil.copytree(figs, dest)
+                dest.mkdir(parents=True, exist_ok=True)
+                for f in figs.glob("cell*_*.png"):
+                    if int(f.stem[4:].split("_")[0]) in real:
+                        shutil.copy(f, dest / f.name)
             all_failures += r["failures"]
             report["chapters"].append({k: v for k, v in r.items() if k != "results"})
+    consistency = check_minigpt()
+    for f in consistency:
+        print("CODE " + f)
+    all_failures += consistency
     n, link_failures = check_links(ROOT / "docs")
     report["html_pages"], report["link_failures"] = n, link_failures
     for f in link_failures:
         print("LINK " + f)
     all_failures += link_failures
+    report_path = ROOT / "verification" / "code-report.json"
     if not a.only and not a.links_only:
-        (ROOT / "verification").mkdir(exist_ok=True)
-        (ROOT / "verification" / "code-report.json").write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        report_path.parent.mkdir(exist_ok=True)
+        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    elif a.links_only and report_path.exists():   # keep the chapter results, refresh the link check
+        old = json.loads(report_path.read_text(encoding="utf-8"))
+        old["html_pages"], old["link_failures"] = n, link_failures
+        report_path.write_text(json.dumps(old, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("ALL OK" if not all_failures else f"{len(all_failures)} problem(s)")
     sys.exit(1 if all_failures else 0)
 

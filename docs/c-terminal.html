@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ターミナル・Linux・Git | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>ターミナル・Linux・Git | つくってわかるLLM</title><meta name="description" content="黒い画面と、コードの保存・共有の早見表">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,165 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html" aria-current="page"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録C</p><h1>ターミナル・Linux・Git</h1><p class="sub">準備中</p></header><p>準備中です。</p>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html" aria-current="page"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録C</p><h1>ターミナル・Linux・Git</h1><p class="sub">黒い画面と、コードの保存・共有の早見表</p></header><h2 id="s1">ターミナルとは</h2>
+<p><strong>ターミナル</strong>（黒い画面、コマンドライン）は、文字でコンピュータに命令する画面です。Colabでは、セルの先頭に <code>!</code> を付けると、その行がLinuxのコマンドとして実行されます。自分のパソコンでは、Windowsなら「ターミナル」やPowerShell、Macなら「ターミナル」アプリを使います。</p>
+<aside class="box box-tip"><p class="box-title">コツ：Colabで練習できる</p><p>Linuxのコマンドは、Colabのセルで <code>!ls</code> のように試せます。壊しても、セッションを再起動すれば元に戻るので、安心して練習しましょう。</p>
+</aside>
+
+<h2 id="s2">よく使うコマンド</h2>
+<table>
+<thead>
+<tr>
+<th>コマンド</th>
+<th>意味</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pwd</code></td>
+<td>今いる場所（フォルダ）を表示</td>
+<td><code>pwd</code></td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td>ファイルの一覧</td>
+<td><code>ls -la</code>（隠しファイルも詳しく）</td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>フォルダを移動</td>
+<td><code>cd tsukuru-llm</code> / <code>cd ..</code>（1つ上へ）</td>
+</tr>
+<tr>
+<td><code>mkdir</code></td>
+<td>フォルダを作る</td>
+<td><code>mkdir data</code></td>
+</tr>
+<tr>
+<td><code>cp</code></td>
+<td>コピー</td>
+<td><code>cp a.txt b.txt</code></td>
+</tr>
+<tr>
+<td><code>mv</code></td>
+<td>移動・名前の変更</td>
+<td><code>mv old.txt new.txt</code></td>
+</tr>
+<tr>
+<td><code>rm</code></td>
+<td>削除（元に戻せない！）</td>
+<td><code>rm temp.txt</code></td>
+</tr>
+<tr>
+<td><code>cat</code></td>
+<td>ファイルの中身を表示</td>
+<td><code>cat kokoro.txt</code></td>
+</tr>
+<tr>
+<td><code>head</code> / <code>tail</code></td>
+<td>最初・最後の数行を表示</td>
+<td><code>head -n 5 kokoro.txt</code></td>
+</tr>
+<tr>
+<td><code>wc</code></td>
+<td>行数・文字数を数える</td>
+<td><code>wc -l data.jsonl</code></td>
+</tr>
+<tr>
+<td><code>grep</code></td>
+<td>文字を探す</td>
+<td><code>grep 先生 kokoro.txt</code></td>
+</tr>
+<tr>
+<td><code>wget</code> / <code>curl</code></td>
+<td>インターネットからダウンロード</td>
+<td><code>wget https://…/minigpt.py</code></td>
+</tr>
+<tr>
+<td><code>nvidia-smi</code></td>
+<td>GPUの状態を表示</td>
+<td><code>nvidia-smi</code></td>
+</tr>
+<tr>
+<td><code>du -sh</code></td>
+<td>フォルダの大きさ</td>
+<td><code>du -sh *</code></td>
+</tr>
+</tbody>
+</table>
+<p>Windowsのコマンドプロンプトでは、<code>ls</code> の代わりに <code>dir</code>、<code>cat</code> の代わりに <code>type</code> を使います（PowerShellなら <code>ls</code> や <code>cat</code> も使えます）。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：rm は慎重に</p><p><code>rm</code> で消したファイルは、ごみ箱に入らず、元に戻せません。特に <code>rm -rf</code>（フォルダを中身ごと強制的に消す）は、場所を間違えると大惨事です。実行する前に <code>pwd</code> で今いる場所を確かめましょう。</p>
+</aside>
+
+<h2 id="s3">パス（ファイルの住所）</h2>
+<ul>
+<li><strong>絶対パス</strong>：一番上から書く住所。<code>/content/drive/MyDrive/tsukuru-llm/soseki_gpt.pt</code></li>
+<li><strong>相対パス</strong>：今いる場所から見た住所。<code>./data/kokoro.txt</code>（<code>.</code> は今いる場所、<code>..</code> は1つ上）</li>
+</ul>
+<p>HTMLで <code>&lt;img src=&quot;img/logo.png&quot;&gt;</code> と書くときの考え方と同じです。</p>
+<h2 id="s4">Git と GitHub</h2>
+<p><strong>Git</strong> は、ファイルの変更の歴史を記録する道具です。「いつ、何を、なぜ変えたか」をセーブポイントとして残せるので、壊しても前の状態に戻せます。<strong>GitHub</strong> は、Gitで管理したファイルをインターネット上に置いて、共有・公開するサービスです（第24章でGitHub Pagesを使いました）。</p>
+<aside class="box box-tip"><p class="box-title">コツ：まずはブラウザだけでOK</p><p>第24章のように、GitHubのWebページからファイルをアップロードするだけでも、十分に使えます。Gitのコマンドは、慣れてきたら少しずつ覚えれば大丈夫です。</p>
+</aside>
+
+<h3>Gitの基本の流れ</h3>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>git init                      # このフォルダをGitで管理し始める
+git add index.html            # 記録するファイルを選ぶ（ステージング）
+git commit -m &quot;漱石GPTのページを追加&quot;   # セーブポイントを作る（コミット）
+git log --oneline             # これまでのセーブポイントを見る</code></pre></div>
+<p>GitHubのリポジトリとつなげて、アップロードする（<strong>プッシュ</strong>）には次のようにします（<code>あなたの名前</code> は自分のユーザー名に）。</p>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>git remote add origin https://github.com/あなたの名前/soseki-gpt.git
+git branch -M main
+git push -u origin main</code></pre></div>
+<p>最初のプッシュでは、GitHubへのログインを求められます。パスワードの代わりに「個人用アクセストークン」が必要になることがあるので、GitHubの公式ドキュメント（「Managing your personal access tokens」）を参照してください。トークンは、Hugging Faceのトークン（第17章）と同じく、家の鍵として大切に扱います。</p>
+<table>
+<thead>
+<tr>
+<th>用語</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>リポジトリ</td>
+<td>ファイルと、その変更の歴史をまとめた置き場所</td>
+</tr>
+<tr>
+<td>コミット</td>
+<td>セーブポイント。変更内容と、短いメッセージを記録する</td>
+</tr>
+<tr>
+<td>プッシュ</td>
+<td>手元のコミットを、GitHubにアップロードする</td>
+</tr>
+<tr>
+<td>プル</td>
+<td>GitHubの変更を、手元にダウンロードする</td>
+</tr>
+<tr>
+<td>ブランチ</td>
+<td>歴史の枝分かれ。試したいことを、本流を壊さずに試せる</td>
+</tr>
+<tr>
+<td><code>.gitignore</code></td>
+<td>Gitで管理しないファイル（大きなモデル、秘密の情報など）を書いておくファイル</td>
+</tr>
+</tbody>
+</table>
+<aside class="box box-warn"><p class="box-title">つまずき注意：GitHubに上げてはいけないもの</p><ul>
+<li>トークン、パスワード、APIキー</li>
+<li>個人情報</li>
+<li>大きすぎるファイル（1ファイル100MB以上はそもそも置けない。モデルの重みはHugging Faceへ）</li>
+</ul>
+<p>うっかり上げてしまったトークンは、ファイルを消すだけでは不十分です（歴史に残るため）。すぐにそのトークンを無効にしましょう。</p>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：パス</p><p>今 <code>/content/tsukuru-llm</code> にいるとき、<code>../data/a.txt</code> はどこを指す？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p><code>/content/data/a.txt</code> です。<code>..</code> で1つ上の <code>/content</code> に上がってから、<code>data/a.txt</code> に進みます。</p>
+</details></section>
+
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">ターミナルとは</a><a href="#s2">よく使うコマンド</a><a href="#s3">パス（ファイルの住所）</a><a href="#s4">Git と GitHub</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

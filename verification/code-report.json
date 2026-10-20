@@ -1,0 +1,192 @@
+{
+ "date": "2026-10-20",
+ "python": "3.13.16",
+ "chapters": [
+  {
+   "slug": "01-first-llm",
+   "cells": 11,
+   "skipped": 0,
+   "seconds": 19.0,
+   "failures": []
+  },
+  {
+   "slug": "02-tokens",
+   "cells": 12,
+   "skipped": 0,
+   "seconds": 8.8,
+   "failures": []
+  },
+  {
+   "slug": "03-next-token",
+   "cells": 10,
+   "skipped": 0,
+   "seconds": 13.3,
+   "failures": []
+  },
+  {
+   "slug": "04-bigram",
+   "cells": 12,
+   "skipped": 0,
+   "seconds": 0.4,
+   "failures": []
+  },
+  {
+   "slug": "05-loss",
+   "cells": 12,
+   "skipped": 0,
+   "seconds": 1.2,
+   "failures": []
+  },
+  {
+   "slug": "06-tensors",
+   "cells": 12,
+   "skipped": 0,
+   "seconds": 2.5,
+   "failures": []
+  },
+  {
+   "slug": "07-gradient",
+   "cells": 10,
+   "skipped": 0,
+   "seconds": 2.4,
+   "failures": []
+  },
+  {
+   "slug": "08-neural-bigram",
+   "cells": 10,
+   "skipped": 0,
+   "seconds": 91.8,
+   "failures": []
+  },
+  {
+   "slug": "09-mlp",
+   "cells": 9,
+   "skipped": 0,
+   "seconds": 119.2,
+   "failures": []
+  },
+  {
+   "slug": "10-training-tips",
+   "cells": 15,
+   "skipped": 0,
+   "seconds": 171.1,
+   "failures": []
+  },
+  {
+   "slug": "11-attention",
+   "cells": 12,
+   "skipped": 0,
+   "seconds": 83.7,
+   "failures": []
+  },
+  {
+   "slug": "12-transformer",
+   "cells": 11,
+   "skipped": 0,
+   "seconds": 163.6,
+   "failures": []
+  },
+  {
+   "slug": "13-train-gpt",
+   "cells": 15,
+   "skipped": 1,
+   "seconds": 34.7,
+   "failures": []
+  },
+  {
+   "slug": "14-bpe",
+   "cells": 10,
+   "skipped": 0,
+   "seconds": 158.4,
+   "failures": []
+  },
+  {
+   "slug": "15-gpt2",
+   "cells": 8,
+   "skipped": 0,
+   "seconds": 8.4,
+   "failures": []
+  },
+  {
+   "slug": "16-scale",
+   "cells": 7,
+   "skipped": 0,
+   "seconds": 8.4,
+   "failures": []
+  },
+  {
+   "slug": "17-hf-models",
+   "cells": 10,
+   "skipped": 1,
+   "seconds": 13.7,
+   "failures": []
+  },
+  {
+   "slug": "18-sft",
+   "cells": 10,
+   "skipped": 0,
+   "seconds": 144.7,
+   "failures": []
+  },
+  {
+   "slug": "19-lora",
+   "cells": 11,
+   "skipped": 1,
+   "seconds": 132.8,
+   "failures": []
+  },
+  {
+   "slug": "20-evaluation",
+   "cells": 9,
+   "skipped": 0,
+   "seconds": 108.3,
+   "failures": []
+  },
+  {
+   "slug": "21-rag",
+   "cells": 10,
+   "skipped": 0,
+   "seconds": 12.4,
+   "failures": []
+  },
+  {
+   "slug": "22-alignment",
+   "cells": 6,
+   "skipped": 0,
+   "seconds": 153.9,
+   "failures": []
+  },
+  {
+   "slug": "23-agents",
+   "cells": 6,
+   "skipped": 0,
+   "seconds": 12.9,
+   "failures": []
+  },
+  {
+   "slug": "24-deploy",
+   "cells": 6,
+   "skipped": 2,
+   "seconds": 17.7,
+   "failures": []
+  },
+  {
+   "slug": "25-modern",
+   "cells": 8,
+   "skipped": 0,
+   "seconds": 403.5,
+   "failures": []
+  },
+  {
+   "slug": "26-capstone",
+   "cells": 1,
+   "skipped": 0,
+   "seconds": 0.0,
+   "failures": []
+  }
+ ],
+ "link_failures": [],
+ "torch": "2.14.1+cu130",
+ "transformers": "5.20.2",
+ "html_pages": 39
+}

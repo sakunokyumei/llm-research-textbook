@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 640" role="img" aria-labelledby="t d" font-family="Hiragino Sans, Noto Sans JP, Yu Gothic, sans-serif">
+<title id="t">ミニGPTの全体図</title>
+<desc id="d">文字のIDが埋め込みと位置の埋め込みで数のベクトルになり、LayerNormとマルチヘッドAttentionと残差接続、LayerNormとフィードフォワードと残差接続からなるブロックをN回通り、最後にLayerNormと出力層で次の文字の点数になる。</desc>
+<style>
+.box{rx:10;stroke-width:2}
+.t{font-size:15px;fill:#1f2429}
+.s{font-size:12px;fill:#59626b}
+.a{stroke:#59626b;stroke-width:2;fill:none;marker-end:url(#m)}
+.r{stroke:#b9501a;stroke-width:2.5;fill:none;marker-end:url(#mr)}
+</style>
+<defs>
+<marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#59626b"/></marker>
+<marker id="mr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b9501a"/></marker>
+</defs>
+<rect width="520" height="640" fill="#fbf8f2" rx="18"/>
+<text x="260" y="34" text-anchor="middle" class="t" font-weight="700">ミニGPTの全体図（下から上へ読む）</text>
+<rect x="160" y="574" width="200" height="40" class="box" fill="#ffffff" stroke="#59626b"/>
+<text x="260" y="599" text-anchor="middle" class="t">文字のID 「吾 輩 は …」</text>
+<path d="M260 574V546" class="a"/>
+<rect x="110" y="506" width="300" height="40" class="box" fill="#e8f0fb" stroke="#1d5bb8"/>
+<text x="260" y="531" text-anchor="middle" class="t">文字の埋め込み ＋ 位置の埋め込み</text>
+<path d="M260 506V482" class="a"/>
+<rect x="60" y="160" width="400" height="322" class="box" fill="#22423a" stroke="#22423a"/>
+<text x="80" y="186" class="t" fill="#f3d77a" style="fill:#f3d77a" font-weight="700">Transformerブロック × N層</text>
+<rect x="150" y="410" width="220" height="36" class="box" fill="#eef3ea" stroke="#eef3ea"/>
+<text x="260" y="433" text-anchor="middle" class="t">LayerNorm</text>
+<rect x="150" y="358" width="220" height="40" class="box" fill="#fbeadf" stroke="#b9501a"/>
+<text x="260" y="378" text-anchor="middle" class="t">マルチヘッドAttention</text>
+<text x="260" y="393" text-anchor="middle" class="s">（ほかの文字と話し合う）</text>
+<circle cx="260" cy="334" r="12" fill="#ffffff" stroke="#b9501a" stroke-width="2"/><text x="260" y="339" text-anchor="middle" class="t">＋</text>
+<rect x="150" y="270" width="220" height="36" class="box" fill="#eef3ea" stroke="#eef3ea"/>
+<text x="260" y="293" text-anchor="middle" class="t">LayerNorm</text>
+<rect x="150" y="218" width="220" height="40" class="box" fill="#fbeadf" stroke="#b9501a"/>
+<text x="260" y="238" text-anchor="middle" class="t">フィードフォワード（MLP）</text>
+<text x="260" y="253" text-anchor="middle" class="s">（ひとりで考える）</text>
+<circle cx="260" cy="196" r="12" fill="#ffffff" stroke="#b9501a" stroke-width="2"/><text x="260" y="201" text-anchor="middle" class="t">＋</text>
+<path d="M260 482V446" class="a"/><path d="M260 410V398" class="a"/><path d="M260 358V346" class="a"/>
+<path d="M260 322V306" class="a"/><path d="M260 270V258" class="a"/><path d="M260 218V208" class="a"/>
+<path d="M260 470H420V334H274" class="r"/>
+<path d="M260 316H430V196H274" class="r"/>
+<text x="436" y="410" class="s" style="fill:#f3d77a">残差接続</text>
+<text x="436" y="426" class="s" style="fill:#f3d77a">（近道）</text>
+<path d="M260 184V146" class="a"/>
+<rect x="150" y="106" width="220" height="40" class="box" fill="#eef3ea" stroke="#59626b"/>
+<text x="260" y="131" text-anchor="middle" class="t">LayerNorm ＋ 出力層</text>
+<path d="M260 106V80" class="a"/>
+<rect x="110" y="44" width="300" height="36" class="box" fill="#ffffff" stroke="#b9501a"/>
+<text x="260" y="67" text-anchor="middle" class="t">次の文字の点数（ロジット）</text>
+</svg>

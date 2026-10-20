@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>環境構築大全 | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>環境構築大全：0円で本格開発 | つくってわかるLLM</title><meta name="description" content="Colab・Kaggle・自分のパソコン。どれを、いつ、どう使うか">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,335 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html" aria-current="page"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録A</p><h1>環境構築大全</h1><p class="sub">準備中</p></header><p>準備中です。</p>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html" aria-current="page"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録A</p><h1>環境構築大全：0円で本格開発</h1><p class="sub">Colab・Kaggle・自分のパソコン。どれを、いつ、どう使うか</p></header><p>この付録は、環境構築で困ったときの「辞書」です。最初から全部読む必要はありません。困ったところだけ開いてください。</p>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>環境構築で挫折する人は多い。でも安心してほしい。この教科書は、<strong>ブラウザとGoogleアカウントだけ</strong>で最後まで進めるように作ってある。自分のパソコンに何かを入れるのは、やりたくなってからで十分だ。</p>
+</div></div>
+
+<h2 id="s1">0円の原則</h2>
+<p>この教科書で使うサービスは、すべて<strong>無料のプラン</strong>で足ります。</p>
+<ol>
+<li><strong>クレジットカードを登録しない</strong>。「無料トライアル」でも、カードを登録すると、期限が過ぎたあとに自動で課金されることがあります</li>
+<li><strong>有料プランへの誘導は、閉じてよい</strong>。Colabの「Colab Pro」、Hugging Faceの「PRO」などの案内が出ても、この教科書の範囲では不要です</li>
+<li><strong>困ったら小さくする</strong>。GPUが足りない、時間が足りない、というときは、お金で解決する前に、モデルやデータを小さくする（第19章の量子化・LoRAなど）</li>
+</ol>
+<aside class="box box-free"><p class="box-title">0円のコツ：無料の枠は変わる</p><p>無料で使える範囲（GPUの種類や時間）は、サービスの都合でよく変わります。この付録の内容は2026年10月時点のものです。数字は目安として読み、最新の情報は各サービスの公式ページで確かめてください。</p>
+</aside>
+
+<h2 id="s2">3つの環境の比べ方</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Google Colab</th>
+<th>Kaggle Notebooks</th>
+<th>自分のパソコン</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>必要なもの</td>
+<td>Googleアカウント</td>
+<td>Kaggleアカウント（GPUには電話番号の確認が必要）</td>
+<td>Pythonのインストール</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>無料で使えることがある（T4など）。混雑時や使いすぎると使えない</td>
+<td>無料（T4×2またはP100）。週あたりの利用時間の上限あり（目安30時間前後、変動する）</td>
+<td>NVIDIAのGPUがあれば使える。なければCPU（MacはApple SiliconのGPUも可）</td>
+</tr>
+<tr>
+<td>1回の長さ</td>
+<td>最長12時間ほど。操作しないと早めに切断</td>
+<td>1回最長12時間</td>
+<td>無制限</td>
+</tr>
+<tr>
+<td>ファイルの保存</td>
+<td>切断で消える。Googleドライブに保存する</td>
+<td>「Save Version」で出力を保存</td>
+<td>ずっと残る</td>
+</tr>
+<tr>
+<td>おすすめの場面</td>
+<td>この教科書の基本。すぐ始められる</td>
+<td>ColabのGPUが使えないとき。長めの学習</td>
+<td>第2部の小さな実験、第24章の公開ページの確認</td>
+</tr>
+</tbody>
+</table>
+<p><strong>迷ったらColab。</strong> ColabでGPUがつながらないときはKaggle、と覚えておけば十分です。</p>
+<h2 id="s3">Google Colab の使い方</h2>
+<h3>始め方</h3>
+<ol>
+<li><a href="https://colab.research.google.com/">https://colab.research.google.com/</a> を開いて、Googleアカウントでログイン</li>
+<li>「ノートブックを新規作成」</li>
+<li>セルにコードを書いて、<kbd>Shift</kbd> + <kbd>Enter</kbd> で実行</li>
+</ol>
+<p>学校のGoogleアカウントでは、管理者の設定でColabが使えないことがあります。その場合は、個人のGoogleアカウントを作って使いましょう。</p>
+<h3>よく使う操作</h3>
+<table>
+<thead>
+<tr>
+<th>やりたいこと</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>セルを実行して次へ</td>
+<td><kbd>Shift</kbd> + <kbd>Enter</kbd></td>
+</tr>
+<tr>
+<td>コードのセルを追加</td>
+<td>画面上の「+ コード」</td>
+</tr>
+<tr>
+<td>GPUにする</td>
+<td>「ランタイム」→「ランタイムのタイプを変更」→「T4 GPU」→「保存」</td>
+</tr>
+<tr>
+<td>全部やり直す</td>
+<td>「ランタイム」→「セッションを再起動して、すべてのセルを実行する」</td>
+</tr>
+<tr>
+<td>メモリを空にする</td>
+<td>「ランタイム」→「セッションを再起動する」</td>
+</tr>
+<tr>
+<td>Linuxのコマンド</td>
+<td>行の先頭に <code>!</code> を付ける（例：<code>!ls</code>、<code>!nvidia-smi</code>）</td>
+</tr>
+<tr>
+<td>ファイルを見る</td>
+<td>左のフォルダのアイコン</td>
+</tr>
+<tr>
+<td>ファイルを手元に保存</td>
+<td>ファイル一覧で右クリック→「ダウンロード」、または <code>files.download(&quot;名前&quot;)</code></td>
+</tr>
+<tr>
+<td>秘密の情報（トークン）</td>
+<td>左の鍵のアイコン（シークレット）。第17章</td>
+</tr>
+</tbody>
+</table>
+<h3>この教科書の「Colabで開く」ボタン</h3>
+<p>各章の先頭の「Colabで開く（完成ノート）」を押すと、その章のコードが全部入ったノートブックがColabで開きます。</p>
+<ul>
+<li>開くと「警告：このノートブックはGoogleが作成したものではありません」と出ます。この教科書のノートブックであることを確かめて、「このまま実行」を押してください</li>
+<li>そのままでは、変更しても保存されません。「ファイル」→「ドライブにコピーを保存」で、自分のドライブにコピーしてから使いましょう</li>
+</ul>
+<aside class="box box-tip"><p class="box-title">コツ：おすすめの使い方</p><p>完成ノートを最初から実行するだけだと、「動いた」で終わってしまいがちです。おすすめは、<strong>自分の新しいノートブックに、教科書のコードを1セルずつ貼って（または打って）実行する</strong>こと。完成ノートは、うまくいかないときの答え合わせに使いましょう。</p>
+</aside>
+
+<h3>Googleドライブにつなぐ</h3>
+<p>Colabのファイルは、接続が切れると消えます。大事なもの（学習したモデルなど）は、Googleドライブに保存します。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> google.colab <span class="kw">import</span> drive
+drive.mount(<span class="st">&quot;/content/drive&quot;</span>)
+<span class="cm"># これで /content/drive/MyDrive/ が、自分のドライブの中身になる</span></code></pre></div>
+<p>初回は、Googleアカウントへのアクセスを許可する画面が出ます。この教科書では、<code>MyDrive/tsukuru-llm/</code> というフォルダにまとめて保存しています。</p>
+<h3>GPUが使えないとき</h3>
+<p>「使用量の上限に達したため、現在GPUに接続できません」のような表示が出たら、</p>
+<ol>
+<li>まずは<strong>CPUのまま</strong>進める（第0〜12章、第14〜16章、第25章はCPUで大丈夫）</li>
+<li>時間をおいて（数時間〜1日）、もう一度試す</li>
+<li><strong>Kaggle</strong> を使う（次の節）</li>
+</ol>
+<p>GPUを使わないときは、ランタイムを「CPU」に戻しておくと、GPUの利用枠を節約できます。</p>
+<h2 id="s4">Kaggle Notebooks の使い方</h2>
+<p><strong>Kaggle</strong> は、データ分析のコンペティションで有名なサイトで、無料でGPUを使えるノートブックがあります。</p>
+<ol>
+<li><a href="https://www.kaggle.com/">https://www.kaggle.com/</a> でアカウントを作る</li>
+<li>設定（Settings）で<strong>電話番号の確認</strong>をする（GPUとインターネット接続を使うのに必要）</li>
+<li>「Create」→「New Notebook」</li>
+<li>右側の「Session options」（または「Settings」）で、
+<ul>
+<li>「Accelerator」を「GPU T4 x2」または「GPU P100」にする</li>
+<li>「Internet」をオンにする（モデルやデータのダウンロードに必要）</li>
+</ul>
+</li>
+</ol>
+<p>Colabとの違いは次のとおりです。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Colab</th>
+<th>Kaggle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ドライブへの保存</td>
+<td><code>drive.mount</code></td>
+<td>使えない。<code>/kaggle/working/</code> に保存して「Save Version」</td>
+</tr>
+<tr>
+<td><code>from google.colab import …</code></td>
+<td>使える</td>
+<td>使えない（その行は飛ばす）</td>
+</tr>
+<tr>
+<td>GPUの残り時間</td>
+<td>表示されない</td>
+<td>アカウントの設定画面などで確認できる</td>
+</tr>
+</tbody>
+</table>
+<p>この教科書のコードは、<code>google.colab</code> を使う行（ドライブ、<code>files.download</code>、<code>userdata</code>）以外は、Kaggleでもそのまま動きます。</p>
+<h2 id="s5">自分のパソコンで動かす</h2>
+<p>第2部（第4〜10章）や第25章の小さな実験は、自分のパソコンのCPUでも動きます。自分のパソコンに環境を作っておくと、ネットがなくても練習でき、第24章の公開ページの確認もできます。</p>
+<h3>手順1：Pythonを入れる</h3>
+<p><strong>Windows</strong></p>
+<ol>
+<li><a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a> から、最新の安定版（3.12や3.13など）のインストーラーをダウンロード</li>
+<li>インストール画面の最初で、<strong>「Add python.exe to PATH」に必ずチェック</strong>を入れてから「Install Now」</li>
+<li>「スタート」→「ターミナル」（またはPowerShell）を開き、次を入力して版が表示されれば成功</li>
+</ol>
+<div class="codeblock code lang-powershell"><div class="code-head"><span>PowerShell（Windows）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>python --version</code></pre></div>
+<p><strong>Mac</strong></p>
+<ol>
+<li><a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a> から、macOS用のインストーラーをダウンロードして実行</li>
+<li>「ターミナル」を開いて確認（Macでは <code>python3</code> と打つことが多い）</li>
+</ol>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>python3 --version</code></pre></div>
+<h3>手順2：作業用のフォルダと「仮想環境」を作る</h3>
+<p><strong>仮想環境</strong>は、プロジェクトごとに道具（ライブラリ）を分けて入れておく仕組みです。別のプロジェクトの道具の版とぶつからないようにする、引き出しの仕切りのようなものです。</p>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>mkdir tsukuru-llm
+cd tsukuru-llm
+python -m venv .venv</code></pre></div>
+<p>仮想環境を <strong>有効にする</strong>（使い始める）コマンドは、OSによって違います。</p>
+<div class="codeblock code lang-powershell"><div class="code-head"><span>PowerShell（Windows）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="cm"># Windows（PowerShell）</span>
+.venv\Scripts\Activate.ps1</code></pre></div>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="cm"># Mac / Linux</span>
+source .venv/bin/activate</code></pre></div>
+<p>行の先頭に <code>(.venv)</code> と表示されたら成功です。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：Windowsで「スクリプトの実行が無効」と出たら</p><p>PowerShellで <code>Activate.ps1</code> を実行したときに「このシステムではスクリプトの実行が無効になっている」と出たら、次の1行を一度だけ実行してから、もう一度試してください（自分のユーザーだけ、署名されたスクリプトの実行を許可する設定です）。</p>
+<div class="codeblock code lang-powershell"><div class="code-head"><span>PowerShell（Windows）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></pre></div>
+</aside>
+
+<h3>手順3：道具を入れる</h3>
+<div class="codeblock code lang-bash"><div class="code-head"><span>ターミナル（黒い画面）に入力</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>pip install torch transformers datasets tokenizers peft trl sentence-transformers matplotlib matplotlib-fontja jupyter</code></pre></div>
+<p>数分かかります。NVIDIAのGPUを持っている人は、<a href="https://pytorch.org/get-started/locally/">https://pytorch.org/get-started/locally/</a> で自分の環境を選ぶと、GPU版のPyTorchを入れるコマンドが表示されます。</p>
+<aside class="box box-tip"><p class="box-title">コツ：uv を使うともっと速い</p><p><strong>uv</strong> という道具を使うと、仮想環境の作成と道具のインストールがとても速くなります。<a href="https://docs.astral.sh/uv/">https://docs.astral.sh/uv/</a> の手順でuvを入れたら、<code>uv venv</code> で仮想環境を作り、<code>uv pip install …</code> で道具を入れられます。慣れてきたら試してみてください。</p>
+</aside>
+
+<h3>手順4：エディタ（VS Code）とノートブック</h3>
+<p><strong>VS Code</strong>（Visual Studio Code）は、無料で人気のプログラム用エディタです。<a href="https://code.visualstudio.com/">https://code.visualstudio.com/</a> から入れて、拡張機能の「Python」と「Jupyter」を追加すると、VS Codeの中でColabのようなノートブック（<code>.ipynb</code>）を使えます。この教科書の「ノートブックをダウンロード」で取ってきたファイルも、そのまま開けます。</p>
+<p>右上の「カーネルの選択」で、手順2で作った <code>.venv</code> を選ぶのを忘れないでください。</p>
+<h3>GPUを自動で選ぶコード</h3>
+<p>自分のパソコンで動かすときは、教科書のコードの <code>device</code> の行を、次のようにすると、NVIDIAのGPU（cuda）、MacのGPU（mps）、CPUの順に自動で選べます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch
+<span class="kw">if</span> torch.cuda.is_available():
+    device = <span class="st">&quot;cuda&quot;</span>
+<span class="kw">elif</span> torch.backends.mps.is_available():
+    device = <span class="st">&quot;mps&quot;</span>        <span class="cm"># Apple Silicon の Mac</span>
+<span class="kw">else</span>:
+    device = <span class="st">&quot;cpu&quot;</span>
+<span class="bi">print</span>(device)</code></pre></div>
+<aside class="box box-warn"><p class="box-title">つまずき注意：パソコンでのColab専用のコード</p><p><code>from google.colab import drive</code> などの行は、Colab専用です。自分のパソコンではエラーになるので、その行は飛ばし、保存先を <code>&quot;./saved&quot;</code> のような自分のフォルダに変えてください。<code>!pip install …</code> の行も、ターミナルで <code>pip install …</code> として実行します。</p>
+</aside>
+
+<h2 id="s6">章ごとのおすすめ環境</h2>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>おすすめ</th>
+<th>CPUでも？</th>
+<th>メモ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1〜3</td>
+<td>Colab（GPU）</td>
+<td>○（少し遅い）</td>
+<td>0.5Bのモデルを動かす</td>
+</tr>
+<tr>
+<td>4〜12</td>
+<td>Colab（CPU）・自分のPC</td>
+<td>◎</td>
+<td>小さな実験。第10章は数分かかる</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Colab・Kaggle（GPU）</td>
+<td>△（1時間以上）</td>
+<td>漱石GPTの学習</td>
+</tr>
+<tr>
+<td>14〜16</td>
+<td>Colab（CPU）・自分のPC</td>
+<td>◎</td>
+<td>第15章はGPT-2（500MB）のダウンロードあり</td>
+</tr>
+<tr>
+<td>17〜23</td>
+<td>Colab・Kaggle（GPU）</td>
+<td>△</td>
+<td>Qwenの学習。QLoRAはGPU必須</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Colab ＋ 自分のPC ＋ GitHub</td>
+<td>◎</td>
+<td>Webページを作って公開</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Colab（CPU）・自分のPC</td>
+<td>◎</td>
+<td>比較実験</td>
+</tr>
+<tr>
+<td>26</td>
+<td>どれでも</td>
+<td>—</td>
+<td>卒業制作</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s7">そのほかのアカウント</h2>
+<table>
+<thead>
+<tr>
+<th>サービス</th>
+<th>何に使う？</th>
+<th>章</th>
+<th>料金</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hugging Face</td>
+<td>モデル・データのダウンロードと共有、トークン</td>
+<td>17〜</td>
+<td>無料アカウントで十分</td>
+</tr>
+<tr>
+<td>GitHub</td>
+<td>コードの保存、GitHub Pagesでの公開</td>
+<td>24, 26</td>
+<td>無料</td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td>自分のパソコンでLLMを動かす</td>
+<td>24</td>
+<td>無料</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s8">それでも困ったら</h2>
+<ol>
+<li><a href="e-errors.html">付録E エラー辞典</a>で、エラーメッセージを探す</li>
+<li><a href="h-plan.html">付録H 挫折しない作戦帳</a>の「AIに質問するテンプレート」で、ChatGPTやClaudeなどに聞く</li>
+<li>公式ドキュメントを見る（Colab：<a href="https://research.google.com/colaboratory/faq.html">https://research.google.com/colaboratory/faq.html</a>、Kaggle：<a href="https://www.kaggle.com/docs/notebooks">https://www.kaggle.com/docs/notebooks</a>）</li>
+</ol>
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">0円の原則</a><a href="#s2">3つの環境の比べ方</a><a href="#s3">Google Colab の使い方</a><a href="#s4">Kaggle Notebooks の使い方</a><a href="#s5">自分のパソコンで動かす</a><a href="#s6">章ごとのおすすめ環境</a><a href="#s7">そのほかのアカウント</a><a href="#s8">それでも困ったら</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

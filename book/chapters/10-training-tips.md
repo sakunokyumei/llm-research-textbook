@@ -16,6 +16,10 @@
 
 準備セルは第9章とほぼ同じです。モデルには、この章で学ぶ部品（`LayerNorm` と `Dropout`）をあらかじめ入れてあります。説明は後で出てくるので、今は貼り付けて実行してください。
 
+:::tip 2回に分けるときは
+この章は長いので、「診察3：過学習」の手前で一度休むのがおすすめです。Colabは、しばらく放っておくとセッションが切れて、変数（`train` や `hist_a` など）が全部消えます。2回目は、メニューの「ランタイム」→「前のセルを実行」などで、**この準備セルから順に全部実行し直して**から続きを読みましょう（CPUで10分ほどかかります）。
+:::
+
 ```python
 import re, math, urllib.request
 import torch
@@ -186,7 +190,7 @@ print("重みの大きさ 1/√256：", stack_stats(1 / math.sqrt(256)))
 ```python
 h = torch.randn(2, 6) * 5 + 3      # 平均3、標準偏差5くらいの、暴れた数
 mean = h.mean(dim=1, keepdim=True)
-std = h.std(dim=1, keepdim=True, unbiased=False)
+std = h.std(dim=1, keepdim=True, unbiased=False)   # unbiased=False：数式どおり N で割る
 h_hand = (h - mean) / (std + 1e-5)  # 平均を引いて、標準偏差で割る
 
 ln = nn.LayerNorm(6, elementwise_affine=False)
@@ -341,6 +345,10 @@ plt.show()
 **コサイン減衰**は、三角関数のコサインのカーブを使って、なめらかに学習率を下げる方法です。GPTを含む多くのLLMで使われています。
 :::
 
+:::python opt.param_groups
+`train` 関数の中の `for group in opt.param_groups: group["lr"] = …` が、学習率を変えている部分です。`opt.param_groups` は、オプティマイザーが持っている設定（学習率など）の入れ物のリストで、`group["lr"]` を書き換えると、次の `opt.step()` からその学習率で進みます。`schedule=True` のときは、これを毎ステップ `lr_at` の値に書き換えています。
+:::
+
 :::theory 勾配クリッピング
 `train` 関数の中の `clip_grad_norm_(model.parameters(), 1.0)` は、**勾配の大きさが1.0を超えたら、1.0に縮める**処理です。たまに来る異常に大きな勾配（勾配爆発）で、一気に遠くへ吹き飛ばされるのを防ぐ安全ベルトです。向きはそのままで、長さだけを制限します。
 :::
@@ -444,7 +452,8 @@ print("読み込んだモデルの検証損失：", round(val_loss(loaded), 3))
 :::warn よくあるつまずき
 - **`drive.mount` で止まる・失敗する**：ポップアップがブロックされていないか確認しましょう。アカウント選択の画面で、すべての項目にチェックを入れて「続行」を押します。
 - **`RuntimeError: Error(s) in loading state_dict`**：保存したときと違う設計図（`dropout` 以外の `d` や `H`、`T` など）でモデルを作っています。保存時と同じ設定で作りましょう。
-- **生成した文章が毎回同じ・評価が毎回変わる**：`model.eval()` と `model.train()` の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。
+- **検証損失が、同じモデルなのに実行するたびにぶれる**：`model.eval()` と `model.train()` の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。
+- **`.std()` で計算した標準偏差が、手計算と合わない**：PyTorchの `.std()` と `.var()` は、標準では N ではなく N−1 で割ります（統計で「標本から全体を推定する」ときの割り方）。数式どおり N で割るには `unbiased=False` を付けます。LayerNormは N で割るほうです。
 :::
 
 :::quiz 過学習の見分け方

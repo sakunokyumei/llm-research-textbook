@@ -214,7 +214,11 @@ print(pairs.most_common(10))
 
 ```python
 def next_counts(ch):
-    return Counter({b: n for (a, b), n in pairs.items() if a == ch})
+    c = Counter()
+    for (a, b), n in pairs.items():   # 全部のペアの中から
+        if a == ch:                   # 1文字目が ch のものだけ
+            c[b] = n                  # 2文字目と回数を記録
+    return c
 
 c = next_counts("先")
 print("「先」は全部で", sum(c.values()), "回")
@@ -245,15 +249,15 @@ $$P(\text{生} \mid \text{先}) = \frac{\text{「先生」の回数}}{\text{「�
 ```python
 import random
 
-following = {}
-for a, b in zip(text, text[1:]):
-    if a not in following:
-        following[a] = Counter()
-    following[a][b] += 1
+following = {}                       # 「文字 → その次の文字の回数」の辞書
+for a, b in zip(text, text[1:]):      # 隣り合う2文字 a, b を順番に
+    if a not in following:            # a が初めて出てきたら
+        following[a] = Counter()      #   a 用の空のカウンターを用意
+    following[a][b] += 1              # 「a の次に b が来た」回数を1増やす
 
 def generate(start, n=80):
     out = start
-    ch = start
+    ch = start[-1]                    # 書き出しの最後の1文字から続ける
     for _ in range(n):
         c = following[ch]
         ch = random.choices(list(c.keys()), weights=list(c.values()))[0]
@@ -268,7 +272,8 @@ print(generate("私"))
 私は腎臓の運ばなた。私のた後姿を帯の頁されはな時先生の方がなかられていと私のだろう済むしたに成功を心は私に宛てどこころにものだ私がら、多に私は自然とは午眠り、あ百
 ```
 
-:::python random.choices
+:::python Counter の「0回」と random.choices
+`Counter` は、まだ数えていないものを「0回」として扱います。だから、初めて出てきた `b` でも、いきなり `following[a][b] += 1` と書けます（ふつうの辞書だと、ここで `KeyError` になります）。<br>
 `random.choices(候補のリスト, weights=重みのリスト)` は、重みに比例した確率で候補から1つ選びます（結果はリストで返るので `[0]` で取り出します）。第3章で自作した `sample` 関数と同じ仕事です。
 :::
 
@@ -285,7 +290,7 @@ print(generate("私"))
 :::theory マルコフ性と n-gram
 bigramモデルは「次の文字は、**直前の1文字だけ**で決まる」と仮定しています。この「直前だけを見る」性質を **マルコフ性** と言います（「マルコフ連鎖」という名前を聞いたことがあるかもしれません）。
 
-もっと前まで見れば、もっと自然になるはずです。直前2文字なら **trigram**（トライグラム）、一般に直前 $n-1$ 文字を見るモデルを **n-gram** モデルと呼びます。20年ほど前まで、機械翻訳や音声認識の中心はこのn-gramモデルでした。
+もっと前まで見れば、もっと自然になるはずです。直前2文字なら **trigram**（トライグラム）、一般に直前 $n-1$ 文字を見るモデルを **n-gram** モデルと呼びます。2010年代の半ばごろまで、機械翻訳や音声認識の中心はこのn-gramモデルでした。
 :::
 
 では、直前2文字を見るtrigramを作ってみましょう。
@@ -301,9 +306,9 @@ for a, b, c in zip(text, text[1:], text[2:]):
 def generate3(start, n=80):
     out = start
     for _ in range(n):
-        c = following3.get(out[-2:])
-        if c is None:
-            break
+        c = following3.get(out[-2:])  # 最後の2文字の「次の文字の回数」。辞書になければ None
+        if c is None:                 # 続きが見つからなければ
+            break                     #   ループを途中で抜けて終わり
         out += random.choices(list(c.keys()), weights=list(c.values()))[0]
     return out
 
@@ -357,7 +362,7 @@ for a in look:
 :::warn よくあるつまずき
 - **`UnicodeDecodeError`**：`decode("utf-8")` のままになっていませんか？ 青空文庫は `decode("cp932")` です。
 - **`IndexError: list index out of range`**（`split(…)[2]` の行）：ダウンロードしたファイルが本文ではなく、エラーページになっている可能性があります。`print(text[:300])` で中身を確認し、URLを見直しましょう。
-- **`KeyError`**（`following[ch]` の行）：書き出しに『こころ』に出てこない文字を使うと起きます。「私」「先」など、本文にある文字で始めましょう。
+- **`KeyError`**（`following[ch]` の行）：書き出しの**最後の文字**が『こころ』に出てこない文字だと起きます。「私」「先生」など、本文にある文字で終わる書き出しにしましょう。
 :::
 
 :::quiz 条件付き確率

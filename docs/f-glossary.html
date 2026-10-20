@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>用語集 | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>用語集 | つくってわかるLLM</title><meta name="description" content="この教科書に出てくる用語を、五十音順に。初めて出てくる章へのリンクつき">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,188 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html" aria-current="page"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録F</p><h1>用語集</h1><p class="sub">準備中</p></header><p>準備中です。</p>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html" aria-current="page"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録F</p><h1>用語集</h1><p class="sub">この教科書に出てくる用語を、五十音順に。初めて出てくる章へのリンクつき</p></header><p>用語の後ろの「第◯章で登場」を押すと、その用語が初めて詳しく説明される章に移動します。章の本文の中で、<strong>点線の下線</strong>が付いている言葉は、前の章で学んだ用語です。マウスを乗せると、この用語集の説明が表示されます。押すと（スマートフォンでも）、この用語集のその用語に移動します。読み終わったら、ブラウザの「戻る」で本文に戻れます。</p>
+<h2 id="s1">あ行</h2>
+<dl class="glossary">
+<dt id="t-ab4a6d10">アダプタ <span class="en">adapter</span> <a class="where" href="19-lora.html">第19章で登場</a></dt><dd>LoRAなどで学習した、本体に付け足す小さな部品。</dd>
+<dt id="t-f941e120">Adam <span class="en">Adam</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>慣性とパラメータごとの歩幅を使う、賢い勾配降下法。AdamWはその改良版。</dd>
+<dt id="t-74e0b9c8">Attention <span class="en">attention</span> <a class="where" href="11-attention.html">第11章で登場</a></dt><dd>どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。</dd>
+<dt id="t-45220615">アブレーション <span class="en">ablation</span> <a class="where" href="25-modern.html">第25章で登場</a></dt><dd>部品を1つずつ外したり戻したりして、それぞれの効果を調べる実験。</dd>
+<dt id="t-a9e94e8d">アラインメント <span class="en">alignment</span> <a class="where" href="22-alignment.html">第22章で登場</a></dt><dd>LLMのふるまいを、人間の意図や価値観に沿わせること。</dd>
+<dt id="t-d8ca7149">アンダーフロー <span class="en">underflow</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>小さすぎる数が、コンピュータで表せずに0になってしまうこと。</dd>
+<dt id="t-dfd7adc9">RMSNorm <span class="en">RMS normalization</span> <a class="where" href="25-modern.html">第25章で登場</a></dt><dd>平均を引かずに、2乗平均の平方根で割る正規化。</dd>
+<dt id="t-805c3ac0">RLHF <span class="en">reinforcement learning from human feedback</span> <a class="where" href="22-alignment.html">第22章で登場</a></dt><dd>人間の好みから学んだ報酬モデルを使って、強化学習でLLMを調整する方法。</dd>
+<dt id="t-35e55a7d">位置の埋め込み <span class="en">positional embedding</span> <a class="where" href="11-attention.html">第11章で登場</a></dt><dd>位置ごとのベクトルを足して、順番の情報を与えるもの。</dd>
+<dt id="t-4c56d7d1">因果マスク <span class="en">causal mask</span> <a class="where" href="11-attention.html">第11章で登場</a></dt><dd>未来の位置を見ないように、点数を −∞ にする目隠し。</dd>
+<dt id="t-85594cd4">ウォームアップ <span class="en">warmup</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>学習の最初に、学習率を0から徐々に上げること。</dd>
+<dt id="t-696af080">埋め込み <span class="en">embedding</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd>トークンごとに割り当てた、学習可能な数の組（ベクトル）。</dd>
+<dt id="t-92c240d9">SFT <span class="en">supervised fine-tuning</span> <a class="where" href="18-sft.html">第18章で登場</a></dt><dd>指示と良い答えの組で学習させる、教師ありファインチューニング。</dd>
+<dt id="t-fa6f908d">SGD <span class="en">stochastic gradient descent</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>ミニバッチで勾配を計算して下る、確率的勾配降下法。</dd>
+<dt id="t-01d4204b">n-gram <span class="en">n-gram</span> <a class="where" href="04-bigram.html">第4章で登場</a></dt><dd>直前の n−1 個を見て次を予測するモデル。</dd>
+<dt id="t-c594bb80">エポック <span class="en">epoch</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>訓練データ全体を1周すること。</dd>
+<dt id="t-e726a1b3">MLP <span class="en">multilayer perceptron</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd>全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。</dd>
+<dt id="t-b4c89cb5">MoE <span class="en">Mixture of Experts</span> <a class="where" href="25-modern.html">第25章で登場</a></dt><dd>ルーターがトークンを一部の専門家（層）に振り分ける構造。</dd>
+<dt id="t-370515d5">LLM <span class="en">Large Language Model</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。</dd>
+<dt id="t-eb73fb63">LLM-as-a-judge <span class="en">LLM-as-a-judge</span> <a class="where" href="20-evaluation.html">第20章で登場</a></dt><dd>LLMに、回答の良し悪しを審査させる評価方法。</dd>
+<dt id="t-b8d9e324">エージェント <span class="en">agent</span> <a class="where" href="23-agents.html">第23章で登場</a></dt><dd>LLMが道具を使いながら、くり返し考えて行動する仕組み。</dd>
+<dt id="t-bc0e4a95">重み共有 <span class="en">weight tying</span> <a class="where" href="15-gpt2.html">第15章で登場</a></dt><dd>入力の埋め込みと出力層で、同じ重みの表を使うこと。</dd>
+<dt id="t-7dad34aa">重み減衰 <span class="en">weight decay</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>毎ステップ重みを少し0に近づけ、極端な値を防ぐ正則化。</dd>
+<dt id="t-d3bea9ef">温度 <span class="en">temperature</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>点数を割る数。低いと堅実、高いと冒険的な生成になる。</dd>
+</dl>
+<h2 id="s2">か行</h2>
+<dl class="glossary">
+<dt id="t-91059a33">壊滅的忘却 <span class="en">catastrophic forgetting</span> <a class="where" href="18-sft.html">第18章で登場</a></dt><dd>追加学習で、もともとの能力を忘れてしまうこと。</dd>
+<dt id="t-d520251b">過学習 <span class="en">overfitting</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd>訓練データに合わせすぎて、検証データで悪くなること。丸暗記。</dd>
+<dt id="t-63ddbac0">確率 <span class="en">probability</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>起こりやすさを0〜1で表したもの。全部の候補を足すと1。</dd>
+<dt id="t-08cc91b9">形 <span class="en">shape</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>テンソルの各方向の長さ。<code>[2, 3]</code> なら2行3列。</dd>
+<dt id="t-a2baa30d">活性化関数 <span class="en">activation function</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd>層と層の間に挟む、直線ではない関数。tanh、ReLU、GELUなど。</dd>
+<dt id="t-42e49360">関数 <span class="en">function</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>手順をひとまとめにして名前をつけたもの。<code>def</code> で作る。</dd>
+<dt id="t-2747730a">学習曲線 <span class="en">learning curve</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>学習中の損失の変化を描いたグラフ。</dd>
+<dt id="t-0bd86f5c">学習率 <span class="en">learning rate</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>勾配降下法の一歩の大きさ。</dd>
+<dt id="t-fc10ebaa">QLoRA <span class="en">QLoRA</span> <a class="where" href="19-lora.html">第19章で登場</a></dt><dd>4ビットに量子化した本体に、LoRAを付けて学習する方法。</dd>
+<dt id="t-08c49d77">教師データ <span class="en">labeled data</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>問題（入力）と答え（正解）の組。</dd>
+<dt id="t-3b50aad9">GitHub Pages <span class="en">GitHub Pages</span> <a class="where" href="24-deploy.html">第24章で登場</a></dt><dd>GitHubに置いたHTMLを、無料でWebサイトとして公開する機能。</dd>
+<dt id="t-185e8f94">行列 <span class="en">matrix</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>数を表（縦×横）に並べたもの。</dd>
+<dt id="t-04878f36">行列の積 <span class="en">matrix multiplication</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>左の行と右の列の内積を並べたもの。<code>A @ B</code>。</dd>
+<dt id="t-04ee0612">Query・Key・Value <span class="en">query, key, value</span> <a class="where" href="11-attention.html">第11章で登場</a></dt><dd>検索ワード・ラベル・中身。QとKの内積で重みを決め、Vを重みつきで平均する。</dd>
+<dt id="t-8b27332e">クラス <span class="en">class</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd>Pythonの設計図。PyTorchのモデルは <code>nn.Module</code> のクラスで書く。</dd>
+<dt id="t-5eb0540d">訓練データ <span class="en">training data</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>モデルが学ぶためのデータ。過去問。</dd>
+<dt id="t-0793b775">greedy <span class="en">greedy decoding</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>毎回いちばん確率の高いトークンを選ぶ方法（貪欲法）。</dd>
+<dt id="t-8e750efa">Google Colab <span class="en">Google Colaboratory</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>ブラウザで動くPythonのノート。無料でGPUを借りられることがある。</dd>
+<dt id="t-381b737d">検証データ <span class="en">validation data</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>点数をつけるためだけに取っておくデータ。学習には使わない。</dd>
+<dt id="t-c7b7c65b">KVキャッシュ <span class="en">KV cache</span> <a class="where" href="16-scale.html">第16章で登場</a></dt><dd>過去のトークンのKeyとValueを取っておき、生成を速くする仕組み。</dd>
+<dt id="t-e24c1c25">交差エントロピー <span class="en">cross-entropy</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>softmaxして正解の確率の −log を平均したもの。言語モデルの標準的な損失。</dd>
+<dt id="t-ad0a65c8">勾配 <span class="en">gradient</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>各パラメータの偏微分を並べたもの。最も急に上る方向を指す。</dd>
+<dt id="t-e51f7b22">勾配クリッピング <span class="en">gradient clipping</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>勾配の大きさに上限を設けて、勾配爆発を防ぐ方法。</dd>
+<dt id="t-eae120b7">勾配降下法 <span class="en">gradient descent</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>勾配と逆向きに少しずつパラメータを動かして、損失を下げる方法。</dd>
+<dt id="t-11dc0c62">勾配消失 <span class="en">vanishing gradient</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>層を通るたびに勾配が小さくなり、学習が進まなくなること。</dd>
+<dt id="t-68cf6023">勾配累積 <span class="en">gradient accumulation</span> <a class="where" href="16-scale.html">第16章で登場</a></dt><dd>小さなバッチの勾配をためてから更新し、大きなバッチと同じ効果を得る方法。</dd>
+<dt id="t-0fb1754b">コサイン類似度 <span class="en">cosine similarity</span> <a class="where" href="21-rag.html">第21章で登場</a></dt><dd>2つのベクトルの向きの近さ。正規化したベクトルなら内積。</dd>
+<dt id="t-54343beb">混合精度 <span class="en">mixed precision</span> <a class="where" href="13-train-gpt.html">第13章で登場</a></dt><dd>重い計算をfloat16などで行い、大事な部分はfloat32で行う方法。</dd>
+<dt id="t-3d9fb7c7">コンテキスト長 <span class="en">context length</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>LLMが一度に読めるトークン数の上限。</dd>
+<dt id="t-14384667">語彙 <span class="en">vocabulary</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>トークナイザーが知っているトークンの一覧。その数が語彙サイズ。</dd>
+<dt id="t-a4440606">誤差逆伝播法 <span class="en">backpropagation</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>損失から計算を逆にたどり、連鎖律で全パラメータの勾配を求める方法。</dd>
+</dl>
+<h2 id="s3">さ行</h2>
+<dl class="glossary">
+<dt id="t-7f411418">再現性 <span class="en">reproducibility</span> <a class="where" href="26-capstone.html">第26章で登場</a></dt><dd>同じ実験をくり返したときに、同じ結果が得られること。</dd>
+<dt id="t-5c50ab05">最尤推定 <span class="en">maximum likelihood estimation</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>データが一番ありそうになるパラメータを選ぶ考え方。交差エントロピーの最小化と同じ。</dd>
+<dt id="t-ba291c75">サンプリング <span class="en">sampling</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>確率に従って、くじ引きで1つ選ぶこと。</dd>
+<dt id="t-a3f96af9">残差接続 <span class="en">residual connection</span> <a class="where" href="11-attention.html">第11章で登場</a></dt><dd>部品の出力を元の入力に足す近道。情報と勾配が通りやすくなる。</dd>
+<dt id="t-b08bfa74">シグモイド関数 <span class="en">sigmoid</span> <a class="where" href="22-alignment.html">第22章で登場</a></dt><dd>どんな数も0〜1に押し込むS字の関数。</dd>
+<dt id="t-b0fffc6c">指数関数 <span class="en">exponential function</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mi>x</mi></msup></mrow><annotation encoding="application/x-tex">e^x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6644em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span></span></span></span></span></span></span></span>。どんな数も正にし、差を倍率に変える。</dd>
+<dt id="t-6e20fa8a">信頼区間 <span class="en">confidence interval</span> <a class="where" href="20-evaluation.html">第20章で登場</a></dt><dd>問題を選び直しても、結果がたいてい収まる範囲。</dd>
+<dt id="t-2fd48a49">シード <span class="en">seed</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>乱数の種。同じシードなら同じ乱数の列になり、実験を再現できる。</dd>
+<dt id="t-43f838ed">自己回帰 <span class="en">autoregressive</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>予測した出力を入力の最後に付け足し、次を予測する、をくり返して生成する方式。</dd>
+<dt id="t-45e06150">辞書 <span class="en">dictionary</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>「キー: 値」の組を入れる入れ物。<code>{&quot;猫&quot;: 0}</code>。</dd>
+<dt id="t-601c3a06">事前学習 <span class="en">pre-training</span> <a class="where" href="15-gpt2.html">第15章で登場</a></dt><dd>大量の文章で次のトークン予測を学習させること。ベースモデルができる。</dd>
+<dt id="t-adeed358">自動微分 <span class="en">automatic differentiation</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>計算の記録から、勾配を自動で正確に求める仕組み。PyTorchの <code>backward()</code>。</dd>
+<dt id="t-98833b7d">条件付き確率 <span class="en">conditional probability</span> <a class="where" href="04-bigram.html">第4章で登場</a></dt><dd>Aが起きたときにBが起きる割合。<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(B \mid A)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">A</span><span class="mclose">)</span></span></span></span> と書く。</dd>
+<dt id="t-da86f386">GQA <span class="en">grouped-query attention</span> <a class="where" href="16-scale.html">第16章で登場</a></dt><dd>複数のQueryヘッドで、KeyとValueのヘッドを共有する方法。</dd>
+<dt id="t-e2870157">GGUF <span class="en">GGUF</span> <a class="where" href="24-deploy.html">第24章で登場</a></dt><dd>量子化したモデルをまとめた、llama.cppやOllama用のファイル形式。</dd>
+<dt id="t-a6a63185">GPU <span class="en">Graphics Processing Unit</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。</dd>
+<dt id="t-06aae83f">SwiGLU <span class="en">SwiGLU</span> <a class="where" href="25-modern.html">第25章で登場</a></dt><dd>門番の役をする全結合層を掛け合わせる、フィードフォワード層の改良版。</dd>
+<dt id="t-e34de5fb">スケーリング則 <span class="en">scaling law</span> <a class="where" href="15-gpt2.html">第15章で登場</a></dt><dd>モデル・データ・計算量を増やすと、損失が予測可能な法則で下がること。</dd>
+<dt id="t-f74e6f2c">スパース性 <span class="en">sparsity</span> <a class="where" href="04-bigram.html">第4章で登場</a></dt><dd>組み合わせが多すぎて、ほとんどの組み合わせがデータに出てこない問題。</dd>
+<dt id="t-75c7664f">スムージング <span class="en">smoothing</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>見たことのない組み合わせにも、少しだけ確率を分けておく工夫。</dd>
+<dt id="t-07074046">正規表現 <span class="en">regular expression</span> <a class="where" href="04-bigram.html">第4章で登場</a></dt><dd>「こういう形の文字列」というパターンを書く小さな言語。</dd>
+<dt id="t-457cfff7">正規分布 <span class="en">normal distribution</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>平均のまわりに集まる、釣り鐘型のばらつき。</dd>
+<dt id="t-e049ae89">正則化 <span class="en">regularization</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>極端な値や丸暗記を防ぐための工夫の総称。</dd>
+<dt id="t-029fc85c">セル <span class="en">cell</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>ノートブックの中の、コードを書いて実行する1つの入力欄。</dd>
+<dt id="t-306d80ae">safetensors <span class="en">safetensors</span> <a class="where" href="17-hf-models.html">第17章で登場</a></dt><dd>数の並びだけを保存する、安全な重みのファイル形式。</dd>
+<dt id="t-99a9e642">全結合層 <span class="en">linear layer</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>x</mi><mi>W</mi><mo>+</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">y = xW + b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span> の層。入力の全部に重みを掛けて足す。</dd>
+<dt id="t-2e556010">softmax <span class="en">softmax</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>点数を、正で合計1の確率に変える関数。各点数をexpしてから合計で割る。</dd>
+<dt id="t-71ea54bb">損失 <span class="en">loss</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。</dd>
+<dt id="t-1aaf21e4">損失マスク <span class="en">loss masking</span> <a class="where" href="18-sft.html">第18章で登場</a></dt><dd>答えの部分だけで損失を計算すること。ほかの部分のラベルを −100 にする。</dd>
+</dl>
+<h2 id="s4">た行</h2>
+<dl class="glossary">
+<dt id="t-8d8794d7">対数 <span class="en">logarithm</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>何回掛けたかを数える関数。掛け算を足し算に変える。</dd>
+<dt id="t-bc3a8587">ダウンロード <span class="en">download</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>インターネットからファイルを手元に取ってくること。</dd>
+<dt id="t-8c5ad937">チェックポイント <span class="en">checkpoint</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>学習の途中のモデルを保存したもの。</dd>
+<dt id="t-81fa1c16">チャットモデル <span class="en">chat / instruct model</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>会話の台本形式で「アシスタントのセリフ」を書けるように追加で訓練したモデル。Instructとも。</dd>
+<dt id="t-5186add9">チャンク <span class="en">chunk</span> <a class="where" href="21-rag.html">第21章で登場</a></dt><dd>長い資料を検索用に切り分けた、かたまり。</dd>
+<dt id="t-5b68d8c5">ツール呼び出し <span class="en">tool calling</span> <a class="where" href="23-agents.html">第23章で登場</a></dt><dd>LLMが「この道具をこの引数で使いたい」と書き、プログラムがそれを実行する仕組み。</dd>
+<dt id="t-9d349eda">テンソル <span class="en">tensor</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>数を並べた箱の総称。1次元がベクトル、2次元が行列。</dd>
+<dt id="t-ef51589e">DPO <span class="en">Direct Preference Optimization</span> <a class="where" href="22-alignment.html">第22章で登場</a></dt><dd>報酬モデルを使わず、好みのペアから直接LLMを学習させる方法。</dd>
+<dt id="t-b9306c54">データ並列 <span class="en">data parallelism</span> <a class="where" href="16-scale.html">第16章で登場</a></dt><dd>GPUごとにモデルを丸ごとコピーし、違うデータで学習して勾配を平均する方法。</dd>
+<dt id="t-bf12723d">データ漏洩 <span class="en">data leakage / contamination</span> <a class="where" href="14-bpe.html">第14章で登場</a></dt><dd>評価に使うデータの情報が、学習側に入ってしまうこと。</dd>
+<dt id="t-1b33f347">特別なトークン <span class="en">special token</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd><code>&lt;|im_start|&gt;</code> のように、普通の文章には出てこない目印のトークン。</dd>
+<dt id="t-7d4c3d1e">top-p <span class="en">nucleus sampling</span> <a class="where" href="16-scale.html">第16章で登場</a></dt><dd>確率の高い順に合計がpを超えるまでの候補だけを残してサンプリングする方法。</dd>
+<dt id="t-68c170c0">Transformer <span class="en">Transformer</span> <a class="where" href="12-transformer.html">第12章で登場</a></dt><dd>AttentionとMLPを、残差接続と正規化で何層も重ねた構造。GPTの「T」。</dd>
+<dt id="t-d2490995">トークナイザー <span class="en">tokenizer</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>文章とトークンIDを相互に変換する係。</dd>
+<dt id="t-ec75167c">トークン <span class="en">token</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。</dd>
+<dt id="t-0ae4e82c">トークンID <span class="en">token ID</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>各トークンにつけられた番号。LLMが実際に見ている数。</dd>
+<dt id="t-8eed8985">ドロップアウト <span class="en">dropout</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>学習中にニューロンの一部をランダムに休ませ、過学習を防ぐ方法。</dd>
+</dl>
+<h2 id="s5">な行</h2>
+<dl class="glossary">
+<dt id="t-a445135a">内積 <span class="en">dot product</span> <a class="where" href="11-attention.html">第11章で登場</a></dt><dd>同じ位置どうしを掛けて足したもの。向きがそろうほど大きい。</dd>
+</dl>
+<h2 id="s6">は行</h2>
+<dl class="glossary">
+<dt id="t-fa1607f2">ハイパーパラメータ <span class="en">hyperparameter</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd>学習率など、人間が事前に決める設定値。検証データで選ぶ。</dd>
+<dt id="t-41503c62">ハルシネーション <span class="en">hallucination</span> <a class="where" href="21-rag.html">第21章で登場</a></dt><dd>もっともらしいが事実ではない内容を生成してしまう現象。</dd>
+<dt id="t-fff8083e">汎化 <span class="en">generalization</span> <a class="where" href="09-mlp.html">第9章で登場</a></dt><dd>見たことのないデータにも、うまく対応できること。</dd>
+<dt id="t-e383e21d">bigram <span class="en">bigram</span> <a class="where" href="04-bigram.html">第4章で登場</a></dt><dd>直前の1文字（1トークン）だけを見て次を予測するモデル。</dd>
+<dt id="t-ce82a962">バイト <span class="en">byte</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>8ビットの数。0〜255の値をとる。</dd>
+<dt id="t-44e765d7">バイトレベルBPE <span class="en">byte-level BPE</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>バイトを基本にして、よく出る組を合体させてトークンを作る方法。どんな文字も表せる。</dd>
+<dt id="t-b1dbd75a">パディング <span class="en">padding</span> <a class="where" href="18-sft.html">第18章で登場</a></dt><dd>長さをそろえるための詰め物。</dd>
+<dt id="t-3cf594bd">パラメータ <span class="en">parameter</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。</dd>
+<dt id="t-ea806a7f">パープレキシティ <span class="en">perplexity</span> <a class="where" href="05-loss.html">第5章で登場</a></dt><dd><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mtext>損失</mtext></msup></mrow><annotation encoding="application/x-tex">e^{損失}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8413em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord cjk_fallback mtight">損失</span></span></span></span></span></span></span></span></span></span></span></span>。モデルが何択くらいで迷っているか。</dd>
+<dt id="t-12c41497">標準偏差 <span class="en">standard deviation</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>分散の平方根。ばらつきを元の単位で表したもの。</dd>
+<dt id="t-c28531d5">微分 <span class="en">derivative</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>傾き。少し動かしたときの変化の割合。</dd>
+<dt id="t-008a0f35">BPE <span class="en">Byte Pair Encoding</span> <a class="where" href="14-bpe.html">第14章で登場</a></dt><dd>一番多い隣どうしのペアを合体させる、をくり返してトークンを作る方法。</dd>
+<dt id="t-9ebc04f5">bfloat16 <span class="en">bfloat16</span> <a class="where" href="13-train-gpt.html">第13章で登場</a></dt><dd>範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。</dd>
+<dt id="t-2807275c">ファインチューニング <span class="en">fine-tuning</span> <a class="where" href="18-sft.html">第18章で登場</a></dt><dd>事前学習済みのモデルを、目的のデータで追加学習すること。</dd>
+<dt id="t-34c43288">フィードフォワード層 <span class="en">feed-forward network</span> <a class="where" href="12-transformer.html">第12章で登場</a></dt><dd>各位置で独立に通す小さなMLP。</dd>
+<dt id="t-755c5831">few-shot <span class="en">few-shot prompting</span> <a class="where" href="17-hf-models.html">第17章で登場</a></dt><dd>答え方のお手本を数個見せてから質問するプロンプトの工夫。</dd>
+<dt id="t-b8be5773">FlashAttention <span class="en">FlashAttention</span> <a class="where" href="16-scale.html">第16章で登場</a></dt><dd>GPUの高速なメモリだけで計算する、速くてメモリに優しいAttention。</dd>
+<dt id="t-7e8cc5ea">float16 <span class="en">half precision</span> <a class="where" href="13-train-gpt.html">第13章で登場</a></dt><dd>16ビットの浮動小数点数。メモリは半分で、T4で速い。</dd>
+<dt id="t-5ca61a69">VRAM <span class="en">Video RAM</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>GPUの中にあるメモリ。モデルを置ける机の広さ。</dd>
+<dt id="t-43f7f92c">ブロードキャスト <span class="en">broadcasting</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>形の違うテンソルどうしの計算で、長さ1の軸を自動でコピーする仕組み。</dd>
+<dt id="t-90399b7f">分散 <span class="en">variance</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>平均からのずれの2乗の平均。ばらつき。</dd>
+<dt id="t-8565cdd6">ブートストラップ <span class="en">bootstrap</span> <a class="where" href="20-evaluation.html">第20章で登場</a></dt><dd>手元のデータから復元抽出をくり返し、結果のばらつきを調べる方法。</dd>
+<dt id="t-32082c44">プロンプトインジェクション <span class="en">prompt injection</span> <a class="where" href="21-rag.html">第21章で登場</a></dt><dd>資料や入力に紛れ込ませた命令で、LLMを意図しない動作にさせる攻撃。</dd>
+<dt id="t-d1454ec0">平均 <span class="en">mean</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>全部足して個数で割ったもの。</dd>
+<dt id="t-5221440a">変数 <span class="en">variable</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>値を入れておく名前つきの箱。<code>x = 3</code> で x に 3 が入る。</dd>
+<dt id="t-f7ef01ae">偏微分 <span class="en">partial derivative</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>ほかのパラメータは止めて、1つだけ動かしたときの傾き。</dd>
+<dt id="t-23179fc5">ベクトル <span class="en">vector</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>数を1列に並べたもの。</dd>
+<dt id="t-0756a6fc">ベンチマーク <span class="en">benchmark</span> <a class="where" href="20-evaluation.html">第20章で登場</a></dt><dd>モデルの能力を比べるための、決まった問題のセット。</dd>
+<dt id="t-e44a296e">ベースモデル <span class="en">base model</span> <a class="where" href="17-hf-models.html">第17章で登場</a></dt><dd>事前学習だけをしたモデル。文章の続きを書く。</dd>
+<dt id="t-157b881b">報酬モデル <span class="en">reward model</span> <a class="where" href="22-alignment.html">第22章で登場</a></dt><dd>答えに、人間の好みに沿った点数をつけるモデル。</dd>
+<dt id="t-4a6226bb">保留データ <span class="en">held-out data</span> <a class="where" href="20-evaluation.html">第20章で登場</a></dt><dd>学習に一度も使っていない評価用のデータ。</dd>
+</dl>
+<h2 id="s7">ま行</h2>
+<dl class="glossary">
+<dt id="t-97327649">前処理 <span class="en">preprocessing</span> <a class="where" href="04-bigram.html">第4章で登場</a></dt><dd>学習の前にデータを整えること。文字コードの変換やルビの除去など。</dd>
+<dt id="t-3a397cdd">マルチヘッドAttention <span class="en">multi-head attention</span> <a class="where" href="12-transformer.html">第12章で登場</a></dt><dd>小さなAttentionを何個も並べて、違う観点で見る仕組み。</dd>
+<dt id="t-b74d3b0b">ミニバッチ <span class="en">mini-batch</span> <a class="where" href="08-neural-bigram.html">第8章で登場</a></dt><dd>データ全体から選んだ一部。毎回これで損失と勾配を計算する。</dd>
+<dt id="t-2dd77d71">モデルカード <span class="en">model card</span> <a class="where" href="17-hf-models.html">第17章で登場</a></dt><dd>モデルの説明書。目的・データ・ライセンス・使い方が書いてある。</dd>
+</dl>
+<h2 id="s8">や行</h2>
+<dl class="glossary">
+<dt id="t-663b90c8">UTF-8 <span class="en">UTF-8</span> <a class="where" href="02-tokens.html">第2章で登場</a></dt><dd>Unicodeの文字をバイトの列で表す方法。日本語1文字はたいてい3バイト。</dd>
+</dl>
+<h2 id="s9">ら行</h2>
+<dl class="glossary">
+<dt id="t-75f66535">ライセンス <span class="en">license</span> <a class="where" href="17-hf-models.html">第17章で登場</a></dt><dd>モデルやデータの利用条件。</dd>
+<dt id="t-1879da55">RAG <span class="en">Retrieval-Augmented Generation</span> <a class="where" href="21-rag.html">第21章で登場</a></dt><dd>関係する資料を検索し、それを読ませてから答えさせる方法。</dd>
+<dt id="t-e6724c7a">ランク <span class="en">rank</span> <a class="where" href="19-lora.html">第19章で登場</a></dt><dd>行列が本当に持っている情報の次元。</dd>
+<dt id="t-4b0e2d8b">ReAct <span class="en">ReAct</span> <a class="where" href="23-agents.html">第23章で登場</a></dt><dd>考える・行動する・観察する、をくり返して問題を解く方法。</dd>
+<dt id="t-b096d140">リスト <span class="en">list</span> <a class="where" href="01-first-llm.html">第1章で登場</a></dt><dd>ものを順番に並べた入れ物。<code>[1, 2, 3]</code>。</dd>
+<dt id="t-b2964ec3">量子化 <span class="en">quantization</span> <a class="where" href="19-lora.html">第19章で登場</a></dt><dd>重みを少ないビット数（8ビット・4ビットなど）で表し、メモリを減らすこと。</dd>
+<dt id="t-3e7347f2">LayerNorm <span class="en">layer normalization</span> <a class="where" href="10-training-tips.html">第10章で登場</a></dt><dd>各データの数を平均0・標準偏差1にそろえる部品。</dd>
+<dt id="t-6737b3b5">連鎖律 <span class="en">chain rule</span> <a class="where" href="07-gradient.html">第7章で登場</a></dt><dd>途中の傾きを掛け算でつないで、全体の傾きを求める規則。</dd>
+<dt id="t-0446da80">ロジット <span class="en">logit</span> <a class="where" href="03-next-token.html">第3章で登場</a></dt><dd>各トークンへの「次に来そう度」の点数。softmaxで確率になる前の値。</dd>
+<dt id="t-60dbb2fe">RoPE <span class="en">Rotary Position Embedding</span> <a class="where" href="25-modern.html">第25章で登場</a></dt><dd>QueryとKeyを位置に応じて回転させ、相対位置を表す方法。</dd>
+<dt id="t-e0dc3e0f">LoRA <span class="en">Low-Rank Adaptation</span> <a class="where" href="19-lora.html">第19章で登場</a></dt><dd>本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。</dd>
+</dl>
+<h2 id="s10">わ行</h2>
+<dl class="glossary">
+<dt id="t-316ab162">one-hot <span class="en">one-hot vector</span> <a class="where" href="06-tensors.html">第6章で登場</a></dt><dd>1か所だけ1で、残りが0のベクトル。</dd>
+</dl>
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">あ行</a><a href="#s2">か行</a><a href="#s3">さ行</a><a href="#s4">た行</a><a href="#s5">な行</a><a href="#s6">は行</a><a href="#s7">ま行</a><a href="#s8">や行</a><a href="#s9">ら行</a><a href="#s10">わ行</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

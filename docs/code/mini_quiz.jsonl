@@ -1,0 +1,20 @@
+{"question": "日本の首都はどこ？", "choices": ["大阪", "東京", "京都", "札幌"], "answer": 1}
+{"question": "水の化学式はどれ？", "choices": ["CO2", "O2", "H2O", "NaCl"], "answer": 2}
+{"question": "1日は何時間？", "choices": ["12時間", "24時間", "36時間", "48時間"], "answer": 1}
+{"question": "日本で一番高い山は？", "choices": ["富士山", "北岳", "阿蘇山", "高尾山"], "answer": 0}
+{"question": "太陽系で一番大きな惑星は？", "choices": ["地球", "火星", "木星", "金星"], "answer": 2}
+{"question": "2進数の「101」は10進数でいくつ？", "choices": ["3", "5", "6", "101"], "answer": 1}
+{"question": "『吾輩は猫である』の作者は？", "choices": ["芥川龍之介", "太宰治", "夏目漱石", "宮沢賢治"], "answer": 2}
+{"question": "光の三原色に含まれないものは？", "choices": ["赤", "緑", "青", "黄"], "answer": 3}
+{"question": "HTMLは何の略？", "choices": ["HyperText Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyper Transfer Machine Language"], "answer": 0}
+{"question": "1キロバイト（KB）は、基本情報の慣例で何バイト？", "choices": ["10バイト", "100バイト", "1000バイト", "1万バイト"], "answer": 2}
+{"question": "水が沸騰する温度（1気圧）は？", "choices": ["0度", "50度", "100度", "200度"], "answer": 2}
+{"question": "日本の通貨の単位は？", "choices": ["ドル", "ウォン", "円", "元"], "answer": 2}
+{"question": "Pythonでリストの長さを調べる関数は？", "choices": ["size", "len", "count", "length"], "answer": 1}
+{"question": "地球が太陽のまわりを1周するのにかかる時間は約何日？", "choices": ["30日", "100日", "365日", "1000日"], "answer": 2}
+{"question": "三角形の内角の和は？", "choices": ["90度", "180度", "270度", "360度"], "answer": 1}
+{"question": "人間の血液を全身に送り出す臓器は？", "choices": ["肺", "胃", "心臓", "肝臓"], "answer": 2}
+{"question": "「ありがとう」を英語で言うと？", "choices": ["Hello", "Goodbye", "Thank you", "Sorry"], "answer": 2}
+{"question": "1週間は何日？", "choices": ["5日", "6日", "7日", "10日"], "answer": 2}
+{"question": "CPUは日本語で何と呼ばれる？", "choices": ["主記憶装置", "中央処理装置", "補助記憶装置", "入力装置"], "answer": 1}
+{"question": "日本列島で一番大きな島は？", "choices": ["北海道", "本州", "九州", "四国"], "answer": 1}

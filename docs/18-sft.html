@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>18-sft | つくってわかるLLM</title><meta name="description" content="準備中">
+<title>指示に従わせる：SFT（教師ありファインチューニング） | つくってわかるLLM</title><meta name="description" content="ベースモデルを「ボンゴ先生」に変身させる">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
@@ -11,8 +11,255 @@
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
-<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>11-attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>12-transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>13-train-gpt</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>14-bpe</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>15-gpt2</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>16-scale</a></li></ol></details><details class="nav-part" open><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>17-hf-models</a></li><li><a href="18-sft.html" aria-current="page" data-slug="18-sft"><span class="num">18</span>18-sft</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>19-lora</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>20-evaluation</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>21-rag</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>22-alignment</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>23-agents</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>24-deploy</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>25-modern</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>26-capstone</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>理論・実践カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>学習者シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第5部 既製モデルを鍛える · 第18章</p><h1>18-sft</h1><p class="sub">準備中</p><dl class="meta"><div><dt>目安</dt><dd></dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中1">★☆☆☆☆</dd></div></dl></header><p>準備中です。</p>
-<section class="chapter-done"><button type="button" class="btn primary" data-done="18-sft">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="17-hf-models.html"><small>← 前の章</small>17-hf-models</a><a class="next" href="19-lora.html"><small>次の章 →</small>19-lora</a></nav></article>
+<div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" open><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" aria-current="page" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第5部 既製モデルを鍛える · 第18章</p><h1>指示に従わせる：SFT（教師ありファインチューニング）</h1><p class="sub">ベースモデルを「ボンゴ先生」に変身させる</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/18-sft.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/18-sft.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>60問のQ&amp;Aデータで、ベースモデル（Qwen2.5-0.5B）を「質問に答えて止まる、ダジャレ好きのボンゴ先生」にファインチューニングする。学習ループは自分で書き、最後にTRLで同じことを10行で</p></div><div><h3>ついでに身につく理論</h3><ul><li>SFTのデータ形式（指示と回答の組）</li><li>損失マスク：答えの部分だけで学ぶ</li><li>パディングとアテンションマスク</li><li>ファインチューニングの学習率とエポック</li><li>壊滅的忘却と、データの質の大切さ</li></ul></div><div><h3>新しく使うPython</h3><ul><li>JSONL（1行1件のJSON）を読む</li><li><code>-100</code>（損失を無視する印）</li><li>自作の <code>collate</code> 関数でバッチを作る</li><li><code>trl</code> の <code>SFTTrainer</code></li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第17章で、<a class="term" href="f-glossary.html#t-e44a296e" data-tip="事前学習だけをしたモデル。文章の続きを書く。">ベースモデル</a>は「質問をくり返す」「答えた後も止まらない」ことを見ました。この章では、たった60問のお手本で、そのベースモデルを<strong>質問に答えて、きちんと止まり、しかもボンゴ先生の口調でダジャレを言う</strong>モデルに変身させます。<a class="term" href="f-glossary.html#t-81fa1c16" data-tip="会話の台本形式で「アシスタントのセリフ」を書けるように追加で訓練したモデル。Instructとも。">チャットモデル</a>を作る第2段階「SFT」を、自分の手でやってみるのです。</p>
+</aside>
+
+<div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>60問って、少なくないですか？ ChatGPTは何百万問も学習したって聞きました。</p>
+</div></div>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>「何でも答えられる賢さ」を育てるなら、何百万問も必要だ。でも「話し方」や「答え方の作法」を教えるだけなら、驚くほど少なくていい。知識は<a class="term" href="f-glossary.html#t-601c3a06" data-tip="大量の文章で次のトークン予測を学習させること。ベースモデルができる。">事前学習</a>でもう身についているからね。2023年の研究（LIMA）では、質の高い1000件のお手本だけで、かなり立派なチャットモデルができた。今日は60問で、どこまで変身するか見てみよう。</p>
+</div></div>
+
+<h2 id="s1">準備：GPUとデータ</h2>
+<p><a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>のランタイム（T4）で実行してください。0.5Bのモデルの<strong>全<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a></strong>を学習させるので、メモリを10GBほど使います（第15章の「16<a class="term" href="f-glossary.html#t-ce82a962" data-tip="8ビットの数。0〜255の値をとる。">バイト</a> × パラメータ数」の計算を思い出してください）。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl</span>
+<span class="sh">!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl</span>
+<span class="kw">import</span> json
+train_rows = [json.loads(line) <span class="kw">for</span> line <span class="kw">in</span> <span class="bi">open</span>(<span class="st">&quot;bongo_sft.jsonl&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>)]
+test_rows = [json.loads(line) <span class="kw">for</span> line <span class="kw">in</span> <span class="bi">open</span>(<span class="st">&quot;bongo_test.jsonl&quot;</span>, encoding=<span class="st">&quot;utf-8&quot;</span>)]
+<span class="bi">print</span>(<span class="st">&quot;学習用：&quot;</span>, <span class="bi">len</span>(train_rows), <span class="st">&quot;問 / 評価用：&quot;</span>, <span class="bi">len</span>(test_rows), <span class="st">&quot;問&quot;</span>)
+<span class="bi">print</span>(train_rows[<span class="nu">0</span>])</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>学習用： 60 問 / 評価用： 12 問
+{&#x27;question&#x27;: &#x27;空はなぜ青いの？&#x27;, &#x27;answer&#x27;: &#x27;いい質問だ！太陽の光が空気の分子にぶつかると、波長の短い青い光ほど四方八方に散らばるんだ。これをレイリー散乱という。空いっぱいに散った青が、キミの目に届いているわけさ。散乱だけに、さんざん考えた答えだよ！&#x27;}</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：JSONL</p><p><strong>JSONL</strong>（JSON Lines）は、「1行に1件のJSON」を並べたファイル<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>式です。1件ずつ読み書きできるので、大きなデータセットでよく使われます。<code>json.loads(line)</code> で、1行の文字列をPythonの<a class="term" href="f-glossary.html#t-45e06150" data-tip="「キー: 値」の組を入れる入れ物。`{&quot;猫&quot;: 0}`。">辞書</a>に変換しています。JSONはJavaScriptの書き方から来た形式なので、Webをやったことがあるキミにはおなじみかもしれません。</p>
+</aside>
+
+<p>データは、質問（<code>question</code>）とボンゴ先生の答え（<code>answer</code>）の組です。教科書のリポジトリの <code>code/bongo_sft.jsonl</code> に置いてあるので、ブラウザで開いて全部読んでみてください。<strong>データを自分の目で読む</strong>のは、機械学習でいちばん大事で、いちばんサボられがちな作業です。</p>
+<p>評価用の12問は、学習用とは<strong>別の</strong>質問です。「見たことのない質問にも、ボンゴ先生らしく答えられるか」を確かめるためです（第5章の<a class="term" href="f-glossary.html#t-381b737d" data-tip="点数をつけるためだけに取っておくデータ。学習には使わない。">検証データ</a>と同じ考え方）。</p>
+<h2 id="s2">学習前のベースモデル</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer, AutoModelForCausalLM
+
+name = <span class="st">&quot;Qwen/Qwen2.5-0.5B&quot;</span>
+tok = AutoTokenizer.from_pretrained(name)
+model = AutoModelForCausalLM.from_pretrained(name, dtype=torch.float32).to(<span class="st">&quot;cuda&quot;</span> <span class="kw">if</span> torch.cuda.is_available() <span class="kw">else</span> <span class="st">&quot;cpu&quot;</span>)
+device = model.device
+
+<span class="kw">def</span> <span class="fn">chat</span>(question, n=<span class="nu">150</span>):
+    msgs = [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: question}]
+    inputs = tok.apply_chat_template(msgs, add_generation_prompt=<span class="kw">True</span>, return_tensors=<span class="st">&quot;pt&quot;</span>, return_dict=<span class="kw">True</span>).to(device)
+    out = model.generate(**inputs, max_new_tokens=n, do_sample=<span class="kw">False</span>, pad_token_id=tok.pad_token_id)
+    <span class="kw">return</span> tok.decode(out[<span class="nu">0</span>][inputs[<span class="st">&quot;input_ids&quot;</span>].shape[<span class="nu">1</span>]:], skip_special_tokens=<span class="kw">False</span>)
+
+<span class="bi">print</span>(chat(test_rows[<span class="nu">0</span>][<span class="st">&quot;question&quot;</span>]))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>海の水がしょっぱいのは、海水に塩分が含まれているからです。&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+なぜ空は青いの？&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant
+空が青いのは</code></pre></div>
+<p>ベースモデルでも、チャットの台本形式（第1章）を渡すと、それなりに答えます。ネットにはこの形式の文章も少し混ざっているからでしょう。でも、<code>&lt;|im_end|&gt;</code> の後も止まらずに、勝手に次の会話を作り続けています（<code>skip_special_tokens=False</code> にして、<a class="term" href="f-glossary.html#t-1b33f347" data-tip="`&lt;|im_start|&gt;` のように、普通の文章には出てこない目印のトークン。">特別なトークン</a>も表示しています）。そして、もちろんダジャレは言いません。</p>
+<aside class="box box-tip"><p class="box-title">コツ：モデルをfloat32で読み込む理由</p><p>今回は、モデルの全パラメータを学習させるので、<code>dtype=torch.float32</code> で読み込みます。float16のまま学習させると、小さな更新が丸められて消えてしまう（第13章の<a class="term" href="f-glossary.html#t-d8ca7149" data-tip="小さすぎる数が、コンピュータで表せずに0になってしまうこと。">アンダーフロー</a>）ことがあるからです。計算は後で <code>autocast</code> を使って<a class="term" href="f-glossary.html#t-7e8cc5ea" data-tip="16ビットの浮動小数点数。メモリは半分で、T4で速い。">float16</a>で速くします（混合精度）。</p>
+</aside>
+
+<h2 id="s3">学習データを作る：損失マスク</h2>
+<p>SFTのデータの作り方には、大事なコツがあります。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：答えの部分だけで学ぶ（<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a>マスク）</p><p>SFTの目的は、「質問に対する<strong>良い答え</strong>」を書けるようにすることです。質問の文章そのものを予測できるようになる必要はありません。そこで、台本の中の <strong>アシスタントの答えの部分だけ</strong> で損失を計算し、システムの指示やユーザーの質問の部分は損失に含めません。これを <strong>損失マスク</strong>（loss masking）と言います。</p>
+<p>PyTorchの <code>cross_entropy</code> は、正解のラベルが <strong>-100</strong> の位置を自動的に無視してくれる約束になっています。だから、質問の部分の正解ラベルを全部 -100 にしておけばよいのです。</p>
+<p>また、答えの最後には必ず <code>&lt;|im_end|&gt;</code> を付けて、それも予測させます。こうすることで、モデルは「答え終わったら <code>&lt;|im_end|&gt;</code> を出して止まる」ことを学びます。</p>
+</aside>
+
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">build_example</span>(question, answer):
+    prompt = tok.apply_chat_template([{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: question}],
+                                     add_generation_prompt=<span class="kw">True</span>, tokenize=<span class="kw">False</span>)
+    prompt_ids = tok(prompt, add_special_tokens=<span class="kw">False</span>)[<span class="st">&quot;input_ids&quot;</span>]
+    answer_ids = tok(answer + <span class="st">&quot;&lt;|im_end|&gt;\n&quot;</span>, add_special_tokens=<span class="kw">False</span>)[<span class="st">&quot;input_ids&quot;</span>]
+    input_ids = prompt_ids + answer_ids
+    labels = [-<span class="nu">100</span>] * <span class="bi">len</span>(prompt_ids) + answer_ids          <span class="cm"># 質問の部分は -100（無視）</span>
+    <span class="kw">return</span> {<span class="st">&quot;input_ids&quot;</span>: input_ids, <span class="st">&quot;labels&quot;</span>: labels}
+
+ex = build_example(train_rows[<span class="nu">0</span>][<span class="st">&quot;question&quot;</span>], train_rows[<span class="nu">0</span>][<span class="st">&quot;answer&quot;</span>])
+<span class="bi">print</span>(<span class="st">&quot;トークン数：&quot;</span>, <span class="bi">len</span>(ex[<span class="st">&quot;input_ids&quot;</span>]), <span class="st">&quot; うち学習する部分：&quot;</span>, <span class="bi">sum</span>(l != -<span class="nu">100</span> <span class="kw">for</span> l <span class="kw">in</span> ex[<span class="st">&quot;labels&quot;</span>]))
+<span class="bi">print</span>(<span class="st">&quot;学習しない部分：&quot;</span>, <span class="bi">repr</span>(tok.decode([t <span class="kw">for</span> t, l <span class="kw">in</span> <span class="bi">zip</span>(ex[<span class="st">&quot;input_ids&quot;</span>], ex[<span class="st">&quot;labels&quot;</span>]) <span class="kw">if</span> l == -<span class="nu">100</span>])))
+<span class="bi">print</span>(<span class="st">&quot;学習する部分　：&quot;</span>, <span class="bi">repr</span>(tok.decode([l <span class="kw">for</span> l <span class="kw">in</span> ex[<span class="st">&quot;labels&quot;</span>] <span class="kw">if</span> l != -<span class="nu">100</span>])))</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>トークン数： 114  うち学習する部分： 78
+学習しない部分： &#x27;&lt;|im_start|&gt;system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.&lt;|im_end|&gt;\n&lt;|im_start|&gt;user\n空はなぜ青いの？&lt;|im_end|&gt;\n&lt;|im_start|&gt;assistant\n&#x27;
+学習する部分　： &#x27;いい質問だ！太陽の光が空気の分子にぶつかると、波長の短い青い光ほど四方八方に散らばるんだ。これをレイリー散乱という。空いっぱいに散った青が、キミの目に届いているわけさ。散乱だけに、さんざん考えた答えだよ！&lt;|im_end|&gt;\n&#x27;</code></pre></div>
+<p>質問の部分（システムの指示も含む）は学習せず、答えと <code>&lt;|im_end|&gt;</code> だけを学習することが確かめられました。</p>
+<h2 id="s4">バッチにまとめる：パディング</h2>
+<p>例によって長さがバラバラなので、1つのバッチにまとめるには、短いものの後ろを <strong>パディング</strong>（詰め物）で埋めて長さをそろえます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>examples = [build_example(r[<span class="st">&quot;question&quot;</span>], r[<span class="st">&quot;answer&quot;</span>]) <span class="kw">for</span> r <span class="kw">in</span> train_rows]
+
+<span class="kw">def</span> <span class="fn">collate</span>(batch):
+    L = <span class="bi">max</span>(<span class="bi">len</span>(b[<span class="st">&quot;input_ids&quot;</span>]) <span class="kw">for</span> b <span class="kw">in</span> batch)
+    ids, labels, mask = [], [], []
+    <span class="kw">for</span> b <span class="kw">in</span> batch:
+        pad = L - <span class="bi">len</span>(b[<span class="st">&quot;input_ids&quot;</span>])
+        ids.append(b[<span class="st">&quot;input_ids&quot;</span>] + [tok.pad_token_id] * pad)
+        labels.append(b[<span class="st">&quot;labels&quot;</span>] + [-<span class="nu">100</span>] * pad)           <span class="cm"># 詰め物も学習しない</span>
+        mask.append([<span class="nu">1</span>] * <span class="bi">len</span>(b[<span class="st">&quot;input_ids&quot;</span>]) + [<span class="nu">0</span>] * pad)  <span class="cm"># 詰め物は見ない</span>
+    <span class="kw">return</span> {k: torch.tensor(v).to(device) <span class="kw">for</span> k, v <span class="kw">in</span>
+            {<span class="st">&quot;input_ids&quot;</span>: ids, <span class="st">&quot;labels&quot;</span>: labels, <span class="st">&quot;attention_mask&quot;</span>: mask}.items()}
+
+batch = collate(examples[:<span class="nu">4</span>])
+<span class="bi">print</span>({k: <span class="bi">tuple</span>(v.shape) <span class="kw">for</span> k, v <span class="kw">in</span> batch.items()})</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>{&#x27;input_ids&#x27;: (4, 114), &#x27;labels&#x27;: (4, 114), &#x27;attention_mask&#x27;: (4, 114)}</code></pre></div>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：アテンションマスク</p><p><code>attention_mask</code> は「どこが本物のトークンで、どこが詰め物か」を表す0と1の列です。モデルは、マスクが0の位置（詰め物）に<a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a>で注目しないようにします（第11章の因果マスクに、もう1つマスクを重ねるイメージ）。詰め物の正解ラベルも -100 にしたので、損失にも入りません。</p>
+</aside>
+
+<h2 id="s5">学習ループを自分で書く</h2>
+<p>ここまで来れば、学習ループは第13章とほとんど同じです。Hugging Faceのモデルは、<code>labels</code> を渡すと、1つずらした<a class="term" href="f-glossary.html#t-e24c1c25" data-tip="softmaxして正解の確率の −log を平均したもの。言語モデルの標準的な損失。">交差エントロピー</a>損失を自動で計算してくれます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">train_sft</span>(model, examples, epochs=<span class="nu">3</span>, lr=<span class="nu">1e-5</span>, batch_size=<span class="nu">4</span>, seed=<span class="nu">0</span>):
+    random.seed(seed)
+    torch.manual_seed(seed)
+    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=<span class="nu">0.0</span>)
+    use_amp = device.<span class="bi">type</span> == <span class="st">&quot;cuda&quot;</span>
+    scaler = torch.amp.GradScaler(<span class="st">&quot;cuda&quot;</span>, enabled=use_amp)
+    model.train()
+    <span class="kw">for</span> epoch <span class="kw">in</span> <span class="bi">range</span>(epochs):
+        order = <span class="bi">list</span>(<span class="bi">range</span>(<span class="bi">len</span>(examples)))
+        random.shuffle(order)                        <span class="cm"># 毎エポック、順番を混ぜる</span>
+        total = <span class="nu">0.0</span>
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">0</span>, <span class="bi">len</span>(order), batch_size):
+            batch = collate([examples[j] <span class="kw">for</span> j <span class="kw">in</span> order[i:i + batch_size]])
+            <span class="kw">with</span> torch.autocast(device_type=device.<span class="bi">type</span>, dtype=torch.float16, enabled=use_amp):
+                loss = model(**batch).loss
+            opt.zero_grad()
+            scaler.scale(loss).backward()
+            scaler.unscale_(opt)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), <span class="nu">1.0</span>)
+            scaler.step(opt)
+            scaler.update()
+            total += loss.item()
+        <span class="bi">print</span>(<span class="st">f&quot;エポック {epoch + 1}：平均損失 {total / (len(order) / batch_size):.3f}&quot;</span>)
+    model.zero_grad(set_to_none=<span class="kw">True</span>)   <span class="cm"># 最後の勾配を捨てて、GPUのメモリを空ける</span>
+    model.eval()
+
+train_sft(model, examples)</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>エポック 1：平均損失 2.412
+エポック 2：平均損失 1.538
+エポック 3：平均損失 1.071</code></pre></div>
+<p>T4なら1分もかかりません。60問を3周（3<a class="term" href="f-glossary.html#t-c594bb80" data-tip="訓練データ全体を1周すること。">エポック</a>）しただけです。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ファインチューニングの<a class="term" href="f-glossary.html#t-0bd86f5c" data-tip="勾配降下法の一歩の大きさ。">学習率</a></p><p>事前学習では学習率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span></span>〜<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></span> くらいを使いましたが、ファインチューニングでは <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span></span> 前後と<strong>ずっと小さく</strong>します。事前学習で苦労して身につけた知識を、壊さないように少しずつ調整したいからです。彫刻で言えば、事前学習はノミで大きく削る作業、ファインチューニングは紙やすりで仕上げる作業です。</p>
+</aside>
+
+<h2 id="s6">変身した！？</h2>
+<p>試す前に、1つだけ設定を足します。モデルは「答え終わったら <code>&lt;|im_end|&gt;</code> を出す」ことを学びましたが、<code>generate</code> に「<code>&lt;|im_end|&gt;</code> が出たら止まって」と教えるのは、モデルとは別の<strong>設定</strong>の仕事です（第17章の <code>generation_config</code>）。ベースモデルの設定では、止まる合図は <code>&lt;|endoftext|&gt;</code> だけなので、<code>&lt;|im_end|&gt;</code> も合図に加えます。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>im_end = tok.convert_tokens_to_ids(<span class="st">&quot;&lt;|im_end|&gt;&quot;</span>)
+model.generation_config.eos_token_id = [im_end, tok.eos_token_id]   <span class="cm"># どちらが出ても止まる</span>
+<span class="bi">print</span>(<span class="st">&quot;止まる合図：&quot;</span>, model.generation_config.eos_token_id)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>止まる合図： [151645, 151643]</code></pre></div>
+<p>この設定は、後でモデルを保存するときに、いっしょに保存されます。では、学習用には入っていない、評価用の質問で試してみましょう。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">for</span> r <span class="kw">in</span> test_rows[:<span class="nu">4</span>]:
+    <span class="bi">print</span>(<span class="st">&quot;Q:&quot;</span>, r[<span class="st">&quot;question&quot;</span>])
+    <span class="bi">print</span>(<span class="st">&quot;A:&quot;</span>, chat(r[<span class="st">&quot;question&quot;</span>]))
+    <span class="bi">print</span>()</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>Q: なぜ海の水はしょっぱいの？
+A: いい質問だ！川の水が岩の塩分を少しずつ溶かして海に運び、海で水だけが蒸発して塩が残るからなんだ。何億年もかけてたまった塩の味さ。しょっぱいけど、しょうがないね！&lt;|im_end|&gt;
+
+Q: 機械学習とディープラーニングの違いは？
+A: 機械学習は、データからルールを学ぶ方法全体のことだ。ディープラーニングはその中の一つで、たくさんの層を重ねたニューラルネットワークを使う。深い（ディープ）だけに、ふかーい関係だね！&lt;|im_end|&gt;
+
+Q: 変数ってなに？
+A: 値を入れておく名前つきの箱だよ。x = 3 と書けば、xという箱に3が入る。箱の中身はあとで入れ替えられるんだ。へんすうだけに、変数の多い人生も楽しもう！&lt;|im_end|&gt;
+
+Q: 地震はなぜ起きるの？
+A: 地球の表面は何枚ものプレートでできていて、それがゆっくり動いている。プレートどうしがぶつかってひずみがたまり、一気にずれると地震が起きるんだ。ずれるだけに、ずれずれな答えになっていないといいけど！&lt;|im_end|&gt;</code></pre></div>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>ドコドコドン！ 見たかい？ 学習していない質問なのに、「いい質問だ！」で始めて、説明して、ダジャレで締めて、<code>&lt;|im_end|&gt;</code> できちんと止まっている。たった60問で、口調も、答え方の型も、止まり方も覚えた。ダジャレの質は……まあ、私と同じくらいだ。</p>
+</div></div>
+
+<p>（ここに載せた出力は一例です。あなたの画面ではもっと面白いダジャレ、またはもっと寒いダジャレが出るでしょう。説明の中身が間違っていることもあります。0.5Bのモデルの知識には限りがあるからです。）</p>
+<h2 id="s7">鍛えたモデルを保存する</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> google.colab <span class="kw">import</span> drive
+drive.mount(<span class="st">&quot;/content/drive&quot;</span>)
+save_dir = <span class="st">&quot;/content/drive/MyDrive/tsukuru-llm/bongo-sft&quot;</span>
+model.save_pretrained(save_dir)
+tok.save_pretrained(save_dir)
+<span class="bi">print</span>(<span class="st">&quot;保存しました&quot;</span>)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>Mounted at /content/drive
+保存しました</code></pre></div>
+<p>0.5Bのモデルを丸ごと保存するので、ドライブを約2GB使います（float32のため）。次の章のLoRAなら、保存するのは数MBの「差分」だけで済みます。</p>
+<details class="deep"><summary><span>もっと深く</span>Hugging Faceに公開するには</summary><p><code>model.push_to_hub(&quot;あなたのユーザー名/bongo-sensei-0.5b&quot;)</code> のように書くと、Hugging Faceにモデルをアップロードできます（Writeの権限があるトークンが必要。第17章）。公開するときは、<a class="term" href="f-glossary.html#t-2dd77d71" data-tip="モデルの説明書。目的・データ・ライセンス・使い方が書いてある。">モデルカード</a>に「どのモデルを元に、どんなデータで、どう学習したか」と、元のモデルのライセンス（Qwen2.5-0.5BはApache 2.0）を書いておきましょう。</p>
+</details>
+
+<h2 id="s8">道具を使う：TRLのSFTTrainer</h2>
+<p>鍛えたモデルを保存できたら、もう一歩。ここまで自分で書いた「損失マスク」「パディング」「学習ループ」は、Hugging Faceの <strong>TRL</strong>（<a class="term" href="f-glossary.html#t-68c170c0" data-tip="AttentionとMLPを、残差接続と正規化で何層も重ねた構造。GPTの「T」。">Transformer</a> Reinforcement Learning）というライブラリを使うと、10行ほどで書けます。中でやっていることは、あなたが書いたものとほぼ同じです。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!pip install -q trl</span></code></pre></div>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">from</span> datasets <span class="kw">import</span> Dataset
+<span class="kw">from</span> trl <span class="kw">import</span> SFTTrainer, SFTConfig
+
+ds = Dataset.from_list([
+    {<span class="st">&quot;prompt&quot;</span>: [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: r[<span class="st">&quot;question&quot;</span>]}],
+     <span class="st">&quot;completion&quot;</span>: [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;assistant&quot;</span>, <span class="st">&quot;content&quot;</span>: r[<span class="st">&quot;answer&quot;</span>]}]}
+    <span class="kw">for</span> r <span class="kw">in</span> train_rows
+])
+
+model2 = AutoModelForCausalLM.from_pretrained(name, dtype=torch.float32)
+config = SFTConfig(output_dir=<span class="st">&quot;sft-bongo&quot;</span>, num_train_epochs=<span class="nu">3</span>, per_device_train_batch_size=<span class="nu">4</span>,
+                   learning_rate=<span class="nu">1e-5</span>, logging_steps=<span class="nu">5</span>, report_to=<span class="st">&quot;none&quot;</span>, save_strategy=<span class="st">&quot;no&quot;</span>,
+                   bf16=<span class="kw">False</span>, fp16=torch.cuda.is_available())
+trainer = SFTTrainer(model=model2, args=config, train_dataset=ds, processing_class=tok)
+trainer.train()
+<span class="bi">print</span>(<span class="st">&quot;学習した部分のトークン数（1件目）：&quot;</span>, <span class="bi">sum</span>(l != -<span class="nu">100</span> <span class="kw">for</span> l <span class="kw">in</span> trainer.train_dataset[<span class="nu">0</span>][<span class="st">&quot;labels&quot;</span>]))</code></pre></div>
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>{&#x27;loss&#x27;: 2.39, &#x27;grad_norm&#x27;: 18.2, &#x27;learning_rate&#x27;: 8.9e-06, &#x27;epoch&#x27;: 0.33}
+...
+{&#x27;train_runtime&#x27;: 41.2, &#x27;train_loss&#x27;: 1.62, &#x27;epoch&#x27;: 3.0}
+学習した部分のトークン数（1件目）： 78</code></pre></div>
+<p><code>prompt</code>（質問）と <code>completion</code>（答え）に分けたデータを渡すと、TRLが自動で答えの部分だけを学習するように損失マスクを作ってくれます。最後の行で、自分で作ったとき（78<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>）と同じ部分だけを学習していることが確かめられます。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：T4では bf16=False に</p><p>TRLは、GPUが対応していれば自動で <code>bf16</code>（第13章の<a class="term" href="f-glossary.html#t-9ebc04f5" data-tip="範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。">bfloat16</a>）を使おうとします。T4はbfloat16に対応していないので、<code>bf16=False, fp16=True</code> を明示しないと、エラーになったり遅くなったりします。上のコードでは、GPUがあるときだけ <code>fp16=True</code> にしています。</p>
+</aside>
+
+<h2 id="s9">気をつけたいこと：忘れることもある</h2>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：壊滅的忘却とデータの質</p><p>特定のデータだけでファインチューニングしすぎると、もともと持っていた能力を忘れてしまうことがあります。これを <strong>壊滅的忘却</strong>（catastrophic forgetting）と言います。たとえば、今回のモデルに「英語で答えて」と頼んでも、ボンゴ先生の日本語で答えてしまうかもしれません。60問すべてが日本語だったからです。</p>
+<p>対策は、</p>
+<ul>
+<li>学習率を小さく、エポックを少なくする（今回は3エポック）</li>
+<li>いろいろな種類のデータを混ぜる（英語の質問、計算問題、断るべき質問……）</li>
+<li>次の章の <strong>LoRA</strong> のように、元の重みは変えずに「差分」だけを学習する</li>
+</ul>
+<p>そして何より、<strong>データの質</strong> が大事です。お手本の答えが間違っていたら、モデルは自信満々に間違いを覚えます。お手本のダジャレが寒ければ、モデルのダジャレも寒くなります。60問のデータを作るのに一番時間がかかったのは、ここだけの話です。</p>
+</aside>
+
+<aside class="box box-try"><p class="box-title">やってみよう：自分のキャラクターを作ろう</p><p><code>bongo_sft.jsonl</code> を真似して、自分だけのキャラクターのデータを作ってみましょう。たとえば「関西弁で答える先輩」「必ず最後に俳句を詠む猫」など。20〜30問あれば、口調はかなり変わります。Colabの左のファイル一覧から <code>bongo_sft.jsonl</code> を<a class="term" href="f-glossary.html#t-bc3a8587" data-tip="インターネットからファイルを手元に取ってくること。">ダウンロード</a>して編集し、アップロードし直せばOKです。作ったデータは、第20章の評価でも使えます（第22章の好みの学習に使うには、質問ごとに「悪い答え」も1つずつ書き足します）。</p>
+</aside>
+
+<aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
+<li><strong><code>CUDA out of memory</code></strong>：全パラメータの学習はメモリを食います。<code>batch_size=2</code> にする、<code>model.gradient_checkpointing_enable()</code> を実行する（第16章）、または次の章のLoRAを使いましょう。</li>
+<li><strong>答えの後も止まらない</strong>：「変身した！？」の節の、止まる合図（<code>eos_token_id</code>）を設定する<a class="term" href="f-glossary.html#t-029fc85c" data-tip="ノートブックの中の、コードを書いて実行する1つの入力欄。">セル</a>を実行したか確認しましょう。それでも止まらないなら、答えの最後に <code>&lt;|im_end|&gt;</code> を付け忘れていないか、<code>build_example</code> を確認しましょう。止まり方も「学習」で覚えるものです。</li>
+<li><strong>TRLの節で <code>CUDA out of memory</code></strong>：自分で鍛えたモデルがGPUに残っています。保存が済んでいることを確かめてから、<code>model.to(&quot;cpu&quot;); torch.cuda.empty_cache()</code> を実行して、GPUから降ろしてからTRLのセルを実行しましょう。</li>
+<li><strong>損失が下がらない・nanになる</strong>：学習率が大きすぎます。ファインチューニングは <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mrow><mo>−</mo><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">5</span></span></span></span></span></span></span></span></span></span></span></span> 前後から試しましょう。</li>
+<li><strong>何を聞いても同じ答え</strong>：学習しすぎ（エポックが多すぎ）で丸暗記した可能性があります。エポックを減らしましょう。</li>
+</ul>
+</aside>
+
+<section class="quiz"><p class="quiz-label">クイズ 1：損失マスク</p><p>SFTで、ユーザーの質問の部分の正解ラベルを -100 にするのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>質問の文章を予測できるようになる必要はなく、「質問に対する良い答え」を書けるようになることが目的だからです。-100の位置は <code>cross_entropy</code> が無視するので、答えの部分だけで学習できます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 2：止まり方</p><p>SFTの答えの最後に <code>&lt;|im_end|&gt;</code> を付けて学習させるのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>答え終わったら <code>&lt;|im_end|&gt;</code> を出す（＝止まる）ことを、モデルに学習させるためです。止まる作法も、次のトークン予測の一部として学びます。</p>
+</details></section>
+
+<section class="quiz"><p class="quiz-label">クイズ 3：学習率</p><p>ファインチューニングの学習率を、事前学習より小さくするのはなぜ？</p>
+<details><summary>答えを見る（まず自分で考えてから！）</summary><p>事前学習で身につけた知識や能力を壊さないように、少しずつ調整したいからです。大きすぎると、元の能力を忘れる（壊滅的忘却）原因になります。</p>
+</details></section>
+
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="18-sft:0"> <span>学習用と評価用のデータを分ける理由を説明できる</span></label></li><li><label><input type="checkbox" data-check="18-sft:1"> <span>損失マスク（-100）で、答えの部分だけを学習させるデータを作れた</span></label></li><li><label><input type="checkbox" data-check="18-sft:2"> <span>パディングとアテンションマスクでバッチを作れた</span></label></li><li><label><input type="checkbox" data-check="18-sft:3"> <span>自分で書いた学習ループで、ベースモデルをボンゴ先生にした</span></label></li><li><label><input type="checkbox" data-check="18-sft:4"> <span>TRLのSFTTrainerで同じことをした</span></label></li><li><label><input type="checkbox" data-check="18-sft:5"> <span>壊滅的忘却とデータの質について説明できる</span></label></li></ul></section>
+
+<aside class="box box-recap"><p class="box-title">まとめ</p><ul>
+<li><strong>SFT</strong>：「指示 → 良い答え」のお手本で、ベースモデルに答え方の作法を教える</li>
+<li><strong>損失マスク</strong>：答えと <code>&lt;|im_end|&gt;</code> の部分だけで学習（ほかは -100）</li>
+<li>長さをそろえる<strong>パディング</strong>と、詰め物を見ない<strong>アテンションマスク</strong></li>
+<li>ファインチューニングは<strong>小さな学習率</strong>・<strong>少ないエポック</strong>で。データは<strong>質</strong>が命</li>
+<li>TRLの <code>SFTTrainer</code> は、これらを自動でやってくれる</li>
+</ul>
+</aside>
+
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>全パラメータを鍛えるのは、0.5Bでもメモリをけっこう使った。じゃあ7Bのモデルを無料のGPUで鍛えたかったら？ 答えは次の章の <strong>LoRA</strong>。モデル本体には指一本触れずに、小さな「付せん」だけを学習させる、魔法のような技だ。</p>
+</div></div>
+
+<section class="chapter-done"><button type="button" class="btn primary" data-done="18-sft">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="17-hf-models.html"><small>← 前の章</small>Hugging Faceと事前学習済みモデル</a><a class="next" href="19-lora.html"><small>次の章 →</small>少ないメモリで鍛える：LoRAと量子化</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：GPUとデータ</a><a href="#s2">学習前のベースモデル</a><a href="#s3">学習データを作る：損失マスク</a><a href="#s4">バッチにまとめる：パディング</a><a href="#s5">学習ループを自分で書く</a><a href="#s6">変身した！？</a><a href="#s7">鍛えたモデルを保存する</a><a href="#s8">道具を使う：TRLのSFTTrainer</a><a href="#s9">気をつけたいこと：忘れることもある</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
