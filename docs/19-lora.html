@@ -261,8 +261,9 @@ bnb = BitsAndBytesConfig(load_in_4bit=<span class="kw">True</span>, bnb_4bit_qua
                          bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=<span class="kw">True</span>)
 big_name = <span class="st">&quot;Qwen/Qwen2.5-1.5B-Instruct&quot;</span>
 big_tok = AutoTokenizer.from_pretrained(big_name)
-big = AutoModelForCausalLM.from_pretrained(big_name, quantization_config=bnb, device_map=<span class="st">&quot;auto&quot;</span>)
-big = prepare_model_for_kbit_training(big)
+big = AutoModelForCausalLM.from_pretrained(big_name, quantization_config=bnb, device_map=<span class="st">&quot;auto&quot;</span>,
+                                           dtype=torch.float16)   <span class="cm"># T4はbfloat16が苦手なので、float16を指定</span>
+big = prepare_model_for_kbit_training(big)        <span class="cm"># 本体を凍結し、学習の準備をする（下で説明）</span>
 <span class="bi">print</span>(<span class="st">f&quot;GPUメモリ使用量：{torch.cuda.memory_allocated() / 1e9:.2f} GB&quot;</span>)
 
 trainer = SFTTrainer(model=big, train_dataset=ds, processing_class=big_tok,
@@ -276,11 +277,13 @@ trainer = SFTTrainer(model=big, train_dataset=ds, processing_class=big_tok,
         p.data = p.data.<span class="bi">float</span>()
 trainer.train()
 <span class="bi">print</span>(<span class="st">f&quot;学習中の最大GPUメモリ：{torch.cuda.max_memory_allocated() / 1e9:.2f} GB&quot;</span>)</code></pre></div>
-<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>GPUメモリ使用量：1.20 GB
+<div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>GPUメモリ使用量：1.6 GB
 ...
-学習中の最大GPUメモリ：3.85 GB</code></pre></div>
+学習中の最大GPUメモリ：2.5 GB</code></pre></div>
+<p>（数字は目安です。文章の長さやライブラリの版で、少し変わります。）</p>
+<p><code>prepare_model_for_kbit_training</code> は、4ビットのモデルを学習する前の準備をまとめてやってくれる関数です。本体を全部凍結し、埋め込みや正規化の層のように量子化されていない部分をfloat32に戻して計算を安定させ、メモリを節約する勾配<a class="term" href="f-glossary.html#t-8c5ad937" data-tip="学習の途中のモデルを保存したもの。">チェックポイント</a>（第16章）をオンにします。埋め込みの表（約15万語 × 1536）がfloat32になるぶん、使用量は4ビットの本体だけのときより少し増えます。</p>
 <p><code>trainer.train()</code> の前の3行が、T4で動かすためのコツです。TRLは、4ビットのモデルを渡されると、学習する付せん（LoRAの <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi></mrow><annotation encoding="application/x-tex">A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span> と <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>）を自動で<a class="term" href="f-glossary.html#t-9ebc04f5" data-tip="範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。">bfloat16</a>にします。ところがT4はbfloat16が苦手で、<code>fp16=True</code> の学習と組み合わせると、最初の1歩で <code>not implemented for 'BFloat16'</code> というエラーになります。そこで、付せんだけをfloat32に戻しています。付せんは小さいので、float32にしてもメモリはほとんど増えません。</p>
-<p>1.5Bのモデルを、4GB以下のメモリで学習できました。同じ方法で、7Bのモデル（4ビットで約4〜5GB）もT4で鍛えられます（時間はかかりますが）。</p>
+<p>1.5Bのモデルを、3GBにも満たないメモリで学習できました。同じ方法で、7Bのモデル（準備の後で約8GB）も、15GBのT4に乗せて鍛えられます（時間はかかりますが）。</p>
 <table>
 <thead>
 <tr>
