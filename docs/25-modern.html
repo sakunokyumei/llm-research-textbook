@@ -134,13 +134,13 @@ M1001 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">class</span> <span class="fn">SwiGLU</span>(nn.Module):
     <span class="kw">def</span> <span class="fn">__init__</span>(<span class="self">self</span>, dim, hidden):
         <span class="bi">super</span>().__init__()
-        <span class="self">self</span>.w1 = nn.Linear(dim, hidden, bias=<span class="kw">False</span>)   <span class="cm"># 中身</span>
-        <span class="self">self</span>.w3 = nn.Linear(dim, hidden, bias=<span class="kw">False</span>)   <span class="cm"># 門番</span>
+        <span class="self">self</span>.w1 = nn.Linear(dim, hidden, bias=<span class="kw">False</span>)   <span class="cm"># 門番（SiLUを通す。Qwenの gate_proj）</span>
+        <span class="self">self</span>.w3 = nn.Linear(dim, hidden, bias=<span class="kw">False</span>)   <span class="cm"># 中身（Qwenの up_proj）</span>
         <span class="self">self</span>.w2 = nn.Linear(hidden, dim, bias=<span class="kw">False</span>)
 
     <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
         <span class="kw">return</span> <span class="self">self</span>.w2(F.silu(<span class="self">self</span>.w1(x)) * <span class="self">self</span>.w3(x))</code></pre></div>
-<aside class="box box-theory"><p class="box-title">理論の小部屋：門番つきのフィードフォワード</p><p>第12章の<a class="term" href="f-glossary.html#t-34c43288" data-tip="各位置で独立に通す小さなMLP。">フィードフォワード層</a>は「広げる → GELU → 戻す」でした。<strong>SwiGLU</strong> は、広げる<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>を<strong>2つ</strong>用意して、片方（<code>w3</code>）を「門番」として使います。もう片方（<code>w1</code>）の出力を<a class="term" href="f-glossary.html#t-a2baa30d" data-tip="層と層の間に挟む、直線ではない関数。tanh、ReLU、GELUなど。">活性化関数</a>SiLU（GELUとよく似た形）に通し、門番の値を<strong>掛け算</strong>します。門番が0に近いところは情報が通らず、大きいところはよく通る。「どの情報を通すか」を、入力に応じて細かく調整できるのです。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：門番つきのフィードフォワード</p><p>第12章の<a class="term" href="f-glossary.html#t-34c43288" data-tip="各位置で独立に通す小さなMLP。">フィードフォワード層</a>は「広げる → GELU → 戻す」でした。<strong>SwiGLU</strong> は、広げる<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>を<strong>2つ</strong>用意して、片方（<code>w1</code>）を「門番」として使います。門番の出力は<a class="term" href="f-glossary.html#t-a2baa30d" data-tip="層と層の間に挟む、直線ではない関数。tanh、ReLU、GELUなど。">活性化関数</a>SiLU（GELUとよく似た形）に通し、もう片方（<code>w3</code>、中身）の値に<strong>掛け算</strong>します。門番が0に近いところは情報が通らず、大きいところはよく通る。QwenやLlamaのコードでは、門番が <code>gate_proj</code>、中身が <code>up_proj</code>、戻す層（<code>w2</code>）が <code>down_proj</code> という名前です（第19章で<a class="term" href="f-glossary.html#t-e0dc3e0f" data-tip="本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。">LoRA</a>を貼った全結合層の名前にも出てきます）。「どの情報を通すか」を、入力に応じて細かく調整できるのです。</p>
 <p>重みが3つになる分、パラメータが増えるので、広げる幅を4倍ではなく約8/3倍（≒2.67倍）にして、パラメータ数をそろえるのが定番です。</p>
 </aside>
 

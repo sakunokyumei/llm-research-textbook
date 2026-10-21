@@ -97,11 +97,13 @@ trainable = <span class="bi">sum</span>(p.numel() <span class="kw">for</span> p 
 <span class="bi">print</span>(<span class="st">f&quot;学習するパラメータ：{trainable:,} / 元の層：{base.weight.numel() + base.bias.numel():,}&quot;</span>)</code></pre></div>
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>最初は元の層と同じ？ True
 学習するパラメータ：14,336 / 元の層：803,712</code></pre></div>
-<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：requires_grad_(False)</p><p><code>requires_grad_(False)</code> は「このパラメータの勾配は計算しなくていい（学習しない）」という設定です。勾配もAdamの記録も作られないので、メモリを食いません。これを <strong>凍結</strong>（freeze）と言います。</p>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：requires_grad_(False) と nn.Parameter</p><p><code>requires_grad_(False)</code> は「このパラメータの勾配は計算しなくていい（学習しない）」という設定です。勾配もAdamの記録も作られないので、メモリを食いません。これを <strong>凍結</strong>（freeze）と言います。<br>
+<code>nn.Parameter(テンソル)</code> は、その<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>を「このモデルの学習するパラメータ」として登録します。こうしておくと、<code>model.parameters()</code> に含まれ、オプティマイザが更新してくれます。<br>
+<code>def __init__(self, base: nn.Linear, …)</code> の <code>: nn.Linear</code> は <strong>型ヒント</strong>（「ここには<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>が入ります」というメモ）で、動きは変わりません。第23章でもう一度出てきます。</p>
 </aside>
 
 <h2 id="s4">Qwenに付せんを貼る</h2>
-<p>自作のLoRA層を、Qwen2.5-0.5B-Instructの全<a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a>の <code>q_proj</code> と <code>v_proj</code>（QueryとValueを作る<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>）に取り付けます。</p>
+<p>自作のLoRA層を、Qwen2.5-0.5B-Instructの全<a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a>の <code>q_proj</code> と <code>v_proj</code>（QueryとValueを作る全結合層）に取り付けます。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl</span>
 <span class="sh">!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl</span>
 <span class="kw">import</span> json
@@ -232,7 +234,7 @@ w_back = q.<span class="bi">float</span>() * scale                      <span cl
 <aside class="box box-theory"><p class="box-title">理論の小部屋：量子化の考え方</p><ul>
 <li>float32（4<a class="term" href="f-glossary.html#t-ce82a962" data-tip="8ビットの数。0〜255の値をとる。">バイト</a>）の重みを、int8（1バイト）の整数と、1つの「縮尺」（scale）で表す。メモリは約4分の1</li>
 <li>戻すと少し誤差が出る（上の例では最大0.0008）。<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の重みはたくさんあるので、1つ1つの小さな誤差は、全体ではあまり効かないことが多い</li>
-<li>4ビット（-7〜7の16段階など）まで粗くすると、メモリは8分の1。誤差は大きくなるが、工夫（重みをグループに分けて別々の縮尺を使う、<a class="term" href="f-glossary.html#t-457cfff7" data-tip="平均のまわりに集まる、釣り鐘型のばらつき。">正規分布</a>に合わせた段階を使う <strong>NF4</strong> など）で、性能の低下を小さく抑えられる</li>
+<li>4ビット（-8〜7の16段階など）まで粗くすると、メモリは8分の1。誤差は大きくなるが、工夫（重みをグループに分けて別々の縮尺を使う、<a class="term" href="f-glossary.html#t-457cfff7" data-tip="平均のまわりに集まる、釣り鐘型のばらつき。">正規分布</a>に合わせた段階を使う <strong>NF4</strong> など）で、性能の低下を小さく抑えられる</li>
 </ul>
 <p>ただし、<strong>外れ値</strong>（とても大きな重み）が1つあると、縮尺が大きくなり、ほかの全部の重みが粗くなってしまいます。実際の量子化手法の工夫の多くは、この外れ値との戦いです。</p>
 </aside>

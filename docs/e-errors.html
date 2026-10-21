@@ -152,6 +152,11 @@
 <td>モデルを <code>.to(device)</code>、データも <code>.to(device)</code>（第13章）</td>
 </tr>
 <tr>
+<td><code>RuntimeError: Expected a 'cuda' device type for generator but found 'cpu'</code></td>
+<td>サイコロ（<code>torch.Generator()</code>）はCPU用なのに、確率のテンソルがGPUにある</td>
+<td>確率を <code>.cpu()</code> でCPUに戻してから <code>torch.multinomial</code> に渡す（第8章）</td>
+</tr>
+<tr>
 <td><code>IndexError: index out of range in self</code></td>
 <td>埋め込みの表の範囲外の番号</td>
 <td>語彙数・<code>block_size</code> を超える入力。生成時は入力を切り詰める</td>

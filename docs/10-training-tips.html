@@ -191,7 +191,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <p>初期化に気をつけても、学習中にパラメータが変わると、また数の大きさは暴れ出します。そこで、<strong>毎回、強制的に大きさをそろえる</strong>部品を挟みます。それが <strong>LayerNorm</strong>（レイヤーノーム、層正規化）です。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>h = torch.randn(<span class="nu">2</span>, <span class="nu">6</span>) * <span class="nu">5</span> + <span class="nu">3</span>      <span class="cm"># 平均3、標準偏差5くらいの、暴れた数</span>
 mean = h.mean(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>)
-std = h.std(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>, unbiased=<span class="kw">False</span>)
+std = h.std(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>, unbiased=<span class="kw">False</span>)   <span class="cm"># unbiased=False：数式どおり N で割る</span>
 h_hand = (h - mean) / (std + <span class="nu">1e-5</span>)  <span class="cm"># 平均を引いて、標準偏差で割る</span>
 
 ln = nn.LayerNorm(<span class="nu">6</span>, elementwise_affine=<span class="kw">False</span>)
@@ -437,7 +437,8 @@ loaded.load_state_dict(torch.load(<span class="st">f&quot;{save_dir}/mlp_kokoro.
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
 <li><strong><code>drive.mount</code> で止まる・失敗する</strong>：ポップアップがブロックされていないか確認しましょう。アカウント選択の画面で、すべての項目にチェックを入れて「続行」を押します。</li>
 <li><strong><code>RuntimeError: Error(s) in loading state_dict</code></strong>：保存したときと違う設計図（<code>dropout</code> 以外の <code>d</code> や <code>H</code>、<code>T</code> など）でモデルを作っています。保存時と同じ設定で作りましょう。</li>
-<li><strong>生成した文章が毎回同じ・評価が毎回変わる</strong>：<code>model.eval()</code> と <code>model.train()</code> の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。</li>
+<li><strong>検証損失が、同じモデルなのに実行するたびにぶれる</strong>：<code>model.eval()</code> と <code>model.train()</code> の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。</li>
+<li><strong><code>.std()</code> で計算した標準偏差が、手計算と合わない</strong>：PyTorchの <code>.std()</code> と <code>.var()</code> は、標準では N ではなく N−1 で割ります（統計で「標本から全体を推定する」ときの割り方）。数式どおり N で割るには <code>unbiased=False</code> を付けます。LayerNormは N で割るほうです。</li>
 </ul>
 </aside>
 

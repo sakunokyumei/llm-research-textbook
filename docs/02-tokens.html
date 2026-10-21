@@ -94,7 +94,7 @@ show_tokens(<span class="st">&quot;鰯&quot;</span>)</code></pre></div>
 <aside class="box box-fe"><p class="box-title">基本情報とつながる：文字コード</p><p>基本情報技術者試験で「文字コード」を習いましたね。コンピュータは文字を数で記録していて、その対応表が文字コードです。ASCII（英数字だけ）、Shift_JIS、EUC-JP、そして世界中の文字をまとめた <strong>Unicode</strong>。Unicodeをコンピュータに保存するときの書き方の1つが <strong>UTF-8</strong> で、今のWebやLLMのほとんどがこれを使っています。HTMLの最初に書く <code>&lt;meta charset=&quot;utf-8&quot;&gt;</code> のアレです！</p>
 </aside>
 
-<p>「鰯」をUTF-8で表すと、何バイトになるでしょう？ Pythonで確かめます。</p>
+<p>文字はUTF-8で、何バイトになるのでしょう？ まずは、なじみのある「猫」で確かめます。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>s = <span class="st">&quot;猫&quot;</span>
 b = s.encode(<span class="st">&quot;utf-8&quot;</span>)
 <span class="bi">print</span>(b)
@@ -103,7 +103,7 @@ b = s.encode(<span class="st">&quot;utf-8&quot;</span>)
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>b&#x27;\xe7\x8c\xab&#x27;
 1 文字 → 3 バイト
 [231, 140, 171]</code></pre></div>
-<p>「猫」1文字は、UTF-8では3つのバイト（0〜255の数）で表されます。<code>\xe7</code> は16進数の <code>e7</code>、つまり10進数の231です。基本情報で習った16進数が、ここで生きています。</p>
+<p>「猫」1文字は、UTF-8では3つのバイト（0〜255の数）で表されます。<code>s = &quot;鰯&quot;</code> に変えて実行すると、「鰯」もやはり3バイトだと分かります（ほとんどの漢字・ひらがなは3バイトです）。<code>\xe7</code> は16進数の <code>e7</code>、つまり10進数の231です。基本情報で習った16進数が、ここで生きています。</p>
 <div class="widget" data-widget="utf8"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
 
 <aside class="box box-theory"><p class="box-title">理論の小部屋：LLMのトークナイザーは「バイト」から作られている</p><p>Qwenのトークナイザーは、文字ではなく<strong>バイト</strong>を基本の部品にしています。</p>
@@ -153,7 +153,7 @@ b = s.encode(<span class="st">&quot;utf-8&quot;</span>)
 <p>LLMの計算の重さは、入力の長さ（トークン数）で決まります。同じ文章をなるべく少ないトークンで表せれば、計算が軽く、一度にたくさんの文章を読めるのです。かといって辞書を大きくしすぎると、今度は辞書の管理が重くなります。トークンは、その間のちょうどいい落としどころです。</p>
 </aside>
 
-<p>トークン数は、お金や性能にも直結します。有料のLLMサービス（APIといいます）は「1000トークンあたり◯円」という料金が多いですし、LLMが一度に読める長さ（<strong>コンテキスト長</strong>）もトークン数で決まっています。Qwen2.5-0.5Bのコンテキスト長は32,768トークンです。</p>
+<p>トークン数は、お金や性能にも直結します。有料のLLMサービス（APIといいます）は「100万トークンあたり◯ドル」という料金が多いですし、LLMが一度に読める長さ（<strong>コンテキスト長</strong>）もトークン数で決まっています。Qwen2.5-0.5Bのコンテキスト長は32,768トークンです。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">for</span> text <span class="kw">in</span> [<span class="st">&quot;I am a cat.&quot;</span>, <span class="st">&quot;Je suis un chat.&quot;</span>, <span class="st">&quot;我是一只猫。&quot;</span>, <span class="st">&quot;吾輩は猫である。&quot;</span>]:
     n = <span class="bi">len</span>(tok.encode(text))
     <span class="bi">print</span>(n, <span class="st">&quot;トークン：&quot;</span>, text)</code></pre></div>

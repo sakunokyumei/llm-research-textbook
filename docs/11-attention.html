@@ -351,7 +351,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>torch.manual_seed(<span class="nu">0</span>)
 head = Head(n_embd=<span class="nu">32</span>, head_size=<span class="nu">16</span>, block_size=<span class="nu">8</span>)
 x1 = torch.randn(<span class="nu">1</span>, <span class="nu">8</span>, <span class="nu">32</span>)
-x2 = x1.clone()
+x2 = x1.clone()                       <span class="cm"># x1 は残したまま、別のコピーを作る（x2 = x1 だけだと同じものを指す）</span>
 x2[<span class="nu">0</span>, <span class="nu">7</span>] = torch.randn(<span class="nu">32</span>)            <span class="cm"># 位置7（最後）だけ書き換える</span>
 
 out1, out2 = head(x1), head(x2)
@@ -481,7 +481,7 @@ plt.ylabel(<span class="st">&quot;注目する文字（Query）&quot;</span>)
 plt.title(<span class="st">&quot;学習したAttentionの重み&quot;</span>)
 plt.show()</code></pre></div>
 <p><img src="img/figs/11-attention/cell11_0.png" alt="学習したAttentionの重みのヒートマップ。各行で、自分自身や少し前の文字に重みが集中している" /></p>
-<p>各行が「その文字が、どの文字にどれだけ注目したか」です。右上が真っ白なのは、マスクで未来を見ていないからです。このヘッドは、自分自身よりも<strong>少し前の特定の文字</strong>に強く注目しています。たとえば「常」「に」は「を」に、「で」や「。」は「先」に注目しています。人間には意味の分かりにくい注目の仕方ですが、モデルは損失を下げるのに役立つ見方を、自分で見つけ出したのです。それでも、1つのヘッドにできることは限られています。次の章では、ヘッドをたくさん用意して、それぞれに違う役割（直前を見る係、文の主語を探す係……）を分担させます。</p>
+<p>各行が「その文字が、どの文字にどれだけ注目したか」です。右上が真っ白なのは、マスクで未来を見ていないからです。このヘッドは、自分自身よりも<strong>少し前の特定の文字</strong>に強く注目しています。たとえば「常」「に」は「を」に、「で」は「呼」や「先」に注目しています。人間には意味の分かりにくい注目の仕方ですが、モデルは損失を下げるのに役立つ見方を、自分で見つけ出したのです。それでも、1つのヘッドにできることは限られています。次の章では、ヘッドをたくさん用意して、それぞれに違う役割（直前を見る係、文の主語を探す係……）を分担させます。</p>
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
 <li><strong><code>RuntimeError: The size of tensor a (8) must match the size of tensor b (64)</code></strong>：マスク <code>tril</code> の大きさと、入力の長さ <code>T</code> が合っていません。<code>self.tril[:T, :T]</code> のように、入力の長さに合わせて切り出しましょう。</li>
 <li><strong>損失が <code>nan</code></strong>：マスクで全部 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">∞</span></span></span></span> の行ができると、softmaxが計算できず <code>nan</code> になります。下三角（対角線を含む）を使えば、どの行にも少なくとも自分自身があるので大丈夫です。</li>

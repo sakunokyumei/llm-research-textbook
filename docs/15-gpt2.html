@@ -112,7 +112,7 @@ transformer.h.1.ln_1.bias                  (768,)</code></pre></div>
 <ol>
 <li><strong>Q・K・Vを1つの全結合層でまとめて作る</strong>（<code>c_attn</code> の出力が2304 = 768×3）。そして、ヘッドを別々の<a class="term" href="f-glossary.html#t-8b27332e" data-tip="Pythonの設計図。PyTorchのモデルは `nn.Module` のクラスで書く。">クラス</a>にせず、1回の計算で全ヘッドをまとめて処理する</li>
 <li><strong>Q・K・Vにもバイアスがある</strong>（第12章は <code>bias=False</code> でした）</li>
-<li><strong>出力層の重みを、トークンの<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a> <code>wte</code> と共有している</strong>（weight tying）。だから <code>lm_head</code> の重みが一覧に別にない</li>
+<li><strong>出力層の重みを、トークンの<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a> <code>wte</code> と共有している</strong>（weight tying）。<code>state_dict</code> には <code>lm_head.weight</code> という名前もありますが、中身は <code>wte</code> と同じ表です（パラメータの数を数えるときは、1つとして数えられます）</li>
 </ol>
 <p>さらに、GELUは計算の速い「tanhを使った近似版」が使われています。これらを合わせれば、読み込めるはずです。</p>
 <h2 id="s3">GPT-2と同じ形のGPTを書く</h2>
@@ -128,7 +128,7 @@ transformer.h.1.ln_1.bias                  (768,)</code></pre></div>
     <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):
         B, T, C = x.shape
         hs = C // <span class="self">self</span>.n_head                           <span class="cm"># 1ヘッドの大きさ</span>
-        q, k, v = <span class="self">self</span>.c_attn(x).split(C, dim=<span class="nu">2</span>)        <span class="cm"># 3等分してQ・K・Vに</span>
+        q, k, v = <span class="self">self</span>.c_attn(x).split(C, dim=<span class="nu">2</span>)        <span class="cm"># 最後の軸をC個ずつに切る（2304→768・768・768）。文字列のsplitとは別物</span>
         q = q.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>)   <span class="cm"># [B, ヘッド, T, hs]</span>
         k = k.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>)
         v = v.view(B, T, <span class="self">self</span>.n_head, hs).transpose(<span class="nu">1</span>, <span class="nu">2</span>)
@@ -184,7 +184,7 @@ transformer.h.1.ln_1.bias                  (768,)</code></pre></div>
         <span class="kw">for</span> block <span class="kw">in</span> <span class="self">self</span>.transformer.h:
             x = block(x)
         <span class="kw">return</span> <span class="self">self</span>.lm_head(<span class="self">self</span>.transformer.ln_f(x))</code></pre></div>
-<aside class="box box-theory"><p class="box-title">理論の小部屋：ヘッドをまとめて計算する形の組み替え</p><p>第12章では、4つのヘッドを4つのクラスで別々に計算していました。わかりやすいけれど、<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>にとっては「小さな仕事を4回」頼まれるより「大きな仕事を1回」のほうが速いのです。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：ヘッドをまとめて計算する形の組み替え</p><p>第12章では、4つのヘッドを、<code>Head</code> クラスから作った4つの部品で別々に計算していました。わかりやすいけれど、<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>にとっては「小さな仕事を4回」頼まれるより「大きな仕事を1回」のほうが速いのです。</p>
 <p>そこで、Q（形 <code>[B, T, 768]</code>）を <code>view</code> で <code>[B, T, 12, 64]</code>（12ヘッド×64）に切り分け、<code>transpose(1, 2)</code> で <code>[B, 12, T, 64]</code> に並べ替えます。こうすると、<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>の <code>@</code> が「バッチごと・ヘッドごと」に<a class="term" href="f-glossary.html#t-185e8f94" data-tip="数を表（縦×横）に並べたもの。">行列</a>の掛け算をしてくれるので、12ヘッド分の計算が<strong>1回</strong>で済みます。最後に逆の操作で <code>[B, T, 768]</code> に戻します（<code>contiguous()</code> は、並べ替えたテンソルをメモリ上できれいに並べ直すおまじない）。</p>
 <p>計算の中身は、第11〜12章とまったく同じです。</p>
 </aside>

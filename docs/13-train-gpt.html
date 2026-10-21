@@ -44,7 +44,7 @@ Tesla T4</code></pre></div>
 </aside>
 
 <h2 id="s3">漱石の7作品を読み込む</h2>
-<p>準備<a class="term" href="f-glossary.html#t-029fc85c" data-tip="ノートブックの中の、コードを書いて実行する1つの入力欄。">セル</a>の <code>load_soseki</code> を使って、7作品をまとめて読み込みます。</p>
+<p>第9章までと同じ <code>load_soseki</code>（下の<a class="term" href="f-glossary.html#t-029fc85c" data-tip="ノートブックの中の、コードを書いて実行する1つの入力欄。">セル</a>で定義し直します）を使って、7作品をまとめて読み込みます。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> re, math, urllib.request
 
 <span class="kw">def</span> <span class="fn">load_soseki</span>(file_id=<span class="st">&quot;773_ruby_5968&quot;</span>):
@@ -148,7 +148,7 @@ batch_size = <span class="nu">32</span>     <span class="cm"># 1回に何個の�
         x, y = get_batch(train_data, g)
         <span class="kw">with</span> torch.autocast(device_type=device, dtype=torch.float16, enabled=(device == <span class="st">&quot;cuda&quot;</span>)):
             _, loss = model(x, y)
-        opt.zero_grad(set_to_none=<span class="kw">True</span>)
+        opt.zero_grad(set_to_none=<span class="kw">True</span>)              <span class="cm"># 勾配を0にする代わりに捨てる（第8章の W.grad = None と同じ）</span>
         scaler.scale(loss).backward()
         scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), <span class="nu">1.0</span>)
@@ -247,6 +247,22 @@ torch.save(checkpoint, <span class="st">f&quot;{save_dir}/soseki_gpt.pt&quot;</s
 <aside class="box box-tip"><p class="box-title">コツ：Kaggleで学習した人は</p><p>Kaggleには <code>google.colab</code> がないので、<code>drive.mount</code> のセルは飛ばし、保存のセルの <code>save_dir</code> を <code>&quot;/kaggle/working&quot;</code> に変えて実行します。保存した <code>soseki_gpt.pt</code> は、画面右の「Output」からダウンロードして、Googleドライブに <code>tsukuru-llm</code> というフォルダを作ってアップロードしておきましょう（第24章で使います）。</p>
 </aside>
 
+<h3>続きを別の日にやるとき</h3>
+<p>この章は長いので、ここで一度休んでもOKです。次の日に続きをやるときは、次の順にセルを実行してから、下のセルで保存したモデルを読み込みます。</p>
+<ol>
+<li>「準備：GPUのランタイムにする」「第12章のGPTを取ってくる」のセル</li>
+<li>「漱石の7作品を読み込む」の2つのセル（データと語彙を作り直す。保存したときと同じ語彙になります）</li>
+<li>「学習の道具をそろえる」「学習ループ（GPU対応版）」のセル（関数を作るだけなので、すぐ終わります）</li>
+<li>「大事なモデルを保存する」の節は、<code>drive.mount</code> のセル<strong>だけ</strong>（保存のセルは実行しない）</li>
+</ol>
+<p>実験1・実験2の学習のセルと、保存のセルは<strong>飛ばします</strong>。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>save_dir = <span class="st">&quot;/content/drive/MyDrive/tsukuru-llm&quot;</span>
+ckpt = torch.load(<span class="st">f&quot;{save_dir}/soseki_gpt.pt&quot;</span>, map_location=device)
+model_all = GPT(**ckpt[<span class="st">&quot;config&quot;</span>]).to(device)     <span class="cm"># 保存した設定で、同じ形のGPTを作る</span>
+model_all.load_state_dict(ckpt[<span class="st">&quot;model&quot;</span>])         <span class="cm"># 学習した中身を流し込む</span>
+<span class="bi">print</span>(<span class="st">&quot;読み込みました。語彙は同じ？&quot;</span>, ckpt[<span class="st">&quot;chars&quot;</span>] == chars)</code></pre></div>
+<div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>読み込みました。語彙は同じ？ True</code></pre></div>
+<p><code>GPT(**ckpt[&quot;config&quot;])</code> の <code>**</code> は、第3章の <code>model(**inputs)</code> と同じ「<a class="term" href="f-glossary.html#t-45e06150" data-tip="「キー: 値」の組を入れる入れ物。`{&quot;猫&quot;: 0}`。">辞書</a>の中身を名前つきの引数として渡す」書き方です。<code>GPT(vocab_size=3665, block_size=128, …)</code> と書いたのと同じ意味になります。なお、次の節の「2つの実験を比べる」グラフは、学習中の記録（<code>hist_k</code> と <code>hist_all</code>）が必要なので、休んだ後は描けません。その節は <code>!pip install</code> のセルだけ実行して、グラフは教科書の図で確かめましょう。その後の「書かせてみる」「ヘッドたちの役割分担を見る」は、そのまま実行できます。</p>
 <h2 id="s9">2つの実験を比べる</h2>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="sh">!pip install -q matplotlib-fontja</span></code></pre></div>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
@@ -261,7 +277,7 @@ plt.xlabel(<span class="st">&quot;ステップ&quot;</span>); plt.ylabel(<span c
 plt.ylim(<span class="nu">2.4</span>, <span class="nu">4.5</span>)
 plt.legend(); plt.title(<span class="st">&quot;データを増やすと、同じモデルがもっと賢くなる&quot;</span>)
 plt.show()</code></pre></div>
-<p><img src="img/figs/13-train-gpt/cell11_0.png" alt="2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける" /></p>
+<p><img src="img/figs/13-train-gpt/cell12_0.png" alt="2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける" /></p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：結局、データがいちばん効く</p><p>第10章では、過学習を抑えるために<a class="term" href="f-glossary.html#t-8eed8985" data-tip="学習中にニューロンの一部をランダムに休ませ、過学習を防ぐ方法。">ドロップアウト</a>や重み減衰を使いました。でも、最も強力な治療法は <strong>データを増やすこと</strong> です。</p>
 <ul>
 <li>『こころ』だけ：14.6万字を何十周もするので、途中から丸暗記が始まる</li>
@@ -362,7 +378,10 @@ plt.show()</code></pre></div>
 <p>第10章のMLP（3.177）から、『こころ』だけのGPTで <strong>3.075</strong>、7作品のGPTで <strong>2.635</strong>。<a class="term" href="f-glossary.html#t-ea806a7f" data-tip="$e^{損失}$。モデルが何択くらいで迷っているか。">パープレキシティ</a>にすると、24択から約14択へ。数えるbigram（36択）から比べると、迷いが半分以下になりました。</p>
 <h2 id="s12">ヘッドたちの役割分担を見る</h2>
 <p>最後に、学習したGPTの4つのヘッドが、それぞれどこに注目しているかを見てみましょう（第11章の1ヘッドとの違いに注目）。</p>
-<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>sample = <span class="st">&quot;先生は奥さんの顔を見て、彼女に話しかけた。&quot;</span>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> matplotlib_fontja                          <span class="cm"># グラフで日本語を表示する（上の !pip install が必要）</span>
+
+sample = <span class="st">&quot;先生は奥さんの顔を見て、彼女に話しかけた。&quot;</span>
 idx = encode(sample)[<span class="kw">None</span>].to(device)
 model_all.eval()
 <span class="kw">with</span> torch.no_grad():
@@ -377,8 +396,8 @@ heads = model_all.blocks[-<span class="nu">1</span>].attn.heads          <span c
     ax.set_title(<span class="st">f&quot;ヘッド {h}&quot;</span>)
 plt.tight_layout()
 plt.show()</code></pre></div>
-<p><img src="img/figs/13-train-gpt/cell13_0.png" alt="最後の層の4つのヘッドの注目の仕方。ヘッドによって、直前の文字を見るもの、少し前の特定の文字を見るものなど、役割が違う" /></p>
-<p>ヘッドによって、注目の仕方が違っているはずです。直前の文字ばかり見る「近視のヘッド」、文の頭を見る「振り返りヘッド」……。誰も役割を割り振っていないのに、学習の中で<strong>自然に分業</strong>が生まれています。</p>
+<p><img src="img/figs/13-train-gpt/cell14_0.png" alt="最後の層の4つのヘッドの注目の仕方。ヘッド0は文の頭の「先」を、ヘッド1と2は「先生は」の「は」をよく見て、ヘッド3は自分の近くの文字に広く注目している" /></p>
+<p>ヘッドによって、注目の仕方が違います。上の図では、ヘッド0は文の頭の「先」を、ヘッド1と2は「先生は」の「は」（主語の区切り）をよく見ています。ヘッド3は、自分の近くの文字に広く注目しています。誰も役割を割り振っていないのに、学習の中で<strong>自然に分業</strong>が生まれているのです。あなたのモデルの図は、これとは違う分業になっているかもしれません。どのヘッドがどこを見ているか、観察してみましょう。</p>
 <aside class="box box-try"><p class="box-title">やってみよう：GPUがあるなら、もっと大きく</p><p>GPUが使えるなら、モデルを大きくしてみましょう。<code>train</code> 関数はそのままで、次のセルを実行するだけです（大きなモデル用の <code>train_big</code> を新しく作ります）。このセルは <code>block_size</code> と <code>batch_size</code> を書き換えるので、必ず<strong>上の保存が終わってから</strong>試しましょう。後で保存のセルを実行し直すと、設定の記録がずれて、第24章で読み込めなくなります。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（GPUのランタイムで実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>block_size = <span class="nu">256</span>
 batch_size = <span class="nu">64</span>

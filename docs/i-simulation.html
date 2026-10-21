@@ -273,7 +273,7 @@
 <td>5</td>
 <td>3</td>
 <td>12</td>
-<td>600</td>
+<td>631</td>
 <td>42</td>
 <td>0</td>
 </tr>
@@ -351,8 +351,8 @@
 <td>3</td>
 <td>2</td>
 <td>9</td>
-<td>819</td>
-<td>35</td>
+<td>1234</td>
+<td>36</td>
 <td>0</td>
 </tr>
 <tr>
@@ -377,8 +377,8 @@
 <td>3</td>
 <td>3</td>
 <td>12</td>
-<td>1335</td>
-<td>53</td>
+<td>1417</td>
+<td>54</td>
 <td>0</td>
 </tr>
 <tr>
@@ -412,12 +412,12 @@
 <td>★★★★</td>
 <td>3</td>
 <td>0</td>
-<td>15</td>
+<td>16</td>
 <td>4</td>
 <td>2</td>
-<td>10</td>
+<td>11</td>
 <td>981</td>
-<td>51</td>
+<td>55</td>
 <td>0</td>
 </tr>
 <tr>
@@ -442,7 +442,7 @@
 <td>4</td>
 <td>3</td>
 <td>7</td>
-<td>1969</td>
+<td>2002</td>
 <td>33</td>
 <td>0</td>
 </tr>
@@ -481,8 +481,8 @@
 <td>4</td>
 <td>3</td>
 <td>9</td>
-<td>896</td>
-<td>37</td>
+<td>1322</td>
+<td>38</td>
 <td>0</td>
 </tr>
 <tr>
@@ -507,7 +507,7 @@
 <td>3</td>
 <td>3</td>
 <td>9</td>
-<td>993</td>
+<td>1008</td>
 <td>34</td>
 <td>0</td>
 </tr>
@@ -529,12 +529,12 @@
 <td>★★★★★</td>
 <td>5</td>
 <td>0</td>
-<td>6</td>
+<td>7</td>
 <td>3</td>
 <td>3</td>
 <td>6</td>
 <td>1874</td>
-<td>28</td>
+<td>31</td>
 <td>0</td>
 </tr>
 <tr>
@@ -559,8 +559,8 @@
 <td>4</td>
 <td>2</td>
 <td>4</td>
-<td>1673</td>
-<td>30</td>
+<td>1749</td>
+<td>31</td>
 <td>0</td>
 </tr>
 <tr>
@@ -1027,7 +1027,7 @@
 <p>（◎：ほぼ確実に理解できる　○：6割以上は理解でき、先へ進める　△：部分的。後の章や付録で補える）</p>
 <h3>通しで見た判定</h3>
 <ul>
-<li><strong>LLMに触れるまでの時間</strong>：第1章の約30〜60分で、本物のLLMと会話できる。理論を先に何週間も勉強する必要はない</li>
+<li><strong>LLMに触れるまでの時間</strong>：第1章の45〜60分で、本物のLLMと会話できる（最初の答えが返ってくるまでは数分）。理論を先に何週間も勉強する必要はない</li>
 <li><strong>ゼロから作るまでの時間</strong>：第4章（最初の週末〜2週目）で、自分の言語モデルが漱石風の文章を書く</li>
 <li><strong>ご褒美の間隔</strong>：どの章にも、目に見える成果（生成された文章、グラフ、デモ、記録表の更新）がある。記録表は「7.63 → 3.58 → 3.40 → 3.18 → 3.08 → 2.64」と、章を追うごとに自分のモデルが賢くなるのが数字で見える</li>
 <li><strong>数学の山</strong>：第3章（指数）、第5章（対数）、第7章（微分）、第11章（内積と行列）、第22章（DPOの式）。いずれも「数の例 → コードで確認 → 式」の順で、式を暗記しなくても先へ進めるように作ってある</li>
@@ -1189,8 +1189,198 @@
 </tr>
 </tbody>
 </table>
-<!-- ROUND4 -->
-<h2 id="s8">残っている危険と、その対策</h2>
+<h2 id="s8">第4回シミュレーション：直した後を、また別の目で</h2>
+<p>第3回で直した教科書を、さらに別の3人のAIの読み手に、同じ条件で読んでもらいました（第3回の読み手とは別。何を直したかも伝えていません）。読み手は、本文の数字やコードの出力を実際に計算・実行し直して確かめています。</p>
+<table>
+<thead>
+<tr>
+<th>範囲</th>
+<th>判定</th>
+<th>大きな問題（読者が止まる・誤解する）</th>
+<th>小さな問題</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第0〜9章</td>
+<td>たぶん完走できる</td>
+<td>0件</td>
+<td>10件</td>
+</tr>
+<tr>
+<td>第10〜17章</td>
+<td>たぶん完走できる（下の1件を直せば「完走できる」）</td>
+<td>1件</td>
+<td>8件</td>
+</tr>
+<tr>
+<td>第18〜26章</td>
+<td>たぶん完走できる</td>
+<td>1件</td>
+<td>9件</td>
+</tr>
+</tbody>
+</table>
+<p>大きな問題は2件で、どちらも直しました。</p>
+<ul>
+<li><strong>第13章の図が壊れていた</strong>：比べるグラフが空っぽで、ヘッドの図も4つとも同じ模様になっていました。原因は教科書の検証プログラムでした。学習を短くして試す検証のときに、その短い学習の図で、本物の図を上書きしていたのです。本物の図に戻し、短い学習の図では上書きしないようにプログラムを直しました</li>
+<li><strong>第22章の学習ログがColabでは見えない</strong>：Colabでは、学習中のログが「損失だけの表」で表示されるため、本文で読み方を説明した <code>rewards/margins</code> などが画面に出ませんでした。学習後に記録（<code>log_history</code>）から取り出して表示するセルを追加しました</li>
+</ul>
+<p>小さな問題の主なものと、直したことです。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>見つかった問題</th>
+<th>直したこと</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>「先生」のように2文字以上で書き出すとエラーになり、つまずき注意の説明（「本文にない文字」）も実際と違う</td>
+<td>書き出しの最後の1文字から続けるように直した</td>
+</tr>
+<tr>
+<td>3</td>
+<td>「自作版とは違う文章になる」と書いたのに、2つの出力例が同じ</td>
+<td>出力例を直し、「原文どおりになることもある」と注記</td>
+</tr>
+<tr>
+<td>3</td>
+<td>「マイナスなら <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi></mrow><annotation encoding="application/x-tex">e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">e</span></span></span></span> で割る」では <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mrow><mo>−</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">e^{-2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span> も0.37に見える</td>
+<td>「<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">1</span></span></span></span> なら1回、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">-2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">2</span></span></span></span> なら2回割る」に</td>
+</tr>
+<tr>
+<td>2</td>
+<td>「鰯」は何バイト？と聞いて「猫」を調べている</td>
+<td>問いを「猫」にし、「鰯」も試せると追記</td>
+</tr>
+<tr>
+<td>2・4</td>
+<td>API料金の単位（1000トークン→100万トークン）、n-gramが主流だった時期（20年前→2010年代半ば）</td>
+<td>事実に合わせて修正</td>
+</tr>
+<tr>
+<td>0</td>
+<td>第1章の所要時間が、第0章（30分）と第1章（45〜60分）で違う</td>
+<td>そろえた</td>
+</tr>
+<tr>
+<td>8</td>
+<td>「GPUに送ると速い」とだけあり、書いたとおりにすると勾配が入らない</td>
+<td>正しい書き方を具体的に</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>.std()</code> で手計算と答えが合わない（N−1で割るため）</td>
+<td>理由と <code>unbiased=False</code> を説明</td>
+</tr>
+<tr>
+<td>13</td>
+<td>長い章なのに、別の日に再開する方法がない</td>
+<td>保存したモデルを読み込むセルを追加</td>
+</tr>
+<tr>
+<td>18</td>
+<td>「『いい質問だ！』で始めて」と書いたが、データにその口癖はほとんどない</td>
+<td>実際の特徴（「！」とダジャレ）に</td>
+</tr>
+<tr>
+<td>18・19</td>
+<td>LoRAの保存サイズ（数MB→数十MB）、4ビットの段階（-7〜7→-8〜7）</td>
+<td>修正</td>
+</tr>
+<tr>
+<td>21</td>
+<td>「お昼休み」と「昼休み」は、実はキーワード検索で見つかる</td>
+<td>本当に見つからない例（「ボンゴ部」と「太鼓のクラブ」）に</td>
+</tr>
+<tr>
+<td>24</td>
+<td>ファイル名を間違えると、ページが「読み込み中…」のまま何も言わない</td>
+<td>失敗の理由を画面に表示し、F12（開発者ツール）の見方を追加</td>
+</tr>
+<tr>
+<td>2〜25</td>
+<td><code>break</code>、<code>(1024,)</code>、<code>torch.stack</code>、関数の上の <code>@</code>、<code>.clone()</code>、<code>nn.Parameter</code>、型ヒント、正規表現の <code>( )</code> と <code>re.S</code> などが説明なし</td>
+<td>それぞれ一言の説明を追加</td>
+</tr>
+<tr>
+<td>20・21・23</td>
+<td>章の冒頭の「新しく使うPython」が、実際のコードと違う</td>
+<td>コードに合わせた</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s9">第5回シミュレーション：「止まる・誤解する」だけを探す</h2>
+<p>第4回で直した教科書を、また別の3人の読み手に読んでもらいました。今回は、細かい改善点ではなく、<strong>読者が止まってしまう場所・画面と本文が食い違って誤解する場所</strong>だけを探してもらいました。図も1枚ずつ開いて、本文の説明と合っているか確かめています。</p>
+<table>
+<thead>
+<tr>
+<th>範囲</th>
+<th>判定</th>
+<th>大きな問題</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第0〜9章</td>
+<td>たぶん完走できる</td>
+<td>2件</td>
+</tr>
+<tr>
+<td>第10〜17章</td>
+<td>たぶん完走できる（下の3件を直せば「完走できる」）</td>
+<td>3件</td>
+</tr>
+<tr>
+<td>第18〜26章</td>
+<td>たぶん完走できる</td>
+<td>0件</td>
+</tr>
+</tbody>
+</table>
+<p>見つかった問題と、直したことです。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>見つかった問題</th>
+<th>直したこと</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>「学習率200は損失がガタガタ暴れる」と予想していたが、実際に試すと、50より速く、なめらかに下がる。読者は「大きいほど良い」と逆のことを覚えてしまう</td>
+<td>5・200・1000で実際に試した結果（4.41・3.58・5.57）を載せ、「ちょうどいい範囲は意外と広いが、大きすぎると暴れる」と正しく説明</td>
+</tr>
+<tr>
+<td>8</td>
+<td>「GPUで速くする」コツのとおりにすると、文章を生成するセルが英語のエラーで止まる</td>
+<td>直し方を追加。エラー辞典にもそのエラーを追加</td>
+</tr>
+<tr>
+<td>13</td>
+<td>「別の日に続きをやる」手順どおりにすると、エラーが2回出る</td>
+<td>実行するセル・飛ばすセルを具体的に書き、図のセルが単独で動くように</td>
+</tr>
+<tr>
+<td>14</td>
+<td>BPEのデモで、合体するたびに「語彙の種類」が減って見え、「語彙が増える」という本文と逆</td>
+<td>「語彙の大きさ（最初の文字＋合体で生まれたトークン）」を表示するように</td>
+</tr>
+<tr>
+<td>15</td>
+<td>「<code>lm_head</code> の重みは一覧にない」という説明が誤り（実際はあり、中身が <code>wte</code> と同じ）</td>
+<td>正しい説明に</td>
+</tr>
+</tbody>
+</table>
+<p>小さな問題として、第7章のデモで坂の途中のくぼみで止まることがある（→「局所最適解」の説明を追加）、SwiGLUの「門番」と「中身」がQwenのコードと逆（→修正）、Hugging Faceに公開するときトークナイザーを忘れると読み込めない（→追加）、<code>SFTConfig</code> の各設定の意味（→説明を追加）なども直しました。</p>
+<!-- ROUND6 -->
+<h2 id="s10">残っている危険と、その対策</h2>
 <table>
 <thead>
 <tr>
@@ -1217,7 +1407,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="s9">次にやること（改善の続け方）</h2>
+<h2 id="s11">次にやること（改善の続け方）</h2>
 <ol>
 <li>実際に読み進めて、止まった場所・時間・感想を、章ごとに1行ずつ記録する</li>
 <li>止まった場所に「つまずき注意」を足す、説明の順番を入れ替える、などの改善をする</li>
@@ -1226,4 +1416,4 @@
 <p>教科書の改善も、モデルの改善と同じです。測って、直して、また測る。</p>
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">想定読者（ペルソナ）</a><a href="#s2">方法：4つのレンズで見る</a><a href="#s3">第1回シミュレーションで見つかった問題と、直したこと</a><a href="#s4">機械チェックの結果（最新）</a><a href="#s5">実行チェックの結果（最新）</a><a href="#s6">なりきり通読の結果（第2回シミュレーション）</a><a href="#s7">第3回シミュレーション：まっさらな目で読み直す</a><a href="#s8">残っている危険と、その対策</a><a href="#s9">次にやること（改善の続け方）</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">想定読者（ペルソナ）</a><a href="#s2">方法：4つのレンズで見る</a><a href="#s3">第1回シミュレーションで見つかった問題と、直したこと</a><a href="#s4">機械チェックの結果（最新）</a><a href="#s5">実行チェックの結果（最新）</a><a href="#s6">なりきり通読の結果（第2回シミュレーション）</a><a href="#s7">第3回シミュレーション：まっさらな目で読み直す</a><a href="#s8">第4回シミュレーション：直した後を、また別の目で</a><a href="#s9">第5回シミュレーション：「止まる・誤解する」だけを探す</a><a href="#s10">残っている危険と、その対策</a><a href="#s11">次にやること（改善の続け方）</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

@@ -211,7 +211,7 @@ following = {}                       <span class="cm"># 「文字 → その次�
 
 <span class="kw">def</span> <span class="fn">generate</span>(start, n=<span class="nu">80</span>):
     out = start
-    ch = start
+    ch = start[-<span class="nu">1</span>]                    <span class="cm"># 書き出しの最後の1文字から続ける</span>
     <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):
         c = following[ch]
         ch = random.choices(<span class="bi">list</span>(c.keys()), weights=<span class="bi">list</span>(c.values()))[<span class="nu">0</span>]
@@ -233,7 +233,7 @@ random.seed(<span class="nu">1</span>)
 
 <h2 id="s7">なぜ1文字では足りないのか</h2>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：マルコフ性と n-gram</p><p>bigramモデルは「次の文字は、<strong>直前の1文字だけ</strong>で決まる」と仮定しています。この「直前だけを見る」性質を <strong>マルコフ性</strong> と言います（「マルコフ連鎖」という名前を聞いたことがあるかもしれません）。</p>
-<p>もっと前まで見れば、もっと自然になるはずです。直前2文字なら <strong>trigram</strong>（トライグラム）、一般に直前 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> 文字を見るモデルを <strong>n-gram</strong> モデルと呼びます。20年ほど前まで、機械翻訳や音声認識の中心はこのn-gramモデルでした。</p>
+<p>もっと前まで見れば、もっと自然になるはずです。直前2文字なら <strong>trigram</strong>（トライグラム）、一般に直前 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> 文字を見るモデルを <strong>n-gram</strong> モデルと呼びます。2010年代の半ばごろまで、機械翻訳や音声認識の中心はこのn-gramモデルでした。</p>
 </aside>
 
 <p>では、直前2文字を見るtrigramを作ってみましょう。</p>
@@ -247,9 +247,9 @@ random.seed(<span class="nu">1</span>)
 <span class="kw">def</span> <span class="fn">generate3</span>(start, n=<span class="nu">80</span>):
     out = start
     <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):
-        c = following3.get(out[-<span class="nu">2</span>:])
-        <span class="kw">if</span> c <span class="kw">is</span> <span class="kw">None</span>:
-            <span class="kw">break</span>
+        c = following3.get(out[-<span class="nu">2</span>:])  <span class="cm"># 最後の2文字の「次の文字の回数」。辞書になければ None</span>
+        <span class="kw">if</span> c <span class="kw">is</span> <span class="kw">None</span>:                 <span class="cm"># 続きが見つからなければ</span>
+            <span class="kw">break</span>                     <span class="cm">#   ループを途中で抜けて終わり</span>
         out += random.choices(<span class="bi">list</span>(c.keys()), weights=<span class="bi">list</span>(c.values()))[<span class="nu">0</span>]
     <span class="kw">return</span> out
 
@@ -283,7 +283,7 @@ random.seed(<span class="nu">1</span>)
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
 <li><strong><code>UnicodeDecodeError</code></strong>：<code>decode(&quot;utf-8&quot;)</code> のままになっていませんか？ 青空文庫は <code>decode(&quot;cp932&quot;)</code> です。</li>
 <li><strong><code>IndexError: list index out of range</code></strong>（<code>split(…)[2]</code> の行）：ダウンロードしたファイルが本文ではなく、エラーページになっている可能性があります。<code>print(text[:300])</code> で中身を確認し、URLを見直しましょう。</li>
-<li><strong><code>KeyError</code></strong>（<code>following[ch]</code> の行）：書き出しに『こころ』に出てこない文字を使うと起きます。「私」「先」など、本文にある文字で始めましょう。</li>
+<li><strong><code>KeyError</code></strong>（<code>following[ch]</code> の行）：書き出しの<strong>最後の文字</strong>が『こころ』に出てこない文字だと起きます。「私」「先生」など、本文にある文字で終わる書き出しにしましょう。</li>
 </ul>
 </aside>
 

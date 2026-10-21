@@ -54,7 +54,7 @@ train_data, val_data = data[:n], data[n:]</code></pre></div>
 
 <span class="kw">def</span> <span class="fn">get_batch</span>(data, batch_size, g):
     ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(data) - T, (batch_size,), generator=g)  <span class="cm"># 窓の開始位置をランダムに</span>
-    x = torch.stack([data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> ix])     <span class="cm"># 入力：8文字</span>
+    x = torch.stack([data[i:i + T] <span class="kw">for</span> i <span class="kw">in</span> ix])     <span class="cm"># 入力：8文字（stack は、同じ形のテンソルを積み重ねて1つにする）</span>
     y = data[ix + T]                                 <span class="cm"># 正解：その次の1文字</span>
     <span class="kw">return</span> x, y
 
@@ -243,7 +243,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=<span class="nu">0.1</span>)
 ステップ 10000：訓練 2.734  検証 3.395</code></pre></div>
 <p>CPUで2分ほどかかります。コーヒーでも淹れてきてください。……戻ってきましたか？ 検証<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a>が <strong>3.395</strong>。数えるbigramの3.581を、ついに破りました！</p>
 <aside class="box box-pybox"><p class="box-title">Pythonの道具箱：オプティマイザ</p><p><code>optimizer.zero_grad()</code> → <code>loss.backward()</code> → <code>optimizer.step()</code> の3行は、第7章で手で書いた「<a class="term" href="f-glossary.html#t-ad0a65c8" data-tip="各パラメータの偏微分を並べたもの。最も急に上る方向を指す。">勾配</a>を0に → 勾配を計算 → <code>w -= lr * w.grad</code>」と同じことをしています。<code>torch.optim.SGD</code> は、モデルの全パラメータについて、まとめて <code>w -= lr * w.grad</code> をやってくれる係です。<br>
-<code>@torch.no_grad()</code> を関数の上に付けると、その関数の中身全体が <code>with torch.no_grad():</code> の中にあるのと同じになります。</p>
+<code>@torch.no_grad()</code> を関数の上に付けると、その関数の中身全体が <code>with torch.no_grad():</code> の中にあるのと同じになります（関数の上に置く <code>@</code> は <strong>デコレータ</strong> という印で、第6章の行列の掛け算の <code>@</code> とは別物です）。</p>
 </aside>
 
 <h2 id="s8">記録表を更新</h2>

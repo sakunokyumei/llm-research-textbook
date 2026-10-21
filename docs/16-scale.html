@@ -113,6 +113,7 @@ model = TinyGPT().eval()
     <span class="kw">return</span> idx
 
 prompt = torch.randint(<span class="nu">0</span>, <span class="nu">1000</span>, (<span class="nu">1</span>, <span class="nu">20</span>))
+<span class="cm"># time.perf_counter() は「今の時刻（秒）」。前後の差が、かかった時間になる</span>
 t0 = time.perf_counter(); a = generate_naive(model, prompt, <span class="nu">200</span>); t1 = time.perf_counter()
 b = generate_cached(model, prompt, <span class="nu">200</span>); t2 = time.perf_counter()
 <span class="bi">print</span>(<span class="st">&quot;結果は同じ？&quot;</span>, torch.equal(a, b))

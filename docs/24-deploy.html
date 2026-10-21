@@ -96,10 +96,18 @@ files.download(<span class="st">&quot;soseki-gpt.json&quot;</span>)</code></pre>
   &lt;div id=&quot;out&quot;&gt;&lt;/div&gt;
 
   &lt;script type=&quot;module&quot;&gt;
-    import { load } from &quot;./minigpt.js&quot;;
-    const model = await load(&quot;./soseki-gpt.json&quot;);
     const go = document.getElementById(&quot;go&quot;);
     const out = document.getElementById(&quot;out&quot;);
+    let model;
+    try {                                   // Pythonの try / except と同じ（第23章）
+      const { load } = await import(&quot;./minigpt.js&quot;);
+      model = await load(&quot;./soseki-gpt.json&quot;);
+    } catch (e) {
+      go.textContent = &quot;読み込み失敗&quot;;
+      out.textContent = &quot;モデルを読み込めませんでした：&quot; + e.message +
+        &quot;\nファイル名（minigpt.js と soseki-gpt.json）と、http://localhost で開いているかを確かめてください。&quot;;
+      throw e;
+    }
     go.textContent = &quot;続きを書かせる&quot;;
     go.disabled = false;
     go.addEventListener(&quot;click&quot;, async () =&gt; {
@@ -112,7 +120,7 @@ files.download(<span class="st">&quot;soseki-gpt.json&quot;</span>)</code></pre>
   &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</code></pre></div>
-<p>HTMLとCSSは見慣れた姿だと思います。新しいのは最後の <code>&lt;script type=&quot;module&quot;&gt;</code> の部分だけです。</p>
+<p>HTMLとCSSは見慣れた姿だと思います。新しいのは最後の <code>&lt;script type=&quot;module&quot;&gt;</code> の部分だけです。<code>try { … } catch (e) { … }</code> は、Pythonの <code>try</code> / <code>except</code>（第23章）と同じで、読み込みに失敗したら、画面に理由を表示します。</p>
 <h3>minigpt.js の中身を読む</h3>
 <p><code>minigpt.js</code> は約150行です。中で何をしているか、Pythonの対応する部分と比べてみましょう。第12章のコードと、ほぼ1対1で対応しています。</p>
 <table>
@@ -195,6 +203,13 @@ python -m http.server 8000</code></pre></div>
 </aside>
 
 <p>ブラウザで <a href="http://localhost:8000/">http://localhost:8000/</a> を開き、「続きを書かせる」を押して、文章が出てくれば成功です。終わったら、ターミナルで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押してサーバーを止めます。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：「読み込み失敗」や「読み込み中…」のまま止まったら</p><ul>
+<li><strong>ファイル名を確かめる</strong>：2回ダウンロードすると <code>soseki-gpt (1).json</code> のような名前になっていることがあります。3つのファイルが <code>index.html</code>、<code>minigpt.js</code>、<code>soseki-gpt.json</code> という名前で、同じフォルダにあるか確かめましょう</li>
+<li><strong>開き方を確かめる</strong>：アドレス欄が <code>file://</code> で始まっていたら、上の手順でサーバーを立てて <code>http://localhost:8000/</code> で開き直します</li>
+<li><strong>エラーの本文を見る</strong>：<kbd>F12</kbd> キー（Macは <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd>）で開発者ツールを開き、「Console（コンソール）」タブの赤い行を読みます。英語のエラーは、<a href="e-errors.html">エラー辞典</a>の質問テンプレートでAIに聞いてもOKです</li>
+</ul>
+</aside>
+
 <aside class="box box-tip"><p class="box-title">コツ：Pythonが入っていなかったら</p><p>自分のパソコンにPythonが入っていない人は、<a href="a-setup.html">付録A</a>の手順で入れるか、この手順を飛ばして手順4（GitHub Pages）で直接確かめてもかまいません。</p>
 </aside>
 
