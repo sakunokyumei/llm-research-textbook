@@ -325,6 +325,11 @@
 <td>GPUがない、版が合わない</td>
 <td>ランタイムをT4 GPUに。<code>!pip install -U bitsandbytes</code></td>
 </tr>
+<tr>
+<td><code>RuntimeError: &quot;_amp_foreach_non_finite_check_and_unscale_cuda&quot; not implemented for 'BFloat16'</code></td>
+<td>QLoRAで、TRLが付せんをbfloat16にしたまま、T4向けの <code>fp16=True</code> で学習した</td>
+<td><code>trainer.train()</code> の前に、学習するパラメータを <code>p.data = p.data.float()</code> でfloat32に戻す（第19章のQLoRAのセル）</td>
+</tr>
 </tbody>
 </table>
 <h2 id="s8">そのほか</h2>

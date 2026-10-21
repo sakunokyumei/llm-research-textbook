@@ -134,7 +134,7 @@ quiz_results = {label: quiz_score(m) <span class="kw">for</span> label, m <span 
 <p>選択肢の長さが違うと、長いほど確率の合計が小さくなって不利になるので、長さで割る（1トークンあたりにする）こともあります。どちらの方式で測ったかは、結果と一緒に必ず書いておきましょう。</p>
 </aside>
 
-<p>17問と16問。ボンゴLoRAは1問減りました。……これは「忘れた」のでしょうか？ それとも偶然の誤差でしょうか？</p>
+<p>上の出力例では、17問と16問。ボンゴLoRAは1問減りました（あなたの結果は違う数かもしれません。自分の数で考えてください）。……これは「忘れた」のでしょうか？ それとも偶然の誤差でしょうか？</p>
 <h2 id="s5">統計：その差は偶然か？</h2>
 <p>20問は、ほんの一部の問題です。別の20問を選んでいたら、結果は逆になったかもしれません。そこで、<strong>ブートストラップ</strong>という方法で、「もし問題を選び直したら、差はどれくらいばらつくか」を調べます。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">bootstrap_diff</span>(a, b, n_boot=<span class="nu">10000</span>, seed=<span class="nu">0</span>):

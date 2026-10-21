@@ -223,7 +223,7 @@ trainer.train()
 <p>自分のデータで学習するときに変えるのは、主に <code>num_train_epochs</code>、<code>per_device_train_batch_size</code>、<code>learning_rate</code> の3つです。</p>
 </aside>
 
-<aside class="box box-warn"><p class="box-title">つまずき注意：T4では bf16=False に</p><p>TRLは、GPUが対応していれば自動で <code>bf16</code>（第13章の<a class="term" href="f-glossary.html#t-9ebc04f5" data-tip="範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。">bfloat16</a>）を使おうとします。T4はbfloat16に対応していないので、<code>bf16=False, fp16=True</code> を明示しないと、エラーになったり遅くなったりします。上のコードでは、GPUがあるときだけ <code>fp16=True</code> にしています。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：T4では bf16=False に</p><p>TRLは、<code>fp16</code> を指定しないと、自動で <code>bf16</code>（第13章の<a class="term" href="f-glossary.html#t-9ebc04f5" data-tip="範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。">bfloat16</a>）を使おうとします。T4はbfloat16に対応していないので、<code>bf16=False, fp16=True</code> を明示しないと、エラーになったり遅くなったりします。上のコードでは、GPUがあるときだけ <code>fp16=True</code> にしています。</p>
 </aside>
 
 <h2 id="s9">気をつけたいこと：忘れることもある</h2>

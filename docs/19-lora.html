@@ -271,11 +271,15 @@ trainer = SFTTrainer(model=big, train_dataset=ds, processing_class=big_tok,
                      args=SFTConfig(output_dir=<span class="st">&quot;qlora-bongo&quot;</span>, num_train_epochs=<span class="nu">3</span>, per_device_train_batch_size=<span class="nu">4</span>,
                                     learning_rate=<span class="nu">2e-4</span>, logging_steps=<span class="nu">5</span>, report_to=<span class="st">&quot;none&quot;</span>, save_strategy=<span class="st">&quot;no&quot;</span>,
                                     bf16=<span class="kw">False</span>, fp16=<span class="kw">True</span>, gradient_checkpointing=<span class="kw">True</span>))
+<span class="kw">for</span> p <span class="kw">in</span> trainer.model.parameters():              <span class="cm"># TRLがbf16にした付せんを、T4のfp16学習用にfloat32へ戻す</span>
+    <span class="kw">if</span> p.requires_grad:
+        p.data = p.data.<span class="bi">float</span>()
 trainer.train()
 <span class="bi">print</span>(<span class="st">f&quot;学習中の最大GPUメモリ：{torch.cuda.max_memory_allocated() / 1e9:.2f} GB&quot;</span>)</code></pre></div>
 <div class="codeblock output lang-output-example"><div class="code-head"><span>出力の例（数値や文章は実行ごとに変わってOK）</span></div><pre><code>GPUメモリ使用量：1.20 GB
 ...
 学習中の最大GPUメモリ：3.85 GB</code></pre></div>
+<p><code>trainer.train()</code> の前の3行が、T4で動かすためのコツです。TRLは、4ビットのモデルを渡されると、学習する付せん（LoRAの <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi></mrow><annotation encoding="application/x-tex">A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span></span></span></span> と <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span></span></span></span>）を自動で<a class="term" href="f-glossary.html#t-9ebc04f5" data-tip="範囲はfloat32並み、細かさは粗い16ビットの形式。新しいGPU向け。">bfloat16</a>にします。ところがT4はbfloat16が苦手で、<code>fp16=True</code> の学習と組み合わせると、最初の1歩で <code>not implemented for 'BFloat16'</code> というエラーになります。そこで、付せんだけをfloat32に戻しています。付せんは小さいので、float32にしてもメモリはほとんど増えません。</p>
 <p>1.5Bのモデルを、4GB以下のメモリで学習できました。同じ方法で、7Bのモデル（4ビットで約4〜5GB）もT4で鍛えられます（時間はかかりますが）。</p>
 <table>
 <thead>

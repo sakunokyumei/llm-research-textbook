@@ -122,7 +122,7 @@ history = []
 ステップ 2000：訓練 3.685  検証 3.771
 ステップ 2500：訓練 3.548  検証 3.719
 ステップ 3000：訓練 3.379  検証 3.685</code></pre></div>
-<p>CPUだと1〜2分かかります。損失がどんどん下がっていきます！ 7.63（まっさら）から、3.7あたりまで来ました。</p>
+<p>CPUだと2分前後かかります（Colabの無料のCPUは遅いので、数分かかることもあります。500ステップごとに表示が出るので、止まっていないことが分かります）。損失がどんどん下がっていきます！ 7.63（まっさら）から、3.7あたりまで来ました。</p>
 <p>ステップ0の検証損失だけ7.531と、<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>log</mi><mo>⁡</mo><mi>V</mi><mo>=</mo><mn>7.631</mn></mrow><annotation encoding="application/x-tex">\log V = 7.631</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">7.631</span></span></span></span> より少し小さいのは、検証損失を<strong>1回更新した後</strong>に測っているからです（コードでは、③の更新の後に検証しています）。訓練損失の7.631は更新の前に測っているので、ぴったり <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>log</mi><mo>⁡</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">\log V</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.22222em;">V</span></span></span></span> です。</p>
 <aside class="box box-pybox"><p class="box-title">Pythonの道具箱：W.grad = None</p><p>第7章では <code>.grad.zero_()</code> で<a class="term" href="f-glossary.html#t-ad0a65c8" data-tip="各パラメータの偏微分を並べたもの。最も急に上る方向を指す。">勾配</a>を0にしました。<code>W.grad = None</code> は「勾配を捨てる」で、効果は同じです（次の <code>backward()</code> で新しく作られます）。メモリの節約になるので、こちらがよく使われます。</p>
 </aside>
@@ -228,7 +228,7 @@ out = [<span class="st">&quot;私&quot;</span>]
 <ul>
 <li><strong>5</strong>：4.41。ゆっくりすぎて、3000ステップでは全然下りきらない</li>
 <li><strong>200</strong>：3.58。意外にも、50より速く、なめらかに下がる。このモデルは単純なので、「ちょうどいい」範囲が思ったより広いのです。そして、数えた版（3.581）とほぼ同じところで止まります。同じ「直前1文字」の情報しか使っていない以上、そこが限界だからです</li>
-<li><strong>1000</strong>：5.57。さすがに大きすぎて、損失が上がったり下がったり暴れ、ちっとも下がらない</li>
+<li><strong>1000</strong>：5台（実行するたびに5.2〜5.6くらいでばらつく）。さすがに大きすぎて、損失が上がったり下がったり暴れ、ちっとも下がらない</li>
 </ul>
 <p>「ちょうどいい学習率」はやってみないと分からず、モデルによって違う。だから研究者は、いくつか試して学習曲線を見比べるのです。</p>
 </aside>

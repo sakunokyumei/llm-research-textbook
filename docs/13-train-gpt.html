@@ -426,7 +426,7 @@ batch_size = <span class="nu">64</span>
     <span class="kw">return</span> model
 
 model_big = train_big(all_train, max_iters=<span class="nu">5000</span>)</code></pre></div>
-<p>パラメータは約1300万個。T4で20〜30分ほどかかります（<code>nvidia-smi</code> で、GPUが働いている様子も見てみましょう）。検証損失は、さらに下がるでしょうか？ それとも、データに対してモデルが大きすぎて、<a class="term" href="f-glossary.html#t-d520251b" data-tip="訓練データに合わせすぎて、検証データで悪くなること。丸暗記。">過学習</a>するでしょうか？ 予想してから試してみてください。結果は、あなただけの研究データです。</p>
+<p>パラメータは約1360万個。T4で20〜30分ほどかかります（<code>nvidia-smi</code> で、GPUが働いている様子も見てみましょう）。検証損失は、さらに下がるでしょうか？ それとも、データに対してモデルが大きすぎて、<a class="term" href="f-glossary.html#t-d520251b" data-tip="訓練データに合わせすぎて、検証データで悪くなること。丸暗記。">過学習</a>するでしょうか？ 予想してから試してみてください。結果は、あなただけの研究データです。</p>
 </aside>
 
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
@@ -445,7 +445,7 @@ model_big = train_big(all_train, max_iters=<span class="nu">5000</span>)</code><
 <details><summary>答えを見る（まず自分で考えてから！）</summary><p>float16では非常に小さな数が0になってしまう（アンダーフロー）ので、勾配が消えないように、損失を一時的に大きく拡大してから逆伝播し、更新の前に元の大きさに戻すためです。</p>
 </details></section>
 
-<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="13-train-gpt:0"> <span>ColabのGPU（T4）でミニGPTを学習させた（またはCPUで完走した）</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:1"> <span>『こころ』だけの実験と、7作品の実験を比べた</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:2"> <span>「データを増やすと過学習が減る」を学習曲線で確かめた</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:3"> <span>自分のGPTに漱石風の文章を書かせた</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:4"> <span>語彙・設定ごとモデルをGoogleドライブに保存した</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:5"> <span>記録表の空欄を、自分の実験の数値で埋めた</span></label></li></ul></section>
+<section class="checklist"><p class="box-title">できたらチェック</p><ul><li><label><input type="checkbox" data-check="13-train-gpt:0"> <span>ColabのGPU（T4）でミニGPTを学習させた（またはCPUで完走した）</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:1"> <span>『こころ』だけの実験と、7作品の実験を比べた</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:2"> <span>「データを増やすと過学習が減る」を学習曲線で確かめた</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:3"> <span>自分のGPTに漱石風の文章を書かせた</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:4"> <span>語彙・設定ごとモデルをGoogleドライブに保存した</span></label></li><li><label><input type="checkbox" data-check="13-train-gpt:5"> <span>記録表に、自分の実験の数値を書き足した</span></label></li></ul></section>
 
 <aside class="box box-recap"><p class="box-title">まとめ</p><ul>
 <li>GPUで学習するには、<strong>モデルとデータを <code>.to(device)</code></strong> で送る</li>
