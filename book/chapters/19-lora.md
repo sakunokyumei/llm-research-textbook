@@ -333,6 +333,9 @@ trainer = SFTTrainer(model=big, train_dataset=ds, processing_class=big_tok,
                      args=SFTConfig(output_dir="qlora-bongo", num_train_epochs=3, per_device_train_batch_size=4,
                                     learning_rate=2e-4, logging_steps=5, report_to="none", save_strategy="no",
                                     bf16=False, fp16=True, gradient_checkpointing=True))
+for p in trainer.model.parameters():              # TRLがbf16にした付せんを、T4のfp16学習用にfloat32へ戻す
+    if p.requires_grad:
+        p.data = p.data.float()
 trainer.train()
 print(f"学習中の最大GPUメモリ：{torch.cuda.max_memory_allocated() / 1e9:.2f} GB")
 ```
@@ -342,6 +345,8 @@ GPUメモリ使用量：1.20 GB
 ...
 学習中の最大GPUメモリ：3.85 GB
 ```
+
+`trainer.train()` の前の3行が、T4で動かすためのコツです。TRLは、4ビットのモデルを渡されると、学習する付せん（LoRAの $A$ と $B$）を自動でbfloat16にします。ところがT4はbfloat16が苦手で、`fp16=True` の学習と組み合わせると、最初の1歩で `not implemented for 'BFloat16'` というエラーになります。そこで、付せんだけをfloat32に戻しています。付せんは小さいので、float32にしてもメモリはほとんど増えません。
 
 1.5Bのモデルを、4GB以下のメモリで学習できました。同じ方法で、7Bのモデル（4ビットで約4〜5GB）もT4で鍛えられます（時間はかかりますが）。
 

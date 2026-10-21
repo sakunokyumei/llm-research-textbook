@@ -89,6 +89,7 @@
 | `TypeError: ... 'evaluation_strategy'` | 引数の名前が変わった | `eval_strategy` を使う |
 | LoRAで全然変わらない | 学習率が小さすぎる、学習するパラメータが0 | 学習率 $10^{-4}$〜$10^{-3}$、`print_trainable_parameters()` を確認 |
 | `bitsandbytes` のエラー | GPUがない、版が合わない | ランタイムをT4 GPUに。`!pip install -U bitsandbytes` |
+| `RuntimeError: "_amp_foreach_non_finite_check_and_unscale_cuda" not implemented for 'BFloat16'` | QLoRAで、TRLが付せんをbfloat16にしたまま、T4向けの `fp16=True` で学習した | `trainer.train()` の前に、学習するパラメータを `p.data = p.data.float()` でfloat32に戻す（第19章のQLoRAのセル） |
 
 ## そのほか
 
