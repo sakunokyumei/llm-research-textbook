@@ -323,8 +323,9 @@ bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                          bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True)
 big_name = "Qwen/Qwen2.5-1.5B-Instruct"
 big_tok = AutoTokenizer.from_pretrained(big_name)
-big = AutoModelForCausalLM.from_pretrained(big_name, quantization_config=bnb, device_map="auto")
-big = prepare_model_for_kbit_training(big)
+big = AutoModelForCausalLM.from_pretrained(big_name, quantization_config=bnb, device_map="auto",
+                                           dtype=torch.float16)   # T4はbfloat16が苦手なので、float16を指定
+big = prepare_model_for_kbit_training(big)        # 本体を凍結し、学習の準備をする（下で説明）
 print(f"GPUメモリ使用量：{torch.cuda.memory_allocated() / 1e9:.2f} GB")
 
 trainer = SFTTrainer(model=big, train_dataset=ds, processing_class=big_tok,
@@ -341,14 +342,18 @@ print(f"学習中の最大GPUメモリ：{torch.cuda.max_memory_allocated() / 1e
 ```
 
 ```output-example
-GPUメモリ使用量：1.20 GB
+GPUメモリ使用量：1.6 GB
 ...
-学習中の最大GPUメモリ：3.85 GB
+学習中の最大GPUメモリ：2.5 GB
 ```
+
+（数字は目安です。文章の長さやライブラリの版で、少し変わります。）
+
+`prepare_model_for_kbit_training` は、4ビットのモデルを学習する前の準備をまとめてやってくれる関数です。本体を全部凍結し、埋め込みや正規化の層のように量子化されていない部分をfloat32に戻して計算を安定させ、メモリを節約する勾配チェックポイント（第16章）をオンにします。埋め込みの表（約15万語 × 1536）がfloat32になるぶん、使用量は4ビットの本体だけのときより少し増えます。
 
 `trainer.train()` の前の3行が、T4で動かすためのコツです。TRLは、4ビットのモデルを渡されると、学習する付せん（LoRAの $A$ と $B$）を自動でbfloat16にします。ところがT4はbfloat16が苦手で、`fp16=True` の学習と組み合わせると、最初の1歩で `not implemented for 'BFloat16'` というエラーになります。そこで、付せんだけをfloat32に戻しています。付せんは小さいので、float32にしてもメモリはほとんど増えません。
 
-1.5Bのモデルを、4GB以下のメモリで学習できました。同じ方法で、7Bのモデル（4ビットで約4〜5GB）もT4で鍛えられます（時間はかかりますが）。
+1.5Bのモデルを、3GBにも満たないメモリで学習できました。同じ方法で、7Bのモデル（準備の後で約8GB）も、15GBのT4に乗せて鍛えられます（時間はかかりますが）。
 
 | 方法 | 1.5Bの学習メモリの目安 | 7Bの学習メモリの目安 |
 |---|---|---|

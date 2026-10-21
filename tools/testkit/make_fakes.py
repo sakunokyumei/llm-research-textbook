@@ -60,7 +60,11 @@ def qwen_tokenizer():
     tk = TikTokenConverter(vocab_file=str(vocab), pattern=QWEN_PATTERN).converted()
     tk.normalizer = normalizers.NFC()
     from tokenizers import AddedToken
-    tk.add_special_tokens([AddedToken(t, special=True, normalized=False) for t in QWEN_SPECIALS])
+    # like the real Qwen2.5 tokenizer: <tool_call> and the FIM/repo tokens are added but not "special",
+    # so skip_special_tokens=True keeps them (ch23 parses <tool_call> from decoded text)
+    not_special = QWEN_SPECIALS[QWEN_SPECIALS.index("<tool_call>"):]
+    tk.add_tokens([AddedToken(t, special=t not in not_special, normalized=False) for t in QWEN_SPECIALS])
+    tk.add_special_tokens([AddedToken(t, special=True, normalized=False) for t in QWEN_SPECIALS if t not in not_special])
     assert tk.token_to_id("<|im_start|>") == 151644 and tk.token_to_id("<|file_sep|>") == 151664
     return tk
 
