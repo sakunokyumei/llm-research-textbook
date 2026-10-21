@@ -1,26 +1,26 @@
 {
- "date": "2026-10-20",
+ "date": "2026-10-21",
  "python": "3.13.16",
  "chapters": [
   {
    "slug": "01-first-llm",
    "cells": 11,
    "skipped": 0,
-   "seconds": 19.0,
+   "seconds": 18.7,
    "failures": []
   },
   {
    "slug": "02-tokens",
    "cells": 12,
    "skipped": 0,
-   "seconds": 8.8,
+   "seconds": 6.9,
    "failures": []
   },
   {
    "slug": "03-next-token",
    "cells": 10,
    "skipped": 0,
-   "seconds": 13.3,
+   "seconds": 9.9,
    "failures": []
   },
   {
@@ -34,147 +34,147 @@
    "slug": "05-loss",
    "cells": 12,
    "skipped": 0,
-   "seconds": 1.2,
+   "seconds": 1.3,
    "failures": []
   },
   {
    "slug": "06-tensors",
    "cells": 12,
    "skipped": 0,
-   "seconds": 2.5,
+   "seconds": 1.8,
    "failures": []
   },
   {
    "slug": "07-gradient",
    "cells": 10,
    "skipped": 0,
-   "seconds": 2.4,
+   "seconds": 1.7,
    "failures": []
   },
   {
    "slug": "08-neural-bigram",
    "cells": 10,
    "skipped": 0,
-   "seconds": 91.8,
+   "seconds": 53.5,
    "failures": []
   },
   {
    "slug": "09-mlp",
    "cells": 9,
    "skipped": 0,
-   "seconds": 119.2,
+   "seconds": 73.1,
    "failures": []
   },
   {
    "slug": "10-training-tips",
    "cells": 15,
    "skipped": 0,
-   "seconds": 171.1,
+   "seconds": 129.5,
    "failures": []
   },
   {
    "slug": "11-attention",
    "cells": 12,
    "skipped": 0,
-   "seconds": 83.7,
+   "seconds": 53.8,
    "failures": []
   },
   {
    "slug": "12-transformer",
    "cells": 11,
    "skipped": 0,
-   "seconds": 163.6,
+   "seconds": 111.6,
    "failures": []
   },
   {
    "slug": "13-train-gpt",
-   "cells": 15,
+   "cells": 16,
    "skipped": 1,
-   "seconds": 34.7,
+   "seconds": 23.3,
    "failures": []
   },
   {
    "slug": "14-bpe",
    "cells": 10,
    "skipped": 0,
-   "seconds": 158.4,
+   "seconds": 107.3,
    "failures": []
   },
   {
    "slug": "15-gpt2",
    "cells": 8,
    "skipped": 0,
-   "seconds": 8.4,
+   "seconds": 6.0,
    "failures": []
   },
   {
    "slug": "16-scale",
    "cells": 7,
    "skipped": 0,
-   "seconds": 8.4,
+   "seconds": 5.5,
    "failures": []
   },
   {
    "slug": "17-hf-models",
    "cells": 10,
    "skipped": 1,
-   "seconds": 13.7,
+   "seconds": 12.7,
    "failures": []
   },
   {
    "slug": "18-sft",
    "cells": 10,
    "skipped": 0,
-   "seconds": 144.7,
+   "seconds": 98.2,
    "failures": []
   },
   {
    "slug": "19-lora",
    "cells": 11,
    "skipped": 1,
-   "seconds": 132.8,
+   "seconds": 85.6,
    "failures": []
   },
   {
    "slug": "20-evaluation",
    "cells": 9,
    "skipped": 0,
-   "seconds": 108.3,
+   "seconds": 67.9,
    "failures": []
   },
   {
    "slug": "21-rag",
    "cells": 10,
    "skipped": 0,
-   "seconds": 12.4,
+   "seconds": 9.6,
    "failures": []
   },
   {
    "slug": "22-alignment",
-   "cells": 6,
+   "cells": 7,
    "skipped": 0,
-   "seconds": 153.9,
+   "seconds": 98.2,
    "failures": []
   },
   {
    "slug": "23-agents",
    "cells": 6,
    "skipped": 0,
-   "seconds": 12.9,
+   "seconds": 12.1,
    "failures": []
   },
   {
    "slug": "24-deploy",
    "cells": 6,
    "skipped": 2,
-   "seconds": 17.7,
+   "seconds": 11.9,
    "failures": []
   },
   {
    "slug": "25-modern",
    "cells": 8,
    "skipped": 0,
-   "seconds": 403.5,
+   "seconds": 271.1,
    "failures": []
   },
   {
