@@ -191,7 +191,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <p>初期化に気をつけても、学習中にパラメータが変わると、また数の大きさは暴れ出します。そこで、<strong>毎回、強制的に大きさをそろえる</strong>部品を挟みます。それが <strong>LayerNorm</strong>（レイヤーノーム、層正規化）です。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>h = torch.randn(<span class="nu">2</span>, <span class="nu">6</span>) * <span class="nu">5</span> + <span class="nu">3</span>      <span class="cm"># 平均3、標準偏差5くらいの、暴れた数</span>
 mean = h.mean(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>)
-std = h.std(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>, unbiased=<span class="kw">False</span>)
+std = h.std(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>, unbiased=<span class="kw">False</span>)   <span class="cm"># unbiased=False：数式どおり N で割る</span>
 h_hand = (h - mean) / (std + <span class="nu">1e-5</span>)  <span class="cm"># 平均を引いて、標準偏差で割る</span>
 
 ln = nn.LayerNorm(<span class="nu">6</span>, elementwise_affine=<span class="kw">False</span>)
@@ -201,24 +201,24 @@ ln = nn.LayerNorm(<span class="nu">6</span>, elementwise_affine=<span class="kw"
         [-0.0293,  0.7320,  1.0004, -0.1376, -2.0512,  0.4857]])
 tensor([[-0.2989,  0.0184, -1.2615,  1.8086,  0.5781, -0.8448],
         [-0.0293,  0.7320,  1.0004, -0.1376, -2.0512,  0.4857]])</code></pre></div>
-<aside class="box box-theory"><p class="box-title">理論の小部屋：LayerNormは「偏差値」</p><p>LayerNormは、1つのデータ（1行）の中の数について、<strong>平均を引いて標準偏差で割る</strong>だけです。すると、元の数がどんなに大きくても小さくても、平均0・標準偏差1にそろいます。</p>
-<p>これは、テストの点数を <strong>偏差値</strong> にするのと同じ発想です。難しいテストでも簡単なテストでも、偏差値にすれば同じものさしで比べられますよね。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：LayerNormは「偏差値」</p><p>LayerNormは、1つのデータ（1行、つまり1つの文字や<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>の特徴量ベクトル）の中の数について、<strong>平均を引いて標準偏差で割る</strong>だけです。すると、元の数がどんなに大きくても小さくても、平均0・標準偏差1にそろいます。</p>
+<p>これは、テストの点数を <strong>偏差値</strong>（Zスコア）にするのと同じ発想です。難しいテストでも簡単なテストでも、偏差値に変換すれば同じものさしで比べられますよね。画像認識でよく使われるバッチ正規化と違って、他のデータ（バッチの仲間）に一切依存せず、そのデータ単独で完結して計算できるため、文章を1文字ずつ扱う自然言語処理や<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>と非常に相性が良いのが特長です。</p>
 <p>実際の <code>nn.LayerNorm</code> は、そろえた後に「学習可能な倍率と足し算」で少しだけ形を調整できるようになっています（上では <code>elementwise_affine=False</code> でそれを切っています）。LayerNormはGPTの部品として、第12章で何度も登場します。</p>
 </aside>
 
 <h2 id="s6">治療2：Adam（賢い坂の下り方）</h2>
-<p>第7章からずっと、坂の下り方は「傾きに学習率を掛けて進む」SGDでした。現代の<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の学習では、ほぼ必ず <strong>Adam</strong>（アダム）またはその改良版 <strong>AdamW</strong> を使います。</p>
+<p>第7章からずっと、坂の下り方は「傾きに<a class="term" href="f-glossary.html#t-0bd86f5c" data-tip="勾配降下法の一歩の大きさ。">学習率</a>を掛けて進む」SGDでした。現代のLLMの学習では、ほぼ必ず <strong>Adam</strong>（アダム）またはその改良版 <strong>AdamW</strong> を使います。</p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：Adamは「慣性」と「自分専用の歩幅」</p><p><a class="term" href="f-glossary.html#t-fa6f908d" data-tip="ミニバッチで勾配を計算して下る、確率的勾配降下法。">SGD</a>の弱点は2つあります。</p>
 <ol>
 <li><strong><a class="term" href="f-glossary.html#t-b74d3b0b" data-tip="データ全体から選んだ一部。毎回これで損失と勾配を計算する。">ミニバッチ</a>のぶれに振り回される</strong>：毎回の勾配がガタガタなので、ジグザグに進んでしまう</li>
 <li><strong>全パラメータが同じ歩幅</strong>：めったに出てこない文字の<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a>は、勾配がたまにしか来ないので、なかなか学習が進まない</li>
 </ol>
-<p>Adamは次の2つの工夫でこれを解決します。</p>
+<p>Adamは、歴史的な2つの名アイデア（<strong>モメンタム</strong> と <strong>RMSprop</strong>）を組み合わせることで、これを一挙に解決します。</p>
 <ul>
-<li><strong>慣性（モーメンタム）</strong>：これまでの勾配の平均的な向きを覚えておき、それに沿って進む。ボールが坂を転がるとき、小さなでこぼこでは向きを変えないのと同じ</li>
-<li><strong>パラメータごとの歩幅</strong>：勾配がいつも小さいパラメータは歩幅を大きく、いつも大きいパラメータは歩幅を小さくする。2乗の平均（分散のようなもの）で割ることで実現する</li>
+<li><strong>慣性（モーメンタム / 勾配の向きの記憶）</strong>：これまでの勾配の平均的な向きを覚えておき、それに沿って進む。重いボールが坂を勢いよく転がるとき、小さなでこぼこがあっても直進し続けるのと同じです。</li>
+<li><strong>パラメータごとの歩幅（RMSprop / 勾配の2乗の記憶）</strong>：勾配がいつも小さいパラメータは「まだ学び足りない」と判断して歩幅を大きく、いつも勾配が大きいパラメータは「慎重に進もう」と歩幅を小さくします。各パラメータの勾配の2乗平均の平方根（RMS）で割ることで、それぞれにぴったりの歩幅を自動調整します。</li>
 </ul>
-<p>AdamWの「W」は <strong>重み減衰</strong>（weight decay）を正しく組み込んだ版、という意味です（重み減衰は後で出てきます）。</p>
+<p>AdamWの「W」は <strong>重み減衰</strong>（Weight Decay）を正しく組み込んだ版、という意味です。従来のAdamでは重み減衰を勾配と混ぜて計算していたため、歩幅の自動調整のせいで重み減衰が歪んでしまう問題がありました。AdamWは歩幅調整とは独立してきれいに重みを減衰させるよう修正したもので、現代のLLM学習のデファクトスタンダード（標準）となっています。</p>
 </aside>
 
 <p>では、AdamWで学習させてみましょう。学習の様子を記録しながら、6000ステップ進めます。</p>
@@ -288,7 +288,7 @@ plot_history([hist_a], [<span class="st">&quot;AdamW&quot;</span>], <span class=
 </aside>
 
 <h2 id="s9">治療4：学習率スケジュール</h2>
-<p>最後に、<a class="term" href="f-glossary.html#t-0bd86f5c" data-tip="勾配降下法の一歩の大きさ。">学習率</a>を学習の途中で変える技です。</p>
+<p>最後に、学習率を学習の途中で変える技です。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">lr_at</span>(step, max_lr, total, warmup=<span class="nu">200</span>):
     <span class="kw">if</span> step &lt; warmup:
         <span class="kw">return</span> max_lr * step / warmup                       <span class="cm"># ウォームアップ：0から徐々に上げる</span>
@@ -437,7 +437,8 @@ loaded.load_state_dict(torch.load(<span class="st">f&quot;{save_dir}/mlp_kokoro.
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
 <li><strong><code>drive.mount</code> で止まる・失敗する</strong>：ポップアップがブロックされていないか確認しましょう。アカウント選択の画面で、すべての項目にチェックを入れて「続行」を押します。</li>
 <li><strong><code>RuntimeError: Error(s) in loading state_dict</code></strong>：保存したときと違う設計図（<code>dropout</code> 以外の <code>d</code> や <code>H</code>、<code>T</code> など）でモデルを作っています。保存時と同じ設定で作りましょう。</li>
-<li><strong>生成した文章が毎回同じ・評価が毎回変わる</strong>：<code>model.eval()</code> と <code>model.train()</code> の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。</li>
+<li><strong>検証損失が、同じモデルなのに実行するたびにぶれる</strong>：<code>model.eval()</code> と <code>model.train()</code> の切り替えを忘れていないか確認しましょう。評価時にドロップアウトが効いていると、結果がぶれます。</li>
+<li><strong><code>.std()</code> で計算した標準偏差が、手計算と合わない</strong>：PyTorchの <code>.std()</code> と <code>.var()</code> は、標準では N ではなく N−1 で割ります（統計で「標本から全体を推定する」ときの割り方）。数式どおり N で割るには <code>unbiased=False</code> を付けます。LayerNormは N で割るほうです。</li>
 </ul>
 </aside>
 

@@ -58,6 +58,11 @@ print("読み込み完了")
 読み込み完了
 ```
 
+:::python AutoModelForCausalLM って何？
+`AutoModel` ではなく `AutoModelForCausalLM` という長い名前を使うのはなぜでしょう？
+`AutoModel` はTransformerの胴体部分（各トークンの特徴量ベクトルを出すところまで）しか読み込みません。一方、`AutoModelForCausalLM`（Causal Language Model：因果的言語モデル）は、その上に第12章や第15章で作った「次のトークンを予測する出力層（`lm_head`）」をちゃんと乗せたモデルを読み込んでくれます。文章の続きを生成したいときは、必ずこの `ForCausalLM` のほうを使います。
+:::
+
 ベースモデルに、質問の文章をそのまま渡してみます。
 
 ```python

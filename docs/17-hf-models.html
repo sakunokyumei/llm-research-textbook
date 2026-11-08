@@ -75,6 +75,10 @@ base_tok, base = load(<span class="st">&quot;Qwen/Qwen2.5-0.5B&quot;</span>)
 chat_tok, chat = load(<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>)
 <span class="bi">print</span>(<span class="st">&quot;読み込み完了&quot;</span>)</code></pre></div>
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>読み込み完了</code></pre></div>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：AutoModelForCausalLM って何？</p><p><code>AutoModel</code> ではなく <code>AutoModelForCausalLM</code> という長い名前を使うのはなぜでしょう？
+<code>AutoModel</code> は<a class="term" href="f-glossary.html#t-68c170c0" data-tip="AttentionとMLPを、残差接続と正規化で何層も重ねた構造。GPTの「T」。">Transformer</a>の胴体部分（各トークンの特徴量ベクトルを出すところまで）しか読み込みません。一方、<code>AutoModelForCausalLM</code>（Causal Language Model：因果的言語モデル）は、その上に第12章や第15章で作った「次の<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>を予測する出力層（<code>lm_head</code>）」をちゃんと乗せたモデルを読み込んでくれます。文章の続きを生成したいときは、必ずこの <code>ForCausalLM</code> のほうを使います。</p>
+</aside>
+
 <p>ベースモデルに、質問の文章をそのまま渡してみます。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">complete</span>(tok, model, text, n=<span class="nu">60</span>):
     inputs = tok(text, return_tensors=<span class="st">&quot;pt&quot;</span>).to(model.device)
@@ -86,7 +90,7 @@ chat_tok, chat = load(<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</s
 日本で一番高い山は何ですか？
 日本で一番高い山は何ですか？
 日本で一番高い山は何ですか？</code></pre></div>
-<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>同じ質問をくり返している！ ベースモデルは「質問に答える」ことを教わっていない。ネットで「質問文」の次によく来るのは……別の質問文（よくある質問の一覧ページなど）だからね。ベースモデルは、ひたすら<strong>ネットの文章の続き</strong>を書く。それだけだ。</p>
+<div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>同じ質問をくり返している！（キミの画面では、答えを書いた後に、別の質問を勝手に書き続けているかもしれない。どちらも同じ理由だ。）ベースモデルは「質問に答える」ことを教わっていない。ネットで「質問文」の次によく来るのは……別の質問文（よくある質問の一覧ページなど）だからね。ベースモデルは、ひたすら<strong>ネットの文章の続き</strong>を書く。それだけだ。</p>
 </div></div>
 
 <p>答えさせたいなら、「答えが続きそうな文章」にしてあげればいいのです。</p>
@@ -106,7 +110,7 @@ chat_tok, chat = load(<span class="st">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</s
 <p>きちんと答えて、きちんと止まりました。</p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：LLMができるまでの3段階</p><p>チャットモデルは、ふつう次の3段階で作られます。</p>
 <ol>
-<li><strong>事前学習</strong>（pre-training）：大量の文章で「次の<a class="term" href="f-glossary.html#t-ec75167c" data-tip="LLMが文章を扱うときの「言葉のかけら」。文字と単語の中間くらいの大きさ。">トークン</a>予測」を学ぶ（第13〜15章でやったこと）。ここでできるのが<strong>ベースモデル</strong>。知識と文章力は身につくが、会話の作法は知らない</li>
+<li><strong>事前学習</strong>（pre-training）：大量の文章で「次のトークン予測」を学ぶ（第13〜15章でやったこと）。ここでできるのが<strong>ベースモデル</strong>。知識と文章力は身につくが、会話の作法は知らない</li>
 <li><strong>SFT</strong>（教師ありファインチューニング）：「質問 → 良い答え」の例を数万〜数百万件、チャットテンプレート（第1章の台本<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>式）で学ばせる。会話の作法と、<code>&lt;|im_end|&gt;</code> で止まることを覚える（<strong>第18章</strong>）</li>
 <li><strong>好みの学習</strong>（RLHF・DPOなど）：同じ質問への2つの答えのどちらが良いかを人間が選び、良い方を出しやすくする。安全性や丁寧さもここで整える（<strong>第22章</strong>）</li>
 </ol>

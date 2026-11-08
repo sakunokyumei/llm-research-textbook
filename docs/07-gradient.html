@@ -130,6 +130,7 @@ lr = <span class="nu">0.01</span>
 <li><strong>大きすぎる</strong>（2近く）：谷を飛び越えて、反対側の斜面に着地。行ったり来たりして、最悪どこかへ飛んでいく</li>
 </ul>
 <p>ただし、「ちょうどいい学習率」は坂の急さで変わります。デモの坂はゆるやかなので0.3でちょうどよく、ボンゴ焼きの坂はずっと急なので、0.01〜0.05くらいがちょうどいい値です。ボンゴ焼きのコードで <code>lr = 0.1</code> にして試してみてください。デモでは小さめの0.1でも、ボンゴ焼きでは損失が爆発するのが見られます。学習率は、機械学習でいちばん大事な<a class="term" href="f-glossary.html#t-fa1607f2" data-tip="学習率など、人間が事前に決める設定値。検証データで選ぶ。">ハイパーパラメータ</a>です。モデルやデータが変わったら、また探し直す必要があります。</p>
+<p>もう1つ、デモで「別の場所から」を何回か押してみてください。デモの坂には、本当の谷底のほかに、途中に<strong>小さなくぼみ</strong>があります。スタート地点によっては、そこで止まってしまいます。勾配降下法は「今いる場所の傾き」しか見ないので、もっと深い谷が別の場所にあっても気づけないのです（<strong>局所最適解</strong>と言います）。目隠しで山を下りるのですから、仕方ありません。ただ、パラメータが何億個もある実際のLLMでは、こうした浅いくぼみに完全にはまって動けなくなることは、意外と少ないと考えられています。</p>
 </aside>
 
 <h2 id="s4">パラメータが2つになったら：勾配</h2>
@@ -190,7 +191,8 @@ lr = <span class="nu">0.02</span>
 
 <span class="bi">print</span>(<span class="st">f&quot;w = {w.item():.3f}, b = {b.item():.3f}, 損失 = {loss.item():.4f}&quot;</span>)</code></pre></div>
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>w = 3.010, b = -0.030, 損失 = 0.0198</code></pre></div>
-<aside class="box box-warn"><p class="box-title">つまずき注意：④を忘れると大変</p><p>PyTorchの <code>.grad</code> は、<code>backward()</code> を呼ぶたびに <strong>足し算されていく</strong>（累積する）仕様です。④の <code>zero_()</code> を忘れると、前のステップの勾配がどんどん積み上がり、学習がめちゃくちゃになります。エラーは出ないので、気づきにくい。学習がおかしいときは、まずここを疑いましょう。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：④を忘れると大変</p><p>PyTorchの <code>.grad</code> は、<code>backward()</code> を呼ぶたびに <strong>足し算されていく</strong>（累積する）仕様です。④の <code>zero_()</code> を忘れると、前のステップの勾配がどんどん雪だるま式に積み上がり、学習がめちゃくちゃになります。エラーメッセージが出ずに結果だけがおかしくなるので、気づきにくいバグの代表格です。学習の様子がおかしいときは、まずここを疑いましょう。</p>
+<p>なぜ自動で0にリセットしてくれないのかというと、<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>メモリが足りないときに何回かに分けて勾配を足し合わせる技（第16章の「勾配累積」）などで、この累積仕様が役に立つからです。便利な機能の裏返しとして、普段は毎回手動でリセット（ゼロクリア）してあげる必要があります。</p>
 </aside>
 
 <aside class="box box-theory"><p class="box-title">理論の小部屋：第3章の `no_grad` の謎が解ける</p><p>③で <code>with torch.no_grad():</code> を使っているのは、「パラメータの更新」は学習のための計算ではないので、記録の外でやる必要があるからです。記録したまま <code>w -= lr * w.grad</code> を実行すると、PyTorchは「記録中のパラメータを直接書き換えようとしている」と判断して、<code>RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.</code> というエラーで止めます。</p>

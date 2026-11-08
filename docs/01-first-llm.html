@@ -95,6 +95,7 @@ GPUを使う？ True</code></pre></div>
 </aside>
 
 <aside class="box box-pybox"><p class="box-title">Pythonの道具箱：import ＝ 道具を借りる</p><p><code>import torch</code> は「<code>torch</code> という道具箱を借りてくる」という意味です。<code>torch</code>（PyTorch）は数値計算とAIのための道具箱、<code>transformers</code> はLLMを簡単に扱うための道具箱です。どちらもColabには最初から入っています。<br>
+<code>pipeline(...)</code> は、文章生成に必要な「文字と数字の変換係」「モデル本体」「文章を作るループ」をひとまとめにして、たった1行で呼び出せるようにした便利セットです。<br>
 <code>A if 条件 else B</code> は「条件が正しければA、そうでなければB」という書き方です。HTMLにはない、Pythonの便利な一行if文です。</p>
 </aside>
 
@@ -142,7 +143,7 @@ result = chat(messages, max_new_tokens=<span class="nu">100</span>)
 </tr>
 </tbody>
 </table>
-<p>マトリョーシカを外側から1つずつ開けているようなものです。</p>
+<p>マトリョーシカを外側から1つずつ開けているようなものです。なぜ <code>[-1]</code>（最後）なのかというと、会話の履歴には質問と回答が順番に入っていて、<strong>一番最後に最新のAIの返事があるから</strong>です。</p>
 <h2 id="s6">毎回書くのは面倒なので、関数にする</h2>
 <p>質問のたびに4行書くのは面倒ですね。プログラマは面倒くさがりです。そして面倒くさがりは、<strong>関数</strong>を作ります。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（Colabのセルに貼って実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">def</span> <span class="fn">ask</span>(question, max_new_tokens=<span class="nu">200</span>):
@@ -177,6 +178,7 @@ result = chat(messages, max_new_tokens=<span class="nu">100</span>)
 <p>1つ予測したら、その言葉を文章の最後に付け足して、また次を予測する。これを何百回も繰り返すと、長い文章ができあがります。</p>
 <div class="math-display">「吾輩は」→ 予測「猫」→「吾輩は猫」→ 予測「で」→「吾輩は猫で」→ 予測「ある」→ …</div>
 <p>だから「123×456=」の次に来る数字も、<strong>計算しているのではなく「それっぽい数字」を予測している</strong>のです。大きなLLMは練習量が多いので、それっぽさが正解とほぼ一致するようになりますが、小さなモデルはよく外します。人間が暗算せずに「だいたい5万くらい？」と言うのに似ていますね。</p>
+<p>スマートフォンのキーボードで文字を打つとき、次に入力しそうな言葉が候補に出てきますよね。LLMは、あの予測変換をインターネット中の文章で極限まで賢く鍛え上げた姿だと考えると、一番イメージが湧きやすいはずです。</p>
 </aside>
 
 <p>本当に「続きを書いているだけ」なのか、確かめてみましょう。会話の形（<code>messages</code>）ではなく、ただの文字列を渡すと、LLMは素直に「続き」を書きます。</p>

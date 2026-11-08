@@ -154,11 +154,13 @@ x = torch.randn(<span class="nu">2</span>, <span class="nu">8</span>, <span clas
 <aside class="box box-theory"><p class="box-title">理論の小部屋：<a class="term" href="f-glossary.html#t-a3f96af9" data-tip="部品の出力を元の入力に足す近道。情報と勾配が通りやすくなる。">残差接続</a>：情報の高速道路</p><p><code>x = x + self.attn(…)</code> の <strong><code>x +</code></strong> の部分が <strong>残差接続</strong>（residual connection）です。第11章でも1回出てきましたね。</p>
 <p>部品の出力で <code>x</code> を<strong>置き換える</strong>のではなく、<code>x</code> に<strong>足し込む</strong>。こうすると、</p>
 <ul>
-<li><strong>情報の高速道路</strong>：元の情報（自分が何の文字か、など）が、何層通っても消えずに残る。各層は「少しだけ書き足す」係になる</li>
+<li><strong>情報の高速道路（ベルトコンベア）</strong>：元の情報（自分が何の文字か、など）が、何層通っても消えずに残る。残差ストリーム（residual stream）は「工場のベルトコンベア」のようなものです。コンベアの上を文章情報がまっすぐ流れ、各ブロックのAttention係やMLP係は、コンベアの荷物を覗き見て「追加の気づき（差分）」をそっと上に載せるだけです。コンベアそのものを上書きしないので、何十層重ねても最初の文字情報が消えません。</li>
 <li><strong><a class="term" href="f-glossary.html#t-ad0a65c8" data-tip="各パラメータの偏微分を並べたもの。最も急に上る方向を指す。">勾配</a>の高速道路</strong>：誤差逆伝播で、勾配が足し算の道を通って、入口までまっすぐ届く（足し算の<a class="term" href="f-glossary.html#t-c28531d5" data-tip="傾き。少し動かしたときの変化の割合。">微分</a>は1なので、勾配が弱まらない）。第10章の「深い層で勾配が消える」問題を、根本から解決する</li>
 </ul>
 <p><a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の層を何十、何百と深くできるのは、この残差接続のおかげです。2015年の画像認識モデル <strong>ResNet</strong> で有名になった方法で、Transformerはこれを借りてきました。</p>
-<p>研究者はよく、この <code>x</code> の流れを <strong>残差ストリーム</strong>（residual stream）と呼びます。各層のAttentionとMLPは、川の流れに情報を書き足していく、川沿いの作業員のようなものです。</p>
+</aside>
+
+<aside class="box box-theory"><p class="box-title">理論の小部屋：位置埋め込みを「足し算」する理由</p><p>Attentionには「順序」という概念がありません。文字の並び順をシャッフルしても、位置の情報がないとまったく同じ計算になってしまいます。そこで、0番目、1番目、2番目……という位置ごとの<a class="term" href="f-glossary.html#t-23179fc5" data-tip="数を1列に並べたもの。">ベクトル</a>（<code>pos_emb</code>）を用意し、文字のベクトル（<code>tok_emb</code>）に<strong>そのまま足し算</strong>します。「足し算して混ざってしまわないの？」と不安になりますが、高次元の空間では、文字の意味の向きと位置の向きを別々の方向（独立した軸）として両立して保持できるため、ちゃんと区別して学習されます。</p>
 </aside>
 
 <aside class="box box-theory"><p class="box-title">理論の小部屋：Pre-LN：まず整えてから処理する</p><p>各部品に入る<strong>前に</strong> LayerNorm をかけています（<code>self.attn(self.ln1(x))</code>）。これを <strong>Pre-LN</strong>（前置き正規化）と言います。2017年の元祖Transformerは「処理した後に」正規化していましたが、GPT-2以降は、学習が安定するPre-LNが主流です。残差ストリーム <code>x</code> 自体は正規化せず、各作業員が仕事をする前に、手元のコピーだけを整えるイメージです。</p>
@@ -231,7 +233,7 @@ groups = {<span class="st">&quot;埋め込み（文字・位置）&quot;</span>:
     <span class="kw">else</span>:
         groups[<span class="st">&quot;最後のLayerNorm＋出力層&quot;</span>] += p.numel()
 <span class="kw">for</span> k, v <span class="kw">in</span> groups.items():
-    <span class="bi">print</span>(<span class="st">f&quot;  {k}：{v:,}（{v / total:.0%}）&quot;</span>)</code></pre></div>
+    <span class="bi">print</span>(<span class="st">f&quot;  {k}：{v:,}（{v / total:.0%}）&quot;</span>)   <span class="cm"># :, は3桁ごとのカンマ、:.0% はパーセント表示</span></code></pre></div>
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>パラメータの数：369,677
   埋め込み（文字・位置）：136,000（37%）
   Transformerブロック：99,584（27%）
