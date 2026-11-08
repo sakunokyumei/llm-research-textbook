@@ -219,7 +219,7 @@ both = <span class="bi">sum</span>(x == <span class="st">&quot;A&quot;</span> <s
 <aside class="box box-warn"><p class="box-title">つまずき注意：<a class="term" href="f-glossary.html#t-bf12723d" data-tip="評価に使うデータの情報が、学習側に入ってしまうこと。">データ漏洩</a>（コンタミネーション）</p><p>評価に使う問題が、学習データに混ざっていると、モデルは「解いた」のではなく「覚えていた」だけになります。これを <strong>コンタミネーション</strong>（contamination、汚染 / リーク）と言います。</p>
 <ul>
 <li><strong>自分のデータ</strong>：学習用と評価用に同じ問題が入っていないか、データを作る最初の段階で厳密に分ける</li>
-<li><strong>公開ベンチマーク</strong>：有名なベンチマーク問題（MMLUなど）は、ネット上に答え付きでたくさん転載されているため、数兆トークンの<a class="term" href="f-glossary.html#t-601c3a06" data-tip="大量の文章で次のトークン予測を学習させること。ベースモデルができる。">事前学習</a>データに丸ごと混入してしまい、暗記で満点を取ってしまう現象が問題視されています。そのため、定期的に非公開の問題に入れ替えたり、人間が2つのモデルの回答をブラインド比較して勝敗を決める「Chatbot Arena（LMSYS）」の <strong>イロレーティング（Elo rating）</strong> のような仕組みが重視されるようになっています。</li>
+<li><strong>公開ベンチマーク</strong>：有名なベンチマーク問題（MMLUなど）は、ネット上に答え付きでたくさん転載されているため、数兆トークンの<a class="term" href="f-glossary.html#t-601c3a06" data-tip="大量の文章で次のトークン予測を学習させること。ベースモデルができる。">事前学習</a>データに丸ごと混入してしまい、暗記で満点を取ってしまう現象が問題視されています。そのため、定期的に非公開の問題に入れ替えたり、人間が2つのモデルの回答をブラインド比較して勝敗を決める「Chatbot Arena（LMSYS）」の <strong>Elo系のレーティング（Elo rating）</strong> のような仕組みが重視されるようになっています。</li>
 </ul>
 <p>第14章で「<a class="term" href="f-glossary.html#t-d2490995" data-tip="文章とトークンIDを相互に変換する係。">トークナイザー</a>を検証データ込みで作ったのは少しずる」と書いたのも、このデータの漏洩（リーク）の仲間です。</p>
 </aside>
