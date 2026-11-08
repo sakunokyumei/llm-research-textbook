@@ -164,11 +164,16 @@ enc = bpe.encode(<span class="st">&quot;先生は奥さんと話をしていた�
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>[485, 1636, 1891, 685, 264]
 [&#x27;先生は&#x27;, &#x27;奥さんと&#x27;, &#x27;話を&#x27;, &#x27;していた&#x27;, &#x27;。&#x27;]</code></pre></div>
 <p>一瞬で終わりました。『こころ』全体で学習し、語彙も大きいので、「奥さんと」「話を」「していた」がそれぞれ1トークン。文全体がたった5トークンです。</p>
-<aside class="box box-theory"><p class="box-title">理論の小部屋：語彙サイズのトレードオフ</p><p>語彙を大きくすると、</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：語彙サイズのトレードオフ（サブワードの絶妙なバランス）</p><p>BPEのような<strong>サブワード</strong>（単語の断片）トークナイザーは、「文字単位」と「単語単位」のいいとこ取りをした架け橋です。</p>
 <ul>
-<li>👍 同じ文章が<strong>少ないトークン</strong>で表せる（列が短くなり、計算が軽く、遠くまで見渡せる）</li>
-<li>👎 埋め込みと出力層が大きくなる（<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>＝語彙数×幅）</li>
-<li>👎 めったに出てこないトークンが増え、その<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a>が十分に学習されない</li>
+<li><strong>文字単位（第13章まで）</strong>：語彙数は数千文字でコンパクトですが、文章のトークン列がとても長くなります。<a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a>の計算量は列の長さの2乗（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>×</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">T \times T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span></span></span></span>）で増えるため、文章が長いと計算が急激に重くなります。</li>
+<li><strong>単語単位</strong>：文章のトークン列は短くなりますが、日本語や英語のすべての単語を網羅しようとすると語彙数が数十万〜数百万に爆発し、辞書にない未知語（新語や誤字）を扱えなくなります。</li>
+<li><strong>サブワード（BPE）</strong>：よく出る単語や言い回しは1トークンにまとめ、珍しい単語は細かい断片（最後は1バイト単位）に分解して表します。未知語を一切出さずに、列の長さを適度に短く抑えられます。</li>
+</ul>
+<p>語彙サイズ（合体回数）をどれくらいにするかはトレードオフです。</p>
+<ul>
+<li>👍 語彙を大きくすると、同じ文章が<strong>少ないトークン</strong>で表せる（列が短くなり、計算が軽く、遠くまで見渡せる）</li>
+<li>👎 語彙を大きくしすぎると、埋め込みと出力層の<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>（語彙数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">×</span></span></span></span> 幅）が膨らみ、めったに出てこないトークンの学習が追いつかなくなる</li>
 </ul>
 <p>実際のLLMの語彙サイズは、GPT-2が約5万、Qwen2.5が約15万、多言語のモデルほど大きい傾向です。日本語・中国語・英語……と多くの言語の「よく出る組」を入れるには、大きな辞書が必要だからです。</p>
 </aside>

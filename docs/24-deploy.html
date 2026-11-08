@@ -96,10 +96,18 @@ files.download(<span class="st">&quot;soseki-gpt.json&quot;</span>)</code></pre>
   &lt;div id=&quot;out&quot;&gt;&lt;/div&gt;
 
   &lt;script type=&quot;module&quot;&gt;
-    import { load } from &quot;./minigpt.js&quot;;
-    const model = await load(&quot;./soseki-gpt.json&quot;);
     const go = document.getElementById(&quot;go&quot;);
     const out = document.getElementById(&quot;out&quot;);
+    let model;
+    try {                                   // Pythonの try / except と同じ（第23章）
+      const { load } = await import(&quot;./minigpt.js&quot;);
+      model = await load(&quot;./soseki-gpt.json&quot;);
+    } catch (e) {
+      go.textContent = &quot;読み込み失敗&quot;;
+      out.textContent = &quot;モデルを読み込めませんでした：&quot; + e.message +
+        &quot;\nファイル名（minigpt.js と soseki-gpt.json）と、http://localhost で開いているかを確かめてください。&quot;;
+      throw e;
+    }
     go.textContent = &quot;続きを書かせる&quot;;
     go.disabled = false;
     go.addEventListener(&quot;click&quot;, async () =&gt; {
@@ -112,7 +120,7 @@ files.download(<span class="st">&quot;soseki-gpt.json&quot;</span>)</code></pre>
   &lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</code></pre></div>
-<p>HTMLとCSSは見慣れた姿だと思います。新しいのは最後の <code>&lt;script type=&quot;module&quot;&gt;</code> の部分だけです。</p>
+<p>HTMLとCSSは見慣れた姿だと思います。新しいのは最後の <code>&lt;script type=&quot;module&quot;&gt;</code> の部分だけです。<code>try { … } catch (e) { … }</code> は、Pythonの <code>try</code> / <code>except</code>（第23章）と同じで、読み込みに失敗したら、画面に理由を表示します。</p>
 <h3>minigpt.js の中身を読む</h3>
 <p><code>minigpt.js</code> は約150行です。中で何をしているか、Pythonの対応する部分と比べてみましょう。第12章のコードと、ほぼ1対1で対応しています。</p>
 <table>
@@ -177,14 +185,15 @@ files.download(<span class="st">&quot;soseki-gpt.json&quot;</span>)</code></pre>
 <p>インデント（字下げ）の代わりに <code>{ }</code> で範囲を表す、行の最後に <code>;</code> を付ける、くらいの違いで、考え方はPythonと同じです。</p>
 </aside>
 
-<aside class="box box-theory"><p class="box-title">理論の小部屋：推論だけなら、どこでも動く</p><p>学習には、<a class="term" href="f-glossary.html#t-adeed358" data-tip="計算の記録から、勾配を自動で正確に求める仕組み。PyTorchの `backward()`。">自動微分</a>（第7章）やAdam（第10章）、GPUが必要でした。でも、<strong>学習済みの重みで推論するだけ</strong>なら、必要なのは掛け算と足し算と、exp・平方根などの簡単な<a class="term" href="f-glossary.html#t-42e49360" data-tip="手順をひとまとめにして名前をつけたもの。`def` で作る。">関数</a>だけです。だから、JavaScriptでも、スマートフォンでも、マイコンでも、原理的にはどこでも動かせます。</p>
-<p>ブラウザの中で動かすことには、大きな利点があります。</p>
+<aside class="box box-theory"><p class="box-title">理論の小部屋：推論だけなら、どこでも動く（オンデバイス推論の魅力）</p><p>学習には、<a class="term" href="f-glossary.html#t-adeed358" data-tip="計算の記録から、勾配を自動で正確に求める仕組み。PyTorchの `backward()`。">自動微分</a>（第7章）やAdam（第10章）、強力なGPUが必要でした。でも、<strong>学習済みの重みで推論するだけ</strong>なら、必要なのは掛け算と足し算と、exp・平方根などの簡単な<a class="term" href="f-glossary.html#t-42e49360" data-tip="手順をひとまとめにして名前をつけたもの。`def` で作る。">関数</a>だけです。だから、JavaScriptでも、スマートフォンでも、マイコンでも、原理的にはどこでも動かせます。</p>
+<p>一般的なWebサービス（ChatGPTなど）は、ユーザーが文字を送ると、巨大なデータセンターの<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>サーバーへ通信が飛び、サーバー側で推論を計算して結果を返します。この方法だと、利用者が増えるほど高額なサーバー代（クラウド代）がかかります。</p>
+<p>それに対して、この章で作る方式は<strong>オンデバイス推論（エッジ推論）<strong>です。Webブラウザがモデルファイル（2.5MB）を最初に1回だけダウンロードし、そのあとは</strong>アクセスした人のスマホやPCの頭脳（CPU）だけで推論を完結</strong>させます。これには絶大なメリットがあります。</p>
 <ul>
-<li><strong>サーバー代が0円</strong>：計算は見る人のパソコンやスマホがやってくれる</li>
-<li><strong>入力が外に出ない</strong>：入力した文章はどこにも送信されない（プライバシーに優しい）</li>
-<li><strong>オフラインでも動く</strong>：一度読み込めば、ネットが切れても使える</li>
+<li><strong>サーバー代が完全0円</strong>：静的ファイルを配信するだけなので、GitHub Pagesなどの無料サーバーで何万人に見られても一切お金がかかりません</li>
+<li><strong>入力が外に出ない（完全なプライバシー）</strong>：ユーザーが打ち込んだ文章は、手元のブラウザの中だけで処理され、どこかの外部サーバーに送信されることがありません</li>
+<li><strong>オフラインでも動く</strong>：一度読み込んでしまえば、飛行機の中や電波のない地下鉄でも文章を生成できます</li>
 </ul>
-<p>ただし、大きなモデル（数百MB〜数GB）は、ダウンロードも計算も重くなります。175万<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>（2.5MB）くらいが、気軽に試せる大きさです。もっと大きなモデルをブラウザで動かすには、GPUを使うWebGPUや、専用のライブラリ（transformers.jsなど）を使います。</p>
+<p>ただし、数十億<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>の大きなモデルは、端末でのダウンロードも計算も重くなります。175万パラメータ（2.5MB）くらいが、普通のブラウザで誰でも気軽に即座に試せる絶妙なサイズ感です。</p>
 </aside>
 
 <h2 id="s4">手順3：手元で動作確認する</h2>
@@ -195,6 +204,13 @@ python -m http.server 8000</code></pre></div>
 </aside>
 
 <p>ブラウザで <a href="http://localhost:8000/">http://localhost:8000/</a> を開き、「続きを書かせる」を押して、文章が出てくれば成功です。終わったら、ターミナルで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押してサーバーを止めます。</p>
+<aside class="box box-warn"><p class="box-title">つまずき注意：「読み込み失敗」や「読み込み中…」のまま止まったら</p><ul>
+<li><strong>ファイル名を確かめる</strong>：2回ダウンロードすると <code>soseki-gpt (1).json</code> のような名前になっていることがあります。3つのファイルが <code>index.html</code>、<code>minigpt.js</code>、<code>soseki-gpt.json</code> という名前で、同じフォルダにあるか確かめましょう</li>
+<li><strong>開き方を確かめる</strong>：アドレス欄が <code>file://</code> で始まっていたら、上の手順でサーバーを立てて <code>http://localhost:8000/</code> で開き直します</li>
+<li><strong>エラーの本文を見る</strong>：<kbd>F12</kbd> キー（Macは <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>I</kbd>）で開発者ツールを開き、「Console（コンソール）」タブの赤い行を読みます。英語のエラーは、<a href="e-errors.html">エラー辞典</a>の質問テンプレートでAIに聞いてもOKです</li>
+</ul>
+</aside>
+
 <aside class="box box-tip"><p class="box-title">コツ：Pythonが入っていなかったら</p><p>自分のパソコンにPythonが入っていない人は、<a href="a-setup.html">付録A</a>の手順で入れるか、この手順を飛ばして手順4（GitHub Pages）で直接確かめてもかまいません。</p>
 </aside>
 
@@ -256,7 +272,7 @@ demo = gr.ChatInterface(reply, title=<span class="st">&quot;ボンゴ先生に�
 </aside>
 
 <h3>Hugging Faceで共有する</h3>
-<p>学習したモデルや<a class="term" href="f-glossary.html#t-e0dc3e0f" data-tip="本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。">LoRA</a>のアダプタは、Hugging Faceにアップロードして共有できます（第18章の「もっと深く」）。アプリを公開する <strong>Spaces</strong> は、2026年10月時点で、無料アカウントでは種類が限られています（CPUで動くGradioアプリの新規作成には有料プランが必要で、無料では「Zero<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>」を使うSpaceが2つまで、または<strong>静的なHTMLのSpace</strong>が使えます）。静的なSpaceなら、この章で作ったページ（3つのファイル）をそのまま置いて公開することもできます。サービスの条件はよく変わるので、使う前に公式ドキュメントで確認しましょう。</p>
+<p>学習したモデルや<a class="term" href="f-glossary.html#t-e0dc3e0f" data-tip="本体の重みは凍結し、低ランクの小さな行列の積だけを学習する方法。">LoRA</a>のアダプタは、Hugging Faceにアップロードして共有できます（第18章の「もっと深く」）。アプリを公開する <strong>Spaces</strong> は、2026年10月時点で、無料アカウントでは種類が限られています（CPUで動くGradioアプリの新規作成には有料プランが必要で、無料では「ZeroGPU」を使うSpaceが2つまで、または<strong>静的なHTMLのSpace</strong>が使えます）。静的なSpaceなら、この章で作ったページ（3つのファイル）をそのまま置いて公開することもできます。サービスの条件はよく変わるので、使う前に公式ドキュメントで確認しましょう。</p>
 <h2 id="s7">公開前のチェックリスト</h2>
 <aside class="box box-warn"><p class="box-title">つまずき注意：公開する前に確かめること</p><ol>
 <li><strong><a class="term" href="f-glossary.html#t-75f66535" data-tip="モデルやデータの利用条件。">ライセンス</a></strong>：元のモデル（Qwen2.5はApache 2.0）と、学習データのライセンスを守っているか。<a class="term" href="f-glossary.html#t-2dd77d71" data-tip="モデルの説明書。目的・データ・ライセンス・使い方が書いてある。">モデルカード</a>やページに書いたか</li>

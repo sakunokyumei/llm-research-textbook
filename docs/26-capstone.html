@@ -132,7 +132,7 @@
 <aside class="box box-theory"><p class="box-title">理論の小部屋：研究の5ステップ</p><ol>
 <li><strong>問い</strong>：「〜は〜にどう影響するか？」の<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>で、1文で書く</li>
 <li><strong>仮説</strong>：結果を予想して、理由と一緒に書いておく（後で予想と比べるのが大事。第0章の「予想→実行→比べる」）</li>
-<li><strong>実験計画</strong>：比べる相手（ベースライン）、変える条件、測る指標、<a class="term" href="f-glossary.html#t-2fd48a49" data-tip="乱数の種。同じシードなら同じ乱数の列になり、実験を再現できる。">シード</a>の数を決める。<strong>変えるのは1つずつ</strong></li>
+<li><strong>実験計画</strong>：比べる相手（ベースライン）、変える条件、測る指標、<a class="term" href="f-glossary.html#t-2fd48a49" data-tip="乱数の種。同じシードなら同じ乱数の列になり、実験を再現できる。">シード</a>の数を決める。<strong>変える条件は必ず1つずつ</strong>にします。一度に2つ以上変えてしまうと（例：<a class="term" href="f-glossary.html#t-0bd86f5c" data-tip="勾配降下法の一歩の大きさ。">学習率</a>を上げて同時にモデルの層数も変える）、良くなった原因がどちらにあるのか特定できなくなるからです（対照実験・アブレーションの鉄則）</li>
 <li><strong>実験と記録</strong>：設定と結果を、全部記録する。うまくいかなかった実験も消さない</li>
 <li><strong>結論</strong>：言えることと、言えないことを分けて書く（第20章の評価レポート）</li>
 </ol>

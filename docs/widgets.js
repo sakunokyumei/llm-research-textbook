@@ -179,7 +179,8 @@
     function draw(newTok) {
       chips.innerHTML = ""; toks.forEach((t) => chips.append(h("span", { class: "chip" + (t === newTok ? " new" : "") }, t)));
       rules.innerHTML = ""; merges.forEach((m) => rules.append(h("li", {}, `「${m[0]}」+「${m[1]}」→「${m[0] + m[1]}」`)));
-      note.textContent = `トークン数 ${toks.length}（最初は ${Array.from(input.value).length}）／ 覚えた合体ルール ${merges.length} 個 ／ 語彙の種類 ${new Set(toks).size}`;
+      const base = new Set(Array.from(input.value)).size;
+      note.textContent = `トークン数 ${toks.length}（最初は ${Array.from(input.value).length}）／ 覚えた合体ルール ${merges.length} 個 ／ 語彙の大きさ ${base + merges.length}（最初の文字 ${base} 種類 ＋ 合体で生まれたトークン ${merges.length} 個）`;
     }
     const step = () => {
       const count = new Map();

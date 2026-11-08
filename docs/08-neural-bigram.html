@@ -103,7 +103,7 @@ lr = <span class="nu">50</span>
 history = []
 
 <span class="kw">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu">3001</span>):
-    ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(xs), (<span class="nu">1024</span>,), generator=g)   <span class="cm"># ランダムに1024問選ぶ</span>
+    ix = torch.randint(<span class="nu">0</span>, <span class="bi">len</span>(xs), (<span class="nu">1024</span>,), generator=g)   <span class="cm"># ランダムに1024問選ぶ（(1024,) は形の指定。要素1つでもカンマが必要）</span>
     loss = F.cross_entropy(W[xs[ix]], ys[ix])               <span class="cm"># ① 損失</span>
     W.grad = <span class="kw">None</span>                                            <span class="cm"># （勾配をリセット）</span>
     loss.backward()                                          <span class="cm"># ② 勾配</span>
@@ -172,6 +172,7 @@ top = torch.topk(p, <span class="nu">5</span>)
   &#x27;に&#x27; 0.004</code></pre></div>
 <p>数えたときは「生」が0.88でした（第4章）。学習では0.895。誰にも「数えろ」とは教えていないのに、<strong>損失を小さくしようと坂を下っただけで、数えた答えにたどり着いた</strong>のです。</p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：最尤推定：学習と数えるは同じ答えになる</p><p>これは偶然ではありません。「<a class="term" href="f-glossary.html#t-5eb0540d" data-tip="モデルが学ぶためのデータ。過去問。">訓練データ</a>の交差エントロピー（驚きの平均）を最小にするような確率」は、数学的に <strong>数えた割合（頻度）</strong> とぴったり一致することが証明できます。この「データが最もありそうになる（尤もらしい）<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>を選ぶ」という考え方を <strong>最尤推定</strong>（さいゆうすいてい、maximum likelihood estimation）と言います。</p>
+<p>なぜ一致するのかというと、交差エントロピー損失の傾き（勾配）を計算すると、ちょうど「モデルの予測確率 − 実際の出現割合」という<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>になるからです。予測確率が実際の頻度とぴったり一致した瞬間に、傾きがゼロになって坂の下りが止まります。だから勾配降下法を繰り返すだけで、自然と数えた割合と同じ確率に落ち着くのです。</p>
 <p>つまり、</p>
 <ul>
 <li>数えるbigram ＝ 最尤推定の答えを<strong>直接計算</strong>したもの</li>
@@ -224,12 +225,13 @@ out = [<span class="st">&quot;私&quot;</span>]
 </tbody>
 </table>
 <p>ニューラル版はまだ数えた版に追いついていません。ステップ数を増やせば近づきますが、<strong>同じ「直前1文字だけ」の情報しか使っていない</strong>以上、数えた版を大きく超えることはできません。超えるには、モデルに<strong>もっと前の文字</strong>を見せる必要があります。次の章でやりましょう。</p>
-<aside class="box box-try"><p class="box-title">やってみよう：学習率を変えてみよう</p><p><code>lr = 50</code> を <code>lr = 5</code> や <code>lr = 200</code> に変えて、学習曲線を描き直してみましょう。</p>
+<aside class="box box-try"><p class="box-title">やってみよう：学習率を変えてみよう</p><p><code>lr = 50</code> を <code>lr = 5</code>、<code>lr = 200</code>、<code>lr = 1000</code> に変えて、学習曲線を描き直してみましょう。どうなるか予想してから！ 教科書の検証で実際に試した結果（3000ステップ後の検証損失）はこうでした。</p>
 <ul>
-<li>5：ゆっくりすぎて、3000ステップでは全然下りきらない</li>
-<li>200：最初は速いが、損失がガタガタ暴れる（場合によっては悪化する）</li>
+<li><strong>5</strong>：4.41。ゆっくりすぎて、3000ステップでは全然下りきらない</li>
+<li><strong>200</strong>：3.58。意外にも、50より速く、なめらかに下がる。このモデルは単純なので、「ちょうどいい」範囲が思ったより広いのです。そして、数えた版（3.581）とほぼ同じところで止まります。同じ「直前1文字」の情報しか使っていない以上、そこが限界だからです</li>
+<li><strong>1000</strong>：5.57。さすがに大きすぎて、損失が上がったり下がったり暴れ、ちっとも下がらない</li>
 </ul>
-<p>「ちょうどいい学習率」がモデルによって違うことを体感できます。</p>
+<p>「ちょうどいい学習率」はやってみないと分からず、モデルによって違う。だから研究者は、いくつか試して学習曲線を見比べるのです。</p>
 </aside>
 
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
@@ -237,7 +239,7 @@ out = [<span class="st">&quot;私&quot;</span>]
 <li><strong><code>RuntimeError: element 0 of tensors does not require grad</code></strong>：<code>W</code> を作るときに <code>requires_grad=True</code> を付け忘れています。</li>
 <li><strong><code>RuntimeError: a leaf Variable that requires grad is being used in an in-place operation.</code></strong>：更新の行（<code>W -= lr * W.grad</code>）が <code>with torch.no_grad():</code> の中に入っていません（字下げを確認）。</li>
 <li><strong>損失がほとんど下がらない</strong>：学習率が小さすぎるか、勾配のリセット（<code>W.grad = None</code>）の位置がずれています。上のコードと1行ずつ見比べましょう。</li>
-<li><strong>とても遅い</strong>：検証損失の計算（<code>W[vxs]</code>）は重いので、毎ステップではなく250ステップごとにしています。Colabのランタイムを「T4 <a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>」にして、テンソルを <code>.to(&quot;cuda&quot;)</code> で送ると速くなります（第13章で本格的にやります）。</li>
+<li><strong>とても遅い</strong>：検証損失の計算（<code>W[vxs]</code>）は重いので、毎ステップではなく250ステップごとにしています。Colabのランタイムを「T4 <a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>」にして、<code>W</code> を作る行を <code>W = torch.zeros((V, V), requires_grad=True, device=&quot;cuda&quot;)</code> に変え、<code>xs, ys, vxs, vys</code> もそれぞれ <code>xs = xs.to(&quot;cuda&quot;)</code> のようにGPUへ送ると速くなります。<code>W</code> は、作った後から <code>.to(&quot;cuda&quot;)</code> すると「学習するパラメータ」ではなくなり、<code>W.grad</code> が <code>None</code> のままになるので、作るときに <code>device=</code> で指定するのがコツです。GPUにした場合は、「生成してみる」の<a class="term" href="f-glossary.html#t-029fc85c" data-tip="ノートブックの中の、コードを書いて実行する1つの入力欄。">セル</a>の <code>p = F.softmax(W[ix], dim=0)</code> を <code>p = F.softmax(W[ix], dim=0).cpu()</code> に変えます（サイコロの <code>generator</code> がCPU用なので、確率もCPUに戻す必要があります）。くわしくは第13章で本格的にやります。</li>
 </ul>
 </aside>
 
