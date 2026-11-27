@@ -23,11 +23,15 @@ try:
     from markdown_it import MarkdownIt
 except ImportError:
     from mdfallback import MarkdownIt  # noqa: E402
-from bookparse import BOOK, ROOT, load_curriculum, read_source, parse_info, cells  # noqa: E402
+from bookparse import BOOK, ROOT, load_curriculum, read_source, parse_info, cells, iter_fences  # noqa: E402
 
 args = argparse.ArgumentParser()
 args.add_argument("--out", default="docs")
 args.add_argument("--notebooks", default="notebooks")
+args.add_argument("--no-write-cache", action="store_true",
+                  help="Do not modify book/.mathcache.json (useful for isolated/read-only builds)")
+args.add_argument("--allow-raw-math", action="store_true",
+                  help="Allow fallback raw TeX in HTML if Node.js is unavailable (never cached)")
 opts = args.parse_args()
 OUT = ROOT / opts.out
 NB_OUT = ROOT / opts.notebooks
@@ -38,6 +42,9 @@ SITE_TITLE = CUR["title"]
 # ---------------------------------------------------------------- math
 MATH_CACHE_PATH = BOOK / ".mathcache.json"
 math_cache = json.loads(MATH_CACHE_PATH.read_text(encoding="utf-8")) if MATH_CACHE_PATH.exists() else {}
+# Discard any accidentally poisoned entries on load
+math_cache = {k: v for k, v in math_cache.items() if "math-raw" not in v and not v.startswith("ERROR:")}
+math_ephemeral = {}
 math_used = set()
 math_pending = {}
 
@@ -49,7 +56,7 @@ def math_key(tex, display):
 def math_placeholder(tex, display):
     key = math_key(tex, display)
     math_used.add(key)
-    if key not in math_cache:
+    if key not in math_cache and key not in math_ephemeral:
         math_pending[key] = (tex, display)
     return f"MATHPH{key}X"
 
@@ -64,35 +71,161 @@ def flush_math():
                            text=True, encoding="utf-8", check=True)
         rendered = json.loads(r.stdout)
     except (OSError, subprocess.CalledProcessError) as e:
-        print("warning: KaTeX unavailable, math left as TeX:", e, file=sys.stderr)
+        if not opts.allow_raw_math:
+            raise SystemExit(f"KaTeX rendering failed (Node.js required for {len(items)} uncached formula(s)): {e}")
+        print("warning: KaTeX unavailable, math left as TeX (not cached):", e, file=sys.stderr)
         rendered = [None] * len(items)
     for (key, (tex, display)), html in zip(items, rendered):
         if html is None:
-            html = f'<code class="math-raw">{escape(tex)}</code>'
+            # Never poison book/.mathcache.json with raw TeX fallback
+            math_ephemeral[key] = f'<code class="math-raw">{escape(tex)}</code>'
         elif html.startswith("ERROR:"):
             raise SystemExit(f"KaTeX error in {tex!r}: {html}")
-        math_cache[key] = html
+        else:
+            math_cache[key] = html
     math_pending.clear()
 
 
-def protect_math(text):
-    """Replace $$..$$ and $..$ outside inline code with placeholders."""
-    pieces = re.split(r"(`+[^`\n]*?`+)", text)
+def _normalize_cjk_bold_line(line):
+    """Convert **...** outside inline code into <strong>...</strong> so CommonMark CJK punctuation boundaries work identically across markdown-it-py and mdfallback."""
+    stash = {}
+
+    def _stash_code(m):
+        k = f"\x00CS{len(stash)}X\x00"
+        stash[k] = m.group(0)
+        return k
+
+    masked = re.sub(r"(`+[^`\n]*?`+)", _stash_code, line)
+    masked = re.sub(
+        r"(?<!\*)\*\*(?!\s)([^\n*]+?(?:\*[^\n*]+?)*?)(?<!\s)\*\*(?!\*)",
+        r"<strong>\1</strong>",
+        masked,
+    )
+    for k, v in stash.items():
+        masked = masked.replace(k, v)
+    return masked
+
+
+def normalize_cjk_bold(text):
+    """Apply CJK-safe bold normalization outside fenced code blocks."""
+    lines = text.split("\n")
     out = []
-    for piece in pieces:
-        if piece.startswith("`"):
-            out.append(piece)
+    fence = None
+    for line in lines:
+        s = line.strip()
+        mf = re.match(r"^(`{3,}|~{3,})", s)
+        if fence:
+            if s.startswith(fence) and s.strip(fence[0]) == "":
+                fence = None
+            out.append(line)
             continue
-        piece = piece.replace(r"\$", "DOLLARPHX")
-        piece = re.sub(r"\$\$(.+?)\$\$", lambda m: "\n\n<div class=\"math-display\">" + math_placeholder(m[1].strip(), True) + "</div>\n\n", piece, flags=re.S)
-        piece = re.sub(r"(?<![\w$])\$([^$\n]+?)\$(?![\w$])", lambda m: math_placeholder(m[1], False), piece)
-        out.append(piece)
-    return "".join(out)
+        if mf:
+            fence = mf.group(1)
+            out.append(line)
+            continue
+        out.append(_normalize_cjk_bold_line(line))
+    return "\n".join(out)
+
+
+def protect_math(text):
+    """Replace $$..$$ and $..$ outside fenced code blocks and inline code with placeholders."""
+    lines = text.split("\n")
+    out_lines = []
+    fence = None
+    for line in lines:
+        s = line.strip()
+        mf = re.match(r"^(`{3,}|~{3,})", s)
+        if fence:
+            if s.startswith(fence) and s.strip(fence[0]) == "":
+                fence = None
+            out_lines.append(("fence", line))
+            continue
+        if mf:
+            fence = mf.group(1)
+            out_lines.append(("fence", line))
+            continue
+        out_lines.append(("text", line))
+
+    # Group consecutive text/fence lines so display math $$...$$ can span multiple lines
+    grouped = []
+    for kind, line in out_lines:
+        if grouped and grouped[-1][0] == kind:
+            grouped[-1][1].append(line)
+        else:
+            grouped.append((kind, [line]))
+
+    result = []
+    for kind, glines in grouped:
+        chunk = "\n".join(glines)
+        if kind == "fence":
+            result.append(chunk)
+            continue
+        pieces = re.split(r"(`+[^`\n]*?`+)", chunk)
+        out = []
+        for piece in pieces:
+            if piece.startswith("`"):
+                out.append(piece)
+                continue
+            piece = piece.replace(r"\$", "DOLLARPHX")
+            piece = re.sub(
+                r"\$\$(.+?)\$\$",
+                lambda m: "\n\n<div class=\"math-display\">" + math_placeholder(m[1].strip(), True) + "</div>\n\n",
+                piece,
+                flags=re.S,
+            )
+            piece = re.sub(
+                r"(?<![\w$])\$([^$\n]+?)\$(?![\w$])",
+                lambda m: math_placeholder(m[1], False),
+                piece,
+            )
+            out.append(piece)
+        result.append("".join(out))
+    return "\n".join(result)
 
 
 def restore_math(html):
     html = html.replace("DOLLARPHX", "$")
-    return re.sub(r"MATHPH([0-9a-f]{16})X", lambda m: math_cache.get(m[1], m[0]), html)
+    return re.sub(
+        r"MATHPH([0-9a-f]{16})X",
+        lambda m: math_cache.get(m[1], math_ephemeral.get(m[1], m[0])),
+        html,
+    )
+
+
+def _tex_to_plain(tex):
+    """Convert simple inline TeX into readable plain Unicode text (for tooltips / aria-labels)."""
+    s = tex.strip()
+    s = re.sub(r"\\(?:text|mathrm|operatorname|mathbf|mathit)\{([^{}]*)\}", r"\1", s)
+    s = re.sub(r"\\frac\{([^{}]*)\}\{([^{}]*)\}", r"(\1)/(\2)", s)
+    repls = [
+        (r"\mid", "|"), (r"\|", "||"), (r"\times", "×"), (r"\cdot", "·"),
+        (r"\approx", "≈"), (r"\le", "≤"), (r"\ge", "≥"), (r"\ne", "≠"),
+        (r"\to", "→"), (r"\rightarrow", "→"), (r"\sum", "Σ"), (r"\prod", "Π"),
+        (r"\nabla", "∇"), (r"\partial", "∂"), (r"\infty", "∞"),
+        (r"\mu", "μ"), (r"\sigma", "σ"), (r"\alpha", "α"), (r"\beta", "β"),
+        (r"\theta", "θ"), (r"\lambda", "λ"), (r"\pi", "π"), (r"\epsilon", "ε"),
+        (r"\log", "log"), (r"\ln", "ln"), (r"\exp", "exp"), (r"\max", "max"),
+        (r"\min", "min"), (r"\,", " "), (r"\;", " "), (r"\!", ""), (r"\ ", " "),
+    ]
+    for old, new in repls:
+        s = s.replace(old, new)
+    s = re.sub(r"\^\{([^{}]+)\}", r"^(\1)", s)
+    s = re.sub(r"_\{([^{}]+)\}", r"_\1", s)
+    s = s.replace("{", "").replace("}", "")
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def clean_plain_text(text):
+    """Strip inline Markdown and convert TeX to clean plain Unicode text."""
+    if not text:
+        return ""
+    s = str(text)
+    s = re.sub(r"`([^`\n]+)`", r"\1", s)
+    s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)
+    s = re.sub(r"\$\$(.+?)\$\$", lambda m: _tex_to_plain(m.group(1)), s, flags=re.S)
+    s = re.sub(r"(?<![\w$])\$([^$\n]+?)\$(?![\w$])", lambda m: _tex_to_plain(m.group(1)), s)
+    s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
+    return re.sub(r"\s+", " ", s).strip()
 
 
 # ---------------------------------------------------------------- code highlighting
@@ -218,11 +351,18 @@ def load_exercises():
             EXERCISES_BY_ID[item["id"]] = item
 
 
+def render_inline_deferred(text):
+    """Render inline markdown + math placeholders (restored in final HTML pass)."""
+    if not text:
+        return ""
+    return md.renderInline(normalize_cjk_bold(protect_math(str(text))))
+
+
 def render_inline_rich(text):
     """Render inline markdown + math (restored from cache on second pass before JSON serialization)."""
     if not text:
         return ""
-    return restore_math(md.renderInline(protect_math(str(text))))
+    return restore_math(render_inline_deferred(text))
 
 
 def render_exercise_payload(item):
@@ -241,9 +381,17 @@ def render_exercise_payload(item):
         "variants": [],
     }
     for v in item.get("variants", []):
+        raw_hints = v.get("hints")
+        if isinstance(raw_hints, list) and raw_hints:
+            rendered_hints = [render_inline_rich(h) for h in raw_hints if str(h).strip()]
+            hint_single = rendered_hints[0] if rendered_hints else render_inline_rich(v.get("hint", ""))
+        else:
+            hint_single = render_inline_rich(v.get("hint", ""))
+            rendered_hints = [hint_single] if hint_single else []
         rv = {
             "prompt": render_inline_rich(v.get("prompt", "")),
-            "hint": render_inline_rich(v.get("hint", "")),
+            "hint": hint_single,
+            "hints": rendered_hints,
             "reasoning": render_inline_rich(v.get("reasoning", "")),
             "steps": [render_inline_rich(s) for s in v.get("steps", [])],
             "altExample": render_inline_rich(v.get("altExample", "")),
@@ -338,17 +486,28 @@ def split_blocks(text):
     return out
 
 
+def wrap_tables(html):
+    """Wrap rendered <table>...</table> elements in a scrollable container for mobile & a11y."""
+    return re.sub(
+        r"(?<!<div class=\"table-wrap\">)(<table\b[^>]*>.*?</table>)",
+        r'<div class="table-wrap">\1</div>',
+        html,
+        flags=re.S,
+    )
+
+
 def render_markdown(text, ctx):
     html_parts = {}
     pieces = []
     for piece in split_blocks(text):
         if isinstance(piece, str):
-            pieces.append(protect_math(piece))
+            pieces.append(normalize_cjk_bold(protect_math(piece)))
         else:
             key = f"BLOCKPH{len(html_parts)}X"
             html_parts[key] = render_block(*piece, ctx)
             pieces.append(f"\n\n<div>{key}</div>\n\n")
     html = md.render("\n".join(pieces))
+    html = wrap_tables(html)
     for key, value in html_parts.items():
         html = html.replace(f"<div>{key}</div>", value)
     return html
@@ -386,7 +545,8 @@ def render_block(name, arg, inner, ctx):
         if not answer:
             raise SystemExit(f"quiz without :::answer: {arg}")
         ctx["quiz"] += 1
-        return (f'<section class="quiz"><p class="quiz-label">クイズ {ctx["quiz"]}{"：" + escape(arg) if arg else ""}</p>'
+        qtitle = "：" + render_inline_deferred(arg) if arg else ""
+        return (f'<section class="quiz"><p class="quiz-label">クイズ {ctx["quiz"]}{qtitle}</p>'
                 f'{render_markdown(question, ctx)}<details><summary>答えを見る（まず自分で考えてから！）</summary>'
                 f'{render_markdown(answer, ctx)}</details></section>\n')
     if name == "exercise":
@@ -395,16 +555,18 @@ def render_block(name, arg, inner, ctx):
             raise SystemExit(f"empty :::exercise block in {ctx.get('slug')}")
         return "".join(render_exercise_html(eid, ctx) for eid in ids)
     if name == "scaffold":
-        return (f'<details class="scaffold" open><summary><span class="sc-badge">基礎の補足</span>{escape(arg or "じっくり確認しよう")}</summary>'
+        stitle = render_inline_deferred(arg or "じっくり確認しよう")
+        return (f'<details class="scaffold" open><summary><span class="sc-badge">基礎の補足</span>{stitle}</summary>'
                 f'<div class="scaffold-body">{render_markdown(inner, ctx)}</div></details>\n')
     if name == "deep":
-        return (f'<details class="deep"><summary><span>もっと深く</span>{escape(arg)}</summary>'
+        dtitle = render_inline_deferred(arg)
+        return (f'<details class="deep"><summary><span>もっと深く</span>{dtitle}</summary>'
                 f'{render_markdown(inner, ctx)}</details>\n')
     if name == "checklist":
         items = [l[2:].strip() for l in inner.strip().split("\n") if l.startswith("- ")]
-        lis = "".join(f'<li><label><input type="checkbox" data-check="{ctx["slug"]}:{n}"> <span>{md.renderInline(protect_math(t))}</span></label></li>'
+        lis = "".join(f'<li><label><input type="checkbox" data-check="{ctx["slug"]}:{n}"> <span>{render_inline_deferred(t)}</span></label></li>'
                       for n, t in enumerate(items))
-        return f'<section class="checklist"><p class="box-title">できたらチェック</p><ul>{restore_math(lis)}</ul></section>\n'
+        return f'<section class="checklist"><p class="box-title">できたらチェック</p><ul>{lis}</ul></section>\n'
     if name == "widget":
         widget_pages.add(ctx["slug"])
         wname, _, mode = arg.partition(" ")
@@ -412,8 +574,10 @@ def render_block(name, arg, inner, ctx):
         return f'<div class="widget" data-widget="{escape(wname)}"{mode_attr}><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>\n'
     if name in BOX:
         title, cls = BOX[name]
-        heading = f'{title}{"：" + escape(arg) if arg else ""}'
-        return f'<aside class="box box-{cls}"><p class="box-title">{heading}</p>{render_markdown(inner, ctx)}</aside>\n'
+        heading_html = f'{title}{"：" + render_inline_deferred(arg) if arg else ""}'
+        aria_label = f'{title}{"：" + clean_plain_text(arg) if arg else ""}'
+        return (f'<div class="box box-{cls}" role="note" aria-label="{escape(aria_label, quote=True)}">'
+                f'<p class="box-title">{heading_html}</p>{render_markdown(inner, ctx)}</div>\n')
     raise SystemExit(f"unknown block :::{name}")
 
 
@@ -437,7 +601,6 @@ def link_terms(html, slug):
     parts = re.split(r"(<[^>]+>)", html)
     skip = 0
     skip_tags = {"pre", "code", "a", "h1", "h2", "h3", "summary", "button", "label", "script", "style", "span", "math", "svg"}
-    stack = []
     for i, part in enumerate(parts):
         if part.startswith("<"):
             m = re.match(r"<(/?)([a-zA-Z0-9]+)", part)
@@ -458,7 +621,7 @@ def link_terms(html, slug):
             idx = part.find(t["term"])
             if idx >= 0:
                 done.add(t["term"])
-                tip = escape(t["def"], quote=True)
+                tip = escape(clean_plain_text(t["def"]), quote=True)
                 part = (part[:idx] + f'<a class="term" href="f-glossary.html#{term_id(t)}" data-tip="{tip}">{t["term"]}</a>'
                         + part[idx + len(t["term"]):])
                 break  # one link per text node keeps the HTML simple
@@ -497,11 +660,11 @@ def page(title, body, active="index", toc="", description=None):
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
 <script src="app.js" defer></script><script src="study.js" defer></script>{widgets}</head>
 <body data-page="{escape(active)}"><a class="skip" href="#main">本文へ移動</a>
-<header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
+<header class="topbar"><button type="button" class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>{escape(SITE_TITLE)}</b><small>ボンゴ先生のLLM教室</small></span></a>
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
-<div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="layout"><aside id="sidebar" class="sidebar" aria-label="目次"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
 <div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div>{nav_html(active)}</aside>
 <main id="main" tabindex="-1">{body}
@@ -523,16 +686,55 @@ ENV_LABEL = {
 }
 
 
-def add_heading_ids(html):
-    toc = []
+def _strip_html_for_text(html_frag):
+    """Strip HTML tags/scripts/KaTeX MathML duplicates to clean searchable plain text."""
+    s = re.sub(r"<script\b[^>]*>.*?</script>", " ", html_frag, flags=re.S)
+    s = re.sub(r"<span class=\"katex-html\"[^>]*>.*?</span>", " ", s, flags=re.S)
+    s = re.sub(r"<pre\b[^>]*>.*?</pre>", " ", s, flags=re.S)
+    s = re.sub(r"<[^>]+>", " ", s)
+    s = s.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("&quot;", '"').replace("&#x27;", "'")
+    return re.sub(r"\s+", " ", s).strip()
 
-    def h2(m):
-        n = len(toc) + 1
-        text = re.sub("<[^>]+>", "", m[1])
-        toc.append((n, text))
-        return f'<h2 id="s{n}">{m[1]}</h2>'
-    html = re.sub(r"<h2>(.*?)</h2>", h2, html)
-    return html, toc
+
+def add_heading_ids(html):
+    """Add id="s1".."sN" to <h2> and id="s1-1".. to <h3>; return (html, h2_toc, all_sections)."""
+    toc = []
+    h2_count = 0
+    h3_count = 0
+    headings = []
+
+    def repl(m):
+        nonlocal h2_count, h3_count
+        lvl = int(m.group(1))
+        inner = m.group(2)
+        text = clean_plain_text(_strip_html_for_text(restore_math(inner)))
+        if lvl == 2:
+            h2_count += 1
+            h3_count = 0
+            hid = f"s{h2_count}"
+            toc.append((h2_count, text))
+        else:
+            h3_count += 1
+            hid = f"s{h2_count}-{h3_count}"
+        headings.append((hid, text))
+        return f'<h{lvl} id="{hid}">{inner}</h{lvl}>'
+
+    html = re.sub(r"<h([23])>(.*?)</h\1>", repl, html, flags=re.S)
+    return html, toc, headings
+
+
+def extract_sections_from_html(article_body_html):
+    """Split rendered article body HTML by h2/h3 IDs into [{id, head, text}]."""
+    matches = list(re.finditer(r'<h[23] id="(s\d+(?:-\d+)?)">(.*?)</h[23]>', article_body_html, flags=re.S))
+    sections = []
+    for idx, m in enumerate(matches):
+        sec_id = m.group(1)
+        head = _strip_html_for_text(m.group(2))
+        start = m.end()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(article_body_html)
+        body_text = _strip_html_for_text(article_body_html[start:end])
+        sections.append({"id": sec_id, "head": head, "text": body_text})
+    return sections
 
 
 def toc_html(toc):
@@ -544,6 +746,7 @@ def toc_html(toc):
 
 META = {}
 SOURCES = {}
+PAGE_BODY_HTML = {}
 for part in CUR["parts"]:
     for slug in part["chapters"]:
         meta, body = read_source(BOOK / "chapters" / f"{slug}.md")
@@ -565,7 +768,8 @@ def chapter_page(slug, prev_slug, next_slug):
     meta, body = META[slug], SOURCES[slug]
     ctx = {"slug": slug, "quiz": 0, "exercise": 0}
     html = render_markdown(body, ctx)
-    html, toc = add_heading_ids(html)
+    html, toc, _ = add_heading_ids(html)
+    PAGE_BODY_HTML[slug] = html
     has_code = bool(cells(body))
     actions = ""
     if has_code:
@@ -575,13 +779,13 @@ def chapter_page(slug, prev_slug, next_slug):
     learn = ""
     rows = []
     if meta.get("builds"):
-        rows.append(f'<div><h3>つくるもの</h3><p>{md.renderInline(meta["builds"])}</p></div>')
+        rows.append(f'<div><h2 class="learn-head">つくるもの</h2><p>{render_inline_deferred(meta["builds"])}</p></div>')
     if meta.get("theory"):
-        rows.append('<div><h3>身につく数学・理論</h3><ul>' + "".join(f"<li>{md.renderInline(protect_math(t))}</li>" for t in meta["theory"]) + "</ul></div>")
+        rows.append('<div><h2 class="learn-head">身につく数学・理論</h2><ul>' + "".join(f"<li>{render_inline_deferred(t)}</li>" for t in meta["theory"]) + "</ul></div>")
     if meta.get("python"):
-        rows.append('<div><h3>新しく使うPython・PyTorch</h3><ul>' + "".join(f"<li>{md.renderInline(t)}</li>" for t in meta["python"]) + "</ul></div>")
+        rows.append('<div><h2 class="learn-head">新しく使うPython・PyTorch</h2><ul>' + "".join(f"<li>{render_inline_deferred(t)}</li>" for t in meta["python"]) + "</ul></div>")
     if rows:
-        learn = f'<section class="learn-grid">{"".join(rows)}</section>'
+        learn = f'<section class="learn-grid" aria-label="この章の目標">{"".join(rows)}</section>'
     ex_count = ctx["exercise"]
     mastery_strip = (
         f'<section class="mastery-strip" data-mastery-chapter="{slug}" data-exercise-count="{ex_count}" aria-label="この章の学習状況">'
@@ -617,7 +821,8 @@ def appendix_page(slug):
         body = body.replace("<!-- PERSONA_TABLE -->", persona_table()).replace("<!-- CODE_REPORT -->", code_report_table())
     ctx = {"slug": slug, "quiz": 0}
     html = render_markdown(body, ctx)
-    html, toc = add_heading_ids(html)
+    html, toc, _ = add_heading_ids(html)
+    PAGE_BODY_HTML[slug] = html
     label = f"付録{slug[0].upper()}" if slug in CUR["appendix"] else ""
     hero = (f'<header class="chapter-hero appendix"><p class="kicker">{label}</p><h1>{escape(meta["title"])}</h1>'
             f'<p class="sub">{escape(meta.get("subtitle", ""))}</p></header>')
@@ -650,7 +855,7 @@ def glossary_markdown():
         for t in groups[head]:
             where = f' <a class="where" href="{t["chapter"]}.html">第{int(t["chapter"][:2])}章で登場</a>' if t.get("chapter") in META else ""
             en = f' <span class="en">{escape(t["en"])}</span>' if t.get("en") else ""
-            out.append(f'<dt id="{term_id(t)}">{escape(t["term"])}{en}{where}</dt><dd>{md.renderInline(protect_math(t["def"]))}</dd>')
+            out.append(f'<dt id="{term_id(t)}">{escape(t["term"])}{en}{where}</dt><dd>{render_inline_deferred(t["def"])}</dd>')
         out.append("</dl>\n")
     return "\n".join(out)
 
@@ -710,48 +915,353 @@ def home_page():
 
 
 # ---------------------------------------------------------------- notebooks
-def notebook(slug):
-    meta, body = META[slug], SOURCES[slug]
-    nb_cells = [{"cell_type": "markdown", "metadata": {}, "source": [
-        f"# 第{meta['num']}章 {meta['title']}\n\n",
-        f"{meta.get('subtitle', '')}\n\n",
-        f"教科書のページ：{CUR['site']}{slug}.html\n\n",
-        "上のセルから順に、再生ボタン（▶）か `Shift + Enter` で実行します。説明は教科書のページにあります。\n",
-        "\n**このノートはGPUを使います。** メニューの「ランタイム」→「ランタイムのタイプを変更」→「T4 GPU」を選んでから実行してください。\n" if meta.get("env") == "gpu" else "",
-    ]}]
-    heading = None
-    from bookparse import iter_fences
-    lines = body.split("\n")
-    fence_iter = iter(c for c in iter_fences(body))
-    # Walk lines to keep headings next to their code.
-    i = 0
-    fence_re = re.compile(r"^(`{3,})(.*)$")
-    while i < len(lines):
-        s = lines[i].strip()
-        m = fence_re.match(s)
-        if m:
-            lang, flags, subs, code = next(fence_iter)
-            j = i + 1
-            while j < len(lines) and lines[j].strip() != m[1]:
-                j += 1
-            i = j + 1
-            if lang == "python" and "no-run" not in flags:
-                if heading:
-                    nb_cells.append({"cell_type": "markdown", "metadata": {}, "source": [heading]})
-                    heading = None
-                src = code.split("\n")
-                nb_cells.append({"cell_type": "code", "metadata": {}, "execution_count": None, "outputs": [],
-                                 "source": [l + "\n" for l in src[:-1]] + [src[-1]]})
+NB_BLOCK_TITLES = {
+    "goal": "🎯 この章でつくるもの",
+    "review-bridge": "🔗 これまでの復習とつながり",
+    "math": "📐 数学のポイント",
+    "theory": "💡 理論のポイント",
+    "python": "🐍 Python・PyTorchのポイント",
+    "warn": "⚠️ つまずき注意",
+    "tip": "✨ コツ",
+    "try": "🔬 やってみよう",
+    "fe": "📘 基本情報とのつながり",
+    "free": "¥0 無料枠のコツ",
+    "recap": "📝 まとめ",
+}
+
+
+def _rewrite_nb_links(text):
+    """Rewrite relative chapter/appendix HTML links to absolute site URLs inside Colab notebooks."""
+    site = CUR["site"]
+    text = re.sub(r"\]\(([0-9a-z-]+\.html(?:#[^)]+)?)\)", rf"]({site}\1)", text)
+    text = re.sub(r"\]\((img/[^)]+)\)", rf"]({site}\1)", text)
+    return text
+
+
+def _block_to_nb_markdown(name, arg, inner, slug):
+    """Convert a custom :::block into clean, standalone Colab Markdown with zero ::: directives."""
+    inner = _rewrite_nb_links(inner.strip())
+    if name in AVATARS:
+        who, _ = AVATARS[name]
+        body = _strip_nested_blocks_to_nb(inner, slug)
+        return f"**{who}**：{body}"
+    if name == "widget":
+        return f"*(対話デモはWeb教科書ページで確認できます：{CUR['site']}{slug}.html)*"
+    if name == "quiz":
+        q, _, a = inner.partition("\n:::answer\n")
+        q_md = _strip_nested_blocks_to_nb(q.strip(), slug)
+        a_md = _strip_nested_blocks_to_nb(a.strip(), slug)
+        title = f"：{arg}" if arg else ""
+        return f"**❓ クイズ{title}**\n\n{q_md}\n\n<details><summary>答えを見る（まず自分で考えてから！）</summary>\n\n{a_md}\n\n</details>"
+    if name == "exercise":
+        ids = [tok.strip() for tok in (arg + " " + inner).replace(",", " ").split() if tok.strip()]
+        return _exercises_to_nb_markdown(ids, slug)
+    if name in {"scaffold", "deep"}:
+        label = "基礎の補足" if name == "scaffold" else "もっと深く"
+        title = f"：{arg}" if arg else ""
+        body = _strip_nested_blocks_to_nb(inner, slug)
+        return f"<details><summary><b>{label}{title}</b>（クリックで開く）</summary>\n\n{body}\n\n</details>"
+    if name == "checklist":
+        items = [l[2:].strip() for l in inner.split("\n") if l.startswith("- ")]
+        lines = ["**✅ できたらチェック**", ""] + [f"- [ ] {it}" for it in items]
+        return "\n".join(lines)
+    if name in NB_BLOCK_TITLES:
+        label = NB_BLOCK_TITLES[name]
+        title = f"：{arg}" if arg else ""
+        body = _strip_nested_blocks_to_nb(inner, slug)
+        # Keep math/scaffold-rich blocks readable without overly nested blockquotes
+        if "```" in body or "\n|" in body or len(body) > 900:
+            return f"#### {label}{title}\n\n{body}"
+        quoted = "\n".join(("> " + l if l.strip() else ">") for l in body.split("\n"))
+        return f"> **{label}{title}**\n>\n{quoted}"
+    return _strip_nested_blocks_to_nb(inner, slug)
+
+
+def _strip_nested_blocks_to_nb(text, slug):
+    """Recursively render any nested :::blocks inside a block into clean Markdown."""
+    parts = []
+    for piece in split_blocks(text):
+        if isinstance(piece, str):
+            if piece.strip():
+                parts.append(_rewrite_nb_links(piece.strip()))
+        else:
+            rendered = _block_to_nb_markdown(*piece, slug)
+            if rendered:
+                parts.append(rendered)
+    return "\n\n".join(parts)
+
+
+def _exercises_to_nb_markdown(ex_ids, slug):
+    """Render selected chapter exercises as collapsible Colab self-check cards."""
+    site = CUR["site"]
+    cards = []
+    # Include up to 2 exercises per inline :::exercise group to keep notebooks concise & readable
+    shown = ex_ids[:2]
+    for eid in shown:
+        item = EXERCISES_BY_ID.get(eid)
+        if not item or not item.get("variants"):
             continue
-        if s.startswith("## ") or s.startswith("### "):
-            heading = s + "\n"
-        i += 1
-    meta_nb = {"kernelspec": {"name": "python3", "display_name": "Python 3"},
-               "language_info": {"name": "python"}, "colab": {"provenance": []}}
-    if meta.get("env") == "gpu":
+        v = item["variants"][0]
+        t = item.get("type", "choice")
+        lvl = item.get("level", 1)
+        lines = [f"#### 📝 確認問題（`{eid}` · Lv.{lvl} · {item.get('conceptLabel', '')}）", ""]
+        lines.append(v.get("prompt", ""))
+        if v.get("code"):
+            lines.extend(["", "```python", v["code"].rstrip(), "```"])
+        if v.get("starterCode"):
+            lines.extend(["", "**ひな形コード：**", "```python", v["starterCode"].rstrip(), "```"])
+        if v.get("options"):
+            lines.append("")
+            for o in v["options"]:
+                lines.append(f"- **{o['id']}.** {o['text']}")
+        # Collapsible hints + answer + explanation
+        ans_lines = []
+        raw_hints = v.get("hints") if isinstance(v.get("hints"), list) and v.get("hints") else ([v["hint"]] if v.get("hint") else [])
+        for hi, htxt in enumerate(raw_hints, 1):
+            ans_lines.append(f"- **ヒント {hi}**：{htxt}")
+        if t == "choice":
+            ans_lines.append(f"- **正解**：`{v.get('answer')}`")
+        elif t == "numeric":
+            ans_val = v.get("answer", {}).get("value", "")
+            unit = v.get("unit", "")
+            ans_lines.append(f"- **正解**：`{ans_val}` {unit}".strip())
+        elif t == "predict":
+            acc = v.get("accept", [])
+            ans_lines.append(f"- **期待される出力**：`{acc[0] if acc else ''}`")
+        elif t == "code" and v.get("solutionCode"):
+            ans_lines.extend(["", "**解答例：**", "```python", v["solutionCode"].rstrip(), "```"])
+            if v.get("colabCheck"):
+                ans_lines.extend(["", "**検算テスト（Colabで実行して確認）：**", "```python", v["colabCheck"].rstrip(), "```"])
+        elif t == "explain" and v.get("modelAnswer"):
+            ans_lines.append(f"- **解答の目安**：{v['modelAnswer']}")
+        if v.get("reasoning"):
+            ans_lines.extend(["", f"**考え方**：{v['reasoning']}"])
+        if v.get("steps"):
+            ans_lines.append("")
+            for st in v["steps"]:
+                ans_lines.append(f"1. {st}")
+        ans_lines.append("")
+        ans_lines.append(f"👉 自動採点・類題・間隔復習はWebページへ：{site}{slug}.html#ex-{eid}")
+        lines.extend(["", "<details><summary>ヒント / 解答と解説を見る</summary>", "", "\n".join(ans_lines), "", "</details>"])
+        cards.append("\n".join(lines))
+    if len(ex_ids) > len(shown):
+        more = ", ".join(f"`{e}`" for e in ex_ids[len(shown):])
+        cards.append(f"*(この節の追加問題 {more} はWeb教科書 {site}{slug}.html で自動採点・復習できます)*")
+    return "\n\n".join(cards)
+
+
+def _to_source_lines(text):
+    """Split text into standard nbformat source line list (preserving newlines cleanly)."""
+    text = text.rstrip("\n")
+    if not text:
+        return []
+    parts = text.split("\n")
+    return [l + "\n" for l in parts[:-1]] + [parts[-1]]
+
+
+def _pre_run_prompt(code, flags):
+    """Generate a concise pre-run prediction & flag guidance note before a code cell."""
+    notes = []
+    if "gpu-only" in flags:
+        notes.append("⚠️ **GPU専用セル（T4等）**：ランタイムがGPUであることを確認してから実行してください。")
+    if "online" in flags:
+        notes.append("🌐 **オンライン接続セル**：Hugging Faceへの接続（必要に応じてトークン設定）が必要です。")
+    if "colab-only" in flags:
+        notes.append("☁️ **Google Colab専用セル**：ローカルPC・Kaggleでは不要または代替手順を使います。")
+    if "BitsAndBytesConfig" in code or "load_in_4bit" in code:
+        notes.append("🔄 **実行前注意**：前のセルで読み込んだモデルがGPUメモリに残っていると不足することがあります。必要に応じて「ランタイム」→「セッションを再起動する」を行ってから実行してください。")
+    if "print(" in code or ".shape" in code or "plt." in code:
+        notes.append("🔎 **実行前に予想しよう**：このセルを実行すると、どんな数値・文字列・テンソルの形（shape）やグラフが出るか予想してから ▶ を押してください。")
+    elif "!pip install" in code or "!wget" in code:
+        notes.append("📦 **準備セル**：ライブラリや教材ファイルを取得します。エラーが出た場合は `-q` を外して詳細を確認してください。")
+    else:
+        notes.append("🔎 **実行前に確認**：コードの各行が何を受け取り、何を作るか確認してから ▶ を押してください。")
+    return "\n\n".join(notes)
+
+
+def make_notebook(slug, next_slug=None):
+    """Build a standalone, pedagogically complete nbformat 4.5 Colab notebook for a chapter."""
+    meta, body = META[slug], SOURCES[slug]
+    site = CUR["site"]
+    env = meta.get("env", "cpu")
+    env_label = ENV_LABEL.get(env, env)
+
+    # Cell 0: Rich Chapter Header + Environment & Resource Card
+    header_lines = [
+        f"# 第{meta['num']}章 {meta['title']}",
+        "",
+        meta.get("subtitle", ""),
+        "",
+        "## このノートブックの使い方・学習目標",
+        "",
+        f"- **教科書のWebページ**：{site}{slug}.html",
+        f"- **エラーが出たとき**：[エラー辞典（付録E）]({site}e-errors.html)",
+        f"- **復習・理解度管理**：[学習状況・間隔復習ダッシュボード]({site}review.html)",
+    ]
+    if meta.get("builds"):
+        header_lines.append(f"- **この章でつくるもの**：{meta['builds']}")
+    if meta.get("theory"):
+        header_lines.append("- **身につく数学・理論**：" + " ／ ".join(meta["theory"]))
+    if meta.get("python"):
+        header_lines.append("- **新しく使うPython・PyTorch**：" + " ／ ".join(meta["python"]))
+    header_lines.extend([
+        "",
+        "## 実行環境・リソースの目安",
+        "",
+        "| 項目 | 目安 |",
+        "|---|---|",
+        f"| 推奨ランタイム | {env_label} |",
+        f"| 所要時間目安 | {meta.get('time', '—')} |",
+        f"| 難易度 | {stars(meta.get('level', 1))} |",
+    ])
+    if env == "gpu":
+        header_lines.extend([
+            "",
+            "> **⚠️ GPUランタイム設定**：メニューの「ランタイム」→「ランタイムのタイプを変更」→「**T4 GPU**」を選んでから上から順に実行してください。",
+            "> 無料枠の混雑・上限でGPUに接続できない場合は、時間をおくか [Kaggle Notebooks]({0}a-setup.html) を使うか、各章のCPU短縮手順で進められます。接続切断に備え、学習済みモデルはこまめにGoogleドライブへ保存しましょう。".format(site),
+        ])
+    else:
+        header_lines.extend([
+            "",
+            "> **✅ CPUでそのまま実行できます**：上のセルから順に再生ボタン（▶）または `Shift + Enter` で実行してください。",
+        ])
+
+    raw_cells = [("markdown", "\n".join(header_lines))]
+
+    # Walk top-level pieces (blocks & prose+fences) in document order
+    md_buf = []
+
+    def flush_md():
+        text = "\n\n".join(p.strip() for p in md_buf if p and p.strip()).strip()
+        md_buf.clear()
+        if text:
+            raw_cells.append(("markdown", text))
+
+    def emit_prose_and_fences(chunk):
+        lines = chunk.split("\n")
+        i = 0
+        text_acc = []
+
+        def flush_text_acc():
+            t = "\n".join(text_acc).strip()
+            text_acc.clear()
+            if t:
+                md_buf.append(_rewrite_nb_links(t))
+
+        while i < len(lines):
+            s = lines[i].strip()
+            mf = re.match(r"^(`{3,})(.*)$", s)
+            if mf:
+                ticks, info = mf.groups()
+                j = i + 1
+                while j < len(lines) and lines[j].strip() != ticks:
+                    j += 1
+                code = "\n".join(lines[i + 1:j])
+                lang, flags, _ = parse_info(info)
+                i = j + 1
+
+                if lang == "python" and "no-run" not in flags:
+                    flush_text_acc()
+                    md_buf.append(_pre_run_prompt(code, flags))
+                    flush_md()
+                    raw_cells.append(("code", code))
+                elif lang in {"output", "output-example"}:
+                    flush_text_acc()
+                    label = "期待される出力（実測）" if lang == "output" else "出力の例（数値や文章は実行ごとに変わってOK）"
+                    snippet = code.strip()
+                    if len(snippet.splitlines()) > 18:
+                        snippet = "\n".join(snippet.splitlines()[:18]) + "\n...（省略）"
+                    md_buf.append(
+                        f"<details><summary><b>📊 {label}</b>（実行後に自分の出力と見比べよう）</summary>\n\n```text\n{snippet}\n```\n\n</details>"
+                    )
+                else:
+                    # Keep illustrative no-run / bash / text / json fences inside markdown prose
+                    show_lang = lang or "text"
+                    text_acc.append(f"```{show_lang}\n{code}\n```")
+                continue
+            text_acc.append(lines[i])
+            i += 1
+        flush_text_acc()
+
+    def walk_pieces(text):
+        for piece in split_blocks(text):
+            if isinstance(piece, str):
+                emit_prose_and_fences(piece)
+            else:
+                name, arg, inner = piece
+                if name != "exercise" and cells(inner):
+                    # Preserve executable code cells inside :::try / :::tip / :::scaffold / etc. as real code cells
+                    if name in AVATARS:
+                        who, _ = AVATARS[name]
+                        md_buf.append(f"**{who}**")
+                    elif name in NB_BLOCK_TITLES:
+                        label = NB_BLOCK_TITLES[name]
+                        title = f"：{arg}" if arg else ""
+                        md_buf.append(f"#### {label}{title}")
+                    elif name in {"scaffold", "deep"}:
+                        label = "基礎の補足" if name == "scaffold" else "もっと深く"
+                        title = f"：{arg}" if arg else ""
+                        md_buf.append(f"#### 📘 {label}{title}")
+                    walk_pieces(inner)
+                else:
+                    rendered = _block_to_nb_markdown(name, arg, inner, slug)
+                    if rendered:
+                        md_buf.append(rendered)
+
+    walk_pieces(body)
+
+    flush_md()
+
+    # Closing Cell: Troubleshooting, Review & Next Chapter
+    close_lines = [
+        "## 学習のふりかえり・次のステップ",
+        "",
+        f"- **困ったとき・エラーが出たとき**：[エラー辞典（付録E）]({site}e-errors.html)",
+        f"- **忘れる前に定着を確認**：[学習状況・間隔復習ダッシュボード]({site}review.html) で確認問題・類題・7段階の進捗を記録できます",
+        f"- **この章のWebページ**：{site}{slug}.html",
+    ]
+    if next_slug and next_slug in META:
+        nm = META[next_slug]
+        close_lines.append(f"- **次の章**：[第{nm['num']}章 {nm['title']}]({site}{next_slug}.html)")
+    raw_cells.append(("markdown", "\n".join(close_lines)))
+
+    # Build valid nbformat 4.5 cells with deterministic IDs
+    nb_cells = []
+    for idx, (ctype, content) in enumerate(raw_cells):
+        cid = f"{slug}-c{idx:02d}"
+        if ctype == "markdown":
+            nb_cells.append({
+                "id": cid,
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": _to_source_lines(content),
+            })
+        else:
+            src = content.split("\n")
+            nb_cells.append({
+                "id": cid,
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": None,
+                "outputs": [],
+                "source": [l + "\n" for l in src[:-1]] + [src[-1]],
+            })
+
+    meta_nb = {
+        "kernelspec": {"name": "python3", "display_name": "Python 3"},
+        "language_info": {"name": "python"},
+        "colab": {"provenance": []},
+    }
+    if env == "gpu":
         meta_nb["accelerator"] = "GPU"
         meta_nb["colab"]["gpuType"] = "T4"
     return {"nbformat": 4, "nbformat_minor": 5, "metadata": meta_nb, "cells": nb_cells}
+
+
+def notebook(slug):
+    idx = CHAPTER_ORDER.index(slug) if slug in CHAPTER_ORDER else -1
+    next_slug = CHAPTER_ORDER[idx + 1] if 0 <= idx + 1 < len(CHAPTER_ORDER) else None
+    return make_notebook(slug, next_slug=next_slug)
 
 
 # ---------------------------------------------------------------- search
@@ -759,18 +1269,75 @@ def search_records():
     records = []
     for slug, meta in META.items():
         body = SOURCES[slug]
-        heads = re.findall(r"^#{2,3} (.+)$", body, re.M)
+        rendered_html = restore_math(PAGE_BODY_HTML.get(slug, ""))
+        sections = extract_sections_from_html(rendered_html)
+        heads = [s["head"] for s in sections]
+        # Full untruncated searchable text (stripped of fenced code & markup)
         text = re.sub(r"```.*?```", " ", body, flags=re.S)
-        text = re.sub(r"[#*`>\[\]()|:-]+", " ", text)
-        text = re.sub(r"\s+", " ", text)[:4000]
+        text = clean_plain_text(text)
+        text = re.sub(r":::[a-z][\w-]*|:::", " ", text)
+        text = re.sub(r"[#*`>\[\]()|]+", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        # Collect readings / English names for glossary terms appearing on this page
+        readings_list = []
+        seen_r = set()
+        for t in GLOSSARY:
+            if t["term"] in body:
+                for cand in (t.get("reading", ""), t.get("en", "")):
+                    cand = cand.strip()
+                    if cand and cand not in seen_r:
+                        seen_r.add(cand)
+                        readings_list.append(cand)
         label = f"第{meta['num']}章" if "num" in meta else ("付録" if slug in CUR["appendix"] else "")
-        records.append({"slug": slug, "title": meta["title"], "label": label, "heads": heads, "text": text})
+        records.append({
+            "slug": slug,
+            "title": meta["title"],
+            "label": label,
+            "heads": heads,
+            "sections": sections,
+            "readings": " ".join(readings_list),
+            "text": text,
+        })
     for t in GLOSSARY:
-        records.append({"slug": f"f-glossary.html#{term_id(t)}", "title": t["term"], "label": "用語", "heads": [], "text": t["def"]})
+        r_parts = [p for p in (t.get("reading", "").strip(), t.get("en", "").strip()) if p]
+        records.append({
+            "slug": f"f-glossary.html#{term_id(t)}",
+            "title": t["term"],
+            "label": "用語",
+            "heads": [],
+            "sections": [],
+            "readings": " ".join(r_parts),
+            "text": clean_plain_text(t["def"]),
+        })
     return records
 
 
 # ---------------------------------------------------------------- review dashboard & exercise index
+def exercises_meta_payload():
+    """Slim exercise metadata (~25KB) for non-review pages (sidebar dots, due badge filtering)."""
+    ids = []
+    by_slug = {}
+    for slug in CHAPTER_ORDER:
+        items = []
+        for item in EXERCISES_BY_CHAPTER.get(slug, []):
+            ids.append(item["id"])
+            lvl = int(item.get("level", 1))
+            items.append({
+                "id": item["id"],
+                "difficulty": lvl,
+                "level": lvl,
+                "type": item.get("type", "choice"),
+                "concept": item.get("concept", ""),
+            })
+        by_slug[slug] = items
+    return {
+        "version": 2,
+        "total": len(ids),
+        "ids": ids,
+        "bySlug": by_slug,
+    }
+
+
 def exercises_index_payload():
     chapters = []
     for slug in CHAPTER_ORDER:
@@ -858,7 +1425,7 @@ def review_page():
   </ul>
   <div class="backup-actions">
     <button type="button" class="btn primary" id="export-history">学習履歴をJSONで保存</button>
-    <label class="btn" for="import-history">JSONから復元<input type="file" id="import-history" accept="application/json" hidden></label>
+    <label class="btn file-btn" for="import-history">JSONから復元<input type="file" id="import-history" accept="application/json" class="visually-hidden"></label>
     <button type="button" class="btn ghost-danger" id="reset-history">学習履歴をリセット</button>
   </div>
   <p id="backup-status" class="muted-note" aria-live="polite"></p>
@@ -892,23 +1459,24 @@ def main():
         ex_index = exercises_index_payload()
         flush_math()
     for slug, html in pages.items():
-        (OUT / f"{slug}.html").write_text(restore_math(html), encoding="utf-8")
+        (OUT / f"{slug}.html").write_text(restore_math(html), encoding="utf-8", newline="\n")
     shutil.copytree(ROOT / "site", OUT, dirs_exist_ok=True)
     (OUT / "notebooks").mkdir(exist_ok=True)
-    for slug in order:
+    for i, slug in enumerate(order):
         if cells(SOURCES[slug]):
-            nb = json.dumps(notebook(slug), ensure_ascii=False, indent=1) + "\n"
-            (NB_OUT / f"{slug}.ipynb").write_text(nb, encoding="utf-8")
-            (OUT / "notebooks" / f"{slug}.ipynb").write_text(nb, encoding="utf-8")
+            next_slug = order[i + 1] if i + 1 < len(order) else None
+            nb = json.dumps(make_notebook(slug, next_slug=next_slug), ensure_ascii=False, indent=1) + "\n"
+            (NB_OUT / f"{slug}.ipynb").write_text(nb, encoding="utf-8", newline="\n")
+            (OUT / "notebooks" / f"{slug}.ipynb").write_text(nb, encoding="utf-8", newline="\n")
     if (ROOT / "code").exists():
         shutil.copytree(ROOT / "code", OUT / "code", dirs_exist_ok=True)
-    (OUT / "search.json").write_text(json.dumps(search_records(), ensure_ascii=False), encoding="utf-8")
-    (OUT / "exercises-index.json").write_text(json.dumps(ex_index, ensure_ascii=False), encoding="utf-8")
-    (OUT / ".nojekyll").write_text("", encoding="utf-8")
-    unused = set(math_cache) - math_used
-    for key in unused:
-        del math_cache[key]
-    MATH_CACHE_PATH.write_text(json.dumps(math_cache, ensure_ascii=False, sort_keys=True, indent=0) + "\n", encoding="utf-8")
+    (OUT / "search.json").write_text(json.dumps(search_records(), ensure_ascii=False), encoding="utf-8", newline="\n")
+    (OUT / "exercises-index.json").write_text(json.dumps(ex_index, ensure_ascii=False), encoding="utf-8", newline="\n")
+    (OUT / "exercises-meta.json").write_text(json.dumps(exercises_meta_payload(), ensure_ascii=False), encoding="utf-8", newline="\n")
+    (OUT / ".nojekyll").write_text("", encoding="utf-8", newline="\n")
+    if not opts.no_write_cache:
+        clean_cache = {k: v for k, v in math_cache.items() if k in math_used and "math-raw" not in v and not v.startswith("ERROR:")}
+        MATH_CACHE_PATH.write_text(json.dumps(clean_cache, ensure_ascii=False, sort_keys=True, indent=0) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps({"pages": len(pages), "chapters": len(order), "notebooks": len(list(NB_OUT.glob("*.ipynb"))),
                       "exercises": len(EXERCISES_BY_ID), "math": len(math_used)}, ensure_ascii=False))
 

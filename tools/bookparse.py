@@ -81,6 +81,47 @@ def cells(body):
     return result
 
 
+def extract_exercise_refs(body):
+    """Extract exercise IDs referenced by :::exercise blocks (single-line or multi-line), skipping code fences.
+
+    Returns a list of (line_no, ex_id) tuples in document order.
+    """
+    lines = body.split("\n")
+    refs = []
+    i = 0
+    fence = None
+    while i < len(lines):
+        s = lines[i].strip()
+        mf = re.match(r"^(`{3,})", s)
+        if fence:
+            if s == fence:
+                fence = None
+            i += 1
+            continue
+        if mf:
+            fence = mf.group(1)
+            i += 1
+            continue
+        m = re.match(r"^:::exercise(?:\s+(.*))?$", s)
+        if m:
+            start_line = i + 1
+            arg = (m.group(1) or "").strip()
+            j = i + 1
+            inner_lines = []
+            while j < len(lines) and lines[j].strip() != ":::":
+                inner_lines.append(lines[j])
+                j += 1
+            tokens = (arg + " " + " ".join(inner_lines)).replace(",", " ").split()
+            for tok in tokens:
+                tok = tok.strip()
+                if tok:
+                    refs.append((start_line, tok))
+            i = j + 1
+            continue
+        i += 1
+    return refs
+
+
 def chapter_paths():
     cur = load_curriculum()
     for part in cur["parts"]:

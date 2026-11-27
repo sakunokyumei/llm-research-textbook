@@ -1,0 +1,83 @@
+name: Verify Textbook Build & Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Build, Exercises, Notebooks, Links & E2E (CPU)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dev dependencies & Playwright Chromium
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Check JavaScript syntax (site/)
+        run: |
+          for f in site/*.js; do
+            echo "Checking $f"
+            node --check "$f"
+          done
+
+      - name: Rebuild static site & notebooks and verify committed artifacts are up to date
+        run: |
+          python tools/build.py
+          git diff --exit-code docs/ notebooks/ book/.mathcache.json
+
+      - name: Check JavaScript syntax (docs/)
+        run: |
+          for f in docs/*.js; do
+            echo "Checking $f"
+            node --check "$f"
+          done
+
+      - name: Exercise validator self-test (fault injection)
+        run: python tools/test_exercises.py --self-test
+
+      - name: Validate exercises JSON, code snippets & docs anchors
+        run: python tools/test_exercises.py
+
+      - name: Validate chapter Python syntax, pure-Python cells & Colab notebook parity
+        run: python tools/test_notebooks_and_code.py
+
+      - name: Check docs links, unrendered math/markdown, JSON assets & minigpt parity
+        run: python tools/verify.py --links-only --check
+
+      - name: Run learner simulation check (read-only)
+        run: python tools/persona.py --check
+
+      - name: Run Playwright E2E suite (all 40 pages, desktop + mobile)
+        run: python tools/test_site_e2e.py
+
+  gpu-verification-notice:
+    name: GPU-Only Cells Verification Notice (Manual Dispatch)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report GPU verification scope
+        run: |
+          echo "Standard GitHub-hosted runners are CPU-only and cannot execute CUDA/bitsandbytes GPU-only cells."
+          echo "To verify GPU-only cells (Ch 13, 17, 19 QLoRA, 24 Gradio), run notebooks on Google Colab T4 GPU or a CUDA-enabled machine with:"
+          echo "  pip install -r requirements-book.txt"
+          echo "  python tools/testkit/make_fakes.py"
+          echo "  python tools/verify.py"

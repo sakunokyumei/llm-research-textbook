@@ -1,26 +1,46 @@
 """Strict validator for book/exercises/*.json and rendered exercise HTML.
 
 Checks:
-  1. JSON schema completeness (reasoning, steps, altExample, wrongReason, level 1..5).
-  2. Choice/numeric/predict answer consistency.
-  3. Executes pure-Python `predict` code snippets and checks stdout matches expected answer!
-  4. Executes pure-Python `code` exercises (`solutionCode` + `colabCheck`) to verify assertions pass!
-  5. Cross-checks `:::exercise` references in book/chapters/*.md against JSON banks.
-  6. When docs/ is built, checks every `sectionAnchor` exists in its HTML page and JSON embeds parse cleanly.
+  1. Fails hard when book/exercises/ is missing/empty, any chapter lacks an exercise bank,
+     or docs/ is missing when --no-docs is not passed.
+  2. JSON schema completeness (reasoning, steps, altExample, wrongReason, level 1..5,
+     progressive hints[] schema, strict numeric value/tolerance types, valid ^#sN anchor).
+  3. Choice/numeric/predict answer consistency & anti-skew check (MCQ answers not >60% one letter).
+  4. Executes ALL pure-Python `predict` code snippets (including choice-predict with options)
+     and `code` exercises (`solutionCode` + `colabCheck`), plus `ast.parse` on ALL code fields.
+  5. Cross-checks single-line and multi-line `:::exercise` references in book/chapters/*.md
+     against JSON banks and detects duplicate placements in the same chapter.
+  6. Detects blatant exact-answer leaks in hints[0] / hint.
+  7. When docs/ is checked, verifies every `sectionAnchor` exists in its HTML page,
+     JSON embeds parse cleanly without unrendered MATHPH, and no duplicate exercise DOM IDs exist.
+  8. `--self-test` runs fault-injection tests in a temporary directory to prove the validator
+     rejects missing dirs, bad JSON, duplicate IDs, answer mismatches, missing embeds, and bad anchors.
 """
 from html.parser import HTMLParser
 from pathlib import Path
+import argparse
+import ast
 import contextlib
 import io
 import json
+import math
 import re
 import sys
+import tempfile
 
 sys.path.insert(0, str(Path(__file__).parent))
-from bookparse import BOOK, ROOT, chapter_paths, read_source  # noqa: E402
+from bookparse import BOOK, ROOT, chapter_paths, extract_exercise_refs, read_source  # noqa: E402
 
 VALID_TYPES = {"choice", "numeric", "predict", "code", "explain"}
-EXTERNAL_MODS = ("torch", "transformers", "trl", "peft", "datasets", "gradio", "matplotlib", "numpy", "openai", "tiktoken")
+EXTERNAL_MODS = (
+    "torch", "transformers", "trl", "peft", "datasets", "gradio",
+    "matplotlib", "numpy", "openai", "tiktoken", "sentence_transformers", "bitsandbytes",
+)
+ANCHOR_RE = re.compile(r"^#s\d+(?:-\d+)?$")
+
+
+def strip_magics(code):
+    return "\n".join("pass" if l.strip().startswith(("!", "%")) else l for l in code.split("\n"))
 
 
 def is_pure_python(code):
@@ -29,7 +49,6 @@ def is_pure_python(code):
     for mod in EXTERNAL_MODS:
         if re.search(rf"\b(?:import\s+{mod}|from\s+{mod}\b|{mod}\.)", code):
             return False
-    # Skip snippets referencing chapter runtime variables like tok, model, chat, logits, probs
     if re.search(r"\b(chat|model|tok|tokenizer|trainer|pipe)\b", code):
         return False
     return True
@@ -43,10 +62,37 @@ def run_snippet(code):
     return buf.getvalue().strip()
 
 
+def _check_hint_leak(ex_type, v, hint0):
+    """Detect blatant exact-answer leaks in Stage-1 hint."""
+    if not hint0:
+        return None
+    if ex_type == "choice":
+        ans_id = v.get("answer")
+        for o in v.get("options", []):
+            if o.get("id") == ans_id:
+                otext = str(o.get("text", "")).strip()
+                if len(otext) >= 14 and otext in hint0:
+                    return f"hint[0] leaks exact correct option text: {otext[:40]!r}"
+        if re.search(rf"(?:正解は|答えは)\s*[「『`]?{re.escape(str(ans_id))}[」』`]?(?:\s|です|。|$)", hint0):
+            return f"hint[0] explicitly states correct option {ans_id!r}"
+    elif ex_type == "numeric":
+        ans = v.get("answer")
+        if isinstance(ans, dict) and isinstance(ans.get("value"), (int, float)) and not isinstance(ans.get("value"), bool):
+            val = ans["value"]
+            val_strs = {str(val)}
+            if isinstance(val, float) and val.is_integer():
+                val_strs.add(str(int(val)))
+            for vs in val_strs:
+                if re.search(rf"(?:=|≈|≒|答えは|正解は)\s*{re.escape(vs)}(?:\s*です|\s*！|\s*。|$)", hint0):
+                    return f"hint[0] leaks exact numeric answer {vs!r}"
+    return None
+
+
 class AnchorParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.ids = set()
+        self.ex_ids = []
         self.in_ex_json = False
         self.cur_json = []
         self.ex_jsons = []
@@ -55,6 +101,8 @@ class AnchorParser(HTMLParser):
         a = dict(attrs)
         if "id" in a:
             self.ids.add(a["id"])
+        if tag == "section" and a.get("data-exercise-id"):
+            self.ex_ids.append(a["data-exercise-id"])
         if tag == "script" and a.get("class") == "ex-data":
             self.in_ex_json = True
             self.cur_json = []
@@ -69,46 +117,88 @@ class AnchorParser(HTMLParser):
             self.cur_json.append(data)
 
 
-def validate_all(check_docs=True):
-    ex_dir = BOOK / "exercises"
+def validate_all(check_docs=True, book_dir=None, docs_dir=None, chapters_iter=None, quiet=False):
+    book_root = Path(book_dir) if book_dir is not None else BOOK
+    ex_dir = book_root / "exercises"
+    docs_root = Path(docs_dir) if docs_dir is not None else (ROOT / "docs")
+    chapters = list(chapters_iter) if chapters_iter is not None else list(chapter_paths())
+
     errors = []
-    stats = {"files": 0, "exercises": 0, "variants": 0, "exec_predict": 0, "exec_code": 0}
+    stats = {
+        "files": 0, "exercises": 0, "variants": 0,
+        "exec_predict": 0, "exec_code": 0, "mcq_answer_dist": {},
+    }
     all_ids = set()
     by_chapter = {}
+    parsed_by_slug = {}
 
     if not ex_dir.exists():
-        print("No book/exercises directory found.")
-        return 0
+        errors.append(f"exercises directory not found: {ex_dir}")
+        if not quiet:
+            print(f"FAILED with {len(errors)} error(s):\n  - {errors[0]}")
+        return 1
 
-    for path in sorted(ex_dir.glob("*.json")):
+    json_files = sorted(ex_dir.glob("*.json"))
+    if not json_files:
+        errors.append(f"no exercise JSON files found in {ex_dir}")
+
+    for path in json_files:
         stats["files"] += 1
-        data = json.loads(path.read_text(encoding="utf-8"))
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as e:
+            errors.append(f"{path.name}: malformed JSON: {e}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{path.name}: top-level JSON must be an object")
+            continue
         slug = data.get("chapter") or path.stem
+        if data.get("chapter") and data["chapter"] != path.stem:
+            errors.append(f"{path.name}: 'chapter' field {data['chapter']!r} != filename stem {path.stem!r}")
         items = data.get("exercises", [])
-        by_chapter[slug] = [item["id"] for item in items]
+        if not isinstance(items, list) or not items:
+            errors.append(f"{path.name}: 'exercises' must be a non-empty list")
+            continue
+        parsed_by_slug[slug] = items
+        by_chapter[slug] = [item.get("id") for item in items if isinstance(item, dict) and item.get("id")]
 
         for item in items:
+            if not isinstance(item, dict):
+                errors.append(f"{path.name}: exercise entry must be an object")
+                continue
             stats["exercises"] += 1
-            eid = item.get("id", "<missing-id>")
+            eid = item.get("id")
+            if not eid or not isinstance(eid, str):
+                errors.append(f"{path.name}: missing/invalid exercise id")
+                continue
             if eid in all_ids:
                 errors.append(f"{path.name}: duplicate exercise id {eid}")
             all_ids.add(eid)
 
-            if item.get("type") not in VALID_TYPES:
-                errors.append(f"{eid}: invalid type {item.get('type')!r}")
+            ex_type = item.get("type")
+            if ex_type not in VALID_TYPES:
+                errors.append(f"{eid}: invalid type {ex_type!r}")
             lvl = item.get("level")
-            if not isinstance(lvl, int) or not (1 <= lvl <= 5):
+            if not isinstance(lvl, int) or isinstance(lvl, bool) or not (1 <= lvl <= 5):
                 errors.append(f"{eid}: invalid level {lvl!r}")
             for req in ("concept", "conceptLabel", "section", "sectionAnchor"):
                 if not item.get(req):
                     errors.append(f"{eid}: missing {req}")
+            anc = item.get("sectionAnchor", "")
+            if anc and not ANCHOR_RE.match(str(anc)):
+                errors.append(f"{eid}: sectionAnchor {anc!r} must match ^#s\\d+(-\\d+)?$")
+
             variants = item.get("variants", [])
-            if not variants:
+            if not isinstance(variants, list) or not variants:
                 errors.append(f"{eid}: must have at least 1 variant")
+                continue
 
             for vi, v in enumerate(variants):
                 stats["variants"] += 1
                 tag = f"{eid}[v{vi}]"
+                if not isinstance(v, dict):
+                    errors.append(f"{tag}: variant must be an object")
+                    continue
                 if not v.get("prompt"):
                     errors.append(f"{tag}: missing prompt")
                 if not v.get("reasoning"):
@@ -118,37 +208,71 @@ def validate_all(check_docs=True):
                 if not v.get("altExample"):
                     errors.append(f"{tag}: missing altExample")
 
-                t = item.get("type")
-                if t == "choice" or (t == "predict" and v.get("options")):
+                # Validate progressive hints[] schema if present, and check Stage-1 leak
+                if "hints" in v:
+                    if not isinstance(v["hints"], list) or len(v["hints"]) < 2 or not all(isinstance(h, str) and h.strip() for h in v["hints"]):
+                        errors.append(f"{tag}: 'hints' must be a list of >= 2 non-empty strings")
+                hint0 = v["hints"][0] if (isinstance(v.get("hints"), list) and v["hints"]) else v.get("hint", "")
+                leak = _check_hint_leak(ex_type, v, hint0)
+                if leak:
+                    errors.append(f"{tag}: {leak}")
+
+                # Syntax-check ALL code fields regardless of external dependencies
+                for cfield in ("code", "starterCode", "solutionCode", "colabCheck"):
+                    src = v.get(cfield)
+                    if src:
+                        try:
+                            ast.parse(strip_magics(src))
+                        except SyntaxError as e:
+                            errors.append(f"{tag}: {cfield} SyntaxError: {e}")
+
+                if ex_type == "choice" or (ex_type == "predict" and v.get("options")):
                     opts = v.get("options", [])
-                    if len(opts) < 3:
+                    if not isinstance(opts, list) or len(opts) < 3:
                         errors.append(f"{tag}: choice needs at least 3 options")
-                    opt_ids = [o.get("id") for o in opts]
-                    if len(opt_ids) != len(set(opt_ids)):
-                        errors.append(f"{tag}: duplicate option ids")
-                    if v.get("answer") not in opt_ids:
-                        errors.append(f"{tag}: answer {v.get('answer')!r} not in options {opt_ids}")
-                    for o in opts:
-                        if o.get("id") != v.get("answer") and not o.get("wrongReason"):
-                            errors.append(f"{tag}: wrong option {o.get('id')!r} missing wrongReason")
-                elif t == "numeric":
+                    else:
+                        opt_ids = [o.get("id") for o in opts]
+                        if len(opt_ids) != len(set(opt_ids)):
+                            errors.append(f"{tag}: duplicate option ids")
+                        ans = v.get("answer")
+                        if ans not in opt_ids:
+                            errors.append(f"{tag}: answer {ans!r} not in options {opt_ids}")
+                        else:
+                            stats["mcq_answer_dist"][str(ans)] = stats["mcq_answer_dist"].get(str(ans), 0) + 1
+                        for o in opts:
+                            if o.get("id") != ans and not o.get("wrongReason"):
+                                errors.append(f"{tag}: wrong option {o.get('id')!r} missing wrongReason")
+
+                if ex_type == "numeric":
                     ans = v.get("answer")
                     if not isinstance(ans, dict) or "value" not in ans:
                         errors.append(f"{tag}: numeric answer must be dict with 'value'")
-                elif t == "predict":
-                    acc = v.get("accept")
-                    if not isinstance(acc, list) or not acc:
-                        errors.append(f"{tag}: text predict needs non-empty 'accept' list")
+                    else:
+                        val = ans["value"]
+                        if not isinstance(val, (int, float)) or isinstance(val, bool) or not math.isfinite(val):
+                            errors.append(f"{tag}: numeric answer 'value' must be finite int/float, got {val!r}")
+                        if "tolerance" in ans:
+                            tol = ans["tolerance"]
+                            if not isinstance(tol, (int, float)) or isinstance(tol, bool) or tol < 0 or not math.isfinite(tol):
+                                errors.append(f"{tag}: numeric 'tolerance' must be finite >= 0, got {tol!r}")
+
+                if ex_type == "predict":
+                    if not v.get("options"):
+                        acc = v.get("accept")
+                        if not isinstance(acc, list) or not acc:
+                            errors.append(f"{tag}: text predict needs non-empty 'accept' list")
                     if v.get("code") and is_pure_python(v["code"]):
                         try:
                             actual = run_snippet(v["code"])
                             stats["exec_predict"] += 1
-                            norm_acc = [a.strip() for a in acc]
-                            if actual not in norm_acc:
-                                errors.append(f"{tag}: code stdout {actual!r} != accept {norm_acc!r}")
+                            if not v.get("options"):
+                                norm_acc = [str(a).strip() for a in v.get("accept", [])]
+                                if actual not in norm_acc:
+                                    errors.append(f"{tag}: code stdout {actual!r} != accept {norm_acc!r}")
                         except Exception as e:
                             errors.append(f"{tag}: predict code raised {e}")
-                elif t == "code":
+
+                if ex_type == "code":
                     if not v.get("starterCode") or not v.get("solutionCode") or not v.get("colabCheck"):
                         errors.append(f"{tag}: code exercise needs starterCode, solutionCode, and colabCheck")
                     if not v.get("selfCheckCriteria"):
@@ -160,57 +284,163 @@ def validate_all(check_docs=True):
                             stats["exec_code"] += 1
                         except Exception as e:
                             errors.append(f"{tag}: solutionCode + colabCheck failed: {e}")
-                elif t == "explain":
+
+                if ex_type == "explain":
                     if not v.get("modelAnswer") or not v.get("selfCheckCriteria"):
                         errors.append(f"{tag}: explain exercise needs modelAnswer and selfCheckCriteria")
 
-    # Cross-check references in markdown chapters
-    for slug, cpath in chapter_paths():
+    # Anti-skew check on MCQ answer distribution across corpus
+    total_mcq = sum(stats["mcq_answer_dist"].values())
+    if total_mcq >= 20:
+        for opt_id, cnt in stats["mcq_answer_dist"].items():
+            ratio = cnt / total_mcq
+            if ratio > 0.60:
+                errors.append(f"MCQ answer distribution heavily skewed: option {opt_id!r} is {cnt}/{total_mcq} ({ratio:.1%}) > 60%")
+
+    # Cross-check references in markdown chapters (must have bank for every chapter!)
+    for slug, cpath in chapters:
+        if slug not in by_chapter:
+            errors.append(f"{slug}: missing exercise bank book/exercises/{slug}.json")
+        if not Path(cpath).exists():
+            errors.append(f"{slug}: chapter markdown missing at {cpath}")
+            continue
         _, body = read_source(cpath)
-        refs = []
-        for m in re.finditer(r"(?m)^:::exercise\s+(.+)$", body):
-            refs.extend(tok.strip() for tok in m.group(1).replace(",", " ").split() if tok.strip())
-        defined = by_chapter.get(slug, [])
-        for r in refs:
+        ref_pairs = extract_exercise_refs(body)
+        refs = [eid for _, eid in ref_pairs]
+        seen_in_ch = set()
+        for ln, r in ref_pairs:
+            if r in seen_in_ch:
+                errors.append(f"{slug}.md:{ln}: duplicate :::exercise placement for {r}")
+            seen_in_ch.add(r)
             if r not in all_ids:
-                errors.append(f"{slug}.md: references undefined exercise {r}")
-        for d in defined:
-            if d not in refs:
+                errors.append(f"{slug}.md:{ln}: references undefined exercise {r}")
+        for d in by_chapter.get(slug, []):
+            if d not in seen_in_ch:
                 errors.append(f"{slug}.json: exercise {d} is never placed via :::exercise in {slug}.md")
 
     # Check rendered docs/ HTML
-    docs_dir = ROOT / "docs"
-    if check_docs and docs_dir.exists():
-        for slug, ids in by_chapter.items():
-            html_path = docs_dir / f"{slug}.html"
-            if not html_path.exists():
-                errors.append(f"docs/{slug}.html missing")
-                continue
-            p = AnchorParser()
-            p.feed(html_path.read_text(encoding="utf-8"))
-            for raw in p.ex_jsons:
-                try:
-                    obj = json.loads(raw)
-                    if "MATHPH" in raw:
-                        errors.append(f"docs/{slug}.html: unrendered MATHPH inside exercise {obj.get('id')}")
-                except Exception as e:
-                    errors.append(f"docs/{slug}.html: invalid embedded exercise JSON: {e}")
-            data = json.loads((ex_dir / f"{slug}.json").read_text(encoding="utf-8"))
-            for item in data.get("exercises", []):
-                anchor = item.get("sectionAnchor", "")
-                if anchor.startswith("#") and anchor[1:] not in p.ids:
-                    errors.append(f"{item['id']}: sectionAnchor {anchor} not found in docs/{slug}.html")
+    if check_docs:
+        if not docs_root.exists():
+            errors.append(f"docs directory missing: {docs_root} (pass --no-docs to skip HTML checks)")
+        else:
+            for slug, items in parsed_by_slug.items():
+                html_path = docs_root / f"{slug}.html"
+                if not html_path.exists():
+                    errors.append(f"docs/{slug}.html missing")
+                    continue
+                p = AnchorParser()
+                p.feed(html_path.read_text(encoding="utf-8"))
+                if len(p.ex_ids) != len(set(p.ex_ids)):
+                    errors.append(f"docs/{slug}.html: duplicate exercise DOM IDs")
+                for raw in p.ex_jsons:
+                    try:
+                        obj = json.loads(raw)
+                        if "MATHPH" in raw or "DOLLARPHX" in raw:
+                            errors.append(f"docs/{slug}.html: unrendered placeholder inside exercise {obj.get('id')}")
+                    except Exception as e:
+                        errors.append(f"docs/{slug}.html: invalid embedded exercise JSON: {e}")
+                for item in items:
+                    anchor = item.get("sectionAnchor", "")
+                    if not ANCHOR_RE.match(str(anchor)) or anchor[1:] not in p.ids:
+                        errors.append(f"{item['id']}: sectionAnchor {anchor!r} not found in docs/{slug}.html")
 
-    print(json.dumps(stats, ensure_ascii=False))
-    if errors:
-        print(f"FAILED with {len(errors)} error(s):")
-        for e in errors[:50]:
-            print("  -", e)
+    if not quiet:
+        print(json.dumps(stats, ensure_ascii=False))
+        if errors:
+            print(f"FAILED with {len(errors)} error(s):")
+            for e in errors[:50]:
+                print("  -", e)
+        else:
+            print("EXERCISES ALL OK")
+    return 1 if errors else 0
+
+
+def run_self_test():
+    """Fault-injection self-test proving validate_all catches every critical failure mode."""
+    def base_ex(eid="ch00-q01", ans="4", code="print(2 + 2)", anchor="#s1"):
+        return {
+            "id": eid, "chapter": "00-test", "section": "Sec 1", "sectionAnchor": anchor,
+            "concept": "add", "conceptLabel": "Addition", "level": 1, "type": "predict",
+            "variants": [{
+                "prompt": "What prints?", "code": code, "accept": [ans],
+                "hint": "Think about addition.", "hints": ["Think about addition.", "Add the two numbers."],
+                "reasoning": "2 + 2 = 4", "steps": ["Compute 2 + 2"], "altExample": "1 + 1 = 2",
+            }],
+        }
+
+    cases = []
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+
+        # Case 1: Missing exercises dir -> must fail (1)
+        rc = validate_all(check_docs=False, book_dir=td / "empty_book", chapters_iter=[], quiet=True)
+        cases.append(("missing_exercises_dir", rc == 1))
+
+        # Helper to build a valid minimal fixture
+        def make_fixture(name, ex_list=None, raw_json=None, md_text=None, with_docs=False, html_text=None):
+            b = td / name / "book"
+            (b / "exercises").mkdir(parents=True)
+            (b / "chapters").mkdir(parents=True)
+            ch_md = b / "chapters" / "00-test.md"
+            ch_md.write_text(md_text if md_text is not None else '{"title":"t"}\n## Sec 1\n\n:::exercise ch00-q01\n:::\n', encoding="utf-8")
+            ex_p = b / "exercises" / "00-test.json"
+            if raw_json is not None:
+                ex_p.write_text(raw_json, encoding="utf-8")
+            else:
+                ex_p.write_text(json.dumps({"chapter": "00-test", "exercises": ex_list}, ensure_ascii=False), encoding="utf-8")
+            d = td / name / "docs"
+            if with_docs:
+                d.mkdir(parents=True)
+                (d / "00-test.html").write_text(html_text or '<h2 id="s1">Sec 1</h2>', encoding="utf-8")
+            return b, d, [("00-test", ch_md)]
+
+        # Case 2: Valid baseline -> must pass (0)
+        b, d, chs = make_fixture("ok", ex_list=[base_ex()], with_docs=True)
+        cases.append(("valid_baseline", validate_all(check_docs=True, book_dir=b, docs_dir=d, chapters_iter=chs, quiet=True) == 0))
+
+        # Case 3: Malformed JSON -> must fail (1)
+        b, d, chs = make_fixture("bad_json", raw_json="{invalid json")
+        cases.append(("malformed_json", validate_all(check_docs=False, book_dir=b, chapters_iter=chs, quiet=True) == 1))
+
+        # Case 4: Duplicate exercise ID -> must fail (1)
+        b, d, chs = make_fixture("dup_id", ex_list=[base_ex("ch00-q01"), base_ex("ch00-q01")])
+        cases.append(("duplicate_id", validate_all(check_docs=False, book_dir=b, chapters_iter=chs, quiet=True) == 1))
+
+        # Case 5: Predict code stdout mismatch -> must fail (1)
+        b, d, chs = make_fixture("bad_ans", ex_list=[base_ex(ans="999")])
+        cases.append(("predict_answer_mismatch", validate_all(check_docs=False, book_dir=b, chapters_iter=chs, quiet=True) == 1))
+
+        # Case 6: Missing :::exercise embed -> must fail (1)
+        b, d, chs = make_fixture("missing_embed", ex_list=[base_ex()], md_text='{"title":"t"}\n## Sec 1\nNo embed here.\n')
+        cases.append(("missing_embed", validate_all(check_docs=False, book_dir=b, chapters_iter=chs, quiet=True) == 1))
+
+        # Case 7: Missing docs/ when check_docs=True -> must fail (1)
+        b, d, chs = make_fixture("missing_docs", ex_list=[base_ex()], with_docs=False)
+        cases.append(("missing_docs_dir", validate_all(check_docs=True, book_dir=b, docs_dir=d, chapters_iter=chs, quiet=True) == 1))
+
+        # Case 8: Invalid sectionAnchor without '#' -> must fail (1)
+        b, d, chs = make_fixture("bad_anchor", ex_list=[base_ex(anchor="s1")], with_docs=True)
+        cases.append(("bad_section_anchor", validate_all(check_docs=True, book_dir=b, docs_dir=d, chapters_iter=chs, quiet=True) == 1))
+
+    failed = [name for name, ok in cases if not ok]
+    print(json.dumps({"self_test_cases": len(cases), "passed": len(cases) - len(failed), "failed": failed}))
+    if failed:
+        print("SELF-TEST FAILED:", failed)
         return 1
-    print("EXERCISES ALL OK")
+    print("SELF-TEST ALL OK")
     return 0
 
 
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--no-docs", action="store_true")
+    ap.add_argument("--docs-dir", default=None)
+    ap.add_argument("--self-test", action="store_true")
+    a = ap.parse_args()
+    if a.self_test:
+        sys.exit(run_self_test())
+    sys.exit(validate_all(check_docs=not a.no_docs, docs_dir=a.docs_dir))
+
+
 if __name__ == "__main__":
-    no_docs = "--no-docs" in sys.argv
-    sys.exit(validate_all(check_docs=not no_docs))
+    main()
