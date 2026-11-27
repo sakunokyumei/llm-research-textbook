@@ -133,12 +133,77 @@ c.up(); c.up()
 
     <span class="kw">def</span> <span class="fn">forward</span>(<span class="self">self</span>, x):            <span class="cm"># model(x) で呼ばれる計算</span>
         <span class="kw">return</span> <span class="self">self</span>.fc(x)</code></pre></div>
-<h2 id="s13">エラーへの備え try / except</h2>
+<h2 id="s13">モジュール・オブジェクト・メソッド・属性（第1〜3章）</h2>
+<p>AIライブラリのコードが暗号のように見える一番の原因は、「オブジェクト」「属性」「メソッド」の連鎖です。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="cm"># 1. モジュール（道具箱）の読み込み</span>
+<span class="kw">import</span> torch                                   <span class="cm"># torch.cuda.is_available() のように使う</span>
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer         <span class="cm"># AutoTokenizer を直接呼べる</span>
+
+<span class="cm"># 2. オブジェクト（実物）の属性とメソッド</span>
+<span class="cm">#   モノ.名前       → 属性（中に入っているデータや部品。() なし）</span>
+<span class="cm">#   モノ.名前(...)  → メソッド（そのオブジェクトにさせる動作。() あり）</span>
+<span class="cm"># 例：chat.tokenizer.apply_chat_template(messages, tokenize=False)</span>
+<span class="cm">#     ^^^^ ^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^</span>
+<span class="cm">#     本体   部品(属性)   動作(メソッド)</span></code></pre></div>
+<p>同じメソッド名でも「<code>.</code> の左側がどのオブジェクトか」で意味がまったく変わります。</p>
+<ul>
+<li><code>tok.encode(&quot;猫&quot;)</code> → トークナイザーのメソッド（戻り値：<code>list[int]</code> トークンID列）</li>
+<li><code>&quot;猫&quot;.encode(&quot;utf-8&quot;)</code> → 文字列 <code>str</code> のメソッド（戻り値：<code>bytes</code> UTF-8バイト列）</li>
+</ul>
+<h2 id="s14">リスト・辞書の入れ子（第1章〜）</h2>
+<p><code>result[0][&quot;generated_text&quot;][-1][&quot;content&quot;]</code> のような深い入れ子は、1段階ずつ変数に分けて <code>type(...)</code> と中身を確認します。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>step1 = result[<span class="nu">0</span>]                 <span class="cm"># list の 0番目 → dict</span>
+step2 = step1[<span class="st">&quot;generated_text&quot;</span>]   <span class="cm"># dict の値      → list（会話履歴）</span>
+step3 = step2[-<span class="nu">1</span>]                 <span class="cm"># list の 末尾   → dict（最新のAI返答）</span>
+step4 = step3[<span class="st">&quot;content&quot;</span>]          <span class="cm"># dict の値      → str（本文）</span></code></pre></div>
+<h2 id="s15"><code>*args</code> と <code>**kwargs</code>（第3章〜）</h2>
+<p>関数定義や呼び出しで <code>*</code> や <code>**</code> が付く書き方は、PyTorchやTransformersで頻繁に登場します。</p>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="cm"># 呼び出し側での展開（アンパック）</span>
+<span class="kw">def</span> <span class="fn">show</span>(a, b):
+    <span class="bi">print</span>(a, b)
+
+nums = [<span class="nu">10</span>, <span class="nu">20</span>]
+show(*nums)                 <span class="cm"># show(10, 20) と同じ（リストを位置引数に展開）</span>
+
+params = {<span class="st">&quot;a&quot;</span>: <span class="nu">10</span>, <span class="st">&quot;b&quot;</span>: <span class="nu">20</span>}
+show(**params)              <span class="cm"># show(a=10, b=20) と同じ（辞書をキーワード引数に展開）</span>
+<span class="cm"># → 第3章の model(**inputs) は model(input_ids=..., attention_mask=...) の短縮形！</span>
+
+<span class="cm"># 受け取り側での可変長引数</span>
+<span class="kw">def</span> <span class="fn">log_all</span>(*args, **kwargs):
+    <span class="bi">print</span>(<span class="st">&quot;位置引数:&quot;</span>, args)       <span class="cm"># タプルで受け取る</span>
+    <span class="bi">print</span>(<span class="st">&quot;名前つき引数:&quot;</span>, kwargs)  <span class="cm"># 辞書で受け取る</span></code></pre></div>
+<p>なお、<code>a ** 2</code>（値の後ろの <code>**</code>）は<strong>2乗（べき乗）</strong>であり、<code>(</code> の直後に書く辞書展開 <code>model(**inputs)</code> とは別物です。</p>
+<h2 id="s16">PyTorchテンソル・インデックス・<code>dim</code>・ブロードキャスト・学習ループ（第3・6・7章〜）</h2>
+<div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">import</span> torch
+
+<span class="cm"># テンソルと形（shape）</span>
+M = torch.tensor([[<span class="nu">1.0</span>, <span class="nu">2.0</span>, <span class="nu">3.0</span>],
+                  [<span class="nu">4.0</span>, <span class="nu">5.0</span>, <span class="nu">6.0</span>]])   <span class="cm"># shape: [2, 3]（2行3列）</span>
+<span class="bi">print</span>(M[<span class="nu">1</span>, <span class="nu">2</span>])                        <span class="cm"># 1行目2列目 → tensor(6.)（.item() で Pythonの 6.0）</span>
+<span class="bi">print</span>(M[:, <span class="nu">1</span>])                        <span class="cm"># 全行の1列目 → tensor([2., 5.])</span>
+
+<span class="cm"># dim（どの軸に沿って計算するか）と keepdim</span>
+<span class="bi">print</span>(M.<span class="bi">sum</span>(dim=<span class="nu">0</span>))                   <span class="cm"># 縦方向（各列の合計）→ shape [3]</span>
+<span class="bi">print</span>(M.<span class="bi">sum</span>(dim=<span class="nu">1</span>, keepdim=<span class="kw">True</span>))     <span class="cm"># 横方向（各行の合計）→ shape [2, 1]</span>
+<span class="cm"># ブロードキャスト：[2, 3] ÷ [2, 1] → 長さ1の軸が横にコピーされ、各行をその行の合計で割れる！</span>
+<span class="cm"># dim=-1 は「一番最後の軸」（1次元でも3次元でも末尾の軸を指せる）</span>
+
+<span class="cm"># GPU と CPU：計算するテンソル同士は同じデバイスに置く</span>
+device = <span class="st">&quot;cuda&quot;</span> <span class="kw">if</span> torch.cuda.is_available() <span class="kw">else</span> <span class="st">&quot;cpu&quot;</span>
+x = M.to(device)
+
+<span class="cm"># 自動微分と学習ループの基本4ステップ（第7章）</span>
+<span class="cm"># 1. loss = ...               （順伝播で損失を計算）</span>
+<span class="cm"># 2. loss.backward()          （逆伝播で各パラメータの .grad を計算）</span>
+<span class="cm"># 3. with torch.no_grad():    （更新は記録せず w -= lr * w.grad）</span>
+<span class="cm"># 4. w.grad.zero_()           （.grad は累積するため必ず0に戻す！）</span></code></pre></div>
+<h2 id="s17">エラーへの備え try / except</h2>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（読むだけ・実行しなくてOK）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code><span class="kw">try</span>:
     value = <span class="bi">int</span>(<span class="st">&quot;abc&quot;</span>)
 <span class="kw">except</span> ValueError:
     <span class="bi">print</span>(<span class="st">&quot;数字に変換できませんでした&quot;</span>)</code></pre></div>
-<h2 id="s14">エラーメッセージの読み方</h2>
+<h2 id="s18">エラーメッセージの読み方</h2>
 <p>エラーが出たら、<strong>一番下の行</strong>から読みます。</p>
 <div class="codeblock code lang-text"><div class="code-head"><span>テキスト</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>Traceback (most recent call last):
   File &quot;&lt;cell&gt;&quot;, line 3, in &lt;module&gt;
@@ -177,4 +242,4 @@ KeyError: &#x27;魚&#x27;</code></pre></div>
 
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">値と変数（第1章）</a><a href="#s2">文字列（第1〜2章）</a><a href="#s3">リスト（第1章〜）</a><a href="#s4">辞書（第1〜2章）</a><a href="#s5">集合（第2章）</a><a href="#s6">条件分岐 if（全体）</a><a href="#s7">くり返し for / while（第2章〜）</a><a href="#s8">関数 def（第1章〜）</a><a href="#s9">内包表記（第2章〜）</a><a href="#s10">import（第1章〜）</a><a href="#s11">ファイルの読み書き（第4章）</a><a href="#s12">クラス（第9章〜）</a><a href="#s13">エラーへの備え try / except</a><a href="#s14">エラーメッセージの読み方</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">値と変数（第1章）</a><a href="#s2">文字列（第1〜2章）</a><a href="#s3">リスト（第1章〜）</a><a href="#s4">辞書（第1〜2章）</a><a href="#s5">集合（第2章）</a><a href="#s6">条件分岐 if（全体）</a><a href="#s7">くり返し for / while（第2章〜）</a><a href="#s8">関数 def（第1章〜）</a><a href="#s9">内包表記（第2章〜）</a><a href="#s10">import（第1章〜）</a><a href="#s11">ファイルの読み書き（第4章）</a><a href="#s12">クラス（第9章〜）</a><a href="#s13">モジュール・オブジェクト・メソッド・属性（第1〜3章）</a><a href="#s14">リスト・辞書の入れ子（第1章〜）</a><a href="#s15">*args と **kwargs（第3章〜）</a><a href="#s16">PyTorchテンソル・インデックス・dim・ブロードキャスト・学習ループ（第3・6・7章〜）</a><a href="#s17">エラーへの備え try / except</a><a href="#s18">エラーメッセージの読み方</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

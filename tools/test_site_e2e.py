@@ -144,16 +144,62 @@ def run_tests():
             assert "要復習（誤答あり）" in due_cards.nth(0).inner_text()
             assert "問題 2 / 3" in due_cards.nth(1).inner_text(), f"Expected fresh variant 2/3 for ch03-q04, got: {due_cards.nth(1).inner_text()[:120]}"
 
-            # 8. Check desktop & mobile overflow across key pages
+            # 8. Test keyboard navigation, dark mode toggle, mobile menu + Escape, and JSON import roundtrip
+            page.set_viewport_size({"width": 390, "height": 844})
+            page.goto(f"{base}/01-first-llm.html", wait_until="networkidle")
+            page.locator("#menu").click()
+            assert page.evaluate("() => document.body.classList.contains('menu-open')"), "Mobile menu failed to open"
+            page.keyboard.press("Escape")
+            assert not page.evaluate("() => document.body.classList.contains('menu-open')"), "Escape failed to close mobile menu"
+            # Dark mode toggle
+            theme_before = page.evaluate("() => document.documentElement.dataset.theme || ''")
+            page.locator("#theme").click()
+            theme_after = page.evaluate("() => document.documentElement.dataset.theme || ''")
+            assert theme_after in ("dark", "light") and theme_after != theme_before, "Theme toggle did not switch"
+            # Skip link keyboard focus check
+            page.keyboard.press("Tab")
+            active_cls = page.evaluate("() => document.activeElement ? document.activeElement.className : ''")
+            assert "skip" in active_cls or page.locator("a.skip").count() == 1, "Skip link missing"
+
+            # JSON history import roundtrip on review.html
+            page.set_viewport_size({"width": 1280, "height": 800})
+            page.goto(f"{base}/review.html", wait_until="networkidle")
+            backup_payload = json.dumps({
+                "exportedAt": "2026-11-26T00:00:00Z",
+                "course": "standard",
+                "legacyDone": ["00-welcome", "01-first-llm"],
+                "legacyChecks": {"01-first-llm:0": True},
+                "study": {
+                    "version": 2,
+                    "readChapters": {"01-first-llm": {"firstAt": 1700000000000, "lastAt": 1700000000000}},
+                    "exercises": {
+                        "ch01-q02": {
+                            "chapter": "01-first-llm", "concept": "gpu-parallel-vram", "conceptLabel": "GPU",
+                            "level": 2, "type": "choice", "attempts": 2, "correct": 2, "wrong": 0,
+                            "streak": 2, "lastVariant": 1, "solvedVariants": [0, 1], "lastResult": "correct",
+                            "lastAt": 1700000000000, "intervalDays": 3, "nextReviewAt": 1999999999000,
+                            "reviewedAfterDue": True, "weak": False, "note": ""
+                        }
+                    }
+                }
+            })
+            page.locator("#import-history").set_input_files({
+                "name": "backup.json", "mimeType": "application/json", "buffer": backup_payload.encode("utf-8")
+            })
+            assert "復元しました" in page.locator("#backup-status").inner_text(), "JSON history import failed"
+            assert page.evaluate("() => document.documentElement.dataset.course") == "standard", "Imported course not applied"
+
+            # 9. Check desktop & mobile overflow across key pages
             for width, height in [(1280, 800), (390, 844)]:
                 page.set_viewport_size({"width": width, "height": height})
-                for slug in ["index.html", "01-first-llm.html", "02-tokens.html", "03-next-token.html", "review.html"]:
+                for slug in ["index.html", "00-welcome.html", "01-first-llm.html", "02-tokens.html", "03-next-token.html",
+                             "07-gradient.html", "11-attention.html", "22-alignment.html", "review.html"]:
                     page.goto(f"{base}/{slug}", wait_until="networkidle")
                     overflow = page.evaluate("() => document.documentElement.scrollWidth - document.documentElement.clientWidth")
                     if overflow > 4:
                         errors.append(f"{slug} at {width}x{height} overflows horizontally by {overflow}px")
 
-            # 9. Verify unit tests of auto-grading & scheduling logic via JS API
+            # 10. Verify unit tests of auto-grading & scheduling logic via JS API
             unit_ok = page.evaluate("""() => {
                 const S = window.TsukuruStudy;
                 // Numeric tolerance edge cases

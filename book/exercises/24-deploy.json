@@ -1,0 +1,706 @@
+{
+  "chapter": "24-deploy",
+  "exercises": [
+    {
+      "id": "ch24-q01",
+      "chapter": "24-deploy",
+      "section": "手順1：モデルをJSONに書き出す（Colab）",
+      "sectionAnchor": "#s2",
+      "concept": "weight-export-quantization-and-tril",
+      "conceptLabel": "重みの行ごと8ビット量子化・1次元層そのまま・tril除外の理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：MiniGPTの構造とtrilマスク", "第19章：absmax量子化"],
+      "variants": [
+        {
+          "prompt": "漱石GPTをブラウザ用のJSONに書き出す `quantize_rows` 関数で、①1次元テンソル（バイアスやLayerNorm）は量子化せず `float32` のまま残し、②名前が `tril` で終わるバッファは書き出しから除外している理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "1次元テンソルは要素数がごく少なくファイルサイズへの影響が小さいうえ精度劣化を避けたいから。`tril`（因果マスクの下三角行列）は固定パターンでありJavaScript側で推論時に簡単に再生成できるため保存がムダだから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "JavaScriptでは8ビット整数（int8）をまったく扱えないから",
+              "wrongReason": "2次元以上の大きな重み行列は実際に `int8` に量子化して書き出し、JavaScript側の `dequantize` で復元して使っています。"
+            },
+            {
+              "id": "c",
+              "text": "`tril` を含めると、モデルが日本語ではなく英語しか話せなくなるから",
+              "wrongReason": "`tril` は未来のトークンを見ないための下三角マスク（1と0の固定表）であり、言語の種類とは無関係です。"
+            },
+            {
+              "id": "d",
+              "text": "1次元テンソルはモデルの計算では一度も使われないから",
+              "wrongReason": "LayerNormの重みやバイアスは毎層で必ず使われ、精度に敏感なので `float32` のまま残しています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "175万パラメータの大部分を占めるのは2次元の大きな行列（埋め込み・線形層）です。`tril` は学習で変わる重みだったでしょうか？",
+          "reasoning": "モデル書き出しの鉄則は「①大部分の容量を占める2次元重みだけを効率よく量子化し、②小さくて敏感なLayerNorm/バイアスは高精度のまま残し、③学習パラメータではない固定マスク（`tril`）は省く」ことです。",
+          "steps": [
+            "2次元行列（例：`[128, 512]`）→ 行ごとのabsmax 8ビット量子化でサイズを約1/4に圧縮。",
+            "1次元ベクトル（例：`[128]`）→ 容量はほぼゼロなので `float32` のまま精度を保つ。",
+            "`tril` → 固定の0/1三角行列なのでJSONに書かず推論コード側で処理する。"
+          ],
+          "altExample": "実務のGGUFやSafeTensors書き出しでも、LayerNormやバイアスはFP32/FP16のまま残し、巨大な線形層だけを4〜8ビット量子化するのが標準です。"
+        },
+        {
+          "prompt": "重みのJSON書き出しで行ごとのabsmax量子化 `scale = w.abs().amax(dim=1) / 127` を行うとき、なぜ行列全体で1つの `scale` ではなく**行ごと**に `scale` を計算するのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "特定の1行だけ極端に大きな値（外れ値）があっても、他の行の縮尺が引きずられて細かく表せなくなるのを防ぎ、精度を高く保てるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "行ごとに分けると `scale` の個数が0個になるから",
+              "wrongReason": "行ごとに分けると行数ぶんの `scale`（float32）が必要になりますが、行列全体に比べてごくわずかな容量で済みます。"
+            },
+            {
+              "id": "c",
+              "text": "base64エンコードが行ごとの縮尺でしか動かないから",
+              "wrongReason": "base64はどんなバイト列でも変換できる汎用符号化であり、量子化の粒度とは無関係です。"
+            },
+            {
+              "id": "d",
+              "text": "行ごとに量子化するとパラメータ数が半分に減るから",
+              "wrongReason": "パラメータ数自体は同じです。変わるのは「同じ8ビットでどれだけ元の小数を正確に再現できるか（量子化誤差の小ささ）」です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第19章で学んだ「大きな外れ値1つが全体の刻み幅を粗くしてしまう問題」を思い出しましょう。",
+          "reasoning": "行ごと（per-channel / per-row）量子化は、わずかな `scale` 配列の追加だけで外れ値の影響をその行だけに閉じ込められるため、少ない容量で高い再現精度を得られます。",
+          "steps": [
+            "全体で1つの `scale`：1か所だけ `10.0` があると、値が `0.05` しかない別の行はほとんど `0` に丸められてしまう。",
+            "行ごとの `scale`：それぞれの行の最大値に合わせて `-127〜+127` の全255段階を使い切れる。",
+            "復元のときは `int8 * scale[row]` で元の小数に近似復元する。"
+          ],
+          "altExample": "GGUFの `Q4_K_M` などがさらに32個単位などの「ブロックごと」に縮尺を持つ（グループ量子化）のも、まさに同じアイデアの延長です。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q02",
+      "chapter": "24-deploy",
+      "section": "手順1：モデルをJSONに書き出す（Colab）",
+      "sectionAnchor": "#s2",
+      "concept": "quantization-and-base64-size-calc",
+      "conceptLabel": "float32・int8・base64のファイルサイズ計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第19章：ビット数とメモリ容量"],
+      "variants": [
+        {
+          "prompt": "パラメータ数がちょうど **200万個**（$2 \\times 10^6$ 個）のモデルがあるとします。全パラメータを `float32`（1個4バイト）でそのまま保存すると **8.0 MB** になりますが、これを `int8`（1個1バイト）に量子化し、さらにJSONに埋め込むため **base64**（サイズが約 $4/3 \\approx 1.333$ 倍）に変換すると、重み本体のサイズはおよそ何 MB になりますか？（小数第1位まで、誤差 $\\pm 0.2$ MB まで正解）",
+          "answer": { "value": 2.67, "tolerance": 0.2 },
+          "unit": "MB",
+          "placeholder": "例：2.7",
+          "hint": "まず `int8`（1個1バイト）で何MBか計算し、それにbase64の倍率 $4/3 \\approx 1.333$ を掛けます。",
+          "reasoning": "float32（8.0 MB）→ int8（2.0 MB、1/4に圧縮）→ base64（2.0 × 4/3 ≈ 2.67 MB）。base64で1.33倍になっても、元のfloat32の約1/3まで軽くできています！",
+          "steps": [
+            "`int8` の生バイト数：$2\\times 10^6 \\times 1\\text{ バイト} = 2.0\\text{ MB}$。",
+            "base64は3バイトを4文字（4バイト）で表すので、サイズは $\\dfrac{4}{3} \\approx 1.333$ 倍になる。",
+            "$2.0 \\times 1.333 \\approx 2.67\\text{ MB}$。"
+          ],
+          "altExample": "本文の漱石GPT（約175万パラメータ）も、$1.75 \\times 1.333 \\approx 2.33$ MB に縮尺配列や文字表が加わって約 **2.5 MB** になっています。"
+        },
+        {
+          "prompt": "パラメータ数が **175万個**（$1.75 \\times 10^6$ 個）の漱石GPTを、量子化せず生の `float32`（1個4バイト）のバイナリで保存すると、重みだけで何 MB になりますか？",
+          "answer": { "value": 7.0, "tolerance": 0.1 },
+          "unit": "MB",
+          "placeholder": "例：7.0",
+          "hint": "$1.75 \\times 10^6 \\times 4$ バイトを計算して、$10^6$ で割ると MB になります。",
+          "reasoning": "175万 × 4バイト ＝ 700万バイト ＝ 7.0 MB です。これを8ビット量子化することで約2.5 MBのJSONに収め、スマホ回線でも一瞬で開けるようにしています。",
+          "steps": [
+            "1パラメータあたりの容量：`float32` は 32ビット ÷ 8 ＝ 4バイト。",
+            "$1.75 \\times 10^6 \\times 4 = 7.0 \\times 10^6$ バイト ＝ 7.0 MB。",
+            "さらにテキストJSONで小数16桁のまま書くと20MB以上にも膨らむため、量子化＋base64が効いてくる。"
+          ],
+          "altExample": "もし同じ175万個を `float32` のままbase64化すると $7.0 \\times 1.333 \\approx 9.3$ MB になり、8ビット量子化版（2.5 MB）の約4倍のダウンロード待ち時間になってしまいます。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q03",
+      "chapter": "24-deploy",
+      "section": "手順1：モデルをJSONに書き出す（Colab）",
+      "sectionAnchor": "#s2",
+      "concept": "impl-json-weight-rounding-compression",
+      "conceptLabel": "【自力実装】重みの丸め（round）とJSONサイズ削減率の計算",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第19章：精度とサイズのトレードオフ"],
+      "variants": [
+        {
+          "prompt": "浮動小数点数のリスト `weights` を受け取り、①元のまま `json.dumps(weights)` したバイト長 `raw_bytes` と、②各要素を `round(x, digits)` で丸めて `json.dumps(rounded, separators=(\",\", \":\"))` したバイト長 `comp_bytes` を計算し、③ `(rounded, raw_bytes, comp_bytes, reduction_ratio)`（ここで `reduction_ratio = 1.0 - comp_bytes / raw_bytes`）を返す関数 `estimate_json_compression(weights, digits=3)` を実装して検算テストを通してください。",
+          "starterCode": "import json\n\ndef estimate_json_compression(weights, digits=3):\n    # 1. raw_bytes = len(json.dumps(weights).encode(\"utf-8\"))\n    # 2. rounded = [round(x, digits) for x in weights]\n    # 3. comp_bytes = len(json.dumps(rounded, separators=(\",\", \":\")).encode(\"utf-8\"))\n    # 4. reduction_ratio = 1.0 - comp_bytes / raw_bytes\n    # 5. return rounded, raw_bytes, comp_bytes, reduction_ratio\n    pass",
+          "solutionCode": "import json\n\ndef estimate_json_compression(weights, digits=3):\n    raw_bytes = len(json.dumps(weights).encode(\"utf-8\"))\n    rounded = [round(x, digits) for x in weights]\n    comp_bytes = len(json.dumps(rounded, separators=(\",\", \":\")).encode(\"utf-8\"))\n    reduction_ratio = 1.0 - comp_bytes / raw_bytes\n    return rounded, raw_bytes, comp_bytes, reduction_ratio",
+          "colabCheck": "ws = [1.0 / 3.0, -2.0 / 7.0, 0.1234567890123456, -0.9876543210987654] * 25\nrounded, raw_b, comp_b, ratio = estimate_json_compression(ws, digits=3)\nassert len(rounded) == 100\nassert rounded[0] == 0.333\nassert rounded[1] == -0.286\nassert comp_b < raw_b\nassert ratio > 0.6\nprint(\"ALL PASSED\")",
+          "hint": "`json.dumps(..., separators=(\",\", \":\"))` を使うとカンマの後ろの不要なスペースも削れて、さらにJSONが小さくなります。",
+          "reasoning": "Pythonの `float` をそのままJSON化すると `0.3333333333333333` のように17〜18文字も使いますが、小数第3位に丸めて空白を削るだけで60%以上もJSONサイズを減らせます。さらに本文の `int8 + base64` にすれば、テキスト表現よりはるかにコンパクトになります。",
+          "steps": [
+            "`raw_bytes = len(json.dumps(weights).encode(\"utf-8\"))` で元のJSONサイズを測る。",
+            "`rounded = [round(x, digits) for x in weights]` で各重みを小数 `digits` 桁に丸める。",
+            "`separators=(\",\", \":\")` で余白を削ってJSON化し、削減率 `1.0 - comp_bytes / raw_bytes` を返す。"
+          ],
+          "altExample": "100個の浮動小数点数では、生JSONが約2,100バイトなのに対し、小数3桁丸め＋空白除去なら約700バイト（約67%削減）、さらに `int8 + base64` なら約136バイト（約93%削減！）になります。",
+          "selfCheckCriteria": [
+            "丸め結果・バイト数減少・削減率 `ratio > 0.6` のすべての `assert` が通った",
+            "テキスト丸め（`round`）と `int8 + base64` のどちらがより小さくなるか説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch24-q04",
+      "chapter": "24-deploy",
+      "section": "手順2：Webページを作る（パソコン）",
+      "sectionAnchor": "#s3",
+      "concept": "js-python-minigpt-correspondence",
+      "conceptLabel": "minigpt.js と Python版 MiniGPT の部品対応の理解",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：温度つきサンプリング", "第12章：MiniGPT", "第16章：KVキャッシュ"],
+      "variants": [
+        {
+          "prompt": "ブラウザ上でGPTを動かす `minigpt.js` の各関数と、これまでの章で作ったPythonコードの対応として**正しい**組み合わせはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`linear`＝`nn.Linear`、`layerNorm`＝`nn.LayerNorm`、`cache[l][j].k.push(k)`＝KVキャッシュ（第16章）、`sample(logits, temperature)`＝温度つきサンプリング（第3章）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`linear`＝データセット読み込み、`layerNorm`＝Adamオプティマイザ、`sample`＝逆伝播（`backward`）",
+              "wrongReason": "ブラウザ上の `minigpt.js` は**推論専用**なので、Adamも逆伝播（`backward`）も含みません。順伝播とサンプリングだけです。"
+            },
+            {
+              "id": "c",
+              "text": "`dequantize`＝HTMLのCSSデザイン、`gelu`＝GitHub Pagesへのアップロード処理",
+              "wrongReason": "`dequantize` は8ビット整数×縮尺で小数に戻す処理、`gelu` は活性化関数（第9章）です。"
+            },
+            {
+              "id": "d",
+              "text": "JavaScriptには掛け算と `Math.exp` がないため、`minigpt.js` は外部のPythonサーバーに計算を丸投げしている",
+              "wrongReason": "逆です！`minigpt.js` はJavaScript自身の掛け算・足し算・`Math.exp`・`Math.sqrt` だけで、ブラウザ内で完全に推論を計算しています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「推論だけなら、掛け算・足し算・exp・平方根の組み合わせなので、どの言語でも同じ数式が書ける」ことを思い出しましょう。",
+          "reasoning": "Python（PyTorch）で学んだ数式とブロック構造は、そのままJavaScriptの約150行に1対1で翻訳できます。プログラミング言語は変わってもLLMの数学的実体はまったく同じです。",
+          "steps": [
+            "重みの復元：`dequantize`（第19章の量子化の逆）。",
+            "Transformer 1層：`layerNorm` → Attention（`cache`＝第16章KVキャッシュ）→ 残差接続 → `gelu` 付きFFN。",
+            "次トークン選択：`sample(logits, temperature)`（第3章のsoftmax＋温度）。"
+          ],
+          "altExample": "Pythonの `def` がJSの `function`、`for i in range(n):` が `for (let i = 0; i < n; i++)` に変わるだけで、アルゴリズムは同一です。"
+        },
+        {
+          "prompt": "学習（第13章）にはPyTorchの自動微分やGPUが必要だったのに、ブラウザのJavaScript（CPUのみ）だけで漱石GPTの文章生成（推論）ができる最大の理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "推論では勾配計算（逆伝播）やAdamの更新が不要で、学習済みの重みを使った順伝播（掛け算・足し算・exp・平方根）を1トークンずつ計算するだけで済むから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "ブラウザが裏で自動的にGoogleの巨大なGPUデータセンターを無料で借りて計算してくれるから",
+              "wrongReason": "GitHub Pagesは静的ファイルを配るだけで計算はしません。推論はアクセスした人のスマホやPCのブラウザ内で直接実行されます。"
+            },
+            {
+              "id": "c",
+              "text": "JavaScriptは推論の代わりに、あらかじめ保存した100個の固定文章をランダムに表示しているだけだから",
+              "wrongReason": "固定文章ではなく、入力欄に書いた任意の書き出し（例：「吾輩は」「坊っちゃんは」）から1文字ずつ本物のTransformerで生成しています。"
+            },
+            {
+              "id": "d",
+              "text": "ブラウザ版ではAttentionも線形層もすべて削除しているから",
+              "wrongReason": "4層・Attention・KVキャッシュ・LayerNorm・GELUをすべて省略せずに計算しています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "学習と推論で「要る計算・要らない計算」の違い（第3章の `torch.no_grad()` や第7章の自動微分）を思い出しましょう。",
+          "reasoning": "学習は全データに対して順伝播＋逆伝播＋最適化を何千回も回す必要がありますが、175万パラメータの推論（順伝播＋KVキャッシュ）だけなら現代のスマホやPCのCPUで十分高速に動きます。",
+          "steps": [
+            "学習：自動微分・勾配保存・Adam状態・何千ステップ → GPUとPyTorchが必須。",
+            "推論：順伝播のみ（1トークンずつ、KVキャッシュ付き）→ 単純な数値配列の掛け算と足し算だけで完結。",
+            "だからJavaScriptでもC++でもスマホアプリでも動かせる。"
+          ],
+          "altExample": "さらに大きなモデルをブラウザで高速に動かすときは、JavaScriptの代わりに端末のGPUを直接叩く **WebGPU** や **WebAssembly (WASM)** が使われます。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q05",
+      "chapter": "24-deploy",
+      "section": "手順2：Webページを作る（パソコン）",
+      "sectionAnchor": "#s3",
+      "concept": "browser-ondevice-pros-cons",
+      "conceptLabel": "ブラウザ推論（オンデバイス推論）の3大メリットと限界",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "LLMをサーバー側ではなく、閲覧者のブラウザの中（オンデバイス）で動かす方式の**利点と欠点**の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "利点：サーバーのGPU代が0円・入力テキストが外部サーバーに送信されずプライバシーが完全に守られる・読み込み後はオフラインでも動く。欠点：モデルのダウンロードと計算が閲覧者の端末負担になるため、巨大なモデルには向かない",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "利点：1000億パラメータの巨大モデルでも0.01秒でダウンロードできる。欠点：利用者が増えるほど高額なGPUサーバー代がかかる",
+              "wrongReason": "利点と欠点が両方とも逆です！ブラウザ推論は静的配信なのでサーバー代0円ですが、巨大モデルのダウンロード・実行は端末負担が大きすぎます。"
+            },
+            {
+              "id": "c",
+              "text": "利点：入力した文章が自動的に公開リポジトリに保存される。欠点：スマートフォンからは開けない",
+              "wrongReason": "入力文章はブラウザ内に留まり外部に一切送られません（それがプライバシー上の大きな利点）。またスマホのブラウザからも開けます。"
+            },
+            {
+              "id": "d",
+              "text": "利点：モデルファイルを用意しなくてよい。欠点：常に有料のクレジットカード登録が必要になる",
+              "wrongReason": "モデルファイル（`soseki-gpt.json`）は必要ですが、GitHub Pagesなら無料・クレカ不要で公開できます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「誰のCPUで計算しているか？」「入力した文字はどこへ送られるか？」を考えてみましょう。",
+          "reasoning": "オンデバイス推論は「計算コストとデータ保護を利用者側の端末で完結させる」設計です。小規模モデル（数MB〜数十MB）のデモやプライバシー重視アプリで絶大な力を発揮します。",
+          "steps": [
+            "サーバーの役割：`index.html`・`minigpt.js`・`soseki-gpt.json` を配るだけ（静的ホスティング＝無料）。",
+            "プライバシー：入力文はネットワークに1バイトも飛ばず、手元のブラウザ内だけで処理される。",
+            "限界：ファイルサイズが大きすぎるとダウンロード待ち時間と端末メモリがボトルネックになる。"
+          ],
+          "altExample": "医療メモや日記の下書きなど「絶対に外部サーバーへ送りたくない文章」を扱う軽量AIツールでは、オンデバイス推論が非常に重宝されます。"
+        },
+        {
+          "prompt": "GitHub Pagesで公開したブラウザ推論版「漱石GPT」に1万人が同時にアクセスして文章を生成しても、公開者にクラウドのGPU課金が発生しないのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "推論の計算はすべてアクセスした1万人それぞれのPC・スマホのブラウザ内で行われ、サーバー側は静的な3ファイルを配るだけだから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "GitHubが全ユーザーの推論用に巨大なH100 GPUクラスタを無制限で無料提供しているから",
+              "wrongReason": "GitHub Pagesは静的ファイル（HTML/JS/JSON等）を配信するだけで、サーバー上でAI推論コードを実行する機能はありません。"
+            },
+            {
+              "id": "c",
+              "text": "1万人アクセスしても、実際に動かせるのは最初の1人だけだから",
+              "wrongReason": "各閲覧者の手元のブラウザが独立して推論するため、同時に何人でも自分の端末で動かせます。"
+            },
+            {
+              "id": "d",
+              "text": "JSONファイルは通信量を一切消費しないから",
+              "wrongReason": "2.5MBのファイル配信自体は通信量を使いますが（GitHub Pagesには月間帯域目安あり）、GPU推論サーバーを常時稼働させるコストは0円です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "通常のWeb API型AI（サーバーで推論）と、ブラウザ推論（クライアントで推論）の「計算場所」の違いに注目しましょう。",
+          "reasoning": "サーバー側で推論するアプリは利用者が増えるほどGPUサーバーを増設して高額課金が必要になりますが、ブラウザ推論は計算負荷が利用者端末へ自然に分散されるのが強みです。",
+          "steps": [
+            "サーバー型：1万人同時推論 → サーバーにGPUが何十枚も必要（高額）。",
+            "ブラウザ型：静的ファイル（2.5MB）を配信 → 推論は各ユーザーの端末CPUが実行（サーバーGPU代0円）。"
+          ],
+          "altExample": "個人のポートフォリオや卒業制作のデモを長期公開するとき、課金リスクゼロで放置できる静的ブラウザ推論は最高の選択肢です。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q06",
+      "chapter": "24-deploy",
+      "section": "手順2：Webページを作る（パソコン）",
+      "sectionAnchor": "#s3",
+      "concept": "model-size-vs-download-latency",
+      "conceptLabel": "モデルサイズとブラウザ初回ダウンロード待ち時間の見積もり",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "実効ダウンロード速度が **5 MB/秒** のモバイル回線でWebページを開いたとします。もしブラウザ推論に **500 MB** のモデル（約0.5Bの8ビット量子化相当）をそのまま載せてしまうと、モデルのダウンロードだけで何秒待たされることになりますか？（整数または小数で回答）",
+          "answer": { "value": 100, "tolerance": 1 },
+          "unit": "秒",
+          "placeholder": "例：100",
+          "hint": "待ち時間 ＝ ファイルサイズ（MB）÷ 通信速度（MB/秒）です。",
+          "reasoning": "500 MB ÷ 5 MB/秒 ＝ **100秒**（1分40秒）も待たされ、しかもスマホのデータ通信量を0.5GBも消費してしまいます。一方、2.5 MB の漱石GPTなら `2.5 / 5 = 0.5` 秒で開けます！",
+          "steps": [
+            "500 MB のモデル：$500 \\div 5 = 100$ 秒（閲覧者のほとんどが読み込み中に離脱してしまう）。",
+            "比較：2.5 MB の漱石GPTなら $2.5 \\div 5 = 0.5$ 秒で即座に動き出す。",
+            "だから「ブラウザ静的公開は数MB級、0.5B〜7B級はOllamaやGradio」と使い分ける必要がある。"
+          ],
+          "altExample": "さらにGitHub Pagesは1ファイル100MB上限もあるため、500MBのモデルファイルはそもそもアップロードできません。"
+        },
+        {
+          "prompt": "実効ダウンロード速度 **5 MB/秒** の回線で、**2.5 MB** の `soseki-gpt.json` を読み込むのにかかるダウンロード時間は何秒ですか？",
+          "answer": { "value": 0.5, "tolerance": 0.05 },
+          "unit": "秒",
+          "placeholder": "例：0.5",
+          "hint": "$2.5 \\div 5$ を計算しましょう。",
+          "reasoning": "わずか0.5秒でダウンロードが完了するため、一般的なWebページの画像1〜2枚を読み込むのと変わらない体感速度で自分のGPTが動き出します。",
+          "steps": [
+            "ファイルサイズ：2.5 MB。",
+            "回線速度：5 MB/秒。",
+            "待ち時間：$2.5 \\div 5 = 0.5$ 秒。"
+          ],
+          "altExample": "第19章の量子化を使わずfloat32のまま（約9.3MB）にしていたら約1.9秒と約4倍待たされる計算になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q07",
+      "chapter": "24-deploy",
+      "section": "手順3：手元で動作確認する",
+      "sectionAnchor": "#s4",
+      "concept": "file-protocol-cors-and-http-server",
+      "conceptLabel": "file:// でモデルが読み込めない理由と python -m http.server の役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "パソコンに作った `index.html` をエクスプローラーから直接ダブルクリック（`file://...`）で開くと、`soseki-gpt.json` や `minigpt.js` の読み込みに失敗します。その理由と正しい対処法はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ブラウザのセキュリティ制限（同一オリジンポリシー）により、`file://` で開いたページからは `import` や `fetch` でローカルの別ファイルを読み込めないため。`python -m http.server 8000` などでローカルWebサーバーを立てて `http://localhost:8000/` から開く",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "HTMLファイルはインターネットにアップロードしない限り、自分のパソコン上では絶対に動かせないから",
+              "wrongReason": "`python -m http.server 8000` で手元のPC内に簡易Webサーバーを立てれば、インターネット公開前でも完全に動作確認できます。"
+            },
+            {
+              "id": "c",
+              "text": "`soseki-gpt.json` の中身が壊れているため、Colabで最初から学習し直すしかない",
+              "wrongReason": "モデルファイルの問題ではなく、開き方（`file://` ではなく `http://localhost` を使うこと）の問題です。"
+            },
+            {
+              "id": "d",
+              "text": "JavaScriptの `try / catch` を削除すれば `file://` でもそのまま動く",
+              "wrongReason": "`try / catch` はエラーを画面に分かりやすく表示しているだけで、消してもブラウザのセキュリティ制限自体は解除されません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "もし `file://` で開いた悪意あるHTMLが、あなたのPC内の任意のファイルを勝手に `fetch` して読めたらどうなるか想像してみましょう。",
+          "reasoning": "ブラウザはPC内の秘密ファイルが盗み読まれるのを防ぐため、`file://` からのモジュール読み込みや `fetch` を禁止しています。開発時はローカルHTTPサーバー越しに開くのがWeb開発の基本です。",
+          "steps": [
+            "ダブルクリック → URLが `file:///...` → ブラウザがセキュリティ上 `import`/`fetch` をブロック。",
+            "ターミナルで `python -m http.server 8000` を実行。",
+            "ブラウザで `http://localhost:8000/` を開くと正常に `minigpt.js` と `soseki-gpt.json` が読み込まれる。"
+          ],
+          "altExample": "VS Codeの「Live Server」拡張機能や `npx serve` も、裏側ではまったく同じく手元に簡易HTTPサーバーを立てています。"
+        },
+        {
+          "prompt": "ローカル確認で `http://localhost:8000/` を開いたのに「読み込み失敗」と表示されました。まず最初に確認すべきこととして最も適切なものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "3つのファイル名が正確に `index.html`・`minigpt.js`・`soseki-gpt.json`（`soseki-gpt (1).json` 等になっていないか）で同じフォルダにあるか確認し、F12キーの開発者ツール「Console」の赤いエラー文を読む",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "パソコンを工場出荷状態に初期化する",
+              "wrongReason": "ファイル名のわずかな違いやフォルダ配置ミスが9割の原因です。開発者ツールのConsoleを見れば一瞬で原因が分かります。"
+            },
+            {
+              "id": "c",
+              "text": "`index.html` のCSSの色を全部黒に変更する",
+              "wrongReason": "CSSの配色はファイル読み込み（`fetch`/`import`）の成否に関係ありません。"
+            },
+            {
+              "id": "d",
+              "text": "ポート番号を8000から8001に変えればファイル名のスペルミスも自動で直る",
+              "wrongReason": "ポート番号を変えても、存在しないファイル名（404 Not Found）は見つかりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "同じファイルを2回ダウンロードしたときにOSが自動で付ける `(1)` が、初心者にとって一番多い落とし穴です！",
+          "reasoning": "Webアプリのデバッグでは、まず①ファイル名と配置フォルダの一致、②URLが `http://localhost` であること、③ブラウザ開発者ツール（F12）のConsole/Networkタブのエラー、の3点を確認するのが鉄則です。",
+          "steps": [
+            "同じフォルダに `index.html`, `minigpt.js`, `soseki-gpt.json` が揃っているか確認。",
+            "`soseki-gpt (1).json` のようなリネーム崩れを直す。",
+            "F12のConsoleで404や構文エラーの具体メッセージを確認する。"
+          ],
+          "altExample": "Consoleに `404 (Not Found)` と出ていたら「ファイル名か置き場所のミス」、`CORS` や `file://` と出ていたら「ローカルサーバー経由で開いていないミス」と即座に切り分けられます。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q08",
+      "chapter": "24-deploy",
+      "section": "手順4：GitHub Pagesで世界に公開する",
+      "sectionAnchor": "#s5",
+      "concept": "github-pages-static-checklist",
+      "conceptLabel": "GitHub Pages 静的公開の仕組みと注意点",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第17章：トークンや秘密情報の管理"],
+      "variants": [
+        {
+          "prompt": "GitHub Pages（無料）で漱石GPTのWebページを公開するときに、**必ず守らなければならない注意点**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "無料プランではPublic（公開）リポジトリを使うため、APIトークン・パスワード・個人情報を絶対に含めないこと、また1ファイル100MB以下・サイト全体1GB以下を目安に収めること",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Hugging Faceのアクセストークンを `index.html` の中に直接書き込んでアップロードすること",
+              "wrongReason": "PublicリポジトリやHTML/JSに書いたトークンは世界中の誰でも閲覧・悪用できるため、絶対に書いてはいけません！"
+            },
+            {
+              "id": "c",
+              "text": "PyTorchのモデルファイル（5GB）をそのまま圧縮せずにアップロードすること",
+              "wrongReason": "GitHubには1ファイル100MBの上限があり、5GBのファイルはプッシュできず、ブラウザでも読み込めません。"
+            },
+            {
+              "id": "d",
+              "text": "ファイル名を `index.html` ではなく `soseki.py` にして置くこと",
+              "wrongReason": "GitHub PagesはPythonを実行せず、トップページとして `index.html` を配信します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Publicリポジトリは「世界中の誰でも全ファイルの中身と履歴を見られる掲示板」だと思いましょう。",
+          "reasoning": "GitHub Pagesは無料で非常に便利ですが、コード・JSON・コミット履歴が全世界に公開されるため、秘密情報の混入防止とファイルサイズ上限の遵守が必須です。",
+          "steps": [
+            "配置するファイル：`index.html`・`minigpt.js`・`soseki-gpt.json`（合計約2.5MB）。",
+            "秘密情報ゼロ：APIキー、パスワード、個人情報、他人の著作物の無断転載を入れない。",
+            "Settings → Pages → Branch `main` / `(root)` で公開URLが発行される。"
+          ],
+          "altExample": "青空文庫の夏目漱石作品は著作権保護期間が満了しているため公開できますが、自分で集めた小説やWeb記事で学習したモデルを公開するときは著作権・利用規約の確認が必要です。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q09",
+      "chapter": "24-deploy",
+      "section": "そのほかの公開・共有の方法",
+      "sectionAnchor": "#s6",
+      "concept": "deployment-options-comparison",
+      "conceptLabel": "GitHub Pages・Gradio・Ollama・Hugging Faceの使い分け",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第18章：ボンゴ先生SFT"],
+      "variants": [
+        {
+          "prompt": "次の3つの目的に対して、最も適した公開・実行方法の組み合わせはどれですか？\n① 約2.5MBの漱石GPTを無料・常時公開で誰でもスマホから試せるようにしたい\n② Colab上のボンゴ先生モデル（Qwen2.5-0.5B＋LoRA）を、授業発表の30分間だけ友だちにWebチャットで試してもらいたい\n③ 自分のPC上で、インターネット未接続のままQwen2.5-7Bと会話したい",
+          "options": [
+            {
+              "id": "a",
+              "text": "① GitHub Pages（ブラウザ推論）、② Gradio（Colabで `share=True`）、③ Ollama（ローカル実行）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "① Ollama、② GitHub Pages、③ Gradio",
+              "wrongReason": "Ollamaは相手のPCへのインストールが必要なのでスマホからURLで試せず、GitHub PagesではColab上の0.5Bモデルをそのまま動かせません。"
+            },
+            {
+              "id": "c",
+              "text": "すべてGitHub Pagesで公開する",
+              "wrongReason": "0.5Bや7Bのモデルは数百MB〜数GBあるため、GitHub Pagesの100MBファイル上限やブラウザメモリを超えてしまいます。"
+            },
+            {
+              "id": "d",
+              "text": "すべて `file://` でダブルクリックして公開する",
+              "wrongReason": "`file://` は自分のPC内のパスであり、他人に共有できず、ブラウザ推論もセキュリティ制限で動きません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "モデルサイズ・公開期間・オフライン要件の3軸で整理しましょう。",
+          "reasoning": "LLMの公開に「万能の1択」はなく、モデルの大きさ・予算（0円）・プライバシー・公開期間に応じて最適な手段を選び分けます。",
+          "steps": [
+            "数MB級＋無料常時公開 → GitHub Pages（または静的HF Space）のブラウザ推論。",
+            "0.5B〜7B級＋短時間のデモ共有 → Colab＋Gradio `share=True`（セッション終了まで有効）。",
+            "手元PCでオフライン・高速常用 → Ollama（GGUF形式）。"
+          ],
+          "altExample": "モデルの重みやLoRAアダプタ自体を他の開発者と共有したいときは、Hugging Face Hubにモデルカード付きでアップロードします。"
+        },
+        {
+          "prompt": "Colabで `demo.launch(share=True)` を使ってGradioの公開URLを発行したとき、覚えておくべき制約はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "一時的な公開URLであり、Colabのランタイム（セッション）が切れるとURLも使えなくなる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "一度発行すると永久に動き続け、Colabを閉じてもGoogleが永続サーバーとして動かしてくれる",
+              "wrongReason": "Gradioの `share=True` は実行中のColabノートブックへの一時トンネルなので、Colabが止まると接続できなくなります。"
+            },
+            {
+              "id": "c",
+              "text": "URLは自分のパソコンからしか開けず、スマートフォンからは開けない",
+              "wrongReason": "`https://....gradio.live` は公開URLなので、スマホや友だちのPCからもアクセスできます（だからこそセッション中はURLの扱いに注意します）。"
+            },
+            {
+              "id": "d",
+              "text": "Gradioを使うとモデルが自動で2.5MBのJavaScriptに変換される",
+              "wrongReason": "GradioはColab側のPython＋GPUで推論を実行し、Web画面だけを中継する仕組みです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Gradioの推論はどこで動いていますか？Colabのタブを閉じて時間が経つとどうなるでしょう？",
+          "reasoning": "Gradioの `share=True` は「今動いているColabのGPUに一時的なWeb窓口をつける」機能なので、発表や試用デモには最高ですが、常設サイトには向きません。",
+          "steps": [
+            "推論の実行場所：自分のColabセッション上のPython（GPU）。",
+            "セッション切断・タイムアウト → 公開URLも終了。",
+            "常時公開したい小型モデルはGitHub Pagesへ、一時デモはGradioへ。"
+          ],
+          "altExample": "発表デモの直前にColabを起動して `demo.launch(share=True)` し、QRコードにしてスライドに貼ると全員がスマホから試せます！"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q10",
+      "chapter": "24-deploy",
+      "section": "そのほかの公開・共有の方法",
+      "sectionAnchor": "#s6",
+      "concept": "gguf-quantization-names",
+      "conceptLabel": "GGUF形式と量子化名（Q4_K_M / Q8_0）の読み方",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第19章：量子化のビット数と精度"],
+      "variants": [
+        {
+          "prompt": "Ollamaやllama.cppで使われるGGUFモデルファイルで、同じ7Bモデルの `Q4_K_M` 版と `Q8_0` 版を比べたときの正しい説明はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`Q4_K_M` は約4ビット量子化でファイルサイズが小さくメモリ節約・高速なバランス型、`Q8_0` は約8ビット量子化でサイズは約2倍になるが元の精度により近い",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`Q4_K_M` はパラメータが4個だけ、`Q8_0` はパラメータが8個だけのモデルである",
+              "wrongReason": "`Q4` / `Q8` はパラメータの個数ではなく、1パラメータあたり約何ビットに量子化（圧縮）したかを表します。"
+            },
+            {
+              "id": "c",
+              "text": "`Q4_K_M` のほうが `Q8_0` より常にファイルサイズが2倍大きくなる",
+              "wrongReason": "逆です。ビット数が小さい `Q4`（約4ビット）のほうが `Q8`（約8ビット）よりファイルサイズは約半分に小さくなります。"
+            },
+            {
+              "id": "d",
+              "text": "GGUFはHTMLやCSSを書くためのマークアップ言語である",
+              "wrongReason": "GGUFはllama.cpp / Ollamaなどで量子化済みモデルの重みとメタデータを1ファイルにまとめるバイナリ形式です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`Q4` ＝ 約4ビット、`Q8` ＝ 約8ビット。ビット数が小さいほどファイルは軽く、少し精度が落ちます。",
+          "reasoning": "ローカルLLM選びでは、自分のPCのRAM/VRAM容量に合わせて量子化レベルを選びます。迷ったときの定番が容量と品質のバランスに優れた `Q4_K_M` です。",
+          "steps": [
+            "7Bモデルの目安：FP16なら約14GB、`Q8_0`（約8bit）なら約7〜8GB、`Q4_K_M`（約4bit）なら約4〜5GB。",
+            "メモリに余裕があり精度重視 → `Q8_0`。",
+            "一般PCで軽快に動かしたい → `Q4_K_M`。"
+          ],
+          "altExample": "第19章で手計算した「8ビット量子化」や、この章で漱石GPTに使った `int8` 量子化が、まさにOllamaの裏側でそのまま動いています。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q11",
+      "chapter": "24-deploy",
+      "section": "公開前のチェックリスト",
+      "sectionAnchor": "#s7",
+      "concept": "pre-release-safety-license-checklist",
+      "conceptLabel": "モデル・Webアプリ公開前の5つの必須チェック項目",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第22章：アラインメントと安全性"],
+      "variants": [
+        {
+          "prompt": "自作のLLMデモページをインターネットに公開する直前のチェックリストとして、**最も不適切な判断**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "「趣味の個人サイトだから」という理由で、元モデル（Apache 2.0）のライセンス表示や「AI生成であり正確とは限らない」の注意書きを省き、学習データの著作権も確認せずに公開する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "コードやJSONの中にAPIトークン・パスワード・個人情報が含まれていないか最終確認する",
+              "wrongReason": "秘密情報の漏洩チェックは公開前の最重要確認項目です。"
+            },
+            {
+              "id": "c",
+              "text": "元のモデル（例：Qwen2.5のApache 2.0）と学習データ（例：青空文庫）のライセンスを確認してページやモデルカードに記載する",
+              "wrongReason": "ライセンス遵守と出典明記は公開時の正しい作法です。"
+            },
+            {
+              "id": "d",
+              "text": "利用者がAIの誤情報を鵜呑みにしないよう注意書きを載せ、悪用の可能性や意図しない課金サービスを使っていないか確認する",
+              "wrongReason": "注意書き・悪用評価・課金確認はすべて公開前チェックリストの必須項目です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "公開前の5チェック（ライセンス・秘密情報・注意書き・悪用・お金）を思い出しましょう。",
+          "reasoning": "個人制作であってもインターネットに公開した瞬間から世界中がアクセス可能になります。権利関係・プライバシー・安全・注意書き・費用の5点は公開前に必ず確認します。",
+          "steps": [
+            "①ライセンス：元モデルと学習データの規約を守り明記する。",
+            "②秘密情報：トークン・個人情報ゼロを徹底。",
+            "③注意書き：「AIが生成した文章で正確とは限らない」を明示。",
+            "④悪用の可能性と⑤予期せぬ課金がないかを確認する。"
+          ],
+          "altExample": "Hugging Faceにモデルを上げるときも、READMEに書く「モデルカード」で元モデル・学習データ・限界・ライセンスを明記するのが国際的な標準マナーです。"
+        }
+      ]
+    },
+    {
+      "id": "ch24-q12",
+      "chapter": "24-deploy",
+      "section": "公開前のチェックリスト",
+      "sectionAnchor": "#s7",
+      "concept": "architecture-selection-tradeoff",
+      "conceptLabel": "【総合】用途・モデル規模・プライバシー・予算0円に応じた公開方式の設計",
+      "level": 5,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第19章：量子化", "第24章：公開方式とチェックリスト"],
+      "variants": [
+        {
+          "prompt": "次の2つのケースについて、それぞれどの公開・実行方式（GitHub Pagesブラウザ推論／Colab＋Gradio／ローカルOllama）を選ぶべきか、①ファイルサイズと待ち時間、②プライバシー、③サーバー代（0円制約）、④公開前のチェック事項の4観点から理由を説明してください。\n- **ケースA**：夏目漱石風のミニGPT（175万パラメータ）を、自分のポートフォリオサイトに常設して誰でもURLから試せるようにしたい。\n- **ケースB**：自分の日記や非公開の個人メモを要約・整理するAI（Qwen2.5-7B）を、外部サーバーに一切データを送らず毎日使いたい。",
+          "modelAnswer": "**ケースA**は **GitHub Pagesでのブラウザ推論** が最適です。175万パラメータを8ビット量子化＋base64化すれば約2.5MBに収まり、スマホ回線でも1秒未満で読み込めます。静的ファイル配信のため常設してもサーバー代は完全0円、利用者の入力文も外に出ずプライバシーが守られます。公開前には学習データ（青空文庫の著作権切れ）の明記、秘密情報混入チェック、「AI生成の注意書き」の記載を行います。**ケースB**は **ローカルのOllama（GGUF `Q4_K_M` など）** が最適です。7Bモデルは4ビット量子化でも約4〜5GBあり、ブラウザ静的公開ではサイズ上限・待ち時間・メモリとも現実的ではありません。一方Colab＋Gradioでは非公開の日記が外部クラウド（Google/Gradio）に送られ、セッションも切れます。Ollamaなら自分のPC内だけで完全オフライン・無料・プライバシー100%で毎日安定して動かせます。",
+          "hint": "ケースAは「小型・常設・URL共有・0円」、ケースBは「7B大型・機密データ・毎日利用・オフライン可」という条件の違いを整理しましょう。",
+          "reasoning": "モデルサイズ（2.5MB vs 4.5GB）・利用形態（不特定多数への常設公開 vs 個人の機密データ処理）を見極めることで、無駄なコストやプライバシー事故を防げる最適アーキテクチャを選べます。",
+          "steps": [
+            "ケースA：2.5MBで軽量・常設・無料 → GitHub Pages（ブラウザ推論）。公開前チェックリストを確認。",
+            "ケースB：7B（約4.5GB）はブラウザ不可、機密日記なので外部送信も不可 → ローカルOllama（GGUF量子化）。",
+            "両方のトレードオフ（サイズ・待ち時間・プライバシー・0円制約）を比較して説明する。"
+          ],
+          "altExample": "もし「ケースC：授業発表の10分間だけ0.5Bのボンゴ先生LoRAをクラス全員にスマホで試してほしい」であれば、第3の選択肢である Colab＋Gradio（`share=True`）がぴったりハマります。",
+          "selfCheckCriteria": [
+            "ケースAにGitHub Pages（ブラウザ推論）、ケースBにローカルOllamaを正しく選定できた",
+            "サイズと待ち時間（2.5MB vs 約4〜5GB）、プライバシー（入力が外に出ない）、0円制約の3観点で理由を説明できた",
+            "公開前チェック（ライセンス・秘密情報・注意書き）にも言及できた"
+          ]
+        }
+      ]
+    }
+  ]
+}
