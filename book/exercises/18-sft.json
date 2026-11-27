@@ -1,0 +1,745 @@
+{
+  "chapter": "18-sft",
+  "exercises": [
+    {
+      "id": "ch18-q01",
+      "chapter": "18-sft",
+      "section": "準備：GPUとデータ",
+      "sectionAnchor": "#s1",
+      "concept": "sft-data-split-and-quality",
+      "conceptLabel": "SFTデータの学習用・評価用分割とLIMAの知見",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：検証データと汎化"],
+      "variants": [
+        {
+          "prompt": "この章で `bongo_sft.jsonl`（60問）とは別に、学習には使わない `bongo_test.jsonl`（12問）を用意する一番の理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "学習データに入っていない「初見の質問」でも、丸暗記ではなくボンゴ先生の口調と答え方の作法を再現できるか確かめるため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "JSONL形式は1ファイルに60行までしか保存できないため",
+              "wrongReason": "JSONLに行数上限はありません。何百万行でも1ファイルに保存できます。"
+            },
+            {
+              "id": "c",
+              "text": "GPUのVRAMを節約するためにデータを2つに分けただけだから",
+              "wrongReason": "メモリ節約が目的ではなく、未知の質問への汎化性能を正しく確認するための分割です。"
+            },
+            {
+              "id": "d",
+              "text": "評価用データも最後のエポックで追加学習させてスコアを上げるため",
+              "wrongReason": "評価用データを学習に使ってしまうとデータ漏洩（リーク）になり、本当の実力が測れなくなります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第5章の「訓練データと検証データ（過去問と本番テスト）」の関係を思い出しましょう。",
+          "reasoning": "SFTで欲しいのは「60問の丸暗記」ではなく「初めて見る質問にもボンゴ先生らしく答えられる作法」です。学習に使わない評価用12問で確かめることで汎化性能を検証できます。",
+          "steps": [
+            "訓練データ（60問）で口調・答え方・止まり方を学習する。",
+            "学習に一切見せていない評価用データ（12問）で応答を生成する。",
+            "初見の質問でもボンゴ先生口調＋ダジャレ＋`<|im_end|>` 停止ができれば、作法が汎化したと判断できる。"
+          ],
+          "altExample": "第20章ではさらに厳密に、同じデータ集合から学習前に保留データを取り分けてパープレキシティを計測します。"
+        },
+        {
+          "prompt": "ベースモデルへのSFTで「たった60問〜1000問程度の高品質なお手本（LIMA論文など）」でも口調や対話作法が大きく変わる理由として、最も適切なものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "言語の文法や世界の知識の大部分はすでに事前学習で身についており、SFTは主に「答え方の型や口調」を引き出す段階だから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "SFTではモデルのパラメータをゼロからランダム初期化して学び直すから",
+              "wrongReason": "ランダム初期化するのは事前学習です。SFTは事前学習済みモデルの重みを出発点にします。"
+            },
+            {
+              "id": "c",
+              "text": "60問のJSONLファイルの中に数百万語分の辞書が圧縮されているから",
+              "wrongReason": "JSONLは単なる60件のQ&Aテキストであり、特別な辞書は含まれていません。"
+            },
+            {
+              "id": "d",
+              "text": "SFTではデータの質は関係なく、件数が少ないほど必ず精度が上がるから",
+              "wrongReason": "件数が少なくても効くのは「お手本の質が高く一貫しているとき」です。雑なデータでは逆効果になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "事前学習（膨大な知識の獲得）とSFT（対話の作法・口調の習得）の役割分担を考えましょう。",
+          "reasoning": "LIMA（Superficial Alignment Hypothesis）が示したように、知識の大半は事前学習で獲得済みであり、SFTは少数の高品質な例で「どの形式・スタイルで出力するか」を整える役割を担います。",
+          "steps": [
+            "事前学習：何兆トークンもの文章から文法・知識・推論の土台を獲得する。",
+            "SFT：質の高い「指示→回答」の例で、質問に答えて止まる作法と口調を整える。",
+            "そのため「大量の雑なデータ」より「少量でも一貫した高品質データ」が強く効く。"
+          ],
+          "altExample": "60問のお手本に間違った知識や寒いダジャレを混ぜると、そのままモデルが真似してしまうため「データを自分の目で読む」ことが重要です。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q02",
+      "chapter": "18-sft",
+      "section": "学習前のベースモデル",
+      "sectionAnchor": "#s2",
+      "concept": "base-model-fp32-and-stopping",
+      "conceptLabel": "ベースモデルの挙動と全パラメータSFTでfloat32を使う理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第13章：混合精度とアンダーフロー", "第17章：ベースモデルとチャットテンプレート"],
+      "variants": [
+        {
+          "prompt": "この章で全パラメータSFTを行う際、本体を `dtype=torch.float32` で読み込み、計算時だけ `autocast(..., dtype=torch.float16)` を使う理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "重み本体をfloat16のままにすると小さな勾配更新が丸められて消える（アンダーフロー）恐れがあるため、重みはfloat32で保ちつつ順伝播などをfloat16で高速化する（混合精度）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "float16は日本語の文字コードに対応していないため",
+              "wrongReason": "浮動小数点数の精度（float16/float32）は数値計算の桁数の問題であり、日本語の文字コードとは無関係です。"
+            },
+            {
+              "id": "c",
+              "text": "float32で読み込むとVRAM使用量がfloat16の半分になるため",
+              "wrongReason": "逆です。float32は1パラメータ4バイト、float16は2バイトなので、float32のほうが重みのメモリは2倍になります。"
+            },
+            {
+              "id": "d",
+              "text": "PyTorchのAdamWはfloat16の計算結果を一切扱えないため",
+              "wrongReason": "混合精度では `autocast` と `GradScaler` を組み合わせてfloat16の勾配を安全にfloat32の重み更新へ反映できます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "学習率 `1e-5` のような極めて小さな更新幅を `float16` の重みに足したとき何が起きるか（第13章）を思い出しましょう。",
+          "reasoning": "SFTの学習率は `1e-5` 程度と非常に小さいため、更新量 `lr * grad` がfloat16の最小表現単位を下回ると丸められて0になってしまいます。重みはfloat32で保持し、行列計算をautocastでfloat16化する混合精度学習が定石です。",
+          "steps": [
+            "重み本体：`float32`（精度を保ち、小さな更新が消えないようにする）。",
+            "順伝播などの重い行列積：`autocast(dtype=torch.float16)` で高速化。",
+            "勾配のアンダーフロー防止：`GradScaler` で損失を一時的に拡大してから逆伝播する。"
+          ],
+          "altExample": "推論だけのとき（第17章や第21章）は重みを更新しないため、`dtype=torch.float16` のまま読み込んでメモリを半分にできます。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q03",
+      "chapter": "18-sft",
+      "section": "学習データを作る：損失マスク",
+      "sectionAnchor": "#s3",
+      "concept": "sft-loss-masking-why",
+      "conceptLabel": "SFTで質問部分のラベルを -100 にする理由（損失マスク）",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：交差エントロピー損失"],
+      "variants": [
+        {
+          "prompt": "SFTで、システム指示やユーザーの質問部分の正解ラベルを `-100` にする（損失マスク）理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "PyTorchの交差エントロピー損失が `-100` の位置を無視するため、質問文の暗記に学習能力を使わず「アシスタントの答えの部分だけ」の予測に集中させるため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルがユーザーの質問文を一切読めない（Attentionで見えない）ように隠すため",
+              "wrongReason": "入力の `input_ids` には質問文がそのまま入っているので、モデルは質問文をしっかり読んだうえで答えを予測します。隠すのは「損失の計算対象」だけです。"
+            },
+            {
+              "id": "c",
+              "text": "質問文のトークンIDを `-100` に書き換えてデータサイズを圧縮するため",
+              "wrongReason": "`-100` にするのは `labels` 側であり、`input_ids` は元のトークンIDのまま残します。データ圧縮も起きません。"
+            },
+            {
+              "id": "d",
+              "text": "損失をマイナス100倍して学習スピードを100倍にするため",
+              "wrongReason": "`-100` は計算に掛ける係数ではなく、PyTorch `cross_entropy` のデフォルト `ignore_index=-100` を表す「無視フラグ」です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`input_ids`（読む対象）と `labels`（採点・損失計算の対象）の役割の違いに注目しましょう。",
+          "reasoning": "SFTの目的は「ユーザーの質問を言い当てること」ではなく「与えられた質問に対して良い答えを生成すること」です。質問部分の `labels` を `-100` にすると、モデルは質問を文脈として読みつつ、採点（勾配更新）は答えの部分だけで行われます。",
+          "steps": [
+            "`input_ids = prompt_ids + answer_ids`：モデルには質問も答えも文脈として入力する。",
+            "`labels = [-100] * len(prompt_ids) + answer_ids`：質問位置のラベルだけ `-100` にする。",
+            "PyTorchの `cross_entropy(..., ignore_index=-100)` が `-100` を採点から除外し、答えトークンだけの平均損失を計算する。"
+          ],
+          "altExample": "もし質問部分も損失に含めると、システムプロンプトの定型文（例：`You are Qwen...`）の予測ばかりが損失の大半を占めてしまい、肝心の回答スタイルの学習効率が落ちます。"
+        },
+        {
+          "prompt": "SFTの学習データで、ある1件の `input_ids` が `[10, 20, 30, 40, 50]`（前半3トークンが質問、後半2トークンが答え）のとき、損失マスクを正しく適用した `labels` はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`[-100, -100, -100, 40, 50]`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`[10, 20, 30, -100, -100]`",
+              "wrongReason": "逆です！ それだと質問部分だけを学習し、肝心の答え部分を無視してしまいます。"
+            },
+            {
+              "id": "c",
+              "text": "`[0, 0, 0, 40, 50]`",
+              "wrongReason": "`0` はトークンIDの0番を正解として予測させてしまいます。PyTorchで無視される特別な値は `-100` です。"
+            },
+            {
+              "id": "d",
+              "text": "`[40, 50]`",
+              "wrongReason": "`labels` は `input_ids` と同じ長さ（5）にそろえる必要があります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "長さは `input_ids` と同じ5で、質問の3トークン分が `-100`、答えの2トークン分がそのままのIDになります。",
+          "reasoning": "`labels` は `input_ids` と1対1で位置が対応しており、学習しない前半3位置を `-100`、学習する後半2位置を元のトークンID `[40, 50]` にします。",
+          "steps": [
+            "質問部分の長さは 3 → `[-100] * 3 = [-100, -100, -100]`。",
+            "答え部分は `[40, 50]`。",
+            "結合すると `[-100, -100, -100, 40, 50]`（長さ5で `input_ids` と一致）。"
+          ],
+          "altExample": "Hugging FaceのCausalLMは内部で `logits[:, :-1]` と `labels[:, 1:]` を1つずらして比較するため、渡す段階では `input_ids` と同じ位置合わせでOKです。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q04",
+      "chapter": "18-sft",
+      "section": "学習データを作る：損失マスク",
+      "sectionAnchor": "#s3",
+      "concept": "sft-loss-mask-trace",
+      "conceptLabel": "損失マスク作成コードの出力予測（学習トークン数）",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "損失マスクを作る処理の動作を確かめます。次のコードを実行すると何が表示されますか？",
+          "code": "prompt_ids = [101, 102, 103, 104]\nanswer_ids = [201, 202, 151645]\nlabels = [-100] * len(prompt_ids) + answer_ids\nprint(len(labels), sum(x != -100 for x in labels))",
+          "accept": ["7 3"],
+          "placeholder": "表示される出力を入力（例：7 3）",
+          "hint": "`len(prompt_ids)` は4、`len(answer_ids)` は3です。`-100` 以外の要素は何個でしょう？",
+          "reasoning": "全体長は `4 + 3 = 7` で、そのうち損失が計算される（`-100` でない）トークンは `answer_ids` の3個です。",
+          "steps": [
+            "`[-100] * 4` → `[-100, -100, -100, -100]`。",
+            "`+ [201, 202, 151645]` → 長さ 7 のリストになる。",
+            "`x != -100` を満たすのは `201, 202, 151645` の3個 → `7 3`。"
+          ],
+          "altExample": "本文の1問目では、全114トークンのうちシステム＋質問が36トークン（`-100`）、答え＋`<|im_end|>` が78トークン（学習対象）でした。"
+        },
+        {
+          "prompt": "次のコードの出力を予測してください。",
+          "code": "prompt_ids = [1, 2, 3, 4, 5]\nanswer_ids = [9, 8, 7, 6]\nlabels = [-100] * len(prompt_ids) + answer_ids\nmasked = sum(x == -100 for x in labels)\ntrained = sum(x != -100 for x in labels)\nprint(f\"{masked}/{trained}\")",
+          "accept": ["5/4"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "`masked` は `-100` の個数（プロンプト長）、`trained` は答えの長さです。",
+          "reasoning": "プロンプト5トークンがマスクされ、答えの4トークンが学習対象になるため `5/4` が出力されます。",
+          "steps": [
+            "`masked` = `len(prompt_ids)` = 5。",
+            "`trained` = `len(answer_ids)` = 4。",
+            "`f\"{masked}/{trained}\"` → `5/4`。"
+          ],
+          "altExample": "データセット作成直後に、実際に `masked` と `trained` の内訳とデコード結果を目視確認するのがSFTデバッグの基本です。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q05",
+      "chapter": "18-sft",
+      "section": "学習データを作る：損失マスク",
+      "sectionAnchor": "#s3",
+      "concept": "sft-eos-learning",
+      "conceptLabel": "答えの末尾に <|im_end|> を入れて学習させる理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第17章：チャットテンプレートと停止トークン"],
+      "variants": [
+        {
+          "prompt": "SFTの学習データを作るとき、答えの末尾に `<|im_end|>` を付け、しかも `-100` でマスクせず学習対象に含める理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "「答え終わったら `<|im_end|>` を予測して出力する（＝止まる合図を出す）」ことも、次のトークン予測としてモデルに覚えさせるため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`<|im_end|>` を付けないとPyTorchのテンソルに変換できず構文エラーになるため",
+              "wrongReason": "テンソル変換自体はどのID列でも可能です。付け忘れると「いつ話し終えるか」を学習できなくなります。"
+            },
+            {
+              "id": "c",
+              "text": "`<|im_end|>` は必ずトークンIDが `-100` に割り当てられているため",
+              "wrongReason": "`<|im_end|>` のIDはQwen2.5では `151645` などの正の整数であり、`-100` ではありません。"
+            },
+            {
+              "id": "d",
+              "text": "ダジャレの文字数を増やしてパープレキシティを下げるため",
+              "wrongReason": "ダジャレの文字数とは関係なく、応答の終了位置を学習させるためです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "ベースモデルが答え終わったあとも勝手に次の質問を書き続けてしまった現象を思い出しましょう。",
+          "reasoning": "モデルにとって「止まる」とは「終了トークン `<|im_end|>` に高い確率を割り当てること」です。お手本の答えの末尾に `<|im_end|>` を含めて損失を計算することで、話し終えるタイミングを学習します。",
+          "steps": [
+            "答えの最後の句点や感嘆符の「次のトークン」の正解が `<|im_end|>` になる。",
+            "損失計算に含めることで、回答終了時に `<|im_end|>` の確率が高まるよう重みが更新される。",
+            "さらに推論側では `generation_config.eos_token_id` に `<|im_end|>` のIDを登録し、出たら生成を止める。"
+          ],
+          "altExample": "もし `<|im_end|>` を付け忘れると、モデルはボンゴ先生の口調で答えた直後に勝手に別の質問と回答を語り続けてしまいます。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q06",
+      "chapter": "18-sft",
+      "section": "学習データを作る：損失マスク",
+      "sectionAnchor": "#s3",
+      "concept": "impl-sft-loss-mask",
+      "conceptLabel": "【自力実装】質問部分を -100 でマスクする SFT ラベル作成関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第18章：損失マスク"],
+      "variants": [
+        {
+          "prompt": "プロンプトのトークンID列 `prompt_ids`、答えのトークンID列 `answer_ids`、終了トークンID `eos_id` を受け取り、末尾に `eos_id` を付けた `input_ids` と、プロンプト部分だけを `-100` でマスクした `labels` の辞書を返す関数 `build_sft_sample(prompt_ids, answer_ids, eos_id)` を自力実装してください。",
+          "starterCode": "def build_sft_sample(prompt_ids, answer_ids, eos_id):\n    # 1. full_answer = list(answer_ids) + [eos_id]\n    # 2. input_ids = list(prompt_ids) + full_answer\n    # 3. labels = [-100] * len(prompt_ids) + full_answer\n    # 4. {\"input_ids\": input_ids, \"labels\": labels} を返す\n    pass",
+          "solutionCode": "def build_sft_sample(prompt_ids, answer_ids, eos_id):\n    full_answer = list(answer_ids) + [eos_id]\n    input_ids = list(prompt_ids) + full_answer\n    labels = [-100] * len(prompt_ids) + full_answer\n    return {\"input_ids\": input_ids, \"labels\": labels}",
+          "colabCheck": "s = build_sft_sample([10, 20, 30], [40, 50], 99)\nassert s[\"input_ids\"] == [10, 20, 30, 40, 50, 99]\nassert s[\"labels\"] == [-100, -100, -100, 40, 50, 99]\nassert len(s[\"input_ids\"]) == len(s[\"labels\"])\ns2 = build_sft_sample([], [7], 99)\nassert s2[\"input_ids\"] == [7, 99]\nassert s2[\"labels\"] == [7, 99]\nprint(\"ALL PASSED\")",
+          "hint": "`answer_ids` の後ろに `[eos_id]` を足してから、`input_ids` と `labels` の両方に使います（元のリストを破壊しないよう `list(...)` を使うと安全です）。",
+          "reasoning": "SFTデータ前処理の核心は、プロンプト長と同じ個数の `-100` を並べ、答えと終了トークン `eos_id` だけをそのまま `labels` に残すことです。",
+          "steps": [
+            "`full_answer = list(answer_ids) + [eos_id]` で答え＋終了合図を作る。",
+            "`input_ids = list(prompt_ids) + full_answer` で入力列を作る。",
+            "`labels = [-100] * len(prompt_ids) + full_answer` で質問部分だけマスクする。"
+          ],
+          "altExample": "本文の `build_example` 関数は、文字列をトークナイザーでID化したあとにこの関数とまったく同じ組み立てをしています。"
+        ,
+          "selfCheckCriteria": [
+            "`input_ids` と `labels` の長さが一致し、末尾の `eos_id` も学習対象に含まれている",
+            "プロンプトが空の境界ケースも含めすべての `assert` が通った"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch18-q07",
+      "chapter": "18-sft",
+      "section": "バッチにまとめる：パディング",
+      "sectionAnchor": "#s4",
+      "concept": "padding-and-attention-mask",
+      "conceptLabel": "パディングに対して attention_mask=0 と labels=-100 の両方が必要な理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第11章：因果マスク"],
+      "variants": [
+        {
+          "prompt": "長さの異なる複数のサンプルを1つのバッチにまとめるために末尾をパディングしたとき、パディング位置に **`attention_mask = 0`** と **`labels = -100`** の**両方**を設定する理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`attention_mask=0` でAttention計算が詰め物を参照しないようにし、`labels=-100` で交差エントロピー損失の計算からも詰め物を除外するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`attention_mask=0` だけで損失も自動で無視されるが、念のため同じ意味の書き方を2回書いているだけ",
+              "wrongReason": "`attention_mask` はAttentionの参照制御用であり、`cross_entropy` の損失計算は `labels == -100` を見て除外します。片方だけでは不十分です。"
+            },
+            {
+              "id": "c",
+              "text": "`labels=-100` にするとパディングトークンがGPUから自動削除されて長さが元に戻るため",
+              "wrongReason": "テンソルの形は `(batch_size, L)` のまま長方形を保ちます。削除されるわけではなく、損失計算で無視されるだけです。"
+            },
+            {
+              "id": "d",
+              "text": "`attention_mask=0` の位置は学習率が2倍になるため",
+              "wrongReason": "`attention_mask` はAttentionスコアを `-inf` 相当にして重みを0にするマスクであり、学習率とは無関係です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "順伝播（Attentionでどこを見るか）と損失計算（どの位置を採点するか）の2か所で詰め物の悪影響を断つ必要があります。",
+          "reasoning": "パディングはテンソルを長方形にするためのダミーです。Attention側では `attention_mask=0` で無視し、損失側では `labels=-100` で無視することで、パディングの有無が学習結果に影響しないようにします。",
+          "steps": [
+            "バッチ内で最長の長さ `L` にそろえるため、短い文の後ろに `pad_token_id` を埋める。",
+            "`attention_mask`：本物のトークンは `1`、詰め物は `0` → Attentionが詰め物に注目しない。",
+            "`labels`：詰め物の位置も `-100` → 詰め物トークンの予測誤差を損失に入れない。"
+          ],
+          "altExample": "もし詰め物の `labels` に `pad_token_id` を入れてしまうと、モデルは「文のあとにはひたすらパディングを出し続けろ」と誤学習してしまいます。"
+        },
+        {
+          "prompt": "バッチ内に長さ3のサンプルと長さ5のサンプルが1件ずつあります。パディング後の `attention_mask` として正しい2次元リストはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`[[1, 1, 1, 0, 0], [1, 1, 1, 1, 1]]`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`[[0, 0, 0, 1, 1], [0, 0, 0, 0, 0]]`",
+              "wrongReason": "`1` が「本物のトークン（見る）」、`0` が「詰め物（見ない）」なので0と1が逆です。"
+            },
+            {
+              "id": "c",
+              "text": "`[[1, 1, 1], [1, 1, 1, 1, 1]]`",
+              "wrongReason": "行の長さが3と5でそろっていないため、PyTorchの2次元テンソルに変換できません。"
+            },
+            {
+              "id": "d",
+              "text": "`[[1, 1, 1, -100, -100], [1, 1, 1, 1, 1]]`",
+              "wrongReason": "`-100` を使うのは `labels` です。`attention_mask` は `1` と `0` を使います。"
+            }
+          ],
+          "answer": "a",
+          "hint": "最長 `L = 5` にそろえ、本物トークンを `1`、後ろに足した詰め物を `0` にします。",
+          "reasoning": "1件目は長さ3なので後ろに2個パディングし `[1, 1, 1, 0, 0]`、2件目は長さ5なので詰め物なしで `[1, 1, 1, 1, 1]` になります。",
+          "steps": [
+            "最長 `L = max(3, 5) = 5`。",
+            "1件目：`pad = 5 - 3 = 2` → `[1]*3 + [0]*2` = `[1, 1, 1, 0, 0]`。",
+            "2件目：`pad = 5 - 5 = 0` → `[1]*5 + [0]*0` = `[1, 1, 1, 1, 1]`。"
+          ],
+          "altExample": "バッチ全体のテンソル形状は `(2, 5)` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q08",
+      "chapter": "18-sft",
+      "section": "バッチにまとめる：パディング",
+      "sectionAnchor": "#s4",
+      "concept": "collate-batch-shape-trace",
+      "conceptLabel": "パディング後のバッチ形状とマスク合計の予測",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "3件のサンプルをパディングする次のコードを実行すると、何が表示されますか？",
+          "code": "seqs = [[10, 20], [30, 40, 50, 60], [70, 80, 90]]\nL = max(len(s) for s in seqs)\nmasks = [[1] * len(s) + [0] * (L - len(s)) for s in seqs]\npad_count = sum(m.count(0) for m in masks)\nprint(len(seqs), L, pad_count)",
+          "accept": ["3 4 3"],
+          "placeholder": "表示される3つの整数を入力（例：3 4 3）",
+          "hint": "長さはそれぞれ 2, 4, 3 です。最長 `L` にそろえるために足した `0` の総数を数えましょう。",
+          "reasoning": "サンプル数は3、最長 `L=4` で、各行のパディング数は `4-2=2`、`4-4=0`、`4-3=1`、合計 `2+0+1=3` 個です。",
+          "steps": [
+            "`len(seqs) = 3`、`L = max(2, 4, 3) = 4`。",
+            "`masks` = `[[1,1,0,0], [1,1,1,1], [1,1,1,0]]`。",
+            "`0` の個数は `2 + 0 + 1 = 3` → 出力は `3 4 3`。"
+          ],
+          "altExample": "バッチ内で極端に長い文章が1件だけ混ざると、`L` が引っ張られて他の行のパディングだらけになり計算が無駄になります。大規模学習では長さの近い文をまとめたり、複数サンプルを1列に詰める（パッキング）工夫をします。"
+        },
+        {
+          "prompt": "次のコードの出力を予測してください。",
+          "code": "seqs = [[5], [6, 7, 8]]\nL = max(len(s) for s in seqs)\npadded = [s + [0] * (L - len(s)) for s in seqs]\nprint(padded)",
+          "accept": ["[[5, 0, 0], [6, 7, 8]]"],
+          "placeholder": "表示されるリストを入力",
+          "hint": "`L = 3` なので、`[5]` の後ろに `0` が2個足されます。",
+          "reasoning": "1件目は長さ1なので `0` を2個追加して `[5, 0, 0]`、2件目は長さ3のまま `[6, 7, 8]` になります。",
+          "steps": [
+            "`L = max(1, 3) = 3`。",
+            "1件目：`[5] + [0] * 2` → `[5, 0, 0]`。",
+            "2件目：`[6, 7, 8] + [0] * 0` → `[6, 7, 8]`。"
+          ],
+          "altExample": "実際の `collate` では、これと同時に `labels` を `-100` で、`attention_mask` を `0` でパディングします。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q09",
+      "chapter": "18-sft",
+      "section": "バッチにまとめる：パディング",
+      "sectionAnchor": "#s4",
+      "concept": "impl-pad-batch-collate",
+      "conceptLabel": "【自力実装】可変長サンプルをパディングし attention_mask を作る collate 関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第18章：パディングとアテンションマスク"],
+      "variants": [
+        {
+          "prompt": "`{\"input_ids\": [...], \"labels\": [...]}` の辞書リスト `batch` と `pad_id` を受け取り、最長長 `L` に右パディングした `input_ids`（`pad_id` で埋める）、`labels`（`-100` で埋める）、`attention_mask`（本物 `1`・詰め物 `0`）の辞書を純Pythonのリストで返す関数 `pad_batch(batch, pad_id=0)` を実装してください。",
+          "starterCode": "def pad_batch(batch, pad_id=0):\n    # 1. 最長長 L = max(len(b[\"input_ids\"]) for b in batch)\n    # 2. 各サンプル b について pad = L - len(b[\"input_ids\"]) を計算\n    # 3. ids, labels, mask の2次元リストを組み立てて辞書で返す\n    pass",
+          "solutionCode": "def pad_batch(batch, pad_id=0):\n    L = max(len(b[\"input_ids\"]) for b in batch)\n    ids, labels, mask = [], [], []\n    for b in batch:\n        n = len(b[\"input_ids\"])\n        pad = L - n\n        ids.append(list(b[\"input_ids\"]) + [pad_id] * pad)\n        labels.append(list(b[\"labels\"]) + [-100] * pad)\n        mask.append([1] * n + [0] * pad)\n    return {\"input_ids\": ids, \"labels\": labels, \"attention_mask\": mask}",
+          "colabCheck": "samples = [\n    {\"input_ids\": [10, 20, 30], \"labels\": [-100, 20, 30]},\n    {\"input_ids\": [40, 50, 60, 70, 80], \"labels\": [-100, -100, 60, 70, 80]},\n]\nout = pad_batch(samples, pad_id=999)\nassert out[\"input_ids\"] == [[10, 20, 30, 999, 999], [40, 50, 60, 70, 80]]\nassert out[\"labels\"] == [[-100, 20, 30, -100, -100], [-100, -100, 60, 70, 80]]\nassert out[\"attention_mask\"] == [[1, 1, 1, 0, 0], [1, 1, 1, 1, 1]]\nprint(\"ALL PASSED\")",
+          "hint": "3種類の配列それぞれで埋める値が違います：`input_ids` は `pad_id`、`labels` は `-100`、`attention_mask` は本物が `1`・詰め物が `0` です。",
+          "reasoning": "この3つの配列を正しく同期してパディングできれば、可変長の対話データをGPUバッチとして安全かつ正確に学習ループへ流せます。",
+          "steps": [
+            "`L = max(len(b[\"input_ids\"]) for b in batch)` でバッチ内の最長長を取得する。",
+            "各サンプルの不足分 `pad = L - len(b[\"input_ids\"])` を求める。",
+            "`input_ids` に `[pad_id]*pad`、`labels` に `[-100]*pad`、`attention_mask` に `[1]*n + [0]*pad` を作る。"
+          ],
+          "altExample": "本文の `collate` 関数は、この純Pythonの2次元リストを最後に `torch.tensor(v).to(device)` でテンソル化しているだけです。",
+          "selfCheckCriteria": [
+            "`input_ids` / `labels` / `attention_mask` の3キーすべてが期待通りの値と形になり `assert` が通った",
+            "なぜ `labels` のパディング値が `pad_id` ではなく `-100` なのか説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch18-q10",
+      "chapter": "18-sft",
+      "section": "学習ループを自分で書く",
+      "sectionAnchor": "#s5",
+      "concept": "sft-learning-rate-and-loop",
+      "conceptLabel": "SFTで学習率を事前学習より小さくする理由とループの仕組み",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：学習ループと学習率", "第13章：勾配クリッピング"],
+      "variants": [
+        {
+          "prompt": "全パラメータSFTで、学習率を事前学習（$10^{-3}$〜$10^{-4}$）よりもずっと小さい $10^{-5}$ 前後に設定する理由として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "事前学習で獲得した膨大な言語知識や能力を壊さないよう、重みを少しずつ丁寧に微調整するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "学習率を小さくするほどエポック数が自動で減り、計算が速くなるため",
+              "wrongReason": "学習率は1ステップあたりの重みの更新幅であり、エポック数や1ステップの計算速度は変わりません。"
+            },
+            {
+              "id": "c",
+              "text": "`AdamW` は $10^{-5}$ より大きい学習率を渡すとエラーで停止するため",
+              "wrongReason": "`AdamW` は $10^{-3}$ でも問題なく動きます（実際、第19章のLoRAでは $10^{-3}$ や $2\\times 10^{-4}$ を使います）。"
+            },
+            {
+              "id": "d",
+              "text": "学習率を小さくすると損失マスク `-100` が不要になるため",
+              "wrongReason": "学習率と損失マスクは独立した仕組みであり、どちらも必要です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "本文の「彫刻のノミ（事前学習）と紙やすり（ファインチューニング）」のたとえを思い出しましょう。",
+          "reasoning": "全パラメータSFTでは5億個すべての重みを動かすため、学習率が大きすぎると元の言語能力が一気に崩れて（壊滅的忘却・損失発散）しまいます。",
+          "steps": [
+            "事前学習：ランダムな重みから大きく形を作るので学習率は大きめ（$10^{-3}$〜$10^{-4}$）。",
+            "全パラメータSFT：完成済みの重みを壊さず仕上げるので学習率は小さめ（$10^{-5}$ 前後）。",
+            "さらに `clip_grad_norm_(..., 1.0)` で突発的な大勾配を抑え、毎エポック `random.shuffle` で順番の偏りを防ぐ。"
+          ],
+          "altExample": "一方、第19章のLoRAでは本体を凍結して小さな追加行列 $A, B$ だけを0から育てるため、学習率は $10^{-4}$〜$10^{-3}$ と大きめにします。"
+        },
+        {
+          "prompt": "自作 `train_sft` の各エポック先頭で `random.shuffle(order)` を行う主な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "毎エポック同じ順番でバッチが組まれることによる偏りや過学習を防ぎ、勾配更新を安定させるため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "質問文と答え文の組み合わせをランダムに入れ替えて新しいQ&Aを作るため",
+              "wrongReason": "入れ替えるのは「どのQ&Aペアをどの順番で読むか」であり、質問と答えのペア自体は崩しません。"
+            },
+            {
+              "id": "c",
+              "text": "シャッフルするとパディングの個数が必ず0になるため",
+              "wrongReason": "シャッフルしても長さが違うサンプルが同じバッチに入るので、パディングは引き続き必要です。"
+            },
+            {
+              "id": "d",
+              "text": "GPUのキャッシュメモリを消去するため",
+              "wrongReason": "メモリ解放は `model.zero_grad(set_to_none=True)` や `torch.cuda.empty_cache()` の役割です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "毎回同じ4問の組み合わせ・同じ順番で学習すると、直前のバッチに引きずられやすくなります。",
+          "reasoning": "ミニバッチ確率的勾配降下法では、エポックごとにデータ順をシャッフルしてバッチの組み合わせを変えることで、学習の偏りを防ぎ収束を安定させます。",
+          "steps": [
+            "`order = list(range(len(examples)))` でサンプル番号のリストを作る。",
+            "`random.shuffle(order)` で順番を混ぜ、毎回異なる組み合わせで `batch_size` 個ずつ取り出す。",
+            "乱数シード `random.seed(seed)` を最初に固定しているので再現性も保たれる。"
+          ],
+          "altExample": "PyTorchの `DataLoader(..., shuffle=True)` や TRL の `SFTTrainer` も、裏側で同じように毎エポックのシャッフルを行っています。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q11",
+      "chapter": "18-sft",
+      "section": "学習ループを自分で書く",
+      "sectionAnchor": "#s5",
+      "concept": "sft-steps-calculation",
+      "conceptLabel": "データ件数・バッチサイズ・エポック数から総更新ステップ数を計算する",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第7章：エポックとバッチ"],
+      "variants": [
+        {
+          "prompt": "学習データ **60問** を、バッチサイズ **`batch_size = 4`** で **`epochs = 3`** 周学習するとき、オプティマイザの更新（`step`）は合計で**何回**実行されますか？",
+          "answer": { "value": 45, "tolerance": 0.001 },
+          "unit": "回",
+          "placeholder": "整数を入力",
+          "hint": "まず1エポックあたりのステップ数 `60 ÷ 4` を求め、それに `3` エポックを掛けましょう。",
+          "reasoning": "1エポックあたり `60 / 4 = 15` ステップあり、3エポック回すので `15 × 3 = 45` 回の重み更新が行われます。",
+          "steps": [
+            "1エポックのステップ数：$60 \\div 4 = 15$ ステップ。",
+            "3エポックの総ステップ数：$15 \\times 3 = 45$ ステップ。"
+          ],
+          "altExample": "たった45回の更新でベースモデルがボンゴ先生に変身したことになります！"
+        },
+        {
+          "prompt": "学習データ **100問** を、バッチサイズ **`batch_size = 5`** で **`epochs = 4`** 周学習するとき、オプティマイザの更新は合計で**何回**実行されますか？",
+          "answer": { "value": 80, "tolerance": 0.001 },
+          "unit": "回",
+          "placeholder": "整数を入力",
+          "hint": "1エポックは `100 ÷ 5 = 20` ステップです。",
+          "reasoning": "1エポック20ステップ × 4エポック = 80ステップです。",
+          "steps": [
+            "1エポックのステップ数：$100 \\div 5 = 20$ ステップ。",
+            "4エポックの総ステップ数：$20 \\times 4 = 80$ ステップ。"
+          ],
+          "altExample": "総ステップ数は学習率スケジューラ（ウォームアップやコサイン減衰）の設計でも基本になる数値です。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q12",
+      "chapter": "18-sft",
+      "section": "変身した！？",
+      "sectionAnchor": "#s6",
+      "concept": "eos-token-id-config",
+      "conceptLabel": "学習で <|im_end|> を覚えさせた後に eos_token_id 設定が必要な理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第17章：generation_config"],
+      "variants": [
+        {
+          "prompt": "SFTでモデルが答えの末尾に `<|im_end|>` を出力できるようになった後でも、`model.generation_config.eos_token_id = [im_end, tok.eos_token_id]` を設定する理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ベースモデルの生成設定には `<|endoftext|>` しか停止合図として登録されていないため、`<|im_end|>` が出た時点で `generate` ループを終了させるには生成設定にも追加する必要があるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "この設定を書くとモデルの重みがもう一度自動でファインチューニングされるから",
+              "wrongReason": "`generation_config` は推論時の停止条件などの設定であり、モデルの重みは一切変わりません。"
+            },
+            {
+              "id": "c",
+              "text": "この設定を書かないとダジャレが出なくなるから",
+              "wrongReason": "ダジャレの生成はSFTで学んだ重みによるもので、`eos_token_id` は生成を止める合図のリストです。"
+            },
+            {
+              "id": "d",
+              "text": "`eos_token_id` に2つIDを入れると生成速度が2倍になるから",
+              "wrongReason": "停止条件の候補が増えるだけで、1トークンあたりの生成速度自体は変わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「モデルが `<|im_end|>` を出力すること」と「`generate()` がそれを見てループを止めること」は別の役割です。",
+          "reasoning": "モデルが正しく `<|im_end|>`（ID: 151645）を出しても、`generate()` 側がそれを終了トークンと知らなければ、そのまま次の会話を作り続けてしまいます。両方をそろえて初めてきれいに止まります。",
+          "steps": [
+            "モデル側の仕事：答え終わったら `<|im_end|>` の確率を最大にして出力する（SFTで学習）。",
+            "`generate()` 側の仕事：出力されたIDが `eos_token_id` に含まれたらループを終了する（設定で指定）。",
+            "`save_pretrained` で保存すると、この `generation_config` も一緒に保存される。"
+          ],
+          "altExample": "学習前にベースモデルが `<|im_end|>` を出したあとも止まらなかった原因の半分は、この停止合図の設定にありました。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q13",
+      "chapter": "18-sft",
+      "section": "道具を使う：TRLのSFTTrainer",
+      "sectionAnchor": "#s8",
+      "concept": "trl-sfttrainer-and-t4-fp16",
+      "conceptLabel": "TRL の SFTTrainer の自動損失マスクと T4 GPU での bf16/fp16 設定",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第13章：fp16とbf16"],
+      "variants": [
+        {
+          "prompt": "TRLの `SFTTrainer` に `{\"prompt\": [...], \"completion\": [...]}` 形式のデータセットを渡し、Google ColabのT4 GPUで学習させるとき、正しい説明はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`prompt` 部分を自動で `-100` にマスクして `completion` 部分だけを学習してくれる。またT4はbfloat16非対応なので `bf16=False, fp16=True` を明示する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`SFTTrainer` は損失マスクを行わないため、`prompt` も `completion` も必ず同じ重みで学習される",
+              "wrongReason": "`prompt` と `completion` に分けた形式を渡すと、TRLが自動で `completion` のみに損失マスクを適用します（本文でも78トークンと一致を確認済み）。"
+            },
+            {
+              "id": "c",
+              "text": "T4 GPUでは `bf16=True, fp16=False` にしないと動かない",
+              "wrongReason": "逆です。T4（Turing世代）はハードウェアでbfloat16に対応していないため、`bf16=False, fp16=True` を使います。"
+            },
+            {
+              "id": "d",
+              "text": "`SFTTrainer` を使うと、元のモデルの重みは学習せずプロンプト文字列だけを書き換える",
+              "wrongReason": "`SFTTrainer` は自作ループと同じく勾配降下法でモデルの重みを更新します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "自作ループとTRLで「学習した部分のトークン数（1件目）：78」が一致したことと、`warn` ボックスのT4注意点を思い出しましょう。",
+          "reasoning": "TRLの `SFTTrainer` は、私たちが手書きしたチャットテンプレート適用・損失マスク・パディング・混合精度学習ループを数行の設定で安全に実行してくれる実務標準ツールです。",
+          "steps": [
+            "`prompt` / `completion` 形式で渡す → TRLが自動で `prompt` に `-100` を設定（completion-only loss）。",
+            "T4 GPUでは `bf16=False, fp16=torch.cuda.is_available()` としてエラー・速度低下を防ぐ。",
+            "自分で中身を書いた経験があるから、`SFTConfig` の各引数の意味が迷わず理解できる。"
+          ],
+          "altExample": "A100やL4などAmpere以降の新しいGPUを使う場合は、数値範囲が広くて安定しやすい `bf16=True, fp16=False` がよく選ばれます。"
+        }
+      ]
+    },
+    {
+      "id": "ch18-q14",
+      "chapter": "18-sft",
+      "section": "気をつけたいこと：忘れることもある",
+      "sectionAnchor": "#s9",
+      "concept": "catastrophic-forgetting-explain",
+      "conceptLabel": "壊滅的忘却の原因と具体的な対策を説明する",
+      "level": 3,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第18章：SFTの学習率とデータの質"],
+      "variants": [
+        {
+          "prompt": "特定のキャラクターデータだけでSFTをやりすぎたときに起きる「壊滅的忘却（catastrophic forgetting）」とはどのような現象か説明し、それを防ぐための具体的な対策を**2つ以上**挙げてください。",
+          "modelAnswer": "壊滅的忘却とは、特定の狭いデータだけでモデルの重みを強く更新しすぎることで、事前学習で元々持っていた一般的な知識や他言語・計算などの能力を忘れてしまう現象です。対策としては、①学習率を小さくしエポック数を少なく抑える、②英語や計算・断る質問など多様なデータを混ぜて学習する、③LoRAのように元の重みを凍結して小さな差分だけを学習する、などが挙げられます。",
+          "hint": "「元の能力が失われる原因（偏ったデータでの強い更新）」と、本文に挙がっている3つの対策のうち2つ以上を書きましょう。",
+          "reasoning": "ニューラルネットワークはすべての知識を同じ重み空間に重ねて保存しているため、狭い分布だけで大きく勾配更新すると古い記憶が上書きされてしまいます。",
+          "steps": [
+            "現象の定義：特定タスクの学習で、事前学習済みの一般能力（英語・計算・常識など）が低下・消失する。",
+            "対策1（更新量の抑制）：小さい学習率（$10^{-5}$）・少ないエポック数。",
+            "対策2（データ多様性）：別ジャンルや汎用対話データを混ぜる。",
+            "対策3（構造的制約）：第19章のLoRAで本体を凍結し、差分だけ学習する。"
+          ],
+          "altExample": "第20章では、この壊滅的忘却が起きていないかを4択クイズ（一般知識ベンチマーク）と統計的信頼区間で実際に測定します。",
+          "selfCheckCriteria": [
+            "「特定データの学習で元の一般能力・知識が失われる現象」と正しく説明できた",
+            "「小さい学習率・少ないエポック」「多様なデータの混合」「LoRAによる本体凍結」のうち2つ以上の対策を挙げた"
+          ]
+        }
+      ]
+    }
+  ]
+}

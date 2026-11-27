@@ -113,11 +113,12 @@ def main():
         n_cells = len(cells(body))
         code_lines = sum(len(c["code"].split("\n")) for c in cells(body))
         talks = body.count(":::sensei") + body.count(":::minato")
-        quizzes = body.count(":::quiz")
+        ex_refs = sum(len(m.split()) for m in re.findall(r"(?m)^:::exercise\s+(.+)$", body))
+        quizzes = body.count(":::quiz") + ex_refs
         outputs = body.count("```output")
         figures = body.count("](img/")
-        # longest stretch of prose (characters) with no code, talk, quiz or figure in between
-        stretches = re.split(r"```|:::sensei|:::minato|:::quiz|:::try|!\[", body)
+        # longest stretch of prose (characters) with no code, talk, quiz, exercise or figure in between
+        stretches = re.split(r"```|:::sensei|:::minato|:::quiz|:::exercise|:::try|!\[", body)
         longest = max(len(re.sub(r"\s", "", s)) for s in stretches)
         minutes = len(re.sub(r"\s", "", prose)) / 500 + n_cells * 2.5
         risk = 0

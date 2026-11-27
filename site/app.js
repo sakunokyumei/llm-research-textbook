@@ -46,12 +46,12 @@
       const n = $$(".nav-part a[data-slug]").filter((a) => done.has(a.dataset.slug)).length;
       box.hidden = n === 0;
       $(".bar span", box).style.width = (100 * n / total) + "%";
-      $("small", box).textContent = `クリア ${n} / ${total} 章` + (n === total ? " ── 卒業おめでとう！🥁" : "");
+      $("small", box).textContent = `読了 ${n} / ${total} 章` + (n === total ? " ── 全章読了！復習で確認しよう" : "");
     }
     $$("[data-done]").forEach((b) => {
       const on = done.has(b.dataset.done);
       b.classList.toggle("is-done", on);
-      b.textContent = on ? "クリア済み ✓（もう一度押すと取り消し）" : "この章をクリアした！";
+      b.textContent = on ? "読了チェック済み ✓（もう一度押すと取り消し）" : "この章の説明を読み終えた！";
     });
   }
   $$("[data-done]").forEach((b) => b.addEventListener("click", () => {

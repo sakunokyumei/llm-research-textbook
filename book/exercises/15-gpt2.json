@@ -1,0 +1,793 @@
+{
+  "chapter": "15-gpt2",
+  "exercises": [
+    {
+      "id": "ch15-q01",
+      "chapter": "15-gpt2",
+      "section": "GPT-2をダウンロードする",
+      "sectionAnchor": "#s1",
+      "concept": "gpt2-head-dim-and-architecture",
+      "conceptLabel": "GPT-2 small のハイパーパラメータと1ヘッドあたりの次元数",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：マルチヘッドAttentionとGPT設計"],
+      "variants": [
+        {
+          "prompt": "GPT-2 small の設定は「層数 `n_layer=12`、ヘッド数 `n_head=12`、埋め込み幅 `n_embd=768`」です。マルチヘッドAttentionの **1ヘッドあたりの次元数（`hs`）** はいくつですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`64`（$768 \\div 12 = 64$）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`768`（各ヘッドが幅768を丸ごと持つ）",
+              "wrongReason": "全ヘッドを連結した合計幅が `n_embd = 768` なので、1ヘッドあたりは `n_embd // n_head` になります。"
+            },
+            {
+              "id": "c",
+              "text": "`12`（層数と同じ）",
+              "wrongReason": "`12` はヘッド数（および層数）であり、1ヘッドのベクトル次元数ではありません。"
+            },
+            {
+              "id": "d",
+              "text": "`9216`（$768 \\times 12$）",
+              "wrongReason": "掛け算ではなく割り算（`768 // 12`）です。各ヘッドの出力64次元を12個つなげると768次元に戻ります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`hs = C // self.n_head` の式に `C = 768`, `n_head = 12` を当てはめましょう。",
+          "reasoning": "マルチヘッドAttentionは埋め込み次元 `C` を `n_head` 等分して並列に異なる視点から注目し、最後に再び幅 `C` へ結合します。",
+          "steps": [
+            "`n_embd = 768`、`n_head = 12`。",
+            "1ヘッドの次元数 `hs = 768 // 12 = 64`。",
+            "12ヘッド分の出力 `[B, 12, T, 64]` を横につなげ直すと `[B, T, 768]` に戻る。"
+          ],
+          "altExample": "第13章の漱石GPTは `n_embd=128, n_head=4` だったので、1ヘッドあたり `128 // 4 = 32` 次元でした。"
+        },
+        {
+          "prompt": "第12章で作った自作GPTと本物のGPT-2 smallの構造を比べたとき、**正しい**説明はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "埋め込み → Transformerブロック（Pre-LN＋因果Attention＋MLP＋残差接続）の積み重ね → 最終LayerNorm → 出力層という骨格は完全に同じで、規模と細部（QKV結合・バイアス・重み共有・GELU近似）が違うだけ",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "本物のGPT-2はTransformerを使っておらず、まったく別のアルゴリズムで動いている",
+              "wrongReason": "GPT-2はまさに第12章と同じデコーダ型Transformerであり、細部を合わせるだけで同じ重みを読み込んで一致させられます。"
+            },
+            {
+              "id": "c",
+              "text": "GPT-2は未来のトークンも参照するため因果マスク（`tril`）を持たない",
+              "wrongReason": "GPT-2は自己回帰の次トークン予測モデルなので、因果マスク（下三角行列 `tril`）が必須です。"
+            },
+            {
+              "id": "d",
+              "text": "GPT-2は位置埋め込み `wpe` を使わず文字の順番を無視している",
+              "wrongReason": "GPT-2は `transformer.wpe`（形 `(1024, 768)`）で0〜1023の位置埋め込みを加算しています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "この章の目標が「第12章のコードを少し書き換えて本物の重みを流し込み、小数点以下まで一致させること」である点を思い出しましょう。",
+          "reasoning": "GPT-2 small（1.24億パラメータ）も自作の小型GPTも、Transformerブロックの基本構造はまったく同じです。",
+          "steps": [
+            "トークン埋め込み `wte` ＋ 位置埋め込み `wpe`。",
+            "Pre-LN構造の `Block` を12層積む。",
+            "最終 `ln_f` と `lm_head` で語彙数50,257のロジットを出す。"
+          ],
+          "altExample": "この「小さな自作モデルと本物の巨大モデルは設計図が同じ」という事実こそが、第4部でゼロから実装した最大の収穫です。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q02",
+      "chapter": "15-gpt2",
+      "section": "重みの名前と形を見る",
+      "sectionAnchor": "#s2",
+      "concept": "gpt2-c-attn-qkv-dim",
+      "conceptLabel": "Q・K・Vをまとめた c_attn の出力次元数",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第11章：Query・Key・Value"],
+      "variants": [
+        {
+          "prompt": "GPT-2では Query・Key・Value を1つの全結合層 `c_attn` でまとめて作ります。埋め込み幅 `n_embd = 768` のGPT-2 smallでは、`c_attn` の出力次元数はいくつになりますか？（整数で答えてください）",
+          "answer": { "value": 2304, "tolerance": 0 },
+          "unit": "",
+          "placeholder": "整数を入力（例：2304）",
+          "hint": "Q（768）・K（768）・V（768）の3つ分を横に並べて1回で作ります。",
+          "reasoning": "Q・K・Vそれぞれ幅 `n_embd` のベクトルが必要なため、`c_attn` は `n_embd → 3 * n_embd` の線形変換になります。",
+          "steps": [
+            "`n_embd = 768`。",
+            "Q・K・Vの3つ分なので $3 \\times 768 = 2{,}304$。",
+            "計算後に `.split(768, dim=2)` で768ずつ3つに切り分ける。"
+          ],
+          "altExample": "重み一覧に表示された `transformer.h.0.attn.c_attn.weight (768, 2304)` の `2304` がまさにこれです。"
+        },
+        {
+          "prompt": "GPT-2 medium の埋め込み幅は `n_embd = 1024` です。このとき Q・K・V をまとめて作る `c_attn` の出力次元数はいくつになりますか？（整数で答えてください）",
+          "answer": { "value": 3072, "tolerance": 0 },
+          "unit": "",
+          "placeholder": "整数を入力",
+          "hint": "`3 * n_embd` を計算します。",
+          "reasoning": "`n_embd = 1024` の3倍で `3072` になります（なおMLPの中間層 `c_fc` は4倍の `4096` になります）。",
+          "steps": [
+            "`n_embd = 1024`。",
+            "Q・K・Vの3つ分：$3 \\times 1024 = 3{,}072$。"
+          ],
+          "altExample": "GPUは小さな行列積を3回呼ぶより、大きな行列積を1回で実行するほうがカーネル起動のオーバーヘッドが少なく高速に動きます。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q03",
+      "chapter": "15-gpt2",
+      "section": "GPT-2と同じ形のGPTを書く",
+      "sectionAnchor": "#s3",
+      "concept": "multihead-view-transpose",
+      "conceptLabel": "マルチヘッド一括計算のための view・transpose・contiguous",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：マルチヘッドAttention"],
+      "variants": [
+        {
+          "prompt": "自作GPT-2の `CausalSelfAttention` では、形 `[B, T, 768]` の `q` を `q.view(B, T, 12, 64).transpose(1, 2)` として形 **`[B, 12, T, 64]`** に並べ替えます。`transpose(1, 2)` で「ヘッド軸（12）」を「時間軸（T）」より前に持ってくる理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "後ろ2軸を `[T, 64]` にそろえることで、`q @ k.transpose(-2, -1)` がバッチごと・全12ヘッドごとに `[T, 64] @ [64, T] → [T, T]` を1回の行列積でまとめて計算できるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorchでは軸1に12より大きい数字を入れるとエラーになるから",
+              "wrongReason": "PyTorchのテンソル軸の大きさにそのような制限はありません。後ろ2軸を行列積の対象にするための並べ替えです。"
+            },
+            {
+              "id": "c",
+              "text": "ヘッドどうしの値を足し算して1ヘッドに潰してしまうため",
+              "wrongReason": "各ヘッドは独立にAttentionを計算します。潰すのではなく `[B, 12]` をバッチ次元として並列計算します。"
+            },
+            {
+              "id": "d",
+              "text": "トークン数 `T` を強制的に64に固定するため",
+              "wrongReason": "`T` は入力文の長さに応じて可変であり、64は1ヘッドあたりの特徴次元 `hs` です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "PyTorchの `@`（バッチ行列積）は、テンソルの**一番後ろの2軸**に対して行列の掛け算を行います。",
+          "reasoning": "後ろ2軸を `[T, hs]` にそろえておけば、前の軸 `[B, n_head]` はすべて独立した並列バッチとして扱われ、12ヘッドのAttentionがたった1回の `@` で完了します。",
+          "steps": [
+            "`q`: `[B, T, 768]` → `.view(B, T, 12, 64)` でヘッドを分離。",
+            "`.transpose(1, 2)` → `[B, 12, T, 64]`（後ろ2軸が `[T, 64]`）。",
+            "`k.transpose(-2, -1)` → `[B, 12, 64, T]`。",
+            "`q @ k.transpose(-2, -1)` → `[B, 12, T, T]`（全12ヘッド分のスコア表を一括計算！）。"
+          ],
+          "altExample": "計算後の出力 `y`（`[B, 12, T, 64]`）は、`y.transpose(1, 2).contiguous().view(B, T, 768)` で元の形に戻します。"
+        },
+        {
+          "prompt": "Attentionの出力 `y`（形 `[B, 12, T, 64]`）を `[B, T, 768]` に戻すとき、`y.transpose(1, 2).contiguous().view(B, T, C)` のように `.contiguous()` を挟む理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`transpose` はメモリ上のデータ配置を並べ替えず見かけの軸だけ入れ替えるため、そのままだと連続メモリを前提とする `view` がエラーになるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "重みの値をすべて正の数に変換するため",
+              "wrongReason": "`.contiguous()` は値自体を一切変えず、メモリ上の並び方だけを連続に整えます。"
+            },
+            {
+              "id": "c",
+              "text": "テンソルをCPUからGPUへ転送するため",
+              "wrongReason": "デバイス転送は `.to(device)` の役割であり、`.contiguous()` は同じデバイス上でメモリを連続配置にします。"
+            },
+            {
+              "id": "d",
+              "text": "勾配計算をオフにして高速化するため",
+              "wrongReason": "勾配オフは `torch.no_grad()` や `.detach()` の役割です。`.contiguous()` は自動微分グラフを保ちます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`transpose` はコピーを避けて高速にするためストライド（読み方）だけを変えます。`view` はメモリが連続していないと動きません。",
+          "reasoning": "`transpose()` 後の非連続テンソルに `.view()` を呼ぶと `RuntimeError: view size is not compatible...` になるため、`.contiguous()` でメモリを並べ直してから `.view()` します（`.reshape()` を使うと必要時だけ自動コピーします）。",
+          "steps": [
+            "`y.transpose(1, 2)` → 形は `[B, T, 12, 64]` だがメモリ上は非連続。",
+            "`.contiguous()` → 新しい軸順どおりにメモリ上へ連続配置し直す。",
+            "`.view(B, T, C)` → 後ろ2軸 `12 × 64` を安全に `768` に結合する。"
+          ],
+          "altExample": "PyTorchのAttention実装で `.transpose(1, 2).contiguous().view(B, T, C)` は定番のフレーズとして何度も登場します。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q04",
+      "chapter": "15-gpt2",
+      "section": "GPT-2と同じ形のGPTを書く",
+      "sectionAnchor": "#s3",
+      "concept": "weight-tying-wte-lm-head",
+      "conceptLabel": "重み共有（Weight Tying）の意味とパラメータ節約量",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：埋め込み層と出力層"],
+      "variants": [
+        {
+          "prompt": "自作GPT-2の `self.lm_head.weight = self.transformer.wte.weight`（**重み共有 / weight tying**）によって起きることとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "入力の埋め込み行列と出力層の線形行列がメモリ上でまったく同じテンソルを共有し、GPT-2 smallでは約3,860万個（$50257 \\times 768$）のパラメータが節約される",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "全12層のTransformerブロックがすべて同じ重みを共有するようになる",
+              "wrongReason": "重み共有するのは「入口のトークン埋め込み `wte`」と「出口の出力層 `lm_head`」の2か所だけです。12層のブロックはそれぞれ別々の重みを持ちます。"
+            },
+            {
+              "id": "c",
+              "text": "値をコピーしただけで別々のメモリを持つため、パラメータ数は減らない",
+              "wrongReason": "Pythonの代入 `=` で同じ `nn.Parameter` オブジェクトを参照しているため、メモリも実体も1つになり二重カウントされません。"
+            },
+            {
+              "id": "d",
+              "text": "位置埋め込み `wpe` が不要になり、文章の語順を無視できるようになる",
+              "wrongReason": "共有するのはトークン埋め込み `wte` と `lm_head` であり、位置埋め込み `wpe` はそのまま必要です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`wte` の形 `(50257, 768)` と `lm_head.weight` の形 `(50257, 768)` がまったく同じサイズであることを確認しましょう。",
+          "reasoning": "「トークンID → 意味ベクトル」の表（`wte`）と「意味ベクトル → 各トークンのロジット（内積）」の表（`lm_head`）を共有することで、意味の近いトークンが出やすい構造になり、かつ約3,860万パラメータを丸ごと節約できます。",
+          "steps": [
+            "`wte.weight` の形：`(50257, 768)`（約3,860万個）。",
+            "`lm_head` は `nn.Linear(768, 50257, bias=False)` なので `lm_head.weight` の形も `(50257, 768)`。",
+            "同じパラメータオブジェクトを共有すると、`model.parameters()` は重複を除いて返すため総数が1.24億に収まる。"
+          ],
+          "altExample": "もし重み共有を外すと、GPT-2 smallのパラメータ数は約1.24億から約1.63億に一気に増えてしまいます。"
+        },
+        {
+          "prompt": "重み共有（`self.lm_head.weight = self.transformer.wte.weight`）をしているモデルで、`sd = mine.state_dict()` に `transformer.wte.weight` と `lm_head.weight` の両方がキーとして入っています。なぜ `sum(p.numel() for p in mine.parameters())` で二重カウントされないのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`parameters()` は同じメモリ上の `Parameter` オブジェクトを1回だけ返す仕組みになっているから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`lm_head.weight` の値がすべて0に初期化されているから",
+              "wrongReason": "値は `wte.weight` と同じ非ゼロの重みであり、0だから除外されているわけではありません。"
+            },
+            {
+              "id": "c",
+              "text": "`nn.Linear(..., bias=False)` は `parameters()` に一切含まれないから",
+              "wrongReason": "`bias=False` で除かれるのはバイアスだけで、重み行列 `weight` は通常どおり `parameters()` に含まれます。"
+            },
+            {
+              "id": "d",
+              "text": "`numel()` が偶数番目のパラメータを自動で半分にするから",
+              "wrongReason": "`numel()` は単純にテンソルの要素数を返すだけのメソッドです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`mine.lm_head.weight is mine.transformer.wte.weight` が `True`（同一オブジェクト）になることを思い出しましょう。",
+          "reasoning": "PyTorchの `nn.Module.parameters()` は内部で `memo` 集合を持ち、すでに訪問した同一IDの `Parameter` をスキップするため、重み共有していても正確に実体数だけを合計します。",
+          "steps": [
+            "`mine.lm_head.weight is mine.transformer.wte.weight` → `True`（同一実体）。",
+            "`parameters()` は重複を排除して1回だけ列挙する。",
+            "その結果、`sum(p.numel() for p in hf.parameters())` は `124,439,808` になる。"
+          ],
+          "altExample": "逆に `state_dict()` は名前ごとの辞書なので両方のキーを持ちますが、中身は同じテンソルを指しています。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q05",
+      "chapter": "15-gpt2",
+      "section": "GPT-2と同じ形のGPTを書く",
+      "sectionAnchor": "#s3",
+      "concept": "register-buffer-persistent-false",
+      "conceptLabel": "register_buffer(..., persistent=False) の役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第13章：state_dictによる保存と読み込み"],
+      "variants": [
+        {
+          "prompt": "自作GPT-2の `CausalSelfAttention` で `self.register_buffer(\"tril\", ..., persistent=False)` と書いています。もし `persistent=False` を付け忘れると、HFの `sd_hf` から重みをコピーするときに何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`mine.state_dict()` に `transformer.h.0.attn.tril` が含まれてしまい、HF側の `sd_hf` にはそのキーがないため `KeyError` が発生する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`tril` が学習可能なパラメータに変わってしまい、逆伝播で壊れる",
+              "wrongReason": "`register_buffer` で登録したテンソルは `persistent` の値に関係なく勾配計算されない固定バッファのままです。"
+            },
+            {
+              "id": "c",
+              "text": "因果マスクが機能しなくなり、未来のトークンをカンニングするようになる",
+              "wrongReason": "`persistent=False` は `state_dict()` に保存するかどうかだけの設定で、`forward` での計算には影響しません。"
+            },
+            {
+              "id": "d",
+              "text": "何も起きず、`sd_hf` の中から自動的に適切なキーが推測される",
+              "wrongReason": "辞書のキー参照 `sd_hf[k]` は完全一致が必要なため、存在しないキーで必ず `KeyError` になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`persistent=False` は「`state_dict()`（保存する重み一覧）に含めない」という指定です。",
+          "reasoning": "下三角行列 `tril` は決まった固定パターンの定数なので保存する必要がなく、HFのGPT-2の `state_dict` にも含まれていません。`persistent=False` でキー一覧を完全一致させます。",
+          "steps": [
+            "`persistent=True`（既定）だと `mine.state_dict()` に `transformer.h.0.attn.tril` が入る。",
+            "コピーのループ `for k in sd:` が `sd_hf['transformer.h.0.attn.tril']` を引く。",
+            "HF側にそのキーはないため `KeyError` で停止する。"
+          ],
+          "altExample": "モデルの重みファイル（数GB）に、いつでも再生成できる定数マスクを含めないための実務でもよく使われる設定です。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q06",
+      "chapter": "15-gpt2",
+      "section": "重みを流し込む",
+      "sectionAnchor": "#s4",
+      "concept": "conv1d-vs-linear-transpose",
+      "conceptLabel": "HF GPT-2（Conv1D）の重み形状と PyTorch nn.Linear の転置",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第8章：行列の転置と線形層"],
+      "variants": [
+        {
+          "prompt": "Hugging Face版GPT-2の `transformer.h.0.attn.c_attn.weight` の形は **`(768, 2304)`**（`[入力, 出力]`）でした。同じ役割を PyTorch の `nn.Linear(768, 2304)` で作ったとき、`mine` 側の `c_attn.weight` の形はどうなりますか？ またコピー時に何が必要ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`(2304, 768)`（`[出力, 入力]`）なので、HF側の重みを `.t()` で転置してからコピーする必要がある",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`(768, 2304)` で同じなので、そのままコピーすればよい",
+              "wrongReason": "PyTorchの `nn.Linear(in_features, out_features)` は内部で $x W^\\top + b$ を計算するため、重みの形は `[out_features, in_features]`＝`(2304, 768)` です。"
+            },
+            {
+              "id": "c",
+              "text": "`(768, 768)` なので、HF側の重みの先頭768列だけを切り出してコピーする",
+              "wrongReason": "`c_attn` はQ・K・Vの3つ分（2304次元）をまとめて出力するため、列を削るとKとVが失われます。"
+            },
+            {
+              "id": "d",
+              "text": "`(2304,)` の1次元なので、HF側の重みを足し算して潰してからコピーする",
+              "wrongReason": "`(2304,)` はバイアス `c_attn.bias` の形です。重み行列は2次元の `(2304, 768)` です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "PyTorchの `nn.Linear(in_f, out_f)` の重み行列は `[out_f, in_f]` の向きで保持されます。",
+          "reasoning": "OpenAIの元祖GPT-2実装（TensorFlow由来）を引き継ぐHFの `Conv1D` 層は `[入力, 出力]`、PyTorch標準の `nn.Linear` は `[出力, 入力]` という向き違いがあるため、4種類の全結合重みだけ `.t()` で転置します。",
+          "steps": [
+            "HFの `c_attn.weight`：`[入力=768, 出力=2304]` → `(768, 2304)`。",
+            "PyTorchの `nn.Linear(768, 2304).weight`：`[出力=2304, 入力=768]` → `(2304, 768)`。",
+            "`sd_hf[k].t()` で転置して `(2304, 768)` にそろえてから `copy_()` する。"
+          ],
+          "altExample": "正方形の `c_proj.weight`（`(768, 768)`）は形だけでは転置忘れに気づけないため、`transposed` タプルに忘れず含めることが極めて重要です！"
+        },
+        {
+          "prompt": "正方形の重み行列 `attn.c_proj.weight`（形 `(768, 768)`）について、もし `transposed` のリストからうっかり外して転置せずにコピーしてしまったら、どうなりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`assert sd[k].shape == src.shape` は `(768, 768) == (768, 768)` で通ってしまうが、行と列が逆なので最終的なロジット比較（`torch.allclose`）で不一致（`False`）になる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "正方形行列は転置しても中身がまったく同じなので、出力は完全に一致する",
+              "wrongReason": "対称行列でない限り、正方形行列でも転置すると中身（行と列）が別物になり、計算結果が大きく変わります。"
+            },
+            {
+              "id": "c",
+              "text": "`assert sd[k].shape == src.shape` の行で即座に `AssertionError` になる",
+              "wrongReason": "縦も横も768なので、転置してもしなくても形は `(768, 768)` のまま一致してしまいます。"
+            },
+            {
+              "id": "d",
+              "text": "`copy_()` が自動的に転置の必要性を検出して修正してくれる",
+              "wrongReason": "`copy_()` は形さえ合えば要素をそのまま書き写すだけなので、向き違いは自動修正されません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "形チェック（`shape`）だけでは防げないバグを、次の節の「答え合わせ（ロジット比較）」がどう見抜くかを考えましょう。",
+          "reasoning": "形チェック（`assert sd[k].shape == src.shape`）は長方形の向き違いを防ぎ、最終的な出力の一致検証（`torch.allclose`）が正方形行列の転置漏れまで確実に検出します。",
+          "steps": [
+            "`(768, 768).t()` も `(768, 768)` なので、形だけの `assert` は通過する。",
+            "しかし `c_proj` の線形変換が $x W$ でなく $x W^\\top$ になってしまい、12層すべてで誤差が蓄積する。",
+            "結果として `torch.allclose(logits_mine, logits_hf)` が `False` となりバグを発見できる。"
+          ],
+          "altExample": "だからこそ、重みのコピーでは「形の `assert`」と「出力の数値検証（`allclose`）」の二重チェックが不可欠です。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q07",
+      "chapter": "15-gpt2",
+      "section": "重みを流し込む",
+      "sectionAnchor": "#s4",
+      "concept": "endswith-transpose-filter",
+      "conceptLabel": "k.endswith(transposed) による転置対象の判定",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "重みのコピーで使った `k.endswith(transposed)` の動きを確認します。次のコードを実行すると何が表示されますか？",
+          "code": "transposed = (\"attn.c_attn.weight\", \"attn.c_proj.weight\", \"mlp.c_fc.weight\", \"mlp.c_proj.weight\")\nkeys = [\n    \"transformer.wte.weight\",\n    \"transformer.h.0.attn.c_attn.weight\",\n    \"transformer.h.0.attn.c_attn.bias\",\n    \"transformer.h.5.mlp.c_proj.weight\",\n]\nflags = [k.endswith(transposed) for k in keys]\nprint(flags)",
+          "accept": ["[False, True, False, True]"],
+          "placeholder": "例：[False, True, False, True]",
+          "hint": "Pythonの `str.endswith(タプル)` は、タプル内のいずれかの文字列で終わっていれば `True` を返します。",
+          "reasoning": "`wte.weight`（埋め込み）と `c_attn.bias`（1次元バイアス）は転置対象外で `False`、全結合層の重み2つは `True` になります。",
+          "steps": [
+            "`transformer.wte.weight` → 該当なし → `False`。",
+            "`transformer.h.0.attn.c_attn.weight` → `attn.c_attn.weight` で終わる → `True`。",
+            "`transformer.h.0.attn.c_attn.bias` → `.bias` なので `False`。",
+            "`transformer.h.5.mlp.c_proj.weight` → `mlp.c_proj.weight` で終わる → `True`。"
+          ],
+          "altExample": "`str.endswith()` にタプルを渡すと、複数の候補を `or` でつなぐよりずっと読みやすく書けます。"
+        },
+        {
+          "prompt": "次のコードで転置対象と判定されたキーの個数はいくつになりますか？",
+          "code": "transposed = (\"attn.c_attn.weight\", \"attn.c_proj.weight\", \"mlp.c_fc.weight\", \"mlp.c_proj.weight\")\nkeys = [\n    \"transformer.h.0.ln_1.weight\",\n    \"transformer.h.0.attn.c_proj.weight\",\n    \"transformer.h.0.mlp.c_fc.weight\",\n    \"transformer.h.0.mlp.c_fc.bias\",\n    \"lm_head.weight\",\n]\nprint(sum(k.endswith(transposed) for k in keys))",
+          "accept": ["2"],
+          "placeholder": "整数を入力",
+          "hint": "LayerNormの重み（1次元）とバイアス、および `lm_head.weight` は転置しません。",
+          "reasoning": "`attn.c_proj.weight` と `mlp.c_fc.weight` の2つだけが `True`（＝1）として合計されます。",
+          "steps": [
+            "`ln_1.weight` → `False`。",
+            "`attn.c_proj.weight` → `True`（1）。",
+            "`mlp.c_fc.weight` → `True`（2）。",
+            "`mlp.c_fc.bias`, `lm_head.weight` → `False`。合計 `2`。"
+          ],
+          "altExample": "GPT-2 small（12層）全体では、1層4個 × 12層 ＝ 48個の重み行列が転置されてコピーされます。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q08",
+      "chapter": "15-gpt2",
+      "section": "答え合わせ",
+      "sectionAnchor": "#s5",
+      "concept": "allclose-and-eval-verification",
+      "conceptLabel": "torch.allclose による数値検証と eval() の必要性",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：Dropoutとeval()モード"],
+      "variants": [
+        {
+          "prompt": "自作GPT-2と本物のGPT-2の出力ロジットを比べるとき、`logits_mine == logits_hf` ではなく **`torch.allclose(logits_mine, logits_hf, atol=1e-3)`** を使う理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "浮動小数点数の計算は演算の順序や実装の違いで小数第5〜7位あたりにごくわずかな丸め誤差が出るため、許容誤差（`atol`）以内で実質一致しているかを判定する必要があるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "自作GPT-2はランダムな近似モデルなので、数値がまったく合わないのが普通だから",
+              "wrongReason": "重みと数式が一致していれば小数点以下数桁まで同じ値が出ます。`1e-3`（0.001未満）というのは極めて厳しい一致基準です。"
+            },
+            {
+              "id": "c",
+              "text": "PyTorchのテンソルには `==` 演算子が存在しないから",
+              "wrongReason": "テンソル同士の `==` や `torch.equal` は存在しますが、1ビットでも丸め誤差があると `False` になってしまいます。"
+            },
+            {
+              "id": "d",
+              "text": "`allclose` を使うと、一致しなかった要素を自動で書き換えて一致させてくれるから",
+              "wrongReason": "`torch.allclose` は比較して `True` / `False` を返すだけの判定関数であり、値は書き換えません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "コンピュータの浮動小数点数では `(0.1 + 0.2) == 0.3` が `False` になるのと同じ現象が、何億回もの積和演算でも起きます。",
+          "reasoning": "HF版（`Conv1D`）と自作版（`nn.Linear`）では内部の行列積カーネルや加算順序がわずかに異なるため、`1e-5`〜`1e-4` 程度の浮動小数点丸め誤差が出ます。`allclose` で許容範囲内の一致を確かめます。",
+          "steps": [
+            "同じ数式でも、浮動小数点数の加算順序が違うと末尾の桁に $10^{-6}$ 程度の差が生じる。",
+            "`torch.equal` は完全ビット一致を要求するため、微小な丸め誤差で `False` になることがある。",
+            "`torch.allclose(a, b, atol=1e-3)` で全要素の差が 0.001 未満であることを検証できる。"
+          ],
+          "altExample": "もし実装ミス（GELUの近似指定忘れや転置ミスなど）があれば、誤差は `1e-3` どころか `0.5`〜`10.0` 以上に跳ね上がるため確実に検出できます。"
+        },
+        {
+          "prompt": "本物のHFモデル `hf` を比較する前に `hf.eval()` を呼んでおかないと、`torch.allclose` が `False` になることがあります。主な原因は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "学習モード（`train`）のままだと Dropout が有効になり、推論のたびにランダムなニューロンが0にされて出力が揺れるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`eval()` を呼ばないとモデルの重みがすべて0のままだから",
+              "wrongReason": "`from_pretrained` で重みはすでに読み込まれており、`eval()` は重み値を変えません。"
+            },
+            {
+              "id": "c",
+              "text": "`eval()` を呼ばないと `forward()` が実行できないから",
+              "wrongReason": "`train` モードでも `forward()` 自体は実行できますが、Dropoutによるランダム性が混入します。"
+            },
+            {
+              "id": "d",
+              "text": "`eval()` を呼ばないと日本語のトークンだけ無視されるから",
+              "wrongReason": "`eval()` は言語とは無関係で、DropoutやBatchNormの挙動を推論モードに切り替えるメソッドです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第12章で学んだ「訓練時だけランダムに値を落とす正則化」を思い出しましょう。",
+          "reasoning": "HFのGPT-2にはDropout層が含まれているため、`hf.eval()` を呼ばないと毎回ランダムな値が欠落し、決定的な比較ができません。",
+          "steps": [
+            "デフォルトや `train()` モードではDropoutがランダムに要素を0にする。",
+            "`hf.eval()` と `mine.eval()` の両方を推論モードにそろえる。",
+            "これでランダム性が消え、完全に決定的な数値比較ができる。"
+          ],
+          "altExample": "モデルの検証・ベンチマーク・本番推論では、`model.eval()` と `with torch.no_grad():` をセットで使うのが鉄則です。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q09",
+      "chapter": "15-gpt2",
+      "section": "GPT-2に文章を書かせる",
+      "sectionAnchor": "#s6",
+      "concept": "pretraining-data-determines-capability",
+      "conceptLabel": "GPT-2が英語は流暢で日本語は書けない理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第14章：バイトレベルBPE"],
+      "variants": [
+        {
+          "prompt": "重みをコピーした自作GPT-2に英語の続きを書かせると非常に自然な英文が出るのに、日本語「吾輩は猫である。」の続きを書かせると文字化けだらけになりました。この根本原因は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "バイトレベルBPEなので日本語をバイト列として入出力はできるが、GPT-2の事前学習データの大部分が英語であり、日本語の文章をほとんど学習していないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "自作GPT-2のコードにバグがあり、日本語のときだけ重みの転置が外れてしまうから",
+              "wrongReason": "重みと計算は本物のGPT-2と一致確認済みであり、本物のHF版GPT-2でもまったく同じ現象が起きます。"
+            },
+            {
+              "id": "c",
+              "text": "Transformerというアーキテクチャ自体が原理的に日本語を処理できないから",
+              "wrongReason": "第12〜13章の漱石GPTやQwen2.5のように、同じTransformerでも日本語データで学習すれば流暢な日本語を書けます。"
+            },
+            {
+              "id": "d",
+              "text": "`top_k=50` を指定すると日本語のトークンがすべて禁止されるから",
+              "wrongReason": "`top_k` は確率上位50個を残すだけで、特定言語を禁止する機能はありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「設計図（アーキテクチャ）」と「学習データ」のどちらが英語と日本語の差を生んだのか切り分けましょう。",
+          "reasoning": "LLMの言語能力・知識は、ほぼ同じTransformer設計図の上に「どんなデータで、どれだけ事前学習したか」で決まります。",
+          "steps": [
+            "GPT-2の学習データ（WebText約40GB）はほぼ英語テキスト。",
+            "バイトレベルBPEのおかげで日本語の入力自体でクラッシュはしないが、日本語の3バイトの並びを正しく続ける確率分布を学んでいない。",
+            "結果として不完全なバイト列が生成され、置換文字だらけになる。"
+          ],
+          "altExample": "日本語特化モデルや多言語モデル（Qwen、Llama 3など）が日本語に強いのは、設計図が魔法だからではなく、大量の日本語データと日本語向け語彙で事前学習しているからです。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q10",
+      "chapter": "15-gpt2",
+      "section": "事前学習：GPT-2はどうやって作られたか",
+      "sectionAnchor": "#s7",
+      "concept": "flops-6nd-breakdown",
+      "conceptLabel": "学習計算量 C ≈ 6ND の「6」の理由（順伝播2＋逆伝播4）",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：順伝播と逆伝播"],
+      "variants": [
+        {
+          "prompt": "LLMの事前学習にかかる総計算量（FLOPs）の近似式 **$C \\approx 6ND$**（$N$：パラメータ数、$D$：学習トークン数）で、先頭の係数「**6**」はどのような内訳から来ていますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "1トークン・1パラメータあたり、順伝播で約2 FLOPs（掛け算1＋足し算1）、逆伝播で約4 FLOPs（入力への勾配で2＋重みへの勾配で2）、合計 $2 + 4 = 6$ FLOPs",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Transformerブロックが必ず6層あるから",
+              "wrongReason": "層数はモデルごとに12層・24層・80層と異なり、それはすでに総パラメータ数 $N$ の中に含まれています。"
+            },
+            {
+              "id": "c",
+              "text": "1つのデータを必ず6エポック繰り返して学習する決まりだから",
+              "wrongReason": "エポック数は総学習トークン数 $D$ の側に含まれます。係数6は1回の順伝播＋逆伝播あたりの演算回数です。"
+            },
+            {
+              "id": "d",
+              "text": "AdamWが1パラメータあたり6バイトのメモリを使うから",
+              "wrongReason": "FLOPsはメモリ量（バイト）ではなく浮動小数点演算回数です（なお混合精度AdamWのメモリ目安は約16バイト/パラメータ）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "行列の積和演算（$y = w \\cdot x + \\dots$）は1パラメータにつき「掛け算1回＋足し算1回＝2 FLOPs」です。逆伝播ではその2倍の計算をします。",
+          "reasoning": "線形層の計算では、順伝播で $y = x W^\\top$（2 FLOPs/param）、逆伝播で「前の層へ渡す勾配 $\\partial L / \\partial x$（2 FLOPs）」と「自分の重みの勾配 $\\partial L / \\partial W$（2 FLOPs）」の2種類の行列積を行うため、合計 $2 + 4 = 6$ FLOPsになります。",
+          "steps": [
+            "順伝播：各パラメータ $w$ につき積和（掛け算1＋足し算1）＝ **2 FLOPs**。",
+            "逆伝播①：前の層へ伝える活性化の勾配計算 ＝ **2 FLOPs**。",
+            "逆伝播②：重み自身の更新用勾配計算 ＝ **2 FLOPs**。",
+            "合計：$2 + 2 + 2 = 6$ FLOPs（推論だけなら順伝播のみなので約 $2ND$）。"
+          ],
+          "altExample": "推論（生成）では逆伝播を行わないため、1トークンあたりの計算量は約 $2N$ FLOPs（学習の3分の1）になります。"
+        },
+        {
+          "prompt": "パラメータ数 $N = 10^8$（1億）のモデルを、トークン数 $D = 2 \\times 10^9$（20億）で事前学習するとき、近似式 $C \\approx 6ND$ で見積もった総計算量 $C$ はいくらですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "$1.2 \\times 10^{18}$ FLOPs",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "$2.0 \\times 10^{17}$ FLOPs",
+              "wrongReason": "これは $ND$ そのものであり、係数6を掛け忘れています。"
+            },
+            {
+              "id": "c",
+              "text": "$1.2 \\times 10^{17}$ FLOPs",
+              "wrongReason": "桁が1つずれています。$6 \\times 2 = 12 = 1.2 \\times 10^1$、それに $10^8 \\times 10^9 = 10^{17}$ を掛けるので $1.2 \\times 10^{18}$ です。"
+            },
+            {
+              "id": "d",
+              "text": "$6.0 \\times 10^{17}$ FLOPs",
+              "wrongReason": "$D$ の係数 `2` が抜けています（$6 \\times 1 \\times 2 = 12$）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "数字の部分（$6 \\times 1 \\times 2$）と10のべき乗の部分（$10^8 \\times 10^9$）に分けて計算しましょう。",
+          "reasoning": "$6 \\times 10^8 \\times (2 \\times 10^9) = 12 \\times 10^{17} = 1.2 \\times 10^{18}$ FLOPs になります。",
+          "steps": [
+            "係数部分：$6 \\times 1 \\times 2 = 12$。",
+            "指数部分：$10^8 \\times 10^9 = 10^{17}$。",
+            "$12 \\times 10^{17} = 1.2 \\times 10^{18}$ FLOPs。"
+          ],
+          "altExample": "T4の実効性能を $10^{13}$ FLOPs/秒とすると、$1.2 \\times 10^{18} \\div 10^{13} = 120{,}000$ 秒 $\\approx 33$ 時間かかる見積もりになります。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q11",
+      "chapter": "15-gpt2",
+      "section": "事前学習：GPT-2はどうやって作られたか",
+      "sectionAnchor": "#s7",
+      "concept": "chinchilla-optimal-tokens",
+      "conceptLabel": "Chinchillaの法則による推奨学習トークン数（20N）の計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "Chinchillaの法則では、計算量に対して最も効率よく賢いモデルを作る目安は「**パラメータ1個あたり約20トークン**（$D \\approx 20N$）」です。**10億パラメータ（1B）** のモデルに必要な推奨トークン数は何**億**トークンですか？（「億」の前の数だけを整数で答えてください）",
+          "answer": { "value": 200, "tolerance": 0 },
+          "unit": "億トークン",
+          "placeholder": "整数を入力（例：200）",
+          "hint": "$10\\text{億} \\times 20$ を計算します。",
+          "reasoning": "$20 \\times 10\\text{億} = 200\\text{億}$（$2 \\times 10^{10}$）トークンになります。",
+          "steps": [
+            "パラメータ数 $N = 10$ 億（$10^9$）。",
+            "Chinchilla目安：$D = 20N = 20 \\times 10\\text{億} = 200\\text{億}$ トークン。"
+          ],
+          "altExample": "最近の小型モデル（例：Qwen2.5-0.5B）は、推論コストを下げるためあえてChinchilla目安（約100億）を大きく超える18兆トークンで「過学習にならないほど大量に」学習させています。"
+        },
+        {
+          "prompt": "パラメータ数 **70億（7B）** のモデルを Chinchillaの法則（$D \\approx 20N$）どおりに学習させる場合、推奨されるデータ量は何**億**トークンですか？（整数で答えてください）",
+          "answer": { "value": 1400, "tolerance": 0 },
+          "unit": "億トークン",
+          "placeholder": "整数を入力",
+          "hint": "$70\\text{億} \\times 20$ を計算します。",
+          "reasoning": "$70\\text{億} \\times 20 = 1{,}400\\text{億}$（1,400億＝0.14兆）トークンになります。",
+          "steps": [
+            "パラメータ数 $N = 70$ 億。",
+            "推奨トークン数：$20 \\times 70\\text{億} = 1{,}400\\text{億}$ トークン。"
+          ],
+          "altExample": "70Bモデルならさらに10倍の1.4兆トークンがChinchillaの計算最適点になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q12",
+      "chapter": "15-gpt2",
+      "section": "事前学習：GPT-2はどうやって作られたか",
+      "sectionAnchor": "#s7",
+      "concept": "adamw-training-memory-16bytes",
+      "conceptLabel": "混合精度＋AdamWでの全パラメータ学習メモリ見積もり（16バイト/param）",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第10章：AdamWと混合精度"],
+      "variants": [
+        {
+          "prompt": "混合精度＋AdamWで全パラメータを学習するとき、重み・勾配・AdamWの状態を合わせて **1パラメータあたり約16バイト** のGPUメモリが必要です。**5億パラメータ（0.5B ＝ $5 \\times 10^8$）** のモデルでは、これだけで何GB必要ですか？（$1\\text{GB} = 10^9$ バイトとして小数または整数で答えてください）",
+          "answer": { "value": 8.0, "tolerance": 0.1 },
+          "unit": "GB",
+          "placeholder": "数値を入力（例：8）",
+          "hint": "$0.5 \\times 10^9 \\times 16 \\div 10^9 = 0.5 \\times 16$ を計算します。",
+          "reasoning": "パラメータ数（B単位）に16を掛けるだけでGB単位の目安が出ます。$0.5 \\times 16 = 8.0$ GB です。",
+          "steps": [
+            "1パラメータの内訳：fp16重み（2B）＋fp32控え重み（4B）＋勾配（2B）＋AdamWの1次・2次モーメント（4B＋4B）＝ **16バイト**。",
+            "$0.5 \\times 10^9 \\times 16 = 8 \\times 10^9$ バイト ＝ **8.0 GB**。",
+            "さらに計算途中の活性化メモリも乗るため、15GBのT4では全パラメータ学習は0.5B前後が上限の目安になる。"
+          ],
+          "altExample": "もし7Bモデルを全パラメータ学習しようとすると $7 \\times 16 = 112$ GB ものメモリが必要になり、15GBのT4にはまったく入りません（だから第19章のLoRAが必要になります）。"
+        },
+        {
+          "prompt": "混合精度＋AdamW（1パラメータ約16バイト）で **10億パラメータ（1B ＝ $10^9$）** のモデルを全パラメータ学習するとき、パラメータ・勾配・最適化状態だけで何GB必要ですか？（$1\\text{GB} = 10^9$ バイトとして答えてください）",
+          "answer": { "value": 16, "tolerance": 0.1 },
+          "unit": "GB",
+          "placeholder": "整数を入力（例：16）",
+          "hint": "$1\\text{B} \\times 16\\text{バイト}$ をGBに換算します。",
+          "reasoning": "$10^9 \\times 16\\text{バイト} = 16\\text{GB}$。これだけでT4（約15GB）の上限を超えてしまいます。",
+          "steps": [
+            "パラメータ数 $N = 10^9$。",
+            "必要メモリ $= 10^9 \\times 16 / 10^9 = 16$ GB。"
+          ],
+          "altExample": "推論だけならfp16の重み2バイト/param（1Bなら約2GB）で済むのに対し、全パラメータ学習は約8倍のメモリを食います。"
+        }
+      ]
+    },
+    {
+      "id": "ch15-q13",
+      "chapter": "15-gpt2",
+      "section": "事前学習：GPT-2はどうやって作られたか",
+      "sectionAnchor": "#s7",
+      "concept": "impl-scaling-flops-chinchilla",
+      "conceptLabel": "【自力実装】事前学習FLOPs（6ND）とChinchilla最適トークン数（20N）の見積もり関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "パラメータ数 `n_params` と学習トークン数 `n_tokens`（省略時は `None`）を受け取り、辞書 `{\"flops\": ..., \"chinchilla_tokens\": ..., \"train_mem_gb\": ...}` を返す関数 `estimate_pretraining(n_params, n_tokens=None)` を自力実装してください。`n_tokens` が `None` のときは Chinchilla最適トークン数 `20 * n_params` を用いて `flops = 6 * n_params * used_tokens` を計算し、`train_mem_gb = n_params * 16 / 1e9` として検算テストを通してください。",
+          "starterCode": "def estimate_pretraining(n_params, n_tokens=None):\n    # 1. chinchilla_tokens = 20 * n_params\n    # 2. used_tokens = chinchilla_tokens if n_tokens is None else n_tokens\n    # 3. flops = 6 * n_params * used_tokens\n    # 4. train_mem_gb = n_params * 16 / 1e9\n    # 5. {\"flops\": flops, \"chinchilla_tokens\": chinchilla_tokens, \"train_mem_gb\": train_mem_gb} を返す\n    pass",
+          "solutionCode": "def estimate_pretraining(n_params, n_tokens=None):\n    chinchilla_tokens = 20 * n_params\n    used_tokens = chinchilla_tokens if n_tokens is None else n_tokens\n    flops = 6 * n_params * used_tokens\n    train_mem_gb = n_params * 16 / 1e9\n    return {\n        \"flops\": flops,\n        \"chinchilla_tokens\": chinchilla_tokens,\n        \"train_mem_gb\": train_mem_gb,\n    }",
+          "colabCheck": "r1 = estimate_pretraining(100_000_000, 2_000_000_000)\nassert r1[\"chinchilla_tokens\"] == 2_000_000_000\nassert r1[\"flops\"] == 1_200_000_000_000_000_000\nassert abs(r1[\"train_mem_gb\"] - 1.6) < 1e-9\nr2 = estimate_pretraining(500_000_000)\nassert r2[\"chinchilla_tokens\"] == 10_000_000_000\nassert r2[\"flops\"] == 6 * 500_000_000 * 10_000_000_000\nassert abs(r2[\"train_mem_gb\"] - 8.0) < 1e-9\nprint(\"ALL PASSED\")",
+          "hint": "`if n_tokens is None:` で既定値を `chinchilla_tokens` に切り替えます。Pythonの `100_000_000` のようなアンダースコア付き数値リテラルは桁が読みやすくて便利です。",
+          "reasoning": "モデル設計や研究計画の初期段階で、「自分のGPUと予算でこの規模の学習が現実的か」を3行の計算で即座に判断できるようになります。",
+          "steps": [
+            "`chinchilla_tokens = 20 * n_params` を計算する。",
+            "`n_tokens is None` なら `used_tokens = chinchilla_tokens`、指定があれば `n_tokens` を使う。",
+            "`flops = 6 * n_params * used_tokens`、`train_mem_gb = n_params * 16 / 1e9` を辞書にまとめて返す。"
+          ],
+          "altExample": "Chinchilla最適点では $D = 20N$ なので、$C \\approx 6 N (20 N) = 120 N^2$ となり、パラメータを10倍にすると最適学習の計算量は100倍になることが分かります！",
+          "selfCheckCriteria": [
+            "トークン指定あり・なし両方の `assert` がすべて通った",
+            "$C \\approx 6ND$ の6（順伝播2＋逆伝播4）と16バイト（重み・勾配・AdamW状態）の内訳を説明できる"
+          ]
+        }
+      ]
+    }
+  ]
+}

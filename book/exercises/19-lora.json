@@ -1,0 +1,703 @@
+{
+  "chapter": "19-lora",
+  "exercises": [
+    {
+      "id": "ch19-q01",
+      "chapter": "19-lora",
+      "section": "なぜ全部を学習すると重いのか",
+      "sectionAnchor": "#s1",
+      "concept": "full-ft-vram-calculation",
+      "conceptLabel": "全パラメータ学習に必要なVRAMの概算（16バイト × パラメータ数）",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第1章：GPUとVRAM", "第15章：学習時のメモリ内訳"],
+      "variants": [
+        {
+          "prompt": "AdamWで全パラメータをfloat32で学習すると、おおよそ「16バイト × パラメータ数」（重み4B＋勾配4B＋Adam記録8B）のVRAMが必要です。**1.5B（15億）パラメータ**のモデルを全パラメータ学習するとき、目安のメモリは約何GBになりますか？（整数で答えてください）",
+          "answer": { "value": 24, "tolerance": 0.5 },
+          "unit": "GB",
+          "placeholder": "整数を入力（例：24）",
+          "hint": "`1.5 × 16` を計算しましょう（1B × 1バイト ≒ 1GB）。",
+          "reasoning": "1.5B × 16バイト = 24GB となり、無料ColabのT4 GPU（VRAM 16GB）には収まりません。勾配とAdam記録の12バイト分が学習パラメータ数に比例して膨らむためです。",
+          "steps": [
+            "1パラメータあたりの学習メモリ：重み4B + 勾配4B + Adam記録（慣性4B + 歩幅4B）= 16バイト。",
+            "1.5B × 16バイト = 24GB（T4の16GBを超過）。"
+          ],
+          "altExample": "0.5Bなら `0.5 × 16 = 8GB` でT4にぎりぎり入りますが、7Bになると `7 × 16 = 112GB` も必要になります。"
+        },
+        {
+          "prompt": "同様に「16バイト × パラメータ数」の目安で、**3B（30億）パラメータ**のモデルを全パラメータ学習すると、VRAMの目安は約何GBになりますか？",
+          "answer": { "value": 48, "tolerance": 0.5 },
+          "unit": "GB",
+          "placeholder": "整数を入力",
+          "hint": "`3 × 16` を計算します。",
+          "reasoning": "3B × 16バイト = 48GB です。推論（float16で6GB）の8倍ものメモリが学習時に必要になります。",
+          "steps": [
+            "3B × 16バイト = 48GB。",
+            "このうち重み本体は12GB（float32）で、残りの36GB（75%）は勾配とAdamの記録が占める。"
+          ],
+          "altExample": "LoRAで学習パラメータを1%未満に絞ると、この36GBの勾配・Adam記録がほぼ消滅します。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q02",
+      "chapter": "19-lora",
+      "section": "行列のランク：情報は意外と少ない",
+      "sectionAnchor": "#s2",
+      "concept": "lora-param-count",
+      "conceptLabel": "LoRAの学習パラメータ数 r(d_in + d_out) の手計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第6章：行列の形"],
+      "variants": [
+        {
+          "prompt": "$1024 \\times 1024$ の全結合層（バイアス除く）に、ランク **$r = 4$** のLoRAを取り付けると、学習するパラメータ数（$A$ と $B$ の合計）はいくつになりますか？",
+          "answer": { "value": 8192, "tolerance": 0.5 },
+          "unit": "個",
+          "placeholder": "整数を入力",
+          "hint": "$A$ は $4 \\times 1024$、$B$ は $1024 \\times 4$ です。2つを足した $r(d_{\\text{in}} + d_{\\text{out}})$ を計算しましょう。",
+          "reasoning": "$A$ に $4 \\times 1024 = 4096$ 個、$B$ に $1024 \\times 4 = 4096$ 個で合計 $8192$ 個。元の $1024^2 = 1{,}048{,}576$ 個のわずか約0.78%です。",
+          "steps": [
+            "$A$ の要素数：$r \\times d_{\\text{in}} = 4 \\times 1024 = 4096$。",
+            "$B$ の要素数：$d_{\\text{out}} \\times r = 1024 \\times 4 = 4096$。",
+            "合計：$4096 + 4096 = 8192$ 個。"
+          ],
+          "altExample": "もし $r = 8$ に2倍すると、LoRAのパラメータ数もぴったり2倍の $16{,}384$ 個になります。"
+        },
+        {
+          "prompt": "7BクラスLLMによくある $4096 \\times 4096$ の全結合層（約1,678万パラメータ）に、ランク **$r = 8$** のLoRAを取り付けると、学習するパラメータ数はいくつになりますか？",
+          "answer": { "value": 65536, "tolerance": 0.5 },
+          "unit": "個",
+          "placeholder": "整数を入力",
+          "hint": "$8 \\times (4096 + 4096) = 8 \\times 8192$ を計算しましょう。",
+          "reasoning": "$A$ が $8 \\times 4096 = 32{,}768$、$B$ が $4096 \\times 8 = 32{,}768$ で合計 $65{,}536$ 個。元の $16{,}777{,}216$ 個のわずか **0.39%** に圧縮されます。",
+          "steps": [
+            "元の行列 $W$：$4096 \\times 4096 = 16{,}777{,}216$ 個。",
+            "LoRA（$A$ と $B$）：$8 \\times (4096 + 4096) = 65{,}536$ 個。",
+            "割合：$65{,}536 \\div 16{,}777{,}216 \\approx 0.0039$（約0.39%）。"
+          ],
+          "altExample": "モデル幅 $d$ が大きくなるほど、$2dr / d^2 = 2r / d$ はどんどん小さくなり、LoRAの節約効果が高まります。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q03",
+      "chapter": "19-lora",
+      "section": "行列のランク：情報は意外と少ない",
+      "sectionAnchor": "#s2",
+      "concept": "lora-zero-init-reason",
+      "conceptLabel": "LoRAで B=0、A=ランダム正規分布に初期化する理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：連鎖律と勾配"],
+      "variants": [
+        {
+          "prompt": "LoRAの式 $W' = W + \\frac{\\alpha}{r}BA$ で、学習開始時に行列 **$B$ をすべて0** に、**$A$ をランダムな正規分布** に初期化する理由として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ステップ0で $\\Delta W = BA = 0$ となり事前学習済みモデルと完全に同じ出力から安全に出発でき、かつ $A$ が0でないおかげでステップ1から $B$ に0でない勾配が流れて学習が進むから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "$B$ を0にしておくと $B$ は学習中もずっと0のまま凍結され、$A$ だけ学習できるから",
+              "wrongReason": "ステップ1で $B$ に0でない勾配が流れるため、$B$ もすぐに0以外の値へ更新されて学習に参加します。"
+            },
+            {
+              "id": "c",
+              "text": "0の行列はGPUメモリを一切消費しないから",
+              "wrongReason": "要素が0でも密なテンソルとして同じバイト数のメモリを確保します。理由はメモリではなく初期化の数学的性質です。"
+            },
+            {
+              "id": "d",
+              "text": "$A$ と $B$ を両方ランダムにすると $BA$ のランクが下がってしまうから",
+              "wrongReason": "両方ランダムにするとステップ0から $BA \\neq 0$ の大きなノイズが元の重み $W$ に足され、せっかくの事前学習知識が初手で壊れてしまいます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「ステップ0の $\\Delta W$ を0にしたい」という条件と、「勾配が消えないようにしたい」という条件の両方を考えましょう。",
+          "reasoning": "$B=0$ なら $BA=0$ なので初期出力は元のモデルと完全一致します。さらに $A \\neq 0$ なので逆伝播で $B$ の勾配（$A$ に比例）が0にならず、1ステップ目から確実に学習が動き出します。",
+          "steps": [
+            "ステップ0：$B = 0 \\implies W' = W + \\frac{\\alpha}{r} \\cdot 0 \\cdot A = W$（元の能力を100%保持）。",
+            "ステップ1の逆伝播：$B$ の勾配は入力 $x A^T$ に比例するため、$A \\neq 0$ なら $B$ が更新される。",
+            "ステップ2以降：$B \\neq 0$ になったので、今度は $A$ の勾配（$B^T$ に比例）も0でなくなり両方学習される。"
+          ],
+          "altExample": "本文のコードでも `torch.allclose(base(x), lora(x))` が `True` になることでステップ0の完全一致を検証しています。"
+        },
+        {
+          "prompt": "もしLoRAで **$A$ と $B$ の両方を0** で初期化してしまったら、学習はどうなりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "$A$ の勾配は $B$ に比例し、$B$ の勾配は $A$ に比例するため、両方の勾配がずっと0のままになり学習がまったく進まない",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "$BA = 0$ が2重に効いて、学習速度が通常の2倍になる",
+              "wrongReason": "勾配が両方0になるため、更新量も0になり一歩も動けません。"
+            },
+            {
+              "id": "c",
+              "text": "元の重み $W$ が自動的に凍結解除されて全パラメータ学習に切り替わる",
+              "wrongReason": "`requires_grad_(False)` が自動で解除されることはありません。"
+            },
+            {
+              "id": "d",
+              "text": "行列の積 $BA$ でゼロ除算エラーが起きる",
+              "wrongReason": "ゼロ行列どうしの積はゼロ行列になるだけで、割り算は起きないためエラーにはならず静かに学習が止まります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "積 $y = x A^T B^T$ を $A$ で微分すると $B$ が掛かり、$B$ で微分すると $A$ が掛かります。",
+          "reasoning": "連鎖律により $\\partial L/\\partial B$ は $A$ に、$\\partial L/\\partial A$ は $B$ に依存します。両方を0にすると対称な鞍点に捕まり、どちらも0のまま更新されません。",
+          "steps": [
+            "$A = 0, B = 0$ とする。",
+            "$B$ の勾配 $\\propto x A^T = 0$、$A$ の勾配 $\\propto B^T = 0$。",
+            "したがって $A, B$ ともに更新量0となり学習が永久に止まる。片方だけ0にするのが核心。"
+          ],
+          "altExample": "通常の多層ニューラルネットワークで「全重みを0で初期化してはいけない」という鉄則と同じ理由（対称性の破れ）です。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q04",
+      "chapter": "19-lora",
+      "section": "行列のランク：情報は意外と少ない",
+      "sectionAnchor": "#s2",
+      "concept": "lora-alpha-scale",
+      "conceptLabel": "LoRAのスケーリング係数 α / r の計算と役割",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "PEFTの設定で `r = 16`, `lora_alpha = 32` としたとき、$W' = W + \\frac{\\alpha}{r}BA$ のスケーリング倍率 $\\frac{\\alpha}{r}$ はいくつになりますか？",
+          "answer": { "value": 2.0, "tolerance": 0.001 },
+          "placeholder": "数値を入力（例：2.0）",
+          "hint": "`32 / 16` を計算するだけです。",
+          "reasoning": "$\\alpha / r = 32 / 16 = 2.0$ です。$r$ を変えたときに $\\Delta W$ の大きさが極端に変わらないよう、$\\alpha$ を $r$ で割って調整する仕組みになっています。",
+          "steps": [
+            "$\\alpha = 32, r = 16$。",
+            "$\\text{scale} = \\alpha / r = 32 / 16 = 2.0$。"
+          ],
+          "altExample": "実務では `lora_alpha = 2 * r`（倍率 `2.0`）または `lora_alpha = r`（倍率 `1.0`）が出発点としてよく使われます。"
+        },
+        {
+          "prompt": "`r = 32`, `lora_alpha = 16` と設定したとき、スケーリング倍率 $\\frac{\\alpha}{r}$ はいくつになりますか？",
+          "answer": { "value": 0.5, "tolerance": 0.001 },
+          "placeholder": "小数で入力（例：0.5）",
+          "hint": "`16 / 32` を計算しましょう。",
+          "reasoning": "$\\alpha / r = 16 / 32 = 0.5$ となり、$BA$ の寄与が半分にスケールされます。",
+          "steps": [
+            "$\\alpha = 16, r = 32$。",
+            "$\\text{scale} = 16 / 32 = 0.5$。"
+          ],
+          "altExample": "倍率を変えると実質的な更新の効き具合が変わるため、`alpha` と `learning_rate` はセットで調整します。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q05",
+      "chapter": "19-lora",
+      "section": "LoRA層を自分で作る",
+      "sectionAnchor": "#s3",
+      "concept": "lora-savings-predict",
+      "conceptLabel": "長方形の全結合層に対するLoRAパラメータ数と割合の予測",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "入力512次元・出力1024次元の全結合層にランク `r = 8` のLoRAを付けたときの、LoRAパラメータ数と元の層に対する割合（%）を計算するコードです。実行すると何が表示されますか？",
+          "code": "d_in, d_out, r = 512, 1024, 8\norig = d_in * d_out\nlora = r * (d_in + d_out)\nprint(lora, round(lora / orig * 100, 2))",
+          "accept": ["12288 2.34"],
+          "placeholder": "出力を入力（例：12288 2.34）",
+          "hint": "`512 + 1024 = 1536`、`8 * 1536 = 12288`、`orig = 524288` です。",
+          "reasoning": "長方形の層でも $A$ が `(r, d_in)`、$B$ が `(d_out, r)` なので合計は `r * (d_in + d_out) = 12288` となり、元の `524288` 個の `2.34%` です。",
+          "steps": [
+            "`orig = 512 * 1024 = 524288`。",
+            "`lora = 8 * (512 + 1024) = 8 * 1536 = 12288`。",
+            "`12288 / 524288 * 100 = 2.34375` → 小数第2位で丸めて `2.34`。"
+          ],
+          "altExample": "FFNの `gate_proj` や `up_proj` のような長方形の層にも、同じ公式 `r * (d_in + d_out)` がそのまま使えます。"
+        },
+        {
+          "prompt": "4096×4096 の層にランク `r = 8` のLoRAを付けた次のコードの出力を予測してください。",
+          "code": "d_in, d_out, r = 4096, 4096, 8\norig = d_in * d_out\nlora = r * (d_in + d_out)\nprint(lora, round(lora / orig * 100, 2))",
+          "accept": ["65536 0.39"],
+          "placeholder": "出力を入力",
+          "hint": "`8 * 8192 = 65536`、`65536 / 16777216 = 1 / 256 = 0.00390625` です。",
+          "reasoning": "`65536 / 16777216 = 1 / 256 ≒ 0.39%` となり、7Bクラスの大きな層では0.4%未満のパラメータで適応できます。",
+          "steps": [
+            "`orig = 4096 * 4096 = 16777216`。",
+            "`lora = 8 * 8192 = 65536`。",
+            "`65536 / 16777216 * 100 = 0.390625` → `0.39`。"
+          ],
+          "altExample": "正方形（$d_{\\text{in}} = d_{\\text{out}} = d$）のときは割合が単純に $2r / d$（ここでは $16 / 4096 = 1/256$）になります！"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q06",
+      "chapter": "19-lora",
+      "section": "LoRA層を自分で作る",
+      "sectionAnchor": "#s3",
+      "concept": "lora-forward-shape-trace",
+      "conceptLabel": "LoRALinear の順伝播 x @ A.T @ B.T のテンソル形状変化",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第6章：行列積の形状 (m, k) @ (k, n)"],
+      "variants": [
+        {
+          "prompt": "自作した `LoRALinear` で、入力 `x` の形が `(2, 896)`、`self.A` が `(8, 896)`、`self.B` が `(896, 8)` のとき、`x @ self.A.T @ self.B.T` を左から順に計算した中間テンソルと最終出力の形の正しい組み合わせはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`x @ self.A.T` で `(2, 8)` に圧縮され、さらに `@ self.B.T` で `(2, 896)` に戻って `self.base(x)` と同じ形になる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`x @ self.A.T` で `(896, 896)` になり、さらに `@ self.B.T` で `(8, 8)` になる",
+              "wrongReason": "行列積 `(2, 896) @ (896, 8)` は内側の `896` が消えて `(2, 8)` になります。"
+            },
+            {
+              "id": "c",
+              "text": "`self.A` と `self.B` を先に掛けて `(896, 896)` の巨大行列を作らないと計算できない",
+              "wrongReason": "左から `(x @ A.T) @ B.T` と掛けることで、巨大な `(896, 896)` 行列をメモリ上に作らず高速に計算できます。"
+            },
+            {
+              "id": "d",
+              "text": "転置 `.T` を外して `x @ self.A @ self.B` と書いても同じ形になる",
+              "wrongReason": "`(2, 896)` と `(8, 896)` は内側の次元 `896 != 8` が合わず、形状不一致エラーになります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`A.T` の形は `(896, 8)`、`B.T` の形は `(8, 896)` です。`(m, k) @ (k, n) -> (m, n)` に当てはめましょう。",
+          "reasoning": "入力 `(2, 896)` を `A.T` `(896, 8)` で細い8次元ボトルネック `(2, 8)` に押し込み、`B.T` `(8, 896)` で出力次元 `(2, 896)` へ展開して `self.base(x)` に足し合わせます。",
+          "steps": [
+            "`x`: `(2, 896)`, `A.T`: `(896, 8)` → `x @ A.T` は `(2, 8)`。",
+            "`(2, 8)` と `B.T`: `(8, 896)` → `(x @ A.T) @ B.T` は `(2, 896)`。",
+            "`self.base(x)` も `(2, 896)` なので要素ごとに足し算できる。"
+          ],
+          "altExample": "数式 $x W^T + \\frac{\\alpha}{r} x A^T B^T = x (W + \\frac{\\alpha}{r} BA)^T$ は、PyTorchの `nn.Linear` が重みを `(out_features, in_features)` で持ち右から $W^T$ を掛ける約束とぴったり一致します。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q07",
+      "chapter": "19-lora",
+      "section": "LoRA層を自分で作る",
+      "sectionAnchor": "#s3",
+      "concept": "impl-lora-param-stats",
+      "conceptLabel": "【自力実装】LoRA の学習パラメータ数と圧縮率を計算する関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第19章：行列のランクとLoRA"],
+      "variants": [
+        {
+          "prompt": "全結合層の入力次元 `d_in`、出力次元 `d_out`、LoRAのランク `r` を受け取り、元の重み数 `orig_params`、LoRAの学習パラメータ数 `lora_params`、および削減後の割合 `ratio = lora_params / orig_params` の3つをタプル `(orig_params, lora_params, ratio)` で返す関数 `lora_param_stats(d_in, d_out, r)` を実装してください。",
+          "starterCode": "def lora_param_stats(d_in, d_out, r):\n    # orig_params: 元の重み行列 W の要素数 (d_in * d_out)\n    # lora_params: A (r * d_in) と B (d_out * r) の合計要素数\n    # ratio: lora_params / orig_params\n    pass",
+          "solutionCode": "def lora_param_stats(d_in, d_out, r):\n    orig_params = d_in * d_out\n    lora_params = r * (d_in + d_out)\n    ratio = lora_params / orig_params\n    return orig_params, lora_params, ratio",
+          "colabCheck": "o1, l1, r1 = lora_param_stats(4096, 4096, 8)\nassert o1 == 16777216 and l1 == 65536\nassert abs(r1 - (65536 / 16777216)) < 1e-12\no2, l2, r2 = lora_param_stats(896, 896, 8)\nassert o2 == 802816 and l2 == 14336\nassert abs(r2 - (14336 / 802816)) < 1e-12\no3, l3, r3 = lora_param_stats(512, 1024, 4)\nassert o3 == 524288 and l3 == 6144\nprint(\"ALL PASSED\")",
+          "hint": "`A` は `r * d_in` 個、`B` は `d_out * r` 個なので、合計は `r * (d_in + d_out)` です。",
+          "reasoning": "モデル設計や実験前に `lora_param_stats` で学習対象パラメータ数と圧縮率を即座に見積もることで、ランク `r` とVRAM予算のバランスを定量的に決められます。",
+          "steps": [
+            "`orig_params = d_in * d_out`。",
+            "`lora_params = r * (d_in + d_out)`。",
+            "`ratio = lora_params / orig_params` を計算しタプルで返す。"
+          ],
+          "altExample": "24層あるQwen2.5-0.5Bの全層に貼る場合は、この値を層数や対象モジュール数（`q_proj`, `v_proj` など）ぶん足し合わせれば全体の学習パラメータ数が計算できます。",
+          "selfCheckCriteria": [
+            "正方形（4096×4096, 896×896）と長方形（512×1024）のすべての `assert` が通った",
+            "もし `r` が `d_in * d_out / (d_in + d_out)` を超えると逆にパラメータが増えてしまう（低ランクの意味がない）ことも理解できた"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch19-q08",
+      "chapter": "19-lora",
+      "section": "Qwenに付せんを貼る",
+      "sectionAnchor": "#s4",
+      "concept": "lora-freeze-and-lr",
+      "conceptLabel": "本体凍結（requires_grad_(False)）とLoRAの学習率が大きめな理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第18章：全パラメータSFTの学習率"],
+      "variants": [
+        {
+          "prompt": "LoRAで本体に `model.requires_grad_(False)` を実行するとVRAMが大幅に節約できる主な理由と、LoRAの学習率を全パラメータSFT（$10^{-5}$）より大きめ（$10^{-4}$〜$10^{-3}$）にする理由の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "凍結した本体には勾配とAdamの記録が確保されないためメモリが激減する。また学習対象が小さな付せん（しかも $B=0$ スタート）だけなので、大きめの学習率でないと変化が出にくいから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`requires_grad_(False)` で本体がGPUから削除されるためメモリが激減し、学習率は常にランダムに決まるから",
+              "wrongReason": "本体は順伝播の計算に必要なのでGPU上に残ります。消えるのは「勾配」と「オプティマイザ状態」です。"
+            },
+            {
+              "id": "c",
+              "text": "凍結するとモデルの層数が半分になり、学習率が大きいほど壊滅的忘却が確実に0になるから",
+              "wrongReason": "層数は減りません。またLoRAでも学習率が極端に大きすぎれば発散や過学習が起きます。"
+            },
+            {
+              "id": "d",
+              "text": "`requires_grad_(False)` は推論速度を10倍にする設定であり、メモリ使用量は変わらない",
+              "wrongReason": "学習時に巨大な勾配・Adam状態を省けるため、学習メモリ使用量が劇的に減ります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "学習メモリの75%を占めていた「勾配とAdamの記録」がどうなるかと、`tip` ボックス「LoRAの学習率は大きめ」を思い出しましょう。",
+          "reasoning": "オプティマイザには `[p for p in model.parameters() if p.requires_grad]`（全体の0.1〜2%のLoRAパラメータのみ）しか渡さないため、勾配・Adam状態がほぼゼロになります。また $B=0$ からの出発ゆえ、学習率は全パラメータSFTより1桁ほど大きめが適します。",
+          "steps": [
+            "`requires_grad_(False)` → 本体4.9億パラメータ分の勾配とAdam状態が不要になる。",
+            "LoRAの `A, B` だけを `AdamW` に渡す（0.11%の54万個だけ）。",
+            "$B=0$ から変化を育てるため、学習率は `1e-4`〜`1e-3` 程度に設定する。"
+          ],
+          "altExample": "もしLoRAで学習率を `1e-5` のままにすると、3エポック回しても口調がほとんど変わらないことがよくあります。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q09",
+      "chapter": "19-lora",
+      "section": "道具を使う：PEFT",
+      "sectionAnchor": "#s5",
+      "concept": "peft-adapter-and-merge",
+      "conceptLabel": "LoRAアダプタの軽量保存と merge_and_unload() の仕組み",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第18章：モデルの保存サイズ"],
+      "variants": [
+        {
+          "prompt": "PEFTで学習したLoRAアダプタを保存すると約35MB（第18章の丸ごと保存は約2GB）で済み、推論時に `merged = reloaded.merge_and_unload()` を呼ぶことがあります。`merge_and_unload()` が行う処理として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "元の重み $W$ に $\\frac{\\alpha}{r}BA$ を足し合わせた新しい重み $W'$ を計算して本体に焼き込み、LoRA層を外して通常のモデルと同じ推論速度にする",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "LoRAアダプタを削除して、学習前のベースモデルに完全に巻き戻す",
+              "wrongReason": "学習した差分 $\\frac{\\alpha}{r}BA$ を本体に「合体（マージ）」してから外すので、ボンゴ先生の能力はそのまま残ります。"
+            },
+            {
+              "id": "c",
+              "text": "モデル本体を4ビットに自動量子化してファイルサイズを35MBにする",
+              "wrongReason": "マージ後のモデルは元の本体と同じサイズ（通常の `Qwen2ForCausalLM`）になります。量子化とは別の処理です。"
+            },
+            {
+              "id": "d",
+              "text": "学習データをモデルの重みの中にテキストのまま埋め込む",
+              "wrongReason": "埋め込むのはデータではなく、学習済みの行列積 $\\frac{\\alpha}{r}BA$ の数値です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "式 $W' = W + \\frac{\\alpha}{r}BA$ を推論のたびに毎回足すのと、あらかじめ1回足してしまうのとの違いを考えましょう。",
+          "reasoning": "マージ前（`PeftModel`）は推論のたびに `base(x) + (x @ A.T @ B.T) * scale` と2経路の計算が必要ですが、`merge_and_unload()` で $W' = W + \\frac{\\alpha}{r}BA$ を事前計算してしまえば、推論時の追加計算コストがゼロになります。",
+          "steps": [
+            "保存・配布時：本体は共有し、35MBのアダプタ（$A, B$）だけを保存・切り替えできる。",
+            "本番推論時：`merge_and_unload()` で $W' = W + \\frac{\\alpha}{r}BA$ を本体に書き込む。",
+            "結果：クラスも通常の `Qwen2ForCausalLM` に戻り、推論オーバーヘッドが0になる。"
+          ],
+          "altExample": "用途ごとに「ボンゴ先生アダプタ」「英語翻訳アダプタ」「コード解説アダプタ」を35MBずつ持ち、1つのベースモデル上で付け替えて使う運用も実務で人気です。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q10",
+      "chapter": "19-lora",
+      "section": "量子化：数を粗くして小さくする",
+      "sectionAnchor": "#s6",
+      "concept": "absmax-quantization-hand-calc",
+      "conceptLabel": "absmax対称量子化と逆量子化誤差の手計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "重みベクトル $w = [0.35, -0.70, 0.14]$ を **4ビット対称量子化**（整数範囲 $-7 \\sim +7$、$Q_{\\max} = 7$）します。縮尺 $s = \\frac{\\max |w_i|}{7}$、量子化整数 $q_i = \\text{round}(w_i / s)$、逆量子化値 $\\hat{w}_i = q_i \\cdot s$ としたとき、3番目の要素 $0.14$ の**逆量子化誤差** $|0.14 - \\hat{w}_3|$ はいくつになりますか？",
+          "answer": { "value": 0.04, "tolerance": 0.001 },
+          "placeholder": "小数で入力（例：0.04）",
+          "hint": "まず最大絶対値は `0.70` なので $s = 0.70 / 7 = 0.10$。次に `0.14 / 0.10 = 1.4` を四捨五入すると `1`、戻すと `1 * 0.10 = 0.10` です。",
+          "reasoning": "$s = 0.10$ より $q_3 = \\text{round}(1.4) = 1$、逆量子化値は $\\hat{w}_3 = 1 \\times 0.10 = 0.10$ となり、誤差は $|0.14 - 0.10| = 0.04$ です。",
+          "steps": [
+            "最大絶対値：$\\max(|0.35|, |-0.70|, |0.14|) = 0.70$。",
+            "縮尺：$s = 0.70 / 7 = 0.10$。",
+            "量子化：$0.14 / 0.10 = 1.4 \\xrightarrow{\\text{round}} q_3 = 1$。",
+            "逆量子化：$\\hat{w}_3 = 1 \\times 0.10 = 0.10$。",
+            "誤差：$|0.14 - 0.10| = 0.04$。"
+          ],
+          "altExample": "同じ計算を8ビット（$Q_{\\max} = 127$）で行うと $s = 0.70/127 \\approx 0.00551$ となり、誤差は最大でも $s/2 \\approx 0.0028$ 以下に激減します。"
+        },
+        {
+          "prompt": "重みベクトル $w = [0.254, -1.27, 0.635]$ を **8ビット対称量子化**（$Q_{\\max} = 127$）します。1番目の要素 $0.254$ の**逆量子化誤差** $|0.254 - \\hat{w}_1|$ はいくつになりますか？",
+          "answer": { "value": 0.004, "tolerance": 0.0005 },
+          "placeholder": "小数で入力（例：0.004）",
+          "hint": "最大絶対値は `1.27` なので $s = 1.27 / 127 = 0.01$ です。`0.254 / 0.01 = 25.4` を丸めると `25` になります。",
+          "reasoning": "$s = 0.01$、$q_1 = \\text{round}(25.4) = 25$、$\\hat{w}_1 = 0.25$ なので、誤差は $|0.254 - 0.25| = 0.004$ です。",
+          "steps": [
+            "縮尺：$s = 1.27 / 127 = 0.01$。",
+            "量子化：$0.254 / 0.01 = 25.4 \\xrightarrow{\\text{round}} 25$。",
+            "逆量子化：$25 \\times 0.01 = 0.25$。",
+            "誤差：$|0.254 - 0.25| = 0.004$。"
+          ],
+          "altExample": "丸め誤差は必ず刻み幅 $s$ の半分（$s/2 = 0.005$）以下に収まります。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q11",
+      "chapter": "19-lora",
+      "section": "量子化：数を粗くして小さくする",
+      "sectionAnchor": "#s6",
+      "concept": "quantization-outlier-problem",
+      "conceptLabel": "absmax量子化における外れ値（outlier）の問題とNF4/グループ量子化の対策",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "absmax量子化で、重みベクトルの中に1つだけ極端に大きな値（外れ値、例：`[0.2, -0.3, 0.1, 100.0]`）が混ざっていると、何が起きて困りますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "縮尺 `scale` が外れ値 `100.0` に引っ張られて巨大になり、ほかの普通の重み（`0.2, -0.3, 0.1`）がすべて0付近の同じ整数に丸め潰されて情報が失われる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "外れ値だけが自動で0に置き換わり、ほかの重みの精度は上がる",
+              "wrongReason": "absmaxは最大値を `Q_max` に合わせるため、外れ値自体は正確に残る代わりに、その他大勢の普通の重みの精度が犠牲になります。"
+            },
+            {
+              "id": "c",
+              "text": "`scale` が0になってゼロ除算エラーが起きる",
+              "wrongReason": "`scale` は極端に大きくなるのであって、0にはなりません（0になるのは全要素が0のときです）。"
+            },
+            {
+              "id": "d",
+              "text": "外れ値があるとint8のサイズが1バイトから8バイトに膨張する",
+              "wrongReason": "データ型は1要素1バイトのint8のまま変わりません。悪化するのはメモリではなく量子化誤差です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`scale = 100.0 / 127 ≒ 0.79` になったとき、`0.2 / 0.79` を四捨五入すると何になるか計算してみましょう。",
+          "reasoning": "`scale ≒ 0.79` になると、`0.2 / 0.79 ≒ 0.25 -> 0`、`-0.3 / 0.79 ≒ -0.38 -> 0` と普通の重みが一斉に0へ潰れてしまいます。これがLLM量子化における最大の敵「外れ値問題」です。",
+          "steps": [
+            "外れ値 `100.0` により `scale = 100.0 / 127 ≒ 0.787` に巨大化。",
+            "普通の重み `0.2, -0.3, 0.1` を `scale` で割るとすべて絶対値0.5未満。",
+            "四捨五入するとすべて `0` になり、モデルの表現力が大きく損なわれる。"
+          ],
+          "altExample": "対策として、重みを64個ずつの小グループに分けて別々の `scale` を使う（グループ量子化）ことで、外れ値の悪影響をそのグループ内だけに封じ込めます。"
+        },
+        {
+          "prompt": "QLoRAで4ビット量子化しても性能低下を小さく抑えられる2つの工夫（グループ量子化とNF4）の説明として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "重みを小さなブロックごとに分けて別々の縮尺（scale）を使うことで外れ値の影響を局所化し、さらに重みが従いやすい正規分布に合わせて不等間隔の16段階（NF4）を割り当てる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "4ビットの重みを学習中にどんどん8ビット・16ビットへ増やしていく",
+              "wrongReason": "QLoRAの本体はずっと4ビット凍結のままで、計算時だけ一時的にfloat16へ逆量子化します。"
+            },
+            {
+              "id": "c",
+              "text": "小さい重みをすべて切り捨てて0に固定する",
+              "wrongReason": "切り捨てるのではなく、0付近（正規分布で重みが密集する領域）に細かい目盛りを密に配置するのがNF4です。"
+            },
+            {
+              "id": "d",
+              "text": "すべての層の重みをまったく同じ1個の縮尺で統一する",
+              "wrongReason": "逆です。層ごとどころか64要素程度の小ブロックごとに別々の縮尺を持ちます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "NF4 = NormalFloat 4-bit の名前が「正規分布（Normal）」に由来する点に注目しましょう。",
+          "reasoning": "事前学習済みLLMの重みは0付近に集中した正規分布に従うことが多いため、等間隔のint4より0付近に細かい目盛りを置いたNF4とブロック単位のスケールを組み合わせることで誤差を大幅に抑えられます。",
+          "steps": [
+            "ブロック（グループ）量子化：64個など小さな塊ごとに `scale` を計算し外れ値の影響を封じ込める。",
+            "NF4（NormalFloat 4）：正規分布の各分位点に16段階を配置し、密集する0付近の精度を高める。",
+            "Double Quantization（二重量子化）：大量にできた `scale` 自体も8ビット化してさらにメモリを節約する。"
+          ],
+          "altExample": "`BitsAndBytesConfig` の `bnb_4bit_quant_type=\"nf4\"` と `bnb_4bit_use_double_quant=True` がまさにこの2つの設定です。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q12",
+      "chapter": "19-lora",
+      "section": "量子化：数を粗くして小さくする",
+      "sectionAnchor": "#s6",
+      "concept": "absmax-quant-predict",
+      "conceptLabel": "4ビットabsmax量子化コードの出力予測と外れ値の影響",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "4ビット対称量子化（`qmax = 7`）を実行する次のコードは何を表示しますか？",
+          "code": "ws = [0.28, -0.70, 0.07]\nscale = max(abs(x) for x in ws) / 7\nq = [round(x / scale) for x in ws]\nprint(q)",
+          "accept": ["[3, -7, 1]"],
+          "placeholder": "表示されるリストを入力（例：[3, -7, 1]）",
+          "hint": "`scale = 0.70 / 7 = 0.1` です。各要素を `0.1` で割って `round` しましょう。",
+          "reasoning": "`[2.8, -7.0, 0.7]` を四捨五入すると `[3, -7, 1]` になります。",
+          "steps": [
+            "`max(abs(x)) = 0.70` → `scale = 0.1`。",
+            "`0.28 / 0.1 = 2.8` → `3`。",
+            "`-0.70 / 0.1 = -7.0` → `-7`、`0.07 / 0.1 = 0.7` → `1`。"
+          ],
+          "altExample": "外れ値がなければ、-7〜7の範囲をうまく使って3つの値の大小関係がきれいに保たれます。"
+        },
+        {
+          "prompt": "今度は外れ値 `10.0` が1つ混ざった場合の出力を予測してください。",
+          "code": "ws = [0.5, -0.5, 10.0]\nscale = max(abs(x) for x in ws) / 7\nq = [round(x / scale) for x in ws]\nprint(q)",
+          "accept": ["[0, 0, 7]"],
+          "placeholder": "表示されるリストを入力",
+          "hint": "`scale = 10.0 / 7 ≒ 1.429` です。`0.5 / 1.429 ≒ 0.35` を四捨五入すると？",
+          "reasoning": "外れ値 `10.0` に引きずられて `scale ≒ 1.429` になり、`0.5` と `-0.5` がどちらも `0` に潰れて `[0, 0, 7]` になってしまいます。",
+          "steps": [
+            "`scale = 10.0 / 7 ≒ 1.4286`。",
+            "`0.5 / 1.4286 ≒ 0.35` → `round` で `0`。",
+            "`-0.5 / 1.4286 ≒ -0.35` → `0`、`10.0 / scale = 7.0` → `7`。"
+          ],
+          "altExample": "このように、外れ値がたった1個あるだけで他の重みの符号すら消えてしまう様子がコードで一目で分かります。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q13",
+      "chapter": "19-lora",
+      "section": "量子化：数を粗くして小さくする",
+      "sectionAnchor": "#s6",
+      "concept": "impl-absmax-quantize",
+      "conceptLabel": "【自力実装】8ビット/4ビット対称absmax量子化＋逆量子化誤差の計算",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第19章：absmax量子化"],
+      "variants": [
+        {
+          "prompt": "小数の重みリスト `weights` とビット数 `bits`（デフォルト `8`、`4` にも対応）を受け取り、対称absmax量子化を行って `(q_ints, scale, dequant, max_err)` の4つを返す関数 `absmax_quantize(weights, bits=8)` を純Pythonで実装してください。`qmax = (1 << (bits - 1)) - 1`（8ビットなら127、4ビットなら7）とし、全要素が0の場合は `scale = 1.0`、ゼロのリスト、`max_err = 0.0` を返してください。",
+          "starterCode": "def absmax_quantize(weights, bits=8):\n    qmax = (1 << (bits - 1)) - 1\n    # 1. max_abs = max(abs(w) for w in weights)\n    # 2. max_abs == 0 の境界ケースを処理\n    # 3. scale = max_abs / qmax\n    # 4. q_ints = [round(w / scale) for w in weights]\n    # 5. dequant = [q * scale for q in q_ints]\n    # 6. max_err = max(abs(w - d) for w, d in zip(weights, dequant))\n    # 7. return q_ints, scale, dequant, max_err\n    pass",
+          "solutionCode": "def absmax_quantize(weights, bits=8):\n    qmax = (1 << (bits - 1)) - 1\n    max_abs = max(abs(w) for w in weights)\n    if max_abs == 0:\n        zeros = [0] * len(weights)\n        return zeros, 1.0, [0.0] * len(weights), 0.0\n    scale = max_abs / qmax\n    q_ints = [round(w / scale) for w in weights]\n    dequant = [q * scale for q in q_ints]\n    max_err = max(abs(w - d) for w, d in zip(weights, dequant))\n    return q_ints, scale, dequant, max_err",
+          "colabCheck": "q4, s4, d4, e4 = absmax_quantize([0.35, -0.70, 0.14], bits=4)\nassert abs(s4 - 0.1) < 1e-12\nassert q4 == [4, -7, 1]\nassert abs(e4 - 0.05) < 1e-12\nq8, s8, d8, e8 = absmax_quantize([0.254, -1.27, 0.635], bits=8)\nassert abs(s8 - 0.01) < 1e-12\nassert q8 == [25, -127, 64]\nassert abs(e8 - 0.005) < 1e-12\nq0, s0, d0, e0 = absmax_quantize([0.0, 0.0], bits=8)\nassert q0 == [0, 0] and e0 == 0.0\nprint(\"ALL PASSED\")",
+          "hint": "`qmax` は 8ビットで `127`、4ビットで `7` です。`max_abs == 0` を先にチェックするとゼロ除算を防げます（Pythonの `round(3.5)` は偶数丸めで `4`、`round(63.5)` は `64` になります）。",
+          "reasoning": "absmax量子化の本質は「最大絶対値を整数上限 `qmax` に合わせて縮尺 `scale` を決め、割って丸めて保存し、使うときに `scale` を掛けて戻す」というわずか数行の計算です。",
+          "steps": [
+            "`qmax = (1 << (bits - 1)) - 1` で符号付き対称範囲の上限（8bit→127, 4bit→7）を得る。",
+            "`max_abs == 0` ならゼロ除算を避けてゼロを返す。",
+            "`scale = max_abs / qmax` で量子化整数 `q_ints`、逆量子化 `dequant`、最大誤差 `max_err` を計算する。"
+          ],
+          "altExample": "本文のPyTorchコードでは同じ処理を `torch.round(w / scale).to(torch.int8)` でベクトル一括計算しています。",
+          "selfCheckCriteria": [
+            "4ビット・8ビット・全ゼロ入力のすべての `assert` が通った",
+            "同じ重みでも4ビットより8ビットのほうが `max_err` が大幅に小さいことを確認できた"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch19-q14",
+      "chapter": "19-lora",
+      "section": "QLoRA：4ビットの本体 ＋ LoRA",
+      "sectionAnchor": "#s7",
+      "concept": "qlora-and-merge-pitfall",
+      "conceptLabel": "QLoRAの動作原理と4ビット本体への直接マージを避ける理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "QLoRAで学習したLoRAアダプタを本体に `merge_and_unload()` して配布したいとき、実務で守るべき正しい手順はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "4ビット量子化済みの本体に直接マージするのではなく、元のベースモデルをfloat16（またはbf16）で読み込み直してからアダプタをマージする",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "4ビット量子化済みの本体に直接マージしたほうが、丸め誤差が完全に0になって最も高精度になる",
+              "wrongReason": "4ビット本体への直接マージは、せっかく高精度に学習したLoRA差分を再び粗い4ビット格子に丸め直すことになり、精度劣化や出力ズレを招きます。"
+            },
+            {
+              "id": "c",
+              "text": "QLoRAのアダプタ自体も4ビット整数なので、float16本体にはマージできない",
+              "wrongReason": "QLoRAでもLoRAの行列 $A, B$ 自体はfloat16/bf16（やfloat32）で高精度に学習・保存されるため、float16本体へそのままきれいにマージできます。"
+            },
+            {
+              "id": "d",
+              "text": "マージした後はトークナイザーを新しく学習し直す必要がある",
+              "wrongReason": "語彙やトークナイザーは変わっていないため、元のトークナイザーをそのまま使います。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`warn` ボックスの「`merge_and_unload` 後に結果が少し変わる」を思い出しましょう。",
+          "reasoning": "QLoRAでは「保存・保持している本体が4ビット（NF4）」、「学習するLoRAアダプタがfloat16/float32」です。マージ時はfloat16等で元の本体を読み直し、高精度のまま $W + \\frac{\\alpha}{r}BA$ を合体させるのが定石です。",
+          "steps": [
+            "QLoRA学習後、`save_pretrained` で高精度のLoRAアダプタだけ保存する。",
+            "マージが必要な場合は、元のベースモデルを `dtype=torch.float16` 等で読み込む。",
+            "`PeftModel.from_pretrained(base_fp16, adapter_dir).merge_and_unload()` で誤差なく合体させる。"
+          ],
+          "altExample": "なお、vLLMやllama.cpp等で配布する際も、まずfp16にマージしてから目的の推論フォーマット（AWQ/GGUFなど）へ変換する流れが一般的です。"
+        }
+      ]
+    },
+    {
+      "id": "ch19-q15",
+      "chapter": "19-lora",
+      "section": "QLoRA：4ビットの本体 ＋ LoRA",
+      "sectionAnchor": "#s7",
+      "concept": "qlora-two-pronged-memory-explain",
+      "conceptLabel": "LoRAと量子化がVRAMのどの部分を削るのかを総合説明する",
+      "level": 3,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第15章：VRAM内訳", "第19章：LoRAと量子化"],
+      "variants": [
+        {
+          "prompt": "全パラメータ学習では約112GBも必要な7Bモデルが、**QLoRA** を使うと無料のT4 GPU（16GB）でも学習できるようになります。**LoRA** と **4ビット量子化** がそれぞれVRAMの「どの部分」をどのように削減しているのか、役割分担を説明してください。",
+          "modelAnswer": "学習時のVRAMは大きく①モデル本体の重み、②学習するパラメータの勾配、③Adamオプティマイザの記録（慣性と歩幅）に分かれます。LoRAは本体を凍結して学習対象を全体の1%前後の低ランク行列A・Bだけに絞ることで、②勾配と③Adamの記録をほぼゼロ近くまで削減します。一方、4ビット量子化（NF4）は残った大物である①凍結されたモデル本体の重みをfloat32（4バイト）の約8分の1（float16の約4分の1、7Bで約4〜5GB）まで圧縮します。この2つを組み合わせることで、7Bモデル全体でも6〜10GB程度に収まりT4で学習できるようになります。",
+          "hint": "VRAMの3大要素（本体の重み／勾配／Adam状態）のうち、LoRAが消すものと、量子化が縮めるものを分けて書きましょう。",
+          "reasoning": "LoRAだけでは本体の重み（7Bのfloat16で約14GB）が残りT4ギリギリになり、量子化だけでは勾配とAdam状態が重いままです。両者が別々のボトルネックを解決するからこそQLoRAは劇的に効きます。",
+          "steps": [
+            "LoRAの役割：学習パラメータを<1〜2%に削減 → 勾配とAdam状態（全学習メモリの約75%）を激減させる。",
+            "4ビット量子化の役割：凍結した本体重み $W$ を4ビット（0.5バイト/個）に圧縮 → 本体の常駐メモリを1/4〜1/8にする。",
+            "さらに勾配チェックポインティング（第16章）で活性化メモリも抑え、16GBのT4に収める。"
+          ],
+          "altExample": "実務では「まず0.5Bでデータと設定を高速検証 → 成功したらQLoRAで1.5B→7Bへ拡大」という段階的アプローチが鉄則です。",
+          "selfCheckCriteria": [
+            "LoRAが「勾配とAdamの記録」を削減することを説明できた",
+            "量子化が「凍結したモデル本体の重み」を削減することを説明できた",
+            "両者の組み合わせ（QLoRA）で初めて7BモデルがT4（16GB）に収まる構造を説明できた"
+          ]
+        }
+      ]
+    }
+  ]
+}

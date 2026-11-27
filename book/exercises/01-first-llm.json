@@ -1,0 +1,833 @@
+{
+  "chapter": "01-first-llm",
+  "exercises": [
+    {
+      "id": "ch01-q01",
+      "chapter": "01-first-llm",
+      "section": "最初の1行を実行する",
+      "sectionAnchor": "#s2",
+      "concept": "py-var-string-exec",
+      "conceptLabel": "変数・文字列演算とセル実行順",
+      "level": 1,
+      "type": "predict",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "次のPythonコードを実行すると、画面に何が表示されますか？",
+          "code": "word = \"AI\"\nmsg = word * 2 + \"!\"\nprint(msg)",
+          "accept": ["AIAI!"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "文字列の掛け算 `* 2` は同じ文字列を2回くり返し、`+` は後ろにつなげます。",
+          "reasoning": "Pythonでは文字列に整数を掛けると反復され、`+` で別の文字列と連結されます。",
+          "steps": [
+            "`word` に文字列 `\"AI\"` を代入する。",
+            "`word * 2` は `\"AIAI\"` になる。",
+            "`\"AIAI\" + \"!\"` は `\"AIAI!\"` になり、`print(msg)` でそのまま出力される。"
+          ],
+          "altExample": "`\"猫\" * 3 + \"♪\"` は `\"猫猫猫♪\"` になります。"
+        },
+        {
+          "prompt": "次のPythonコードを実行すると、画面に何が表示されますか？",
+          "code": "a = \"LLM\"\nb = a + \"-\" + a * 2\nprint(b)",
+          "accept": ["LLM-LLMLLM"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "`*`（掛け算）は `+`（足し算）より先に計算されます。",
+          "reasoning": "掛け算 `*` が先に評価され、その後で左から順に `+` で連結されます。",
+          "steps": [
+            "`a * 2` が先に計算されて `\"LLMLLM\"` になる。",
+            "`\"LLM\" + \"-\"` は `\"LLM-\"` になる。",
+            "`\"LLM-\" + \"LLMLLM\"` は `\"LLM-LLMLLM\"` になる。"
+          ],
+          "altExample": "`\"Go\" + \"!\" * 3` は `\"Go!!!\"` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q02",
+      "chapter": "01-first-llm",
+      "section": "無料のGPUを借りる",
+      "sectionAnchor": "#s3",
+      "concept": "gpu-parallel-vram",
+      "conceptLabel": "GPUを使う理由とVRAM",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "LLMを動かすときに、CPUではなくGPUを使うと速くなる一番の理由はどれでしょう？",
+          "options": [
+            {
+              "id": "a",
+              "text": "GPUには日本語の辞書が最初から内蔵されているから",
+              "wrongReason": "GPUは数値計算専用のハードウェアであり、日本語の辞書自体は内蔵していません（辞書はモデルと一緒にダウンロードするトークナイザーです）。"
+            },
+            {
+              "id": "b",
+              "text": "GPUは大量の単純な数値計算を「一斉に（並列に）」実行するのが得意だから",
+              "wrongReason": ""
+            },
+            {
+              "id": "c",
+              "text": "GPUを使うとモデルのダウンロード容量が10分の1に減るから",
+              "wrongReason": "モデルファイルのダウンロード容量は同じです。変わるのは読み込んだ後の計算速度と置き場所（VRAM）です。"
+            },
+            {
+              "id": "d",
+              "text": "GPUでないとPythonの `print` や `def` が動かないから",
+              "wrongReason": "通常のPythonコードや小さなLLMはCPUだけでも動きます。GPUは計算を高速化するために使います。"
+            }
+          ],
+          "answer": "b",
+          "hint": "GPUがもともと「画面の何百万個もの点の色」を計算するために作られたことを思い出しましょう。",
+          "reasoning": "LLMの推論や学習では、何億個ものパラメータに対する掛け算・足し算を同時に行います。GPUは何千もの小さな計算コアでそれを一斉に処理できます。",
+          "steps": [
+            "CPUは複雑な処理を手順どおりにこなすのが得意（少数の高性能な頭脳）。",
+            "GPUは単純な計算を大量に同時実行するのが得意（多数の計算係）。",
+            "LLMは大量の数値計算の塊なので、GPUと相性が非常に良い。"
+          ],
+          "altExample": "1000枚のプリントに1人ずつハンコを押すのがCPU、100人で一斉に押すのがGPUのイメージです。"
+        },
+        {
+          "prompt": "`!nvidia-smi` の出力に `15360MiB` と表示されました。これは何を表していますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "インターネットの通信速度",
+              "wrongReason": "`MiB` はデータ容量（メモリ量）の単位であり、通信速度（Mbpsなど）ではありません。"
+            },
+            {
+              "id": "b",
+              "text": "GPUの中にあるメモリ（VRAM）の容量で、モデルや計算途中のデータを置ける広さ",
+              "wrongReason": ""
+            },
+            {
+              "id": "c",
+              "text": "Colabを無料で使える残り分数",
+              "wrongReason": "残り利用時間ではなく、借りているGPU（Tesla T4）のメモリ容量です。"
+            },
+            {
+              "id": "d",
+              "text": "LLMの語彙の数",
+              "wrongReason": "語彙数はモデルごとの設定であり、`nvidia-smi` はGPUハードウェアの状態を表示するコマンドです。"
+            }
+          ],
+          "answer": "b",
+          "hint": "本文で「モデルを置ける机の広さのようなもの」と例えた要素です。",
+          "reasoning": "VRAMはGPU専用の作業メモリです。モデル本体（パラメータ）と計算途中の値がVRAMに収まらないと `CUDA out of memory` エラーになります。",
+          "steps": [
+            "`15360 MiB` は $15360 \\div 1024 = 15$ GiB（約15GB）。",
+            "約1GBのモデル（Qwen2.5-0.5Bのfloat16版）なら余裕をもって載せられる。",
+            "巨大なモデルを載せるときはVRAM上限との相談になる。"
+          ],
+          "altExample": "机（VRAM）が15GBあるのに、28GBのモデルをそのまま広げようとすると机からはみ出して `CUDA out of memory` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q03",
+      "chapter": "01-first-llm",
+      "section": "LLMを読み込む前のPython基礎",
+      "sectionAnchor": "#s4",
+      "concept": "py-module-object-method",
+      "conceptLabel": "モジュール・オブジェクト・メソッド・属性の区別",
+      "level": 1,
+      "type": "choice",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "次のコードで、`bot.name` と `bot.greet(\"ミナト\")` の違いとして正しいものはどれですか？",
+          "code": "class MiniBot:\n    def __init__(self, name):\n        self.name = name\n    def greet(self, user):\n        return f\"{self.name}：{user}さん、こんにちは\"\n\nbot = MiniBot(\"ボンゴ\")",
+          "options": [
+            {
+              "id": "a",
+              "text": "`bot.name` はオブジェクトが持つデータ（属性）、`bot.greet(\"ミナト\")` はオブジェクトが持つ動き（メソッド）の呼び出し",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`bot.name` がメソッドで、`bot.greet(\"ミナト\")` が属性である",
+              "wrongReason": "逆です。後ろに `(...)` を付けて処理を実行するものがメソッド、データそのものを取り出すのが属性です。"
+            },
+            {
+              "id": "c",
+              "text": "どちらも `import` しないと使えない外部ライブラリ関数である",
+              "wrongReason": "`MiniBot` はこのコード内で定義したクラスであり、外部ライブラリではありません。"
+            },
+            {
+              "id": "d",
+              "text": "`bot.name` にも必ず `()` を付けて `bot.name()` と書く必要がある",
+              "wrongReason": "`bot.name` は文字列 `\"ボンゴ\"`（データ）なので、`()` を付けると `TypeError: 'str' object is not callable` エラーになります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「データ（名札）」は `()` なし、「動作（命令）」は `()` あり、と区別します。",
+          "reasoning": "PyTorchやTransformersのコードでは、`chat.model`（属性＝中身の部品）や `chat.model.parameters()`（メソッド＝部品からデータを取り出す処理）のように `.` の後ろが頻繁に登場します。",
+          "steps": [
+            "`bot` は `MiniBot` 設計図（クラス）から作られた実物（オブジェクト）。",
+            "`bot.name` は中に入っているデータ（属性）なので `()` なしで `\"ボンゴ\"` が取り出せる。",
+            "`bot.greet(\"ミナト\")` は実物に紐づく関数（メソッド）なので `()` で引数を渡して実行する。"
+          ],
+          "altExample": "`chat.tokenizer` は属性（変換係オブジェクト）、`chat.tokenizer.apply_chat_template(...)` はそのオブジェクトのメソッド呼び出しです。"
+        },
+        {
+          "prompt": "`from transformers import pipeline` と書いたとき、`pipeline` は何を表していますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`transformers` というライブラリ（道具箱）の中から、`pipeline` という道具だけを取り出して使えるようにしている",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`pipeline` という名前の新しいファイルをパソコンに作成している",
+              "wrongReason": "`import` は既存のライブラリを読み込む命令で、ファイル作成ではありません。"
+            },
+            {
+              "id": "c",
+              "text": "インターネットから自動でモデル本体（約1GB）をダウンロードする命令である",
+              "wrongReason": "`import` だけではモデルのダウンロードは起きません。実際にダウンロードが始まるのは `pipeline(..., model=...)` を呼び出した瞬間です。"
+            },
+            {
+              "id": "d",
+              "text": "`transformers` という変数を削除する命令である",
+              "wrongReason": "削除ではなく、その中から必要な機能を取り込んで名前を使えるようにする命令です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`from 道具箱 import 道具` の形で読みます。",
+          "reasoning": "`import ライブラリ` は道具箱まるごと、`from ライブラリ import 部品` は道具箱から特定の部品だけを取り出す書き方です。",
+          "steps": [
+            "`transformers` はHugging Faceが提供するLLM用の大きなライブラリ。",
+            "`from transformers import pipeline` で、その中の `pipeline` 関数を直接呼べるようにする。",
+            "もし `import transformers` だけを書いた場合は `transformers.pipeline(...)` と書く必要がある。"
+          ],
+          "altExample": "`from math import sqrt` と書けば `math.sqrt(9)` の代わりに `sqrt(9)` と書けます。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q04",
+      "chapter": "01-first-llm",
+      "section": "LLMを読み込む前のPython基礎",
+      "sectionAnchor": "#s4",
+      "concept": "py-ternary-expr",
+      "conceptLabel": "条件式（一行if文）の読み方",
+      "level": 2,
+      "type": "predict",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "LLM読み込みコードに出てきた `A if 条件 else B` の練習です。次のコードの出力を予測してください。",
+          "code": "gpu = False\ndtype_name = \"float16\" if gpu else \"float32\"\nprint(dtype_name)",
+          "accept": ["float32"],
+          "placeholder": "出力される文字列を入力",
+          "hint": "`gpu` が `True` なら左側、`False` なら `else` の右側が選ばれます。",
+          "reasoning": "`A if 条件 else B` は条件が真（`True`）なら `A`、偽（`False`）なら `B` を返す式です。",
+          "steps": [
+            "`gpu` は `False` である。",
+            "`\"float16\" if False else \"float32\"` を評価すると `else` 側が選ばれる。",
+            "`dtype_name` は `\"float32\"` となり、出力は `float32`。"
+          ],
+          "altExample": "`gpu = True` なら `float16` が選ばれます。第1章の `dtype=torch.float16 if gpu else torch.float32` とまったく同じ構造です。"
+        },
+        {
+          "prompt": "次のコードを実行すると何が表示されますか？",
+          "code": "vram_gb = 15\nmode = \"GPU\" if vram_gb >= 8 else \"CPU\"\nprint(mode)",
+          "accept": ["GPU"],
+          "placeholder": "出力される文字列を入力",
+          "hint": "`vram_gb >= 8` は `15 >= 8` なので `True` です。",
+          "reasoning": "条件 `vram_gb >= 8` が成り立つため、`if` の左側にある `\"GPU\"` が選ばれます。",
+          "steps": [
+            "`vram_gb` は `15`。",
+            "`15 >= 8` は `True`。",
+            "真なので `\"GPU\"` が `mode` に入り、`GPU` が出力される。"
+          ],
+          "altExample": "`vram_gb = 4` に変えると `4 >= 8` は `False` なので `CPU` が出力されます。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q05",
+      "chapter": "01-first-llm",
+      "section": "LLMを呼び出す",
+      "sectionAnchor": "#s5",
+      "concept": "pipeline-arguments",
+      "conceptLabel": "pipeline()の引数と役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`pipeline(\"text-generation\", model=\"Qwen/Qwen2.5-0.5B-Instruct\", dtype=torch.float16 if gpu else torch.float32, device_map=\"auto\")` の各引数の役割として、**誤っている**ものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`\"text-generation\"` は「文章生成タスクを行う」という指定",
+              "wrongReason": "これは正しい説明です。ほかに翻訳や感情分析などのタスク名もあります。"
+            },
+            {
+              "id": "b",
+              "text": "`dtype=...` はパラメータの数値をどれくらいの細かさ（16ビットか32ビットか）で持つかの指定",
+              "wrongReason": "これは正しい説明です。GPUがあるときは `float16`（半分サイズ）にしてメモリと時間を節約します。"
+            },
+            {
+              "id": "c",
+              "text": "`device_map=\"auto\"` はGPUが使えればGPUに、なければCPUに自動配置する指定",
+              "wrongReason": "これは正しい説明です。環境の違いを自動で吸収してくれます。"
+            },
+            {
+              "id": "d",
+              "text": "`model=\"Qwen/Qwen2.5-0.5B-Instruct\"` は、AIに最初の一言として話しかける質問文である",
+              "wrongReason": ""
+            }
+          ],
+          "answer": "d",
+          "hint": "質問文を渡すのは `pipeline(...)` を作った**あと**で `chat(messages)` を呼ぶときです。",
+          "reasoning": "`model=...` はHugging Face上で公開されている学習済みモデルを特定するための識別名（リポジトリID）です。",
+          "steps": [
+            "`pipeline(...)` の時点では「どのモデルをどう準備するか」だけを決めて `chat` オブジェクトを作る。",
+            "`model=\"Qwen/Qwen2.5-0.5B-Instruct\"` は「作成者/モデル名」の形式。",
+            "質問文（プロンプト）は準備後に `chat(messages)` で渡す。"
+          ],
+          "altExample": "料理に例えると、`pipeline(...)` はシェフ（モデル）と調理器具（トークナイザー）を厨房（GPU）に配置する準備、`chat(messages)` が注文を出す操作です。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q06",
+      "chapter": "01-first-llm",
+      "section": "話しかけてみる",
+      "sectionAnchor": "#s6",
+      "concept": "nested-list-dict",
+      "conceptLabel": "リストと辞書の入れ子構造の読み解き",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`chat(messages)` の返り値と同じ入れ子構造です。次のコードの出力を予測してください。",
+          "code": "result = [\n    {\n        \"generated_text\": [\n            {\"role\": \"user\", \"content\": \"こんにちは\"},\n            {\"role\": \"assistant\", \"content\": \"やあ！\"}\n        ]\n    }\n]\nprint(result[0][\"generated_text\"][-1][\"content\"])",
+          "accept": ["やあ！", "やあ!"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "外側から順に開きます：`result[0]` → 辞書 → `[\"generated_text\"]` → 会話リスト → `[-1]` → 最後の辞書 → `[\"content\"]`。",
+          "reasoning": "`result` は「1件の生成結果（辞書）が入ったリスト」で、その中の `\"generated_text\"` に会話全体（辞書のリスト）が入っています。最新の返答は常に末尾 `[-1]` にあります。",
+          "steps": [
+            "`result[0]` は `{\"generated_text\": [...]}` という辞書。",
+            "`result[0][\"generated_text\"]` は長さ2のリスト（0番目がuser、1番目がassistant）。",
+            "`[-1]` で末尾（assistantの辞書）を取り出す。",
+            "`[\"content\"]` で `\"やあ！\"` を取り出す。"
+          ],
+          "altExample": "もし `[0]` にして `result[0][\"generated_text\"][0][\"content\"]` と書くと、AIの返事ではなく自分の質問 `\"こんにちは\"` が取り出されます。"
+        },
+        {
+          "prompt": "次の入れ子データで、`result[0][\"generated_text\"][0][\"role\"]` の出力は何になりますか？",
+          "code": "result = [\n    {\n        \"generated_text\": [\n            {\"role\": \"system\", \"content\": \"先生役\"},\n            {\"role\": \"user\", \"content\": \"質問\"},\n            {\"role\": \"assistant\", \"content\": \"回答\"}\n        ]\n    }\n]\nprint(result[0][\"generated_text\"][0][\"role\"])",
+          "accept": ["system"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "`[0]` は先頭（0番目）、`[-1]` が末尾です。最後に取り出すキーは `\"role\"` です。",
+          "reasoning": "リストのインデックス `0` は先頭要素を指し、辞書のキー `\"role\"` は話者の役割を取り出します。",
+          "steps": [
+            "`result[0]` → 辞書。",
+            "`[\"generated_text\"]` → 3件のメッセージが入ったリスト。",
+            "`[0]` → 先頭の `{\"role\": \"system\", \"content\": \"先生役\"}`。",
+            "`[\"role\"]` → `\"system\"`。"
+          ],
+          "altExample": "`[-1][\"content\"]` なら `\"回答\"`、`[1][\"content\"]` なら `\"質問\"` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q07",
+      "chapter": "01-first-llm",
+      "section": "話しかけてみる",
+      "sectionAnchor": "#s6",
+      "concept": "nested-index-why-minus1",
+      "conceptLabel": "なぜ [-1] を使うのか",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "会話履歴からAIの最新の返事を取り出すとき、`[1]` ではなく `[-1]` を使う方が安全な理由はどれでしょう？",
+          "options": [
+            {
+              "id": "a",
+              "text": "Pythonではリストの番号が `-1` から始まる仕様だから",
+              "wrongReason": "Pythonのリストは先頭から `0, 1, 2, ...` と数えます。`-1` は「後ろから1番目（末尾）」を表す特別な書き方です。"
+            },
+            {
+              "id": "b",
+              "text": "`system` メッセージの有無や会話の往復回数によってリストの長さが変わっても、最新のAIの返事は常に末尾にあるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "c",
+              "text": "`[1]` と書くと必ず `IndexError` になるから",
+              "wrongReason": "`messages` が `[user, assistant]` の2件だけなら `[1]` でも動きます。しかし `system` を足して3件になると `[1]` は `user` の質問を取ってしまいます。"
+            },
+            {
+              "id": "d",
+              "text": "`[-1]` は文字列を逆順に並べ替える操作だから",
+              "wrongReason": "逆順にするスライスは `[::-1]` です。`[-1]` は末尾の要素を1つだけ取り出します。"
+            }
+          ],
+          "answer": "b",
+          "hint": "`system` → `user` → `assistant` の3件のとき、`[1]` は誰のメッセージになるか数えてみましょう。",
+          "reasoning": "固定の番号 `[1]` に頼ると、`system` プロンプトを追加したときや2往復目の会話で別のメッセージを取ってしまいます。`[-1]` なら常に最新（末尾）を取れます。",
+          "steps": [
+            "`[user, assistant]` のとき：`[1]` は assistant、`[-1]` も assistant。",
+            "`[system, user, assistant]` のとき：`[1]` は user（間違い！）、`[-1]` は assistant（正解！）。",
+            "よって長さが変わっても壊れない `[-1]` を使う。"
+          ],
+          "altExample": "5往復（10件）のチャット履歴でも、最新の返答は `history[-1]` で一発で取れます。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q08",
+      "chapter": "01-first-llm",
+      "section": "毎回書くのは面倒なので、関数にする",
+      "sectionAnchor": "#s7",
+      "concept": "py-default-arg",
+      "conceptLabel": "関数の初期値つき引数",
+      "level": 2,
+      "type": "predict",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "次の関数 `make_limit` を2回呼び出します。表示される2行を予測してください。",
+          "code": "def make_limit(q, max_new_tokens=200):\n    return f\"{q}:{max_new_tokens}\"\n\nprint(make_limit(\"天気\"))\nprint(make_limit(\"天気\", max_new_tokens=50))",
+          "accept": ["天気:200\n天気:50"],
+          "placeholder": "2行の出力を改行して入力",
+          "hint": "2番目の引数を省略すると初期値 `200` が使われ、指定すると上書きされます。",
+          "reasoning": "関数定義の `引数=値` はデフォルト引数（初期値）です。普段は省略して短く呼び、長さを変えたいときだけ指定できます。",
+          "steps": [
+            "1回目：`make_limit(\"天気\")` は `max_new_tokens` を省略したので初期値 `200` → `天気:200`。",
+            "2回目：`max_new_tokens=50` を明示したので `50` が使われる → `天気:50`。"
+          ],
+          "altExample": "`ask(\"こんにちは\")` なら最大200トークン、`ask(\"こんにちは\", max_new_tokens=30)` なら短く30トークンで止まります。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q09",
+      "chapter": "01-first-llm",
+      "section": "毎回書くのは面倒なので、関数にする",
+      "sectionAnchor": "#s7",
+      "concept": "impl-extract-reply",
+      "conceptLabel": "【自力実装】会話結果から最新返答を取り出す関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`pipeline` の返り値 `result` を受け取り、最新のAIの返答文字列（`content`）を返す関数 `extract_reply(result)` を自力で実装し、Colabで検算テストを通してください。",
+          "starterCode": "def extract_reply(result):\n    # ここに処理を書く\n    # ヒント: result -> [0] -> [\"generated_text\"] -> [-1] -> [\"content\"]\n    pass",
+          "solutionCode": "def extract_reply(result):\n    conversation = result[0][\"generated_text\"]\n    last_message = conversation[-1]\n    return last_message[\"content\"]",
+          "colabCheck": "sample1 = [{\"generated_text\": [{\"role\": \"user\", \"content\": \"Hi\"}, {\"role\": \"assistant\", \"content\": \"Hello!\"}]}]\nsample2 = [{\"generated_text\": [{\"role\": \"system\", \"content\": \"役\"}, {\"role\": \"user\", \"content\": \"Q\"}, {\"role\": \"assistant\", \"content\": \"A\"}]}]\nassert extract_reply(sample1) == \"Hello!\"\nassert extract_reply(sample2) == \"A\"\nprint(\"ALL PASSED\")",
+          "hint": "1行で書いても、変数 `conversation` や `last_message` に分けて書いてもOKです。",
+          "reasoning": "入れ子データを1段階ずつ名前付き変数に分解すると、型と意味を確認しながらバグなく実装できます。",
+          "steps": [
+            "`result[0][\"generated_text\"]` で会話リストを取り出す。",
+            "`conversation[-1]` で末尾のメッセージ辞書を取り出す。",
+            "`last_message[\"content\"]` を `return` する。"
+          ],
+          "altExample": "もし会話が空でないか確認したい場合は `if not conversation: return \"\"` のように防御コードも入れられます。",
+          "selfCheckCriteria": [
+            "`sample1`（2件の会話）と `sample2`（system込みの3件）の両方で `assert` が通った",
+            "`result`、`result[0]`、`conversation`、`last_message` のそれぞれのデータ型（listかdictか）を口で説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch01-q10",
+      "chapter": "01-first-llm",
+      "section": "LLMの正体：次の言葉を当てるゲームの達人",
+      "sectionAnchor": "#s8",
+      "concept": "llm-next-token-prob",
+      "conceptLabel": "LLMの本質と確率の合計",
+      "level": 1,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "ある小さなLLMが「吾輩は」の次に来る候補を3つだけ考えており、確率が「猫：0.65」「犬：0.25」「机：？」だったとします。確率の合計は必ず `1.0` になるとき、「机」の確率はいくつですか？",
+          "answer": { "value": 0.1, "tolerance": 0.001 },
+          "placeholder": "小数で入力（例：0.1）",
+          "hint": "すべての候補の確率を足すとちょうど `1.0` になります。`1.0 - (0.65 + 0.25)` を計算しましょう。",
+          "reasoning": "次に来るトークンの確率分布は、すべての候補の確率を合計すると必ず `1`（100%）になります。",
+          "steps": [
+            "分かっている確率の合計：$0.65 + 0.25 = 0.90$",
+            "全体は $1.00$ なので、残りは $1.00 - 0.90 = 0.10$"
+          ],
+          "altExample": "もし候補が「晴れ：0.5」「くもり：0.3」「雨：？」なら、雨は $1.0 - (0.5 + 0.3) = 0.2$ です。"
+        },
+        {
+          "prompt": "候補が3つだけで、確率が「ある：0.72」「ない：0.18」「だ：？」のとき、「だ」の確率はいくつですか？",
+          "answer": { "value": 0.1, "tolerance": 0.001 },
+          "placeholder": "小数で入力（例：0.1）",
+          "hint": "全体の合計 `1.0` から `0.72 + 0.18` を引きます。",
+          "reasoning": "確率分布の基本条件は「各候補が0以上」かつ「全部足すと1」です。",
+          "steps": [
+            "$0.72 + 0.18 = 0.90$",
+            "$1.00 - 0.90 = 0.10$"
+          ],
+          "altExample": "候補が15万語になっても、全部の確率を足せば必ず `1.0` になります（第3章で実際に確かめます）。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q11",
+      "chapter": "01-first-llm",
+      "section": "LLMの正体：次の言葉を当てるゲームの達人",
+      "sectionAnchor": "#s8",
+      "concept": "llm-arithmetic-weakness",
+      "conceptLabel": "LLMが掛け算を間違えやすい根本理由",
+      "level": 2,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "小さなLLM（Qwen2.5-0.5Bなど）に「123×456を計算して」と聞くと、間違った数字を自信満々に答えることがあります。**なぜ**このようなことが起きるのか、LLMの仕組みから自分の言葉で説明してください。",
+          "modelAnswer": "LLMは内部で筆算や電卓のような厳密な四則演算をしているのではなく、「ここまでの文字の並びの続きとして、確率的にそれっぽい次のトークン」を1つずつ予測しているだけだからです。訓練データにそのまま載っていない掛け算では、桁数や雰囲気だけはそれっぽいけれど不正確な数字を予測してしまいます。",
+          "hint": "「計算機として設計されているか？」「それとも次の言葉の確率予測か？」の対比で書いてみましょう。",
+          "reasoning": "LLMの根本動作は「次のトークンの確率予測の繰り返し」であり、記号的な厳密計算エンジンではありません。",
+          "steps": [
+            "LLMは入力文の続きを確率が高い順に1トークンずつ生成する。",
+            "よく登場する計算（例：2+2=4）はパターンとして高確率で当てられる。",
+            "あまり見ない桁の掛け算（123×456）は厳密計算ではなく「それっぽい続きの数字」を予測するため外れやすい。"
+          ],
+          "altExample": "正確な計算が必要なときは、第23章で学ぶようにLLM自身にPythonや電卓ツールを呼び出させます。",
+          "selfCheckCriteria": [
+            "「厳密な計算（筆算・電卓）をしていない」ことに触れた",
+            "「それまでの文章の続きとして、それっぽい次の言葉（トークン）を予測している」ことに触れた"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch01-q12",
+      "chapter": "01-first-llm",
+      "section": "LLMの正体：次の言葉を当てるゲームの達人",
+      "sectionAnchor": "#s8",
+      "concept": "do-sample-false",
+      "conceptLabel": "do_sample=False（貪欲法）の挙動",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`chat(\"吾輩は猫である。名前は\", max_new_tokens=30, do_sample=False)` を同じ環境で2回実行したとき、何が起きるでしょうか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "サイコロを振らず毎回いちばん確率の高い候補を選ぶため、原則として同じ続きの文章が出る",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "乱数の振れ幅が最大になり、毎回まったく違う文章が出る",
+              "wrongReason": "それは `do_sample=True` かつ温度を高くしたときの挙動です。`do_sample=False` はサンプリング（くじ引き）をオフにします。"
+            },
+            {
+              "id": "c",
+              "text": "文章を一切生成せず空文字を返す",
+              "wrongReason": "`do_sample=False` は生成を止める設定ではなく、次のトークンの選び方を「最上位1択」にする設定です。"
+            },
+            {
+              "id": "d",
+              "text": "モデルが自動で再学習を始める",
+              "wrongReason": "推論時の引数であり、モデルのパラメータ（重み）は一切書き換わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`sample` は「くじ引き（サンプリング）」の意味です。それが `False`（オフ）になっています。",
+          "reasoning": "`do_sample=False` ではくじ引きを行わず、各ステップで最もスコアの高いトークンを選び続けるため、出力が確定的（再現的）になります。",
+          "steps": [
+            "通常（`do_sample=True`）は確率に応じてサイコロを振るため出力が揺れる。",
+            "`do_sample=False` にするとサイコロを振らず最高確率の候補を選ぶ。",
+            "第3章では、これを「温度→0の極限（greedy：貪欲法）」として数式とコードで実装する。"
+          ],
+          "altExample": "実験でモデルの出力を比較・評価するとき（第20章）は、ぶれをなくすため `do_sample=False` を使うことがよくあります。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q13",
+      "chapter": "01-first-llm",
+      "section": "チャット＝台本の続き",
+      "sectionAnchor": "#s9",
+      "concept": "chat-template-mechanism",
+      "conceptLabel": "チャットテンプレートと特殊トークンの役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`apply_chat_template(messages, tokenize=False, add_generation_prompt=True)` で末尾に `<|im_start|>assistant` を付けるのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "そうしないとPythonが日本語の文字化けエラーを起こすから",
+              "wrongReason": "文字コードの問題ではなく、「LLMにどの役の続きを書かせるか」を指定するためです。"
+            },
+            {
+              "id": "b",
+              "text": "LLMは「文章の続きを書く」ことしかできないため、「ここからアシスタントのセリフが始まる」という台本の続きとして返答を引き出すため",
+              "wrongReason": ""
+            },
+            {
+              "id": "c",
+              "text": "GPUのメモリ使用量を半分にするため",
+              "wrongReason": "メモリ削減ではなく、チャット形式の入力を作るための整形処理です。"
+            },
+            {
+              "id": "d",
+              "text": "ユーザーの質問を削除して隠すため",
+              "wrongReason": "ユーザーの質問は `<|im_start|>user ... <|im_end|>` として台本の中にしっかり残っています。"
+            }
+          ],
+          "answer": "b",
+          "hint": "もし `<|im_start|>assistant` を付けないと、LLMはユーザーの質問の続きを書き足してしまうかもしれません。",
+          "reasoning": "チャットモデルも本質は次トークン予測器です。会話リストを台本文字列に変換し、末尾をアシスタントの発言開始印にすることで「続き＝AIの返答」を生成させます。",
+          "steps": [
+            "`messages`（辞書のリスト）は人間とPythonにとって扱いやすい形式。",
+            "`apply_chat_template` がそれを1本の台本文字列に変換する。",
+            "`add_generation_prompt=True` で末尾に `<|im_start|>assistant\\n` を付け、その続きを書かせる。",
+            "返答が終わるとモデル自身が `<|im_end|>` を予測して停止する。"
+          ],
+          "altExample": "台本で「先生：空はなぜ青いの？\\n生徒：」まで書いて渡すと、誰でも自然と生徒のセリフの続きを書くのと同じ仕組みです。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q14",
+      "chapter": "01-first-llm",
+      "section": "キャラクターを演じさせる",
+      "sectionAnchor": "#s10",
+      "concept": "system-vs-user-role",
+      "conceptLabel": "systemロールとuserロールの使い分け",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "LLMに「すべての質問に英語だけで、3文以内で答える家庭教師」を演じさせつつ、毎回の質問内容だけを変えたいとき、もっとも適切な `messages` の構成はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`role: \"system\"` に家庭教師のルールを書き、`role: \"user\"` に毎回の質問を書く",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`role: \"assistant\"` に質問を書き、`role: \"user\"` にAIの答えを書く",
+              "wrongReason": "`user` が利用者からの質問、`assistant` がAI側の発話です。役割が逆になっています。"
+            },
+            {
+              "id": "c",
+              "text": "`model=\"english-teacher\"` と `pipeline` のモデル名に書く",
+              "wrongReason": "`model=` には実在する公開モデルのIDを指定する必要があります。"
+            },
+            {
+              "id": "d",
+              "text": "`max_new_tokens=\"english\"` を指定する",
+              "wrongReason": "`max_new_tokens` は生成する最大トークン数（整数）を指定する引数です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`ask_as(character, question)` の中で `system` と `user` をどう使い分けていたか確認しましょう。",
+          "reasoning": "`system` は会話全体の方針・役割設定、`user` はその回の具体的な質問という分離をしておくと関数化しやすく再利用できます。",
+          "steps": [
+            "変わらない前提ルール（性格・出力形式）→ `{\"role\": \"system\", \"content\": ...}`。",
+            "毎回変わる質問 → `{\"role\": \"user\", \"content\": ...}`。",
+            "`ask_as(character, question)` のように引数で分けると使い回せる。"
+          ],
+          "altExample": "翻訳アプリなら `system` に「日本語を自然な英語に翻訳して」、`user` に翻訳したい文を入れます。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q15",
+      "chapter": "01-first-llm",
+      "section": "「大規模」ってどれくらい？",
+      "sectionAnchor": "#s11",
+      "concept": "py-for-vs-genexp",
+      "conceptLabel": "forループとsum(ジェネレータ式)の対応",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "パラメータ数を数える1行コード `sum(p.numel() for p in ...)` の仕組みを確認します。次のコードの出力を予測してください。",
+          "code": "parts = [[1, 2, 3], [4, 5], [6, 7, 8, 9]]\nn = sum(len(p) for p in parts)\nprint(n)",
+          "accept": ["9"],
+          "placeholder": "表示される整数を入力",
+          "hint": "各リストの長さ `len(p)` は `3`, `2`, `4` です。それらを `sum(...)` で合計します。",
+          "reasoning": "`sum(処理 for p in 集まり)` は、`for` 文で1つずつ計算した値を合計する短縮表現です。",
+          "steps": [
+            "1つ目の `p = [1, 2, 3]` → `len(p) = 3`",
+            "2つ目の `p = [4, 5]` → `len(p) = 2`",
+            "3つ目の `p = [6, 7, 8, 9]` → `len(p) = 4`",
+            "合計：$3 + 2 + 4 = 9$"
+          ],
+          "altExample": "`total = 0; for p in parts: total += len(p)` とまったく同じ結果になります。`chat.model.parameters()` では `len(p)` の代わりに要素数を返す `p.numel()` を使っています。"
+        },
+        {
+          "prompt": "次のコードの出力を予測してください。",
+          "code": "layers = [\"abc\", \"de\", \"fghij\"]\nprint(sum(len(x) for x in layers))",
+          "accept": ["10"],
+          "placeholder": "表示される整数を入力",
+          "hint": "各文字列の文字数 `3`, `2`, `5` を足します。",
+          "reasoning": "`layers` の各要素 `x` に対して `len(x)` を計算し、`sum` で合算します。",
+          "steps": [
+            "`len(\"abc\") = 3`",
+            "`len(\"de\") = 2`",
+            "`len(\"fghij\") = 5`",
+            "合計：$3 + 2 + 5 = 10$"
+          ],
+          "altExample": "ジェネレータ式が読みにくいときは、遠慮なく3行の `for` 文に書き直して理解して大丈夫です。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q16",
+      "chapter": "01-first-llm",
+      "section": "「大規模」ってどれくらい？",
+      "sectionAnchor": "#s11",
+      "concept": "impl-count-params",
+      "conceptLabel": "【自力実装】for文でパラメータ総数を数える関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "各層（リスト）のリストを受け取り、中に入っている数値の総数を `for` 文（または `sum`）で数えて返す関数 `count_params(layers)` を自力実装し、Colabで検算テストを通してください。",
+          "starterCode": "def count_params(layers):\n    # layers は [[0.1, 0.2], [0.3, 0.4, 0.5]] のようなリストのリスト\n    # 全体の要素数を整数で返す\n    pass",
+          "solutionCode": "def count_params(layers):\n    total = 0\n    for layer in layers:\n        total += len(layer)\n    return total",
+          "colabCheck": "assert count_params([[1, 2], [3, 4, 5]]) == 5\nassert count_params([]) == 0\nassert count_params([[0.1] * 10, [0.2] * 25, [0.3] * 5]) == 40\nprint(\"ALL PASSED\")",
+          "hint": "`total = 0` から始めて、各 `layer` の長さ `len(layer)` を足し上げます。",
+          "reasoning": "モデルの全パラメータ数を数える処理は、「各層の要素数を順に取り出して足す」という単純なループです。",
+          "steps": [
+            "`total = 0` で合計用の変数を初期化する。",
+            "`for layer in layers:` で各層を取り出す。",
+            "`total += len(layer)` で要素数を加算し、最後に `return total`。"
+          ],
+          "altExample": "PyTorchの実モデルでは `len(layer)` の代わりに、多次元テンソルの全要素数を返す `p.numel()`（number of elements）を使います。",
+          "selfCheckCriteria": [
+            "3つの `assert`（空リスト含む）がすべて通った",
+            "`sum(len(layer) for layer in layers)` が同じ意味であることを説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch01-q17",
+      "chapter": "01-first-llm",
+      "section": "「大規模」ってどれくらい？",
+      "sectionAnchor": "#s11",
+      "concept": "param-count-units",
+      "conceptLabel": "パラメータ数の単位（B・M）とべき乗",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "モデル名 `Qwen2.5-0.5B-Instruct` の `0.5B` はおよそ何個のパラメータを表していますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "約50万個（$0.5 \\times 10^6$）",
+              "wrongReason": "100万（$10^6$）は `M`（Million）です。`B` は Billion（10億 = $10^9$）です。"
+            },
+            {
+              "id": "b",
+              "text": "約5億個（$0.5 \\times 10^9 = 500,000,000$）",
+              "wrongReason": ""
+            },
+            {
+              "id": "c",
+              "text": "約50億個（$5 \\times 10^9$）",
+              "wrongReason": "50億個は `5B` です。`0.5B` は10億の半分なので5億個です。"
+            },
+            {
+              "id": "d",
+              "text": "約0.5バイト（ファイルサイズ）",
+              "wrongReason": "`B` はここではByteではなくBillion（10億）で、パラメータの「個数」を表します。"
+            }
+          ],
+          "answer": "b",
+          "hint": "`1B = 10億` です。その半分（`0.5` 倍）はいくつでしょう？",
+          "reasoning": "LLMのモデルサイズ表記では `M` = 100万（$10^6$）、`B` = 10億（$10^9$）が標準的に使われます。",
+          "steps": [
+            "$10^9$ は 10 を 9 回掛けた数 ＝ 1,000,000,000（10億）。",
+            "$0.5 \\times 10^9 = 500,000,000$（5億）。",
+            "実際の `Qwen2.5-0.5B` は 494,032,768 個（約4.94億個）。"
+          ],
+          "altExample": "`1.5B` なら約15億個、`7B` なら約70億個、`175M` なら約1億7500万個です。"
+        }
+      ]
+    },
+    {
+      "id": "ch01-q18",
+      "chapter": "01-first-llm",
+      "section": "「大規模」ってどれくらい？",
+      "sectionAnchor": "#s11",
+      "concept": "vram-estimation",
+      "conceptLabel": "【発展】パラメータ数と数値形式から必要メモリを見積もる",
+      "level": 5,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "パラメータ数が **7B（70億個）** のLLMを、`float16`（パラメータ1個あたり **2バイト**）で読み込むと、モデル本体だけでおよそ何GB（$1\\text{GB} \\approx 10^9$ バイトとして概算）のメモリが必要になりますか？",
+          "answer": { "value": 14, "tolerance": 0.5 },
+          "unit": "GB",
+          "placeholder": "数字のみ入力（例：14）",
+          "hint": "必要なバイト数 ＝ パラメータ数 × 1個あたりのバイト数 です。",
+          "reasoning": "モデルの重みサイズは「パラメータ数 × 1パラメータあたりのバイト数」で見積もれます。これがGPUのVRAMに載るか判断する基本計算です。",
+          "steps": [
+            "パラメータ数：$7\\text{B} = 7 \\times 10^9$ 個。",
+            "`float16` は16ビット ＝ $16 \\div 8 = 2$ バイト／個。",
+            "$7 \\times 10^9 \\times 2 = 14 \\times 10^9$ バイト $\\approx 14\\text{GB}$。",
+            "Colab無料T4のVRAMは約15GBなので、7Bを `float16` で載せるだけでもギリギリ（学習には工夫＝量子化やLoRAが必要）と予測できる！"
+          ],
+          "altExample": "同じ7Bモデルを `float32`（1個4バイト）で読み込むと $7 \\times 4 = 28\\text{GB}$ になり、T4（15GB）には載りません。第19章では4ビット量子化（0.5バイト／個 → 約3.5GB）でこの壁を突破します。"
+        },
+        {
+          "prompt": "パラメータ数が **1.5B（15億個）** のLLMを、`float32`（パラメータ1個あたり **4バイト**）で読み込むと、モデル本体だけでおよそ何GB（$1\\text{GB} \\approx 10^9$ バイトとして概算）になりますか？",
+          "answer": { "value": 6, "tolerance": 0.3 },
+          "unit": "GB",
+          "placeholder": "数字のみ入力（例：6）",
+          "hint": "$1.5 \\times 4$ を計算しましょう。",
+          "reasoning": "`float32` は32ビット＝4バイトです。パラメータ数（B単位）に4を掛けると、おおまかなGB数がすぐ分かります。",
+          "steps": [
+            "パラメータ数：$1.5\\text{B} = 1.5 \\times 10^9$ 個。",
+            "`float32` は 32ビット ÷ 8 ＝ 4 バイト／個。",
+            "$1.5 \\times 4 = 6\\text{GB}$。"
+          ],
+          "altExample": "`float16`（2バイト／個）にすれば $1.5 \\times 2 = 3\\text{GB}$ と半分で済みます。"
+        }
+      ]
+    }
+  ]
+}

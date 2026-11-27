@@ -1,0 +1,852 @@
+{
+  "chapter": "17-hf-models",
+  "exercises": [
+    {
+      "id": "ch17-q01",
+      "chapter": "17-hf-models",
+      "section": "Hugging Face Hub を歩く",
+      "sectionAnchor": "#s1",
+      "concept": "model-card-and-license",
+      "conceptLabel": "モデルカードとライセンス（Apache 2.0 / MIT / CC BY-NC / 独自ライセンス）",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "Hugging Face Hub で公開されている事前学習済みモデルを**企業の商用サービス**に組み込んで使いたいとき、ライセンス欄の確認として最も適切な判断はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "**Apache 2.0** や **MIT** は原則として商用利用・改変が可能だが、**CC BY-NC** は非営利限定のため商用利用不可であり、独自ライセンス（Llama・Gemma等）は利用規約の条件を確認する必要がある",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Hugging Face Hub で無料ダウンロードできるモデルはすべて商用利用が自由なので、ライセンスを確認する必要はない",
+              "wrongReason": "無料でダウンロードできることと商用利用の許可は別です。CC BY-NC のように非営利限定のモデルやデータセットも多数あります。"
+            },
+            {
+              "id": "c",
+              "text": "CC BY-NC は「Commercial（商用）OK」の意味なので商用サービスに最適である",
+              "wrongReason": "NC は Non-Commercial（非営利）の略なので、商用利用は原則禁止です。"
+            },
+            {
+              "id": "d",
+              "text": "モデルのライセンスさえ確認すれば、追加学習に使うデータセットのライセンスは確認しなくてよい",
+              "wrongReason": "ファインチューニングに使うデータセットにも固有のライセンスがあり、モデルと同様に確認が必要です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「NC」は Non-Commercial（非営利）の略です。",
+          "reasoning": "モデルカードは中古車の車検証のようなものです。公開・商用利用の前には、モデルとデータセット両方のライセンス条件を必ず確認します。",
+          "steps": [
+            "Apache 2.0 / MIT：商用利用・改変ともに自由度が高い。",
+            "Llama / Gemmaなどの独自ライセンス：規約同意（gated）や売上規模などの独自条件を確認。",
+            "CC BY-NC：個人学習・研究は可だが商用不可。"
+          ],
+          "altExample": "Qwen2.5の多くのサイズ（0.5B〜72Bの一部）はApache 2.0で公開されていますが、一部サイズ（例：3B）は別ライセンスの場合があるため、必ずモデル単位で確認します。"
+        },
+        {
+          "prompt": "Hugging Face Hub のモデルページ（Files and versions）に並んでいるファイルのうち、モデルの重み本体を安全に保存しているファイルはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`model.safetensors`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`config.json`",
+              "wrongReason": "`config.json` は層数・ヘッド数・語彙サイズなどの設計図（設定値）が入った小さなJSONファイルで、重み本体ではありません。"
+            },
+            {
+              "id": "c",
+              "text": "`tokenizer.json`",
+              "wrongReason": "`tokenizer.json` はトークナイザーの語彙やBPEマージ規則が入ったファイルで、モデルの重みではありません。"
+            },
+            {
+              "id": "d",
+              "text": "`README.md`",
+              "wrongReason": "`README.md` はモデルカード（説明書とメタデータ）の文章ファイルです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "重みのファイル形式として本文で紹介された、任意コード実行の危険がない形式を選びましょう。",
+          "reasoning": "モデルリポジトリは大きく「重み（`*.safetensors`）」「設計図（`config.json`）」「トークナイザー（`tokenizer.json` 等）」「生成設定（`generation_config.json`）」で構成されています。",
+          "steps": [
+            "`model.safetensors`：重みテンソル本体（巨大モデルでは複数ファイルに分割）。",
+            "`config.json`：アーキテクチャ設定。",
+            "`tokenizer.json` / `tokenizer_config.json`：トークナイザーとチャットテンプレート。"
+          ],
+          "altExample": "大きな7Bモデルでは `model-00001-of-00004.safetensors` のように複数シャードに分けて保存されます。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q02",
+      "chapter": "17-hf-models",
+      "section": "ベースモデルとチャットモデル",
+      "sectionAnchor": "#s2",
+      "concept": "base-vs-instruct-behavior",
+      "conceptLabel": "ベースモデルが質問に答えず続きを書き続ける理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第15章：事前学習"],
+      "variants": [
+        {
+          "prompt": "ベースモデル（`Qwen2.5-0.5B`）に「日本で一番高い山は何ですか？」とそのまま入力したところ、答えずに同じ質問文を繰り返したり、答えた後に勝手に次の「問：」を書き始めたりしました。なぜこのような挙動になるのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ベースモデルは事前学習で「ネット上の文章の続きを書く」ことだけを学んでおり、質問に答えて `<|im_end|>` で止まる会話の作法（SFT）をまだ学んでいないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "ベースモデルは日本の地理に関する知識をまったく持っていないから",
+              "wrongReason": "「問：…\\n答：」の形に整えると「富士山です。標高3776メートル…」と正しく答えられたため、知識自体は持っています。"
+            },
+            {
+              "id": "c",
+              "text": "ベースモデルにはトークナイザーが存在しないから",
+              "wrongReason": "ベースモデルもチャットモデルと同じBPEトークナイザーを使っています。"
+            },
+            {
+              "id": "d",
+              "text": "`do_sample=False` にすると必ず同じ文しか返せないバグがあるから",
+              "wrongReason": "同じ `do_sample=False` でもチャットモデル（`Instruct`）は的確に答えて停止しました。違いはモデル側の追加学習（SFT等）の有無です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "ネット上のFAQページや問題集では、「質問文」のすぐ次に何が書かれていることが多いか想像してみましょう。",
+          "reasoning": "ベースモデルは純粋な「次トークン予測器」なので、質問文を見たら「よくある質問一覧の続き」を生成し、Q&A形式を見たら「次の問題」まで続けてしまいます。",
+          "steps": [
+            "事前学習だけのベースモデルは、大量のWebテキストの続きを再現するのが仕事。",
+            "質問に1回だけ答えて `<|im_end|>` で止まる作法は、SFT（第18章）で初めて身につける。",
+            "会話アプリに使うときは `-Instruct` / `-Chat` の付いたチャットモデルを選ぶ。"
+          ],
+          "altExample": "逆に、第18章以降でゼロから独自の会話スタイルを教え込む研究では、あえてベースモデルを出発点にすることもあります。"
+        },
+        {
+          "prompt": "ベースモデル（`Qwen2.5-0.5B`）とチャットモデル（`Qwen2.5-0.5B-Instruct`）の対比として**誤っている**ものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "チャットモデルはベースモデルよりパラメータ数が10倍大きく、まったく別のTransformer構造になっている",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "ベースモデルは事前学習直後の状態で、文章の続きを補完する用途に向く",
+              "wrongReason": "これは正しい説明です（誤っている選択肢を探します）。"
+            },
+            {
+              "id": "c",
+              "text": "チャットモデルはベースモデルにSFTや好みの学習を追加して作られ、チャットテンプレート形式で対話できる",
+              "wrongReason": "これは正しい説明です（誤っている選択肢を探します）。"
+            },
+            {
+              "id": "d",
+              "text": "チャットモデルは応答の最後に `<|im_end|>` などの終了トークンを出して適切に止まることを学んでいる",
+              "wrongReason": "これは正しい説明です（誤っている選択肢を探します）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`Qwen2.5-0.5B` と `Qwen2.5-0.5B-Instruct` はどちらも同じ「0.5B」モデルです。",
+          "reasoning": "ベースモデルとチャットモデルは**まったく同じ構造・同じパラメータ数**であり、重みの値（追加学習の有無）だけが異なります。",
+          "steps": [
+            "構造・サイズ：`0.5B` と `0.5B-Instruct` は同一アーキテクチャ・同一サイズ。",
+            "違いは事前学習の重みから SFT＋好み学習で重みを微調整した点にある。"
+          ],
+          "altExample": "ベースモデルに接客研修（SFT）を受けさせてチャットモデルにする過程そのものを、次の第18章で実際に自分の手で実行します。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q03",
+      "chapter": "17-hf-models",
+      "section": "ベースモデルとチャットモデル",
+      "sectionAnchor": "#s2",
+      "concept": "llm-three-training-stages",
+      "conceptLabel": "チャットモデルができるまでの3段階（事前学習 → SFT → 好みの学習）",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "現代のチャット用LLMが作られる標準的な**3段階の順序と役割**として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "① **事前学習**（大量テキストで知識と言語能力を獲得）→ ② **SFT**（質問と模範回答で会話作法と停止を学習）→ ③ **好みの学習（RLHF / DPO）**（良さ・安全性の選好を調整）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "① **RLHF / DPO** → ② **SFT** → ③ **事前学習**（最後に知識を詰め込む）",
+              "wrongReason": "順序が逆です。まず事前学習で言語と知識の土台を作り、その上でSFTと好みの学習を行います。"
+            },
+            {
+              "id": "c",
+              "text": "① **SFT**（会話から始める）→ ② **事前学習** → ③ **トークナイザー学習**",
+              "wrongReason": "トークナイザーは事前学習の前に固定され、事前学習がすべての土台（第1段階）です。"
+            },
+            {
+              "id": "d",
+              "text": "① **事前学習**だけで完成し、SFTや好みの学習は不要である",
+              "wrongReason": "事前学習だけではベースモデルにしかならず、質問に答えて止まる作法や安全性は第2・第3段階で身につけます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「一般教養を身につける → 接客研修を受ける → より良い接客をフィードバックで磨く」の順番です。",
+          "reasoning": "第4部までで学んだ事前学習に続き、第5部では第18〜19章で **SFT / LoRA**、第22章で **DPO（好みの学習）** を順番に実践します。",
+          "steps": [
+            "第1段階：事前学習（Pre-training）→ ベースモデル完成。",
+            "第2段階：教師ありファインチューニング（SFT）→ 指示応答と停止を習得。",
+            "第3段階：好みの学習（RLHF / DPO）→ 丁寧さ・正確さ・安全性をアラインメント。"
+          ],
+          "altExample": "この3段階の地図を頭に入れておくと、第18章〜第22章で自分が今どの工程を作っているのか迷わなくなります。"
+        },
+        {
+          "prompt": "LLM構築の3段階のうち、「同じ質問に対する2つの回答（良い答え・悪い答え）を比較して、良い答えの確率が高くなるように調整する」工程はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "第3段階：**好みの学習**（RLHF / DPO など）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "第1段階：**事前学習**（Pre-training）",
+              "wrongReason": "事前学習は大量のプレーンテキストに対する通常の次トークン予測です。"
+            },
+            {
+              "id": "c",
+              "text": "第2段階：**SFT**（教師ありファインチューニング）",
+              "wrongReason": "SFTは「質問 → 1つの模範回答」のペアをまねして学習する段階であり、2つの回答の優劣比較は第3段階で行います。"
+            },
+            {
+              "id": "d",
+              "text": "**BPE学習**",
+              "wrongReason": "BPEはテキストをトークンIDに分割する辞書づくりです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「2つの答えのどちらが良いか（好み＝Preference）」を使う段階です。",
+          "reasoning": "良い回答（chosen）と悪い回答（rejected）のペアを使って選好を学習するのがRLHFやDPO（第22章）です。",
+          "steps": [
+            "事前学習：文書コーパスからの次トークン予測。",
+            "SFT：(指示, 模範回答) ペアの学習。",
+            "好みの学習（RLHF / DPO）：(指示, 良い回答, 悪い回答) の比較学習。"
+          ],
+          "altExample": "有害なリクエストを丁寧に断る振る舞いや、簡潔で親切な回答スタイルはこの第3段階で大きく磨かれます。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q04",
+      "chapter": "17-hf-models",
+      "section": "ベースモデルとチャットモデル",
+      "sectionAnchor": "#s2",
+      "concept": "automodel-for-causal-lm",
+      "conceptLabel": "AutoModel ではなく AutoModelForCausalLM を使う理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：出力層 lm_head", "第15章：GPT-2の構造"],
+      "variants": [
+        {
+          "prompt": "Hugging Face の `transformers` でテキスト生成モデルを読み込むとき、`AutoModel` ではなく **`AutoModelForCausalLM`** を使う理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`AutoModel` はTransformerの胴体（特徴ベクトル出力）までしか持たないのに対し、`AutoModelForCausalLM` はその上に次トークンを予測する出力層（`lm_head`）と `.generate()` を備えているから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`AutoModel` はCPU専用で、`AutoModelForCausalLM` だけがGPUで動くから",
+              "wrongReason": "どちらもCPU・GPU両方で動きます。違いはタスク用の出力ヘッド（`lm_head`）と生成機能が付いているかどうかです。"
+            },
+            {
+              "id": "c",
+              "text": "`AutoModelForCausalLM` はトークナイザーも一緒に読み込むため `AutoTokenizer` が不要になるから",
+              "wrongReason": "トークナイザーは別途 `AutoTokenizer.from_pretrained(...)` で読み込む必要があります。"
+            },
+            {
+              "id": "d",
+              "text": "`AutoModelForCausalLM` は重みを自動で4ビット量子化してくれるから",
+              "wrongReason": "量子化設定（`BitsAndBytesConfig` 等）を渡さない限り、指定した `dtype`（float16等）のまま読み込まれます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第15章で作った `GPT2` クラスの `self.transformer`（胴体）と `self.lm_head`（出口の層）の区別を思い出しましょう。",
+          "reasoning": "`AutoModel` は第15章の `self.transformer` 相当（埋め込み・ブロック・最終LayerNorm）のみ、`AutoModelForCausalLM` はそこに `lm_head` と生成メソッドを載せた完全な言語モデルです。",
+          "steps": [
+            "`AutoModel`：出力は各トークンの隠れベクトル `[B, T, d]`（分類や埋め込み抽出向け）。",
+            "`AutoModelForCausalLM`：`lm_head` を通して全語彙ロジット `[B, T, V]` を出し、`.generate()` で文章生成できる。"
+          ],
+          "altExample": "同じTransformer胴体の上に分類用ヘッドを載せたいときは `AutoModelForSequenceClassification` を使うなど、タスクごとに `AutoModelFor〜` を選びます。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q05",
+      "chapter": "17-hf-models",
+      "section": "チャットテンプレートと複数ターンの会話",
+      "sectionAnchor": "#s3",
+      "concept": "llm-stateless-multiturn-memory",
+      "conceptLabel": "LLMはステートレス：複数ターン会話の「記憶」の正体とコンテキスト上限",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：チャットテンプレート", "第2章：コンテキスト長"],
+      "variants": [
+        {
+          "prompt": "チャットアプリで「私の名前はミナトです」と伝えた後、次のターンで「私の名前は何でしたっけ？」と聞くと「ミナトさんです」と答えてくれます。LLMが前の会話を覚えている**本当の仕組み**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "LLM自体は前回の会話を一切覚えておらず（ステートレス）、アプリ側が過去のやり取りすべてを `messages` リストに連結して毎回モデルへ送り直しているから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "会話するたびにモデルの重みパラメータが自動で更新（再学習）されて名前が書き込まれるから",
+              "wrongReason": "推論中はモデルの重みは一切書き換わりません（もし書き換わったら他ユーザーの会話も混ざってしまいます）。"
+            },
+            {
+              "id": "c",
+              "text": "トークナイザーが自動的にユーザー名をハードディスクに保存してこっそり挿入しているから",
+              "wrongReason": "トークナイザーは渡された `messages` をID列に変えるだけで、履歴管理はアプリケーション側の責務です。"
+            },
+            {
+              "id": "d",
+              "text": "モデルの内部に無限容量のデータベースが組み込まれているから",
+              "wrongReason": "モデルが見られるのは入力コンテキスト長に収まるトークン列だけです。だから長すぎる会話では古い話題を忘れます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "本文の `messages` リストに「1ターン目の質問」「1ターン目のAIの返事」「2ターン目の質問」が全部入っていたことを確認しましょう。",
+          "reasoning": "LLMの推論呼び出しは1回ごとに独立（ステートレス）です。会話の継続性は、過去の `user` / `assistant` 履歴を毎回台本として渡し直すことで実現しています。",
+          "steps": [
+            "1ターン目：`[system, user1]` を送る → `assistant1` を受け取る。",
+            "2ターン目：`[system, user1, assistant1, user2]` を**全部**送る → `assistant2` を受け取る。",
+            "履歴が伸びるほど入力トークン数が増え、コンテキスト長の上限に達したら古い履歴を切り詰める必要がある。"
+          ],
+          "altExample": "API利用で長いチャットを続けると後半ほど課金トークン数が急増するのも、毎回過去履歴全体を再送信しているためです。"
+        },
+        {
+          "prompt": "長い会話を続けてコンテキスト長の上限に近づいたとき、アプリ側で古い会話履歴を切り詰める（トリミングする）際に**絶対に消さずに先頭に残すべき**メッセージはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`role` が `\"system\"` のメッセージ（AIの役割・ルール・口調の指示）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "いちばん最初にユーザーが打った「こんにちは」のメッセージだけ",
+              "wrongReason": "古い雑談から順に捨てるのが基本であり、役割定義である `system` メッセージこそ優先して保持すべきです。"
+            },
+            {
+              "id": "c",
+              "text": "直前の `user` の質問を消して、10ターン前のやり取りだけ残す",
+              "wrongReason": "直前の質問を消したらモデルが今何に答えればよいか分からなくなります。新しいターンを優先して残します。"
+            },
+            {
+              "id": "d",
+              "text": "`assistant` の返答だけ全部消して `user` だけ並べる",
+              "wrongReason": "`assistant` の返答を全部抜くと会話の文脈が壊れ、チャットテンプレートの交互構造（user/assistant）も崩れます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「あなたは親切なアシスタントです」などの基本ルールが消えると、AIのキャラクターや制約が途中から崩れてしまいます。",
+          "reasoning": "実務の履歴管理では、`system` メッセージを先頭に固定したまま、会話本体（`user`/`assistant`）を直近 $N$ 往復にスライディングウィンドウで切り詰めるのが定石です。",
+          "steps": [
+            "`system` メッセージを分離して必ず先頭に保持する。",
+            "残りの `user` / `assistant` の履歴から直近 `max_turns` 往復分だけを切り出す。",
+            "`system` ＋ 直近の会話履歴を結合して `apply_chat_template` に渡す。"
+          ],
+          "altExample": "次の自力実装問題（`trim_history`）で、まさにこの実務パターンをPythonで実装します！"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q06",
+      "chapter": "17-hf-models",
+      "section": "チャットテンプレートと複数ターンの会話",
+      "sectionAnchor": "#s3",
+      "concept": "multiturn-messages-structure-trace",
+      "conceptLabel": "複数ターン会話での messages リスト構築と要素数の追跡",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "複数ターン会話で `messages` リストにやり取りを追加していく処理を確認します。次のコードを実行すると何が表示されますか？",
+          "code": "messages = [{\"role\": \"system\", \"content\": \"簡潔に答えて。\"}]\nfor q, a in [(\"名前は？\", \"ボンゴです\"), (\"好きな食べ物は？\", \"バナナです\")]:\n    messages.append({\"role\": \"user\", \"content\": q})\n    messages.append({\"role\": \"assistant\", \"content\": a})\nmessages.append({\"role\": \"user\", \"content\": \"もう一度名前は？\"})\nprint(len(messages), messages[-1][\"role\"])",
+          "accept": ["6 user"],
+          "placeholder": "例：6 user",
+          "hint": "`system` が1件、2往復の `(user, assistant)` が4件、さらに新しい `user` の質問が1件です。",
+          "reasoning": "1 + 2×2 + 1 = 6件になり、モデルへ応答生成を依頼する直前は必ず末尾が `user` メッセージになります（その直後に `add_generation_prompt=True` が `<|im_start|>assistant\\n` を付け足します）。",
+          "steps": [
+            "初期：`system`（1件）。",
+            "2往復追加：`user`, `assistant`, `user`, `assistant`（+4件 → 計5件）。",
+            "3ターン目の質問を追加：`user`（+1件 → 計6件）。",
+            "長さと末尾のrole → `6 user`。"
+          ],
+          "altExample": "モデルから返答を受け取ったら、忘れずに `messages.append({\"role\": \"assistant\", \"content\": reply})` を実行して次のターンに備えます。"
+        },
+        {
+          "prompt": "次のコードで、`system` 以外のメッセージだけを取り出したときの件数と最初の `content` を予測してください。",
+          "code": "messages = [\n    {\"role\": \"system\", \"content\": \"先生役\"},\n    {\"role\": \"user\", \"content\": \"問1\"},\n    {\"role\": \"assistant\", \"content\": \"答1\"},\n    {\"role\": \"user\", \"content\": \"問2\"},\n    {\"role\": \"assistant\", \"content\": \"答2\"},\n]\ndialog = [m for m in messages if m[\"role\"] != \"system\"]\nrecent = dialog[-2:]\nprint(len(recent), recent[0][\"content\"])",
+          "accept": ["2 問2"],
+          "placeholder": "例：2 問2",
+          "hint": "`dialog` は4件（問1, 答1, 問2, 答2）あり、`dialog[-2:]` は末尾から2件を取り出します。",
+          "reasoning": "リストのスライス `[-2:]` で直近1往復（`問2` と `答2`）を切り出せます。これが会話履歴トリミングの基本操作です。",
+          "steps": [
+            "`dialog` = `[問1, 答1, 問2, 答2]`（4件）。",
+            "`dialog[-2:]` = `[問2, 答2]`（2件）。",
+            "`len(recent)` は `2`、`recent[0][\"content\"]` は `問2` → `2 問2`。"
+          ],
+          "altExample": "もし `max_turns` 往復残したいときは、`dialog[-2 * max_turns:]` と書くだけで直近 `max_turns` 往復を取り出せます。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q07",
+      "chapter": "17-hf-models",
+      "section": "チャットテンプレートと複数ターンの会話",
+      "sectionAnchor": "#s3",
+      "concept": "impl-trim-conversation-history",
+      "conceptLabel": "【自力実装】systemを保持しながら直近max_turns往復に切る会話履歴管理 trim_history",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "チャット履歴 `messages`（`{\"role\": ..., \"content\": ...}` の辞書リスト）と最大保持ターン数 `max_turns`（1以上の整数）を受け取り、① **`role == \"system\"` のメッセージはすべて先頭に保持**し、② それ以外の会話メッセージ（`user` / `assistant`）は**直近 `max_turns` 往復ぶん（最大 `2 * max_turns` 件）**だけを残して新しいリストを返す関数 `trim_history(messages, max_turns)` を自力実装し、検算テストを通してください（元の `messages` は変更しないこと）。",
+          "starterCode": "def trim_history(messages, max_turns):\n    # 1. system メッセージだけのリスト sys_msgs を作る\n    # 2. それ以外のリスト dialog を作る\n    # 3. dialog の末尾 2 * max_turns 件だけを残し、sys_msgs + recent を返す\n    pass",
+          "solutionCode": "def trim_history(messages, max_turns):\n    sys_msgs = [m for m in messages if m[\"role\"] == \"system\"]\n    dialog = [m for m in messages if m[\"role\"] != \"system\"]\n    limit = 2 * max_turns\n    return sys_msgs + dialog[-limit:]",
+          "colabCheck": "hist = [\n    {\"role\": \"system\", \"content\": \"あなたは親切な先生です。\"},\n    {\"role\": \"user\", \"content\": \"u1\"}, {\"role\": \"assistant\", \"content\": \"a1\"},\n    {\"role\": \"user\", \"content\": \"u2\"}, {\"role\": \"assistant\", \"content\": \"a2\"},\n    {\"role\": \"user\", \"content\": \"u3\"}, {\"role\": \"assistant\", \"content\": \"a3\"},\n]\ntrimmed = trim_history(hist, max_turns=2)\nassert len(trimmed) == 5\nassert trimmed[0][\"role\"] == \"system\"\nassert [m[\"content\"] for m in trimmed[1:]] == [\"u2\", \"a2\", \"u3\", \"a3\"]\nassert len(hist) == 7  # 元のリストを壊していない\nassert len(trim_history(hist, max_turns=10)) == 7  # 短いときは全件残る\nno_sys = hist[1:]\ntrimmed2 = trim_history(no_sys, max_turns=1)\nassert [m[\"content\"] for m in trimmed2] == [\"u3\", \"a3\"]\nprint(\"ALL PASSED\")",
+          "hint": "Pythonのスライス `dialog[-limit:]` は、`len(dialog) < limit` のときでもエラーにならず全要素をそのまま返してくれます（`limit >= 1` のとき）。",
+          "reasoning": "LLMはステートレスでコンテキスト長に上限があるため、実際のチャットアプリでは `system` プロンプトを守りながら古いターンを落とすこのロジックが必須になります。",
+          "steps": [
+            "`sys_msgs = [m for m in messages if m[\"role\"] == \"system\"]` でシステム指示を保護する。",
+            "`dialog = [m for m in messages if m[\"role\"] != \"system\"]` で会話本体を分離する。",
+            "`dialog[-2 * max_turns:]` で直近 `max_turns` 往復を取り出し、`sys_msgs` と連結して新しいリストを返す。"
+          ],
+          "altExample": "本番アプリではさらにトークン数で上限管理したり、切り捨てた古い会話をLLM自身に要約させて `system` に追記する「会話要約メモリ」もよく使われます。",
+          "selfCheckCriteria": [
+            "`system` 保持・直近2往復切り詰め・元リスト非破壊・上限未満・`system` なしのすべての `assert` が通った",
+            "もし `max_turns=0` を許容したい場合に `dialog[-0:]` が全要素を返してしまうPythonスライスの罠に気づけた"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch17-q08",
+      "chapter": "17-hf-models",
+      "section": "プロンプトの工夫と、その限界",
+      "sectionAnchor": "#s4",
+      "concept": "prompting-techniques-fewshot-cot",
+      "conceptLabel": "zero-shot・few-shot・Chain-of-Thought（段階的思考）の違いと仕組み",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：次トークン予測の連鎖"],
+      "variants": [
+        {
+          "prompt": "プロンプトに「ステップごとに考えてから答えてください」と付け加える手法（**Chain-of-Thought / CoT**）によって、算数や論理問題の正答率が上がることがある**本質的な理由**は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "LLMは自分が生成したトークンを読み直しながら次を予測するため、途中の計算過程を書き出すことで、その途中結果が次のトークン予測の手がかり（作業メモ）になるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "「ステップごとに」と書くとLLMの内部で自動的にPythonの電卓プログラムが起動するから",
+              "wrongReason": "ツール呼び出し機能を繋がない限り電卓は動きません。純粋にテキスト生成の計算ステップを増やす効果です。"
+            },
+            {
+              "id": "c",
+              "text": "モデルの重みパラメータが一時的に2倍に増えるから",
+              "wrongReason": "プロンプトを変えてもモデルの重みや構造は一切変わりません。"
+            },
+            {
+              "id": "d",
+              "text": "推論時のトークン数が減って計算が速くなるから",
+              "wrongReason": "思考過程を出力するぶん生成トークン数はむしろ増え、応答時間は長くなります（その代わりに複雑な推論精度が上がります）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "暗算でいきなり答え1文字だけ書くのと、計算用紙に途中式を書きながら解くのの違いを、自己回帰モデルに当てはめてみましょう。",
+          "reasoning": "LLMは1トークンごとに一定量の計算（層数分の順伝播）しかできません。途中経過をテキストとして出力することで、複数トークン分の計算資源を使って段階的に答えへ近づけます。",
+          "steps": [
+            "いきなり答えを出す場合：1トークン分の順伝播で全計算を暗算しなければならない。",
+            "CoTで途中式を書く場合：各ステップの出力が次の入力文脈に入る。",
+            "その結果、小さな計算を連鎖させて正しい最終回答にたどり着きやすくなる。"
+          ],
+          "altExample": "最新の推論特化モデル（OpenAI o1/o3 や DeepSeek-R1 など）は、この「考える過程（思考トークン）」を強化学習でさらに高度に鍛えたものです。"
+        },
+        {
+          "prompt": "レビューの感情分類タスクで、指示文だけを渡す **zero-shot** に比べて、お手本の入出力ペアを2組ほど見せてから質問する **few-shot** が小型モデルで効きやすい主な理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "期待する出力形式（例：「肯定」「否定」の1語だけで答える）や判断基準を具体例で示せるため、余計な前置きが減って形式がそろいやすいから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "few-shot の例を渡すとモデルの重みが自動的にファインチューニングされて永続的に賢くなるから",
+              "wrongReason": "few-shot は重みを一切変えません（推論時の入力文脈として見せるだけで、次の独立した呼び出しには残りません）。"
+            },
+            {
+              "id": "c",
+              "text": "few-shot は入力トークン数が zero-shot より必ず少なくなるから",
+              "wrongReason": "お手本を追加するぶん、few-shot のほうが入力トークン数は必ず増えます。"
+            },
+            {
+              "id": "d",
+              "text": "few-shot を使うとコンテキスト長の上限が撤廃されるから",
+              "wrongReason": "コンテキスト長の上限は変わらず、お手本を大量に詰め込むほど上限を圧迫します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "言葉だけで「肯定か否定とだけ答えて」と説明するより、実際の `user → assistant` のお手本を2回見せたほうが伝わりやすいですよね。",
+          "reasoning": "few-shot（in-context learning）は重みを変えずに「こういう形式で答えるんだよ」というパターンを文脈から読み取らせる手軽で強力な手法です。",
+          "steps": [
+            "zero-shot：指示文のみ → 小型モデルでは「このレビューは肯定的です。」のように余計な文を足して不一致になりやすい。",
+            "few-shot：`user: 最高の一日でした → assistant: 肯定` の例を添える → 1語だけの形式が安定する。"
+          ],
+          "altExample": "JSON形式での出力や特殊な分類ラベルを安定させたいとき、まず2〜3個の few-shot 例を試すのは実務の定番です。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q09",
+      "chapter": "17-hf-models",
+      "section": "プロンプトの工夫と、その限界",
+      "sectionAnchor": "#s4",
+      "concept": "prompting-limits-and-eval-size",
+      "conceptLabel": "プロンプトの限界とファインチューニング／RAGの使い分け",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "本文の実験では、6問のレビューで zero-shot が 4/6、few-shot が 6/6 でした。この結果の解釈とプロンプトの限界について**正しい**ものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "6問は少なすぎて偶然の差かもしれないため十分な問題数で検証が必要であり、またプロンプトは毎回トークンを消費するうえモデルが知らない知識の追加には限界がある",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "6問で 6/6 が出たので、100%完璧なモデルが完成したと統計的に証明された",
+              "wrongReason": "たった6問では1〜2問のブレで大きく結果が変わるため、本当に優位か判断するにはもっと多くの評価データが必要です（第20章）。"
+            },
+            {
+              "id": "c",
+              "text": "プロンプトに100万件の社内文書を毎回貼れば、ファインチューニングもRAGも永遠に不要になる",
+              "wrongReason": "コンテキスト長・計算コスト・精度の限界があるため、外部知識の参照には **RAG（第21章）**、振る舞いや専門スタイルの定着には **ファインチューニング（第18〜19章）** を使い分けます。"
+            },
+            {
+              "id": "d",
+              "text": "プロンプトの工夫は重みを書き換えるため、1回成功すれば以後は指示文を消しても同じ結果が出る",
+              "wrongReason": "プロンプトは重みを変えないため、毎回入力に同じ指示やお手本を含め続ける必要があります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「評価サンプル数の少なさ」「毎回のトークンコスト」「知らない知識の限界」の3点を押さえましょう。",
+          "reasoning": "プロンプトエンジニアリングは最も手軽な第一歩ですが、①毎回トークンを食う、②最新・社内知識は教えきれない、③複雑な振る舞いの安定化に限界がある、という壁があるため、RAGやファインチューニングへ進みます。",
+          "steps": [
+            "手軽な出力調整 → まずプロンプト（zero-shot / few-shot）。",
+            "最新の外部知識・社内資料を正確に参照したい → **RAG（第21章）**。",
+            "独自の口調・専門フォーマット・特定タスクの精度をトークン節約しつつ定着させたい → **ファインチューニング（第18〜19章）**。"
+          ],
+          "altExample": "実務では「プロンプトで試作 → 十分な評価セットで測定 → 知識不足ならRAG、スタイル・精度不足ならLoRA/SFT」の順に段階的に投資します。"
+        },
+        {
+          "prompt": "次の3つの課題に対して、最も適切なアプローチの組み合わせはどれですか？\n① 毎日更新される社内規程PDFの内容をもとに質問へ正確に答えたい\n② 毎回長いお手本を入れずに、常に「ボンゴ先生」の口調とJSON形式で短く答えさせたい\n③ まず5分で出力の言い回しを少し変えて試したい",
+          "options": [
+            {
+              "id": "a",
+              "text": "① **RAG**（資料検索＋プロンプト挿入）、② **ファインチューニング（SFT / LoRA）**、③ **プロンプトの工夫**",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "① **ゼロから事前学習**、② **トークナイザー再作成**、③ **RLHF**",
+              "wrongReason": "毎日更新される資料のために毎回事前学習するのはコスト的に不可能であり、すべて過剰です。"
+            },
+            {
+              "id": "c",
+              "text": "① **プロンプトのみ（全文手入力）**、② **RAG**、③ **ゼロから事前学習**",
+              "wrongReason": "①は検索（RAG）で必要な箇所だけ渡すのが適切、②はモデルの振る舞い定着なのでファインチューニングが適切です。"
+            },
+            {
+              "id": "d",
+              "text": "①②③すべて **ベースモデルのまま** で解決する",
+              "wrongReason": "ベースモデルは質問に答えて止まる作法すら持たないため、対話タスクにはそのまま使えません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「最新・外部の知識＝RAG」「振る舞いやスタイルの定着＝ファインチューニング」「すぐ試す＝プロンプト」で整理しましょう。",
+          "reasoning": "プロンプト・RAG・ファインチューニングは対立するものではなく、解決したい課題（知識 vs 振る舞い vs 手軽さ）に応じて使い分け・組み合わせます。",
+          "steps": [
+            "更新頻度の高い外部知識 → 検索して文脈に渡す **RAG**。",
+            "口調・書式の定着と入力トークン削減 → **ファインチューニング**。",
+            "即席の試行錯誤 → **プロンプト**。"
+          ],
+          "altExample": "第5部の構成自体が「第17章プロンプト → 第18〜19章SFT/LoRA → 第21章RAG」という実務の設計手順に沿っています。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q10",
+      "chapter": "17-hf-models",
+      "section": "生成の設定を確かめる",
+      "sectionAnchor": "#s5",
+      "concept": "generation-config-eos-and-flags",
+      "conceptLabel": "generation_config の eos_token_id と do_sample=False の警告",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第2章：特殊トークン <|im_end|>", "第3章：do_sampleと温度", "第16章：top-k・top-p"],
+      "variants": [
+        {
+          "prompt": "`chat.generation_config` を表示すると `\"eos_token_id\": [151645, 151643]`、`\"temperature\": 0.7`、`\"top_p\": 0.8` などが設定されていました。このうち **`eos_token_id`** の役割は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "モデルがこのIDのトークン（例：`151645`＝`<|im_end|>`）を生成した時点で、`max_new_tokens` に達していなくても生成ループを停止する合図",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "文章の先頭に必ず追加する挨拶トークンのID",
+              "wrongReason": "先頭の開始トークンは `bos_token_id`（Beginning of Sequence）です。`eos` は End of Sequence（終了）を意味します。"
+            },
+            {
+              "id": "c",
+              "text": "生成中に絶対に出力してはいけない禁止語のID",
+              "wrongReason": "禁止語ではなく、モデルが「返答を書き終えた」と自分で終了を宣言するための特殊トークンです。"
+            },
+            {
+              "id": "d",
+              "text": "GPUメモリが足りなくなったときに自動で量子化するしきい値",
+              "wrongReason": "量子化とは無関係で、テキスト生成の終了条件を定めるトークンIDです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "EOS は **End Of Sequence**（系列の終わり）の略です。",
+          "reasoning": "チャットモデルは答え終えると `<|im_end|>`（Qwen2.5ではID `151645`）を出力します。`generate()` は `eos_token_id` が出た瞬間にループを終了します。",
+          "steps": [
+            "`eos_token_id` ＝ 終了合図のトークンID一覧。",
+            "生成中に `151645`（`<|im_end|>`）が出たら即座に生成を止める。",
+            "ベースモデルが止まらなかったのは、答え終わりにこのトークンを出す訓練（SFT）を受けていないから。"
+          ],
+          "altExample": "もしカスタムのチャットテンプレートで終了トークンを設定し忘れると、モデルが `max_new_tokens` 上限まで延々と独り言を続けます。"
+        },
+        {
+          "prompt": "`model.generate(..., do_sample=False)` を実行したとき、`The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']` という英語メッセージが出ました。これはどういう意味ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "エラーではなく、`do_sample=False`（確率最大の1語を常に選ぶ決定的な生成）を指定したため、モデル既定のサイコロ用パラメータ（温度・top-p・top-k）が使われず無視されるというお知らせ",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルが壊れていてテキスト生成に失敗したという致命的なエラー",
+              "wrongReason": "致命的エラーではなくただの通知（warning/info）であり、生成自体は正しく完了しています。"
+            },
+            {
+              "id": "c",
+              "text": "GPUドライバが古いためCPUに強制切り替えされたという警告",
+              "wrongReason": "ハードウェアやGPUとは関係なく、サンプリング設定の整合性に関するお知らせです。"
+            },
+            {
+              "id": "d",
+              "text": "Hugging Faceのアクセストークンが期限切れになったという警告",
+              "wrongReason": "認証トークンとは無関係で、`do_sample=False` と `generation_config` の既定値（`temperature=0.7` 等）の組み合わせによる通知です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`do_sample=False` はサイコロを振らない（greedy decoding）設定です。サイコロを振らないなら温度や top-p は出番があるでしょうか？",
+          "reasoning": "温度・top-p・top-k はすべて「サイコロを振る（`do_sample=True`）」ときの確率分布調整つまみなので、`do_sample=False` のときは無視されることを丁寧に教えてくれています。",
+          "steps": [
+            "モデル付属の `generation_config` には既定で `temperature=0.7, top_p=0.8, top_k=20` が入っている。",
+            "ユーザーが `do_sample=False` を渡すと greedy（argmax）になるため、それらは不要になる。",
+            "無視される旨のお知らせが出るだけで動作は完全に正常。"
+          ],
+          "altExample": "実験で再現性を保ちたいとき（第17章の比較実験など）は `do_sample=False` にすることがよくあるので、このメッセージに見慣れておくと安心です。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q11",
+      "chapter": "17-hf-models",
+      "section": "モデルの大きさとGPUメモリ",
+      "sectionAnchor": "#s6",
+      "concept": "inference-vram-estimation",
+      "conceptLabel": "推論時の重みVRAM見積もり（float16 / 8ビット / 4ビット）",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第15章：学習メモリとの比較"],
+      "variants": [
+        {
+          "prompt": "パラメータ数 **7B（70億）** のモデルを **4ビット量子化**（1パラメータあたり **0.5バイト**）で読み込むとき、モデルの重みだけでおよそ何GBのGPUメモリ（VRAM）を使いますか？（小数で答えてください）",
+          "answer": { "value": 3.5, "tolerance": 0.1 },
+          "unit": "GB",
+          "placeholder": "小数を入力（例：3.5）",
+          "hint": "推論時の重みメモリ $\\approx \\text{パラメータ数（B）} \\times \\text{1パラメータのバイト数}$。4ビットは $4 \\div 8 = 0.5$ バイトです。",
+          "reasoning": "$7 \\times 0.5 = 3.5$ GB になります。これにKVキャッシュや計算用ワークスペースを足しても、無料T4 GPU（約15GB）で十分動かせます。",
+          "steps": [
+            "4ビット ＝ $4 / 8 = 0.5$ バイト / パラメータ。",
+            "$7\\text{B} \\times 0.5\\text{バイト} = 3.5$ GB。",
+            "float16（14GB）ではT4にギリギリだが、4ビット量子化なら3.5GBに収まる。"
+          ],
+          "altExample": "同じ7Bモデルでも、float16なら14GB、8ビットなら7GB、4ビットなら3.5GBと、量子化で必要VRAMが劇的に下がります（第19章で詳しく実践）。"
+        },
+        {
+          "prompt": "パラメータ数 **3B（30億）** のモデルを **float16**（1パラメータあたり **2バイト**）で推論用に読み込むとき、モデルの重みだけでおよそ何GBのVRAMを使いますか？（整数または小数で答えてください）",
+          "answer": { "value": 6.0, "tolerance": 0.1 },
+          "unit": "GB",
+          "placeholder": "数値を入力（例：6）",
+          "hint": "float16 は16ビット＝2バイトです。$3 \\times 2$ を計算します。",
+          "reasoning": "$3 \\times 2 = 6.0$ GB です。15GBのT4 GPUなら、KVキャッシュ等の作業メモリを含めても余裕を持って推論できます。",
+          "steps": [
+            "float16 ＝ 16ビット ＝ 2バイト / パラメータ。",
+            "$3\\text{B} \\times 2\\text{バイト} = 6.0$ GB。"
+          ],
+          "altExample": "逆に14Bモデルをfloat16で読み込むと $14 \\times 2 = 28$ GB 必要になり、T4（15GB）ではそのままでは載りません（4ビットなら7GBで載ります）。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q12",
+      "chapter": "17-hf-models",
+      "section": "モデルの大きさとGPUメモリ",
+      "sectionAnchor": "#s6",
+      "concept": "vram-infer-vs-train-and-safetensors",
+      "conceptLabel": "推論VRAM vs 学習VRAMの違い、および safetensors の安全性",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第15章：学習メモリ16バイト/param"],
+      "variants": [
+        {
+          "prompt": "同じ **3B（30億パラメータ）** のモデルについて、**float16での推論**と**混合精度＋AdamWでの全パラメータ学習**を比べたとき、必要なGPUメモリの見積もりとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "推論の重みは約 **6 GB**（2バイト/param）でT4（15GB）に余裕で乗るが、全パラメータ学習は重み・勾配・AdamW状態だけで約 **48 GB**（16バイト/param）必要になりT4にはまったく乗らない",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "推論も学習も同じモデルを使うので、どちらも約 6 GB でT4に乗る",
+              "wrongReason": "学習ではfp16重み（2B）に加え、fp32控え重み（4B）・勾配（2B）・AdamW状態（8B）の合計16バイト/param＋活性化メモリが必要です。"
+            },
+            {
+              "id": "c",
+              "text": "推論のほうが約 48 GB 必要で、学習のほうが 6 GB と省メモリである",
+              "wrongReason": "逆です。推論は勾配もAdam状態も不要なのでずっと省メモリです。"
+            },
+            {
+              "id": "d",
+              "text": "どちらも 1 GB 未満なので、スマホのメモリでも全パラメータ学習できる",
+              "wrongReason": "3Bの重みはfloat16だけで6GB、全パラメータ学習は48GB以上必要です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "推論は「2バイト/param」、全パラメータ学習（混合精度AdamW）は「16バイト/param」で、約8倍の差があります。",
+          "reasoning": "「推論できるサイズ」と「全パラメータ学習できるサイズ」には約8倍以上の開きがあります。このギャップを埋めるのが第19章の **QLoRA（4ビット量子化＋LoRA）** です。",
+          "steps": [
+            "推論（float16）：$3\\text{B} \\times 2\\text{B} = 6$ GB（＋KVキャッシュ）→ T4（15GB）で余裕。",
+            "全パラメータ学習（AdamW）：$3\\text{B} \\times 16\\text{B} = 48$ GB（＋活性化）→ T4ではOOM（メモリ不足）。",
+            "だから無料GPUで3B〜7Bを鍛えるには、全パラメータでなく一部だけ学習するLoRAが必要になる。"
+          ],
+          "altExample": "GPU見積もりの合言葉は「推論fp16は **2N**、推論4bitは **0.5N**、全学習AdamWは **16N**（＋活性化）」です！"
+        },
+        {
+          "prompt": "未知の作成者が公開したモデルをダウンロードするとき、旧来の `pytorch_model.bin`（Pythonの `pickle` 形式）よりも **`model.safetensors`** を選ぶべきセキュリティ上の理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`pickle` 形式は読み込み時に任意のPythonコードを実行できてしまう危険があるのに対し、`safetensors` は純粋な数値配列とメタデータだけを読み込むため悪意あるコード実行を防げるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`safetensors` は重みを自動で10分の1に圧縮してくれるから",
+              "wrongReason": "ファイルサイズは同じ数値精度ならほぼ同等です。最大の目的はセキュリティ（任意コード実行の防止）と高速読み込みです。"
+            },
+            {
+              "id": "c",
+              "text": "`pytorch_model.bin` はGPUに読み込めない古い形式だから",
+              "wrongReason": "技術的には `.bin` もGPUに読み込めますが、デシリアライズ時に任意のコードが実行されうるセキュリティリスクがあります。"
+            },
+            {
+              "id": "d",
+              "text": "`safetensors` を使うと商用ライセンスが自動的に付与されるから",
+              "wrongReason": "ファイル形式とライセンスはまったく別問題です。ライセンスは別途モデルカードで確認します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`pickle` はPythonオブジェクトを再構築する仕組み上、読み込み時に任意の関数呼び出しを埋め込めます。",
+          "reasoning": "`safetensors` はHugging Faceが開発した安全なテンソル保存形式で、ゼロコピーに近い高速読み込みと、任意コード実行脆弱性の排除を両立しています。",
+          "steps": [
+            "`pytorch_model.bin`（pickle）：`torch.load` した瞬間に悪意あるコマンドが実行される恐れがある。",
+            "`model.safetensors`：ヘッダ＋純粋な数値バイト列のみなので安全に読み込める。"
+          ],
+          "altExample": "最近のPyTorchでも `torch.load(..., weights_only=True)` が推奨されるようになったのも、まったく同じpickleの危険性を防ぐためです。"
+        }
+      ]
+    },
+    {
+      "id": "ch17-q13",
+      "chapter": "17-hf-models",
+      "section": "Hugging Faceのアカウントとトークン",
+      "sectionAnchor": "#s7",
+      "concept": "hf-token-security-best-practices",
+      "conceptLabel": "アクセストークンの安全な管理（シークレット・最小権限・漏洩時の対処）",
+      "level": 2,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "Hugging Faceのアクセストークン（`hf_...`）について、①なぜノートブックのコードに直接書いてはいけないのか、②Colabではどのように安全に管理し、最初はどの権限（Read / Write）を選ぶべきか、③万が一漏洩してしまったら何をすべきか、の3点を説明してください。",
+          "modelAnswer": "①アクセストークンは自分のアカウントの鍵であり、コードに直書きするとノートブックの共有やGitHub公開時に他人へ鍵ごと渡してしまい、なりすましや不正操作につながるためです。②Colabの左メニューにある鍵アイコン（シークレット）に `HF_TOKEN` として保存し、最初は最小権限の Read（読み取り専用）を選び、モデルのアップロードが必要なときだけ Write 権限のトークンを作ります。③万が一漏洩した場合は、直ちにHugging Faceの設定画面（Access Tokens）からそのトークンを削除（Invalidate / Revoke）して無効化します。",
+          "hint": "①「コード共有・GitHub公開で鍵が漏れる」、②「Colabシークレット＋最小権限（Readから）」、③「すぐに設定画面で無効化（削除）」の3点を書きましょう。",
+          "reasoning": "APIキーやアクセストークンの管理は、AI開発だけでなくソフトウェア開発全般で必須のセキュリティ基礎です。",
+          "steps": [
+            "直書きNG：GitHubに1回でもpushすると履歴に永久に残り、ボットが数秒で悪用する。",
+            "安全な管理：Colabシークレット（環境変数）＋必要最小限の権限（Read / Write分離）。",
+            "漏洩時：コードを書き直すだけでなく、必ず発行元の設定画面でトークン自体を無効化する。"
+          ],
+          "altExample": "OpenAI APIキーやAWSキーなど、どのクラウドサービスの鍵でも「直書き禁止・シークレット管理・最小権限・漏洩時は即無効化」の4原則は共通です。",
+          "selfCheckCriteria": [
+            "ノートブック共有やGitHub公開でトークンが漏洩する危険性を説明できた",
+            "Colabシークレット（`HF_TOKEN`）の利用と最初は Read 権限を選ぶ点に触れた",
+            "漏洩時にHugging Faceの設定画面でトークンを即座に削除（無効化）する対処を挙げた"
+          ]
+        }
+      ]
+    }
+  ]
+}

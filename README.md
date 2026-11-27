@@ -19,37 +19,36 @@
 
 | フォルダ | 中身 |
 |---|---|
-| `book/` | 原稿です。`chapters/`（本文）、`appendix/`（付録）、`curriculum.json`（章の順番）、`glossary.json`（用語集）、`home.html`（トップページ）があります |
-| `site/` | CSS、JavaScript（デモ、ブラウザで動くGPT）、画像です |
+| `book/` | 原稿です。`chapters/`（本文）、`exercises/`（章別の確認問題・類題・自力実装JSON）、`appendix/`（付録）、`curriculum.json`（章の順番）、`glossary.json`（用語集）、`home.html`（トップページ）があります |
+| `site/` | CSS、JavaScript（`app.js`、`study.js`：自動採点・間隔復習・7段階進捗・2コース切替、`widgets.js`、`minigpt.js`）、画像です |
 | `code/` | 章で使うPythonのファイルとデータです（`minigpt.py`、SFT・DPO・RAG用のJSONL） |
-| `tools/` | サイトの生成（`build.py`）、コードの検証（`verify.py`）、学習者シミュレーション（`persona.py`）の道具です |
-| `docs/` | 生成されたサイトです。GitHub Pagesはmainブランチの `/docs` を公開します |
+| `tools/` | サイトの生成（`build.py`、`mdfallback.py`）、コードの検証（`verify.py`）、演習・自動採点の検証（`test_exercises.py`）、ブラウザE2E検証（`test_site_e2e.py`）、学習者シミュレーション（`persona.py`）の道具です |
+| `docs/` | 生成されたサイトです（`review.html`・`exercises-index.json` を含む）。GitHub Pagesはmainブランチの `/docs` を公開します |
 | `notebooks/` | 生成されたColab用のノートブックです |
 | `verification/` | 検証の記録です（`code-report.json`、`persona-metrics.json`） |
 | `legacy/` | 以前の版です |
 
 ## サイトの生成
 
-PythonとNode.jsを使います（数式をKaTeXで生成するため）。数式が変わっていなければ、Node.jsがなくても `book/.mathcache.json` を使って生成できます。
+PythonとNode.jsを使います（数式をKaTeXで生成するため）。`markdown-it-py` が入っていないオフライン環境でも、`tools/mdfallback.py` により自動で生成できます。数式が変わっていなければ、Node.jsがなくても `book/.mathcache.json` を使って生成できます。
 
 ```sh
-python -m pip install markdown-it-py
 python tools/build.py                       # docs/ と notebooks/ を生成
 python -m http.server 8765 --directory docs # http://localhost:8765 で確認
 ```
 
 原稿は `book/` にあります。`docs/` と `notebooks/` は直接編集せず、`tools/build.py` で作り直してください。
 
-## コードの検証
+## 検証
 
 ```sh
-python -m pip install torch transformers trl peft datasets accelerate gradio matplotlib numpy
+python tools/test_exercises.py              # 全章の演習JSON・自動採点・純Pythonコード・アンカー検証
+python tools/test_site_e2e.py               # PlaywrightによるPC/スマホ・自動採点・復習・互換性E2E検証
+python tools/verify.py --links-only         # リンク切れ・未展開マーカー・minigpt整合性の検証
+python tools/persona.py                     # 学習者シミュレーション（補助的な機械チェック）
+# （PyTorch/Transformers導入環境での全コード実行検証）
 python tools/testkit/make_fakes.py          # 小さな模擬モデルを .cache/fakes/ に作成
 python tools/verify.py                      # 全章のコードを実行し、リンクも確認
-python tools/verify.py --only 04-bigram     # 1章だけ
-python tools/verify.py --update             # 実際の出力を原稿の output ブロックに書き戻す
-python tools/verify.py --links-only         # リンクだけ確認
-python tools/persona.py                     # 学習者シミュレーション（機械チェック）
 ```
 
 各章は、新しいColabのセッションと同じように、空のフォルダで上から順に実行します。GPUが必要なセル（4ビット量子化など）とオンライン専用のセル（ログイン、公開リンク）は飛ばし、そのことを記録します。
@@ -60,9 +59,11 @@ python tools/persona.py                     # 学習者シミュレーション�
 
 ```text
 :::sensei / :::minato        ボンゴ先生とミナトの会話
+:::scaffold 見出し           基礎の補足（じっくり理解コースでは展開、標準コースでは折りたたみ）
+:::review-bridge 見出し      前章までの知識とのつながり・復習ブリッジ
 :::theory 見出し             理論の小部屋
 :::try / :::warn / :::tip    やってみよう・つまずき注意・ヒント
-:::quiz 問題 … :::answer …   クイズ
+:::exercise ch01-q01 ...     インタラクティブ確認問題・類題・自力実装（book/exercises/*.jsonから読込）
 :::deep 見出し               もっと深く（読み飛ばしてよい）
 :::widget softmax            動くデモ
 ```
@@ -71,4 +72,4 @@ python tools/persona.py                     # 学習者シミュレーション�
 
 ## プライバシー
 
-サイトに、アクセス解析・広告・入力の送信はありません。読了の印・チェックリスト・表示の明るさ・最後に開いたページは、あなたのブラウザの中だけに保存されます。
+サイトに、アクセス解析・広告・入力の送信はありません。読了の印・チェックリスト・確認問題の解答履歴・復習予定・コース設定・表示の明るさ・最後に開いたページは、あなたのブラウザの中（`localStorage`）だけに保存されます。バックアップや端末移行には「学習・復習」ページのJSONエクスポート／インポートを使えます。

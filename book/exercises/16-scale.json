@@ -1,0 +1,898 @@
+{
+  "chapter": "16-scale",
+  "exercises": [
+    {
+      "id": "ch16-q01",
+      "chapter": "16-scale",
+      "section": "ムダに気づく：生成のたびに全部計算し直している",
+      "sectionAnchor": "#s2",
+      "concept": "kv-cache-why-valid-and-fast",
+      "conceptLabel": "因果マスクによりKVキャッシュが数学的に一致し高速化できる理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：自己回帰生成", "第11章：因果マスク"],
+      "variants": [
+        {
+          "prompt": "KVキャッシュを使うと、素朴な生成ループと**まったく同じ出力トークン**を出しながら何倍も速くなります。過去のトークンのKeyとValueを再計算せずに使い回しても結果が変わらない根拠は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "因果マスクにより過去のトークンは未来のトークンを一切参照しないため、新しいトークンが後ろに増えても過去のK・Vの値は変化しないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "過去のK・Vは毎回少しずつ変化するが、誤差が小さいので無視している（近似手法である）から",
+              "wrongReason": "KVキャッシュは近似ではなく、数学的に完全一致する再利用です（本文でも `torch.equal(a, b)` が `True` になりました）。"
+            },
+            {
+              "id": "c",
+              "text": "Transformerの重みを推論のたびに毎回ランダムに初期化し直しているから",
+              "wrongReason": "推論中はモデルの重みは固定されており、その固定重みと因果マスクのおかげで過去のK・Vが不変になります。"
+            },
+            {
+              "id": "d",
+              "text": "新しいトークンの計算では過去のトークンを一切見ないから",
+              "wrongReason": "新しいトークンのQueryはキャッシュされた過去すべてのKey・Valueに対してAttentionを計算します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第11章で行った「後ろのトークンを書き換えても、前の位置の出力は1ミリも変わらない」カンニング検査を思い出しましょう。",
+          "reasoning": "因果マスクがあるため、位置 $t$ の隠れ状態とK・Vは位置 $1 \\dots t$ だけに依存します。したがって位置 $t+1$ 以降が追加されても過去のK・Vは不変であり、安全に使い回せます。",
+          "steps": [
+            "因果マスク（下三角行列）により、過去トークンは未来トークンを参照できない。",
+            "よってトークンが増えても過去位置のKey・Valueは完全に不変。",
+            "新トークン1個分だけQ・K・Vを計算してキャッシュに連結すれば、出力は完全一致しつつ重複計算 $1 + 2 + \\dots + N \\approx N^2/2$ を削れる。"
+          ],
+          "altExample": "もし双方向Attention（BERTなど）のように未来のトークンも見る構造だと、新トークン追加で過去の表現も変わるためKVキャッシュは使えません。"
+        },
+        {
+          "prompt": "プロンプト20トークンから始めて、KVキャッシュ付きで1トークンずつ生成しています。キャッシュの各層の `k` の形が `[1, 4, 20, 64]`（Prefill直後）だったとき、次の1トークンを生成するステップで `CachedAttention.forward` に入る新しい `q` の形と、連結後の `cache[\"k\"]` の形はそれぞれどうなりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "新しい `q` は `[1, 4, 1, 64]`、連結後の `cache[\"k\"]` は `[1, 4, 21, 64]`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "新しい `q` は `[1, 4, 21, 64]`、連結後の `cache[\"k\"]` は `[1, 4, 21, 64]`",
+              "wrongReason": "新しい `q` まで21トークン分作ってしまうと、結局キャッシュなしと同じ全再計算になってしまいます。"
+            },
+            {
+              "id": "c",
+              "text": "新しい `q` は `[1, 4, 1, 64]`、連結後の `cache[\"k\"]` は `[1, 4, 1, 64]`",
+              "wrongReason": "過去のKを捨てて長さ1にしてしまうと、前の20トークンの文脈をまったく参照できなくなります。"
+            },
+            {
+              "id": "d",
+              "text": "新しい `q` は `[1, 4, 20, 64]`、連結後の `cache[\"k\"]` は `[1, 4, 40, 64]`",
+              "wrongReason": "1ステップで増えるのは新しく生成した1トークンだけなので、長さは20から21へ1つ伸びます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "デコード段階では「新しく生まれた1トークンだけ」を入力 `next_id`（`T=1`）として渡し、`cache[\"k\"]` の時間軸（`dim=2`）に連結します。",
+          "reasoning": "デコード時は `q` が `[1, 4, 1, 64]`、`k` が `[1, 4, 21, 64]` となるため、Attentionスコア `q @ k.transpose(-2, -1)` は `[1, 4, 1, 21]`（たった1行分）で済みます。",
+          "steps": [
+            "Prefill（最初のプロンプト処理）：`T=20` → `cache[\"k\"]` の形は `[1, 4, 20, 64]`。",
+            "デコード1歩目：新トークン1個（`T=1`）だけ通す → `q` は `[1, 4, 1, 64]`。",
+            "`torch.cat([cache[\"k\"], k], dim=2)` → `[1, 4, 21, 64]`（1歩ごとに長さが +1 ずつ伸びる）。"
+          ],
+          "altExample": "200トークン生成し終わると、`cache[\"k\"]` の形は `[1, 4, 220, 64]` まで成長します。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q02",
+      "chapter": "16-scale",
+      "section": "ムダに気づく：生成のたびに全部計算し直している",
+      "sectionAnchor": "#s2",
+      "concept": "kv-cache-no-query-needed",
+      "conceptLabel": "KVキャッシュで過去のQuery（Q）を保存しない理由",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第11章：Query・Key・Valueの役割"],
+      "variants": [
+        {
+          "prompt": "KVキャッシュは「Key」と「Value」だけを保存し、過去の「**Query（Q）**」は保存しません。過去のQueryを保存しなくてよい理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "過去のQueryは過去の出力を計算するためだけに必要で、その出力はすでに計算済みであり、新しいトークンの予測には「新トークンのQuery」と「過去を含む全Key・Value」しか使わないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Queryはすべてのトークンで常に同じ値になるため保存する意味がないから",
+              "wrongReason": "Queryはトークンごとに異なるベクトルです。不要なのは「過去のQueryをもう二度と使わないから」です。"
+            },
+            {
+              "id": "c",
+              "text": "QueryはKeyより次元が100倍大きくてメモリに入らないから",
+              "wrongReason": "標準のMHAではQueryとKeyはまったく同じ次元数です（GQAではむしろQueryのほうがヘッド数が多いですが、保存しない理由は計算に不要だからです）。"
+            },
+            {
+              "id": "d",
+              "text": "因果マスクを使うとAttentionの式からQueryが消えるから",
+              "wrongReason": "新しいトークンのQueryと全Keyの内積 $q_{\\text{new}} K^\\top$ は毎回計算します。不要なのは「過去の」Queryだけです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「質問する側（Query）」と「検索される側（Key・Value）」の役割を思い出してください。いま答えを求めているのは誰でしょうか？",
+          "reasoning": "新トークン $t$ の出力を求める式は $\\text{softmax}(q_t K_{1:t}^\\top / \\sqrt{d}) V_{1:t}$ であり、$q_1, \\dots, q_{t-1}$ は式の中に一切現れません。",
+          "steps": [
+            "Attentionは「Queryが過去のKeyと照合し、Valueを取り出す」仕組み。",
+            "ステップ $t$ で新しい出力が必要なのは位置 $t$ だけ → 必要なのは $q_t$ のみ。",
+            "照合対象は過去全部なので $K_{1:t}$ と $V_{1:t}$ は必要だが、過去の $q_1 \\dots q_{t-1}$ は二度と使わない。"
+          ],
+          "altExample": "だから名前が「QKVキャッシュ」ではなく「**KVキャッシュ**」なのです。"
+        },
+        {
+          "prompt": "KVキャッシュを使ったデコードの1ステップ（新トークン1個を入力、`L` は過去を含む総長さ）で、計算されるAttentionスコア行列 `att` の最後の2軸の形はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`[1, L]`（新しい1トークンのQuery × 全L個のKey）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`[L, L]`（全L個のQuery × 全L個のKey）",
+              "wrongReason": "`[L, L]` になるのはキャッシュなしで毎回全体を再計算するとき（または最初のPrefill時）です。"
+            },
+            {
+              "id": "c",
+              "text": "`[L, 1]`（全L個のQuery × 新しい1個のKey）",
+              "wrongReason": "過去のトークンが未来の1トークンに注意を向けることは因果マスクで禁止されています。向きが逆です。"
+            },
+            {
+              "id": "d",
+              "text": "`[1, 1]`（新しい1トークン同士だけ）",
+              "wrongReason": "新しいトークンは過去すべてのトークン（長さ `L`）を参照するため、列の数は `L` です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`q` の後ろ2軸が `[1, hs]`、`k.transpose(-2, -1)` の後ろ2軸が `[hs, L]` です。",
+          "reasoning": "`[1, hs] @ [hs, L] = [1, L]`。キャッシュなしでは `[L, L]` だった計算が、1行分の `[1, L]` へと劇的に減ります。",
+          "steps": [
+            "`q`: `[B, H, 1, hs]`。",
+            "`k.transpose(-2, -1)`: `[B, H, hs, L]`。",
+            "`q @ k.transpose(-2, -1)` → `[B, H, 1, L]`。"
+          ],
+          "altExample": "本文の `mask = torch.tril(torch.ones(L, L))[L - T:]` で `T=1` のときは最後の1行（すべて `1`）だけが切り出されます。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q03",
+      "chapter": "16-scale",
+      "section": "ムダに気づく：生成のたびに全部計算し直している",
+      "sectionAnchor": "#s2",
+      "concept": "kv-cache-start-pos-bug",
+      "conceptLabel": "KVキャッシュ推論で start_pos が不可欠な理由",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：位置埋め込み"],
+      "variants": [
+        {
+          "prompt": "本文の `generate_cached` では、新しい1トークンをモデルに渡すたびに `model(next_id, caches, start_pos=pos)` と現在位置 `pos` を渡しています。もし `start_pos=pos` を渡し忘れて常に `start_pos=0` のままにすると、何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "新しく生成されたトークンにすべて「0番目の位置埋め込み `wpe(0)`」が足されてしまい、キャッシュなしの結果と一致せず文章が壊れる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "キャッシュの配列サイズを超えて即座にメモリ不足エラーになる",
+              "wrongReason": "`torch.arange(0, 1)` は毎回 `[0]` を返すだけで範囲外にはならず、エラーも出ずに間違った計算が静かに進みます。"
+            },
+            {
+              "id": "c",
+              "text": "位置埋め込みはキャッシュの中に含まれているので結果は変わらない",
+              "wrongReason": "キャッシュにあるのは過去のトークンのK・Vであり、これから入力する新トークンの位置番号は `start_pos` で正しく与える必要があります。"
+            },
+            {
+              "id": "d",
+              "text": "計算速度だけが2倍遅くなるが、出力トークンは同じになる",
+              "wrongReason": "入力ベクトル `wte(next_id) + wpe(0)` が本来の `wte(next_id) + wpe(pos)` と別物になるため、出力トークン自体が変わってしまいます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`TinyGPT.forward` の `x = self.wte(idx) + self.wpe(torch.arange(start_pos, start_pos + T))` を確認しましょう。",
+          "reasoning": "デコード時は `T=1` のテンソルしか渡さないため、`start_pos` で「今が文章全体の何文字目か」を伝えないと、モデルはそのトークンを毎回「先頭（0番目）」だと誤認してしまいます。",
+          "steps": [
+            "プロンプト長20のあとの1文字目は、文章全体では位置 `20` にある。",
+            "`start_pos=20, T=1` → `torch.arange(20, 21)` → `wpe(20)` が足される（正しい）。",
+            "`start_pos=0` のままだと常に `wpe(0)` が足され、`generate_naive` と出力がズレる。"
+          ],
+          "altExample": "RoPE（回転位置埋め込み）を使う現代のLLM（QwenやLlama）でも、同様に現在位置 `position_ids` を正しく進めることがKVキャッシュ実装の最重要チェックポイントです。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q04",
+      "chapter": "16-scale",
+      "section": "KVキャッシュのメモリと、GQA",
+      "sectionAnchor": "#s3",
+      "concept": "kv-cache-memory-formula",
+      "conceptLabel": "KVキャッシュのメモリ計算式 2 × L × H_kv × d × T × b",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "KVキャッシュのメモリ量は **$2 \\times L \\times H_{kv} \\times d \\times T \\times b$** バイトで計算できます（$2$ はKとV、$L$ は層数、$H_{kv}$ はKVヘッド数、$d$ はヘッド次元、$T$ はトークン数、$b$ は1数値のバイト数）。Qwen2.5-0.5B（$L=24, H_{kv}=2, d=64, b=2$ バイト＝fp16）のとき、**1トークンあたり（$T=1$）** 何 **KB**（1KB = 1,024バイト）使いますか？（整数で答えてください）",
+          "answer": { "value": 12, "tolerance": 0 },
+          "unit": "KB",
+          "placeholder": "整数を入力（例：12）",
+          "hint": "$2 \\times 24 \\times 2 \\times 64 \\times 1 \\times 2$ バイトを計算し、$1024$ で割ります。",
+          "reasoning": "$2 \\times 24 \\times 2 \\times 64 \\times 2 = 12{,}288$ バイト、$12{,}288 \\div 1{,}024 = 12$ KB です。",
+          "steps": [
+            "KとVの2つ × 24層 × 2 KVヘッド × 64次元 × 2バイト。",
+            "$2 \\times 24 \\times 2 \\times 64 \\times 2 = 12{,}288$ バイト。",
+            "$12{,}288 \\div 1{,}024 = 12$ KB / トークン。"
+          ],
+          "altExample": "32,768トークン分の長い会話になると、$12\\text{KB} \\times 32{,}768 \\approx 0.40$ GB になります（100人同時接続なら40GB！）。"
+        },
+        {
+          "prompt": "あるモデル（$L=32$ 層、ヘッド次元 $d=128$、fp16で $b=2$ バイト）で、Queryヘッドは32個ありますが、GQAによりKVヘッド数を **$H_{kv}=8$** に減らしました。MHA（$H_{kv}=32$）のときと比べて、KVキャッシュのメモリ量は何分の1（削減率の分母、つまり何倍小さく）になりますか？（整数で答えてください）",
+          "answer": { "value": 4, "tolerance": 0 },
+          "unit": "分の1",
+          "placeholder": "整数を入力（例：4）",
+          "hint": "KVキャッシュのメモリは $H_{kv}$ に正比例します。$32 \\div 8$ を求めましょう。",
+          "reasoning": "層数・ヘッド次元・トークン数・バイト数が同じなら、KVキャッシュ容量は $H_{kv}$ にそのまま比例するため、$32 / 8 = 4$ 分の1（75%削減）になります。",
+          "steps": [
+            "MHA：$H_{kv} = 32$。",
+            "GQA：$H_{kv} = 8$（4個のQueryヘッドが1組のKVを共有）。",
+            "メモリ比：$32 \\div 8 = 4$ 分の1。"
+          ],
+          "altExample": "Llama 3 8B や 70B でもまさに $H_{kv}=8$ のGQAが採用されており、推論時の同時処理人数（スループット）を大きく引き上げています。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q05",
+      "chapter": "16-scale",
+      "section": "KVキャッシュのメモリと、GQA",
+      "sectionAnchor": "#s3",
+      "concept": "gqa-vs-mha-vs-mqa",
+      "conceptLabel": "MHA・GQA・MQAの違いとGQAが標準になった理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第12章：マルチヘッドAttention"],
+      "variants": [
+        {
+          "prompt": "現代のLLMの多くが採用している **GQA（Grouped-Query Attention）** の仕組みとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "複数のQueryヘッドをいくつかのグループに分け、同じグループ内で1組のKey・Valueヘッドを共有することで、性能をほぼ落とさずKVキャッシュを大幅削減する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "KeyとValueを廃止してQueryだけでAttentionを計算する",
+              "wrongReason": "KeyとValueは減らして共有するのであって、廃止するわけではありません。"
+            },
+            {
+              "id": "c",
+              "text": "すべてのQueryヘッドに対して、それより多くのKey・Valueヘッドを用意して精度を上げる",
+              "wrongReason": "逆です。Queryヘッド数よりKey・Valueヘッド数を少なくして共有します。"
+            },
+            {
+              "id": "d",
+              "text": "語彙をグループ分けしてトークン数を半分にする",
+              "wrongReason": "GQAはトークナイザーではなく、Attentionのヘッド構成の工夫です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Qwen2.5-0.5Bでは「Queryヘッド14個に対して、KVヘッド2個（7個ずつで共有）」でした。",
+          "reasoning": "MHA（全ヘッド独立：高品質だがKVキャッシュ巨大）とMQA（KVを1組に統一：超省メモリだが少し品質低下）のちょうど中間をとるのがGQAです。",
+          "steps": [
+            "MHA：$H_{kv} = H_q$（メモリ大・品質高）。",
+            "GQA：$1 < H_{kv} < H_q$（メモリ大幅削減・品質ほぼ維持）。",
+            "MQA：$H_{kv} = 1$（メモリ最小・やや品質低下することがある）。"
+          ],
+          "altExample": "長文コンテキスト（32K〜128Kトークン）や多人数同時サービングではKVキャッシュがVRAMを圧迫するため、GQAが事実上の標準になりました。"
+        },
+        {
+          "prompt": "KVキャッシュを極限まで小さくするため、すべてのQueryヘッドで **たった1組だけのKey・Valueヘッド**（$H_{kv} = 1$）を共有する方式を何と呼びますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "MQA（Multi-Query Attention）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "MHA（Multi-Head Attention）",
+              "wrongReason": "MHAはQuery・Key・Valueすべてが同じヘッド数を持つ標準の方式です。"
+            },
+            {
+              "id": "c",
+              "text": "DDP（Distributed Data Parallel）",
+              "wrongReason": "DDPは複数GPUにモデルをコピーする分散学習の方式です。"
+            },
+            {
+              "id": "d",
+              "text": "BPE（Byte Pair Encoding）",
+              "wrongReason": "BPEは第14章で学んだトークナイザーのアルゴリズムです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「たくさんのQueryが1組のKVを共有する」という意味の英語名です。",
+          "reasoning": "$H_{kv} = 1$ にする極端な方式が **MQA**、複数グループ（例：$H_{kv} = 2, 4, 8$）に一般化したものが **GQA** です。",
+          "steps": [
+            "全Queryヘッドが1組のK・Vを共有 → MQA。",
+            "グループごとに1組のK・Vを共有 → GQA。",
+            "ヘッドごとに別々のK・Vを持つ → MHA。"
+          ],
+          "altExample": "GQAは $H_{kv}=1$ のときMQAに、$H_{kv}=H_q$ のときMHAに一致する、両者を統一した枠組みです。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q06",
+      "chapter": "16-scale",
+      "section": "賢いサイコロ：top-k と top-p",
+      "sectionAnchor": "#s4",
+      "concept": "top-p-hand-calculation",
+      "conceptLabel": "top-p（nucleus sampling）で残る候補数の手計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第3章：確率分布とサンプリング"],
+      "variants": [
+        {
+          "prompt": "5つの単語の予測確率が **`[0.50, 0.30, 0.10, 0.05, 0.05]`** でした。**`top-p = 0.85`** を適用すると、サイコロの候補に残る単語は何個になりますか？（整数で答えてください）",
+          "answer": { "value": 3, "tolerance": 0 },
+          "unit": "個",
+          "placeholder": "整数を入力（例：3）",
+          "hint": "確率の高い順に足していきます：1個目で `0.50`、2個目で `0.80`（まだ0.85未満！）、3個目で `0.90`（ここで初めて0.85を超える）。",
+          "reasoning": "累積確率が初めて $p = 0.85$ 以上になる最小の候補集合を残すため、2個目（0.80）では足りず、3個目（0.90）まで含めた **3個** が残ります。",
+          "steps": [
+            "1位まで：`0.50`（$< 0.85$）。",
+            "2位まで：`0.50 + 0.30 = 0.80`（$< 0.85$）。",
+            "3位まで：`0.80 + 0.10 = 0.90`（$\\ge 0.85$ → ここで確定！）。",
+            "残る候補は **3個**（合計0.90で割って再正規化すると `[0.556, 0.333, 0.111]` になる）。"
+          ],
+          "altExample": "もし同じ確率分布で `top-p = 0.40` なら、1位だけで `0.50 >= 0.40` となるので **1個** だけ残ります。"
+        },
+        {
+          "prompt": "同じ確率分布 **`[0.50, 0.30, 0.10, 0.05, 0.05]`** に **`top-p = 0.75`** を適用すると、候補に残る単語は何個になりますか？（整数で答えてください）",
+          "answer": { "value": 2, "tolerance": 0 },
+          "unit": "個",
+          "placeholder": "整数を入力",
+          "hint": "上位から順に足して、初めて `0.75` 以上になる個数を数えます。",
+          "reasoning": "1位で `0.50`、2位まで足すと `0.80 >= 0.75` に達するため、**2個** が残ります。",
+          "steps": [
+            "1位まで：`0.50`（$< 0.75$）。",
+            "2位まで：`0.50 + 0.30 = 0.80`（$\\ge 0.75$ → 確定）。",
+            "残る候補は **2個**（再正規化すると `0.50/0.80 = 0.625`、`0.30/0.80 = 0.375`）。"
+          ],
+          "altExample": "残した候補の確率の和（0.80）で割り直す「再正規化」をしないと、確率の合計が1にならず正しくサンプリングできません。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q07",
+      "chapter": "16-scale",
+      "section": "賢いサイコロ：top-k と top-p",
+      "sectionAnchor": "#s4",
+      "concept": "top-k-vs-top-p-adaptivity",
+      "conceptLabel": "top-k と top-p の決定的な違いと再正規化",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：温度とサンプリング"],
+      "variants": [
+        {
+          "prompt": "ある文脈ではモデルが自信満々で1位が確率 **0.98**、別の文脈では迷っていて上位10語が **0.08ずつ** 並んでいます。この2つの状況に応じて**残す候補数を自動で1個と10個に柔軟に切り替えられる**のはどちらの方法ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "**top-p**（累積確率のしきい値で切るため、自信があるときは1〜2個、迷っているときは自然に多く残る）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "**top-k**（常に上位k個を機械的に残すため、状況に応じて候補数が変わる）",
+              "wrongReason": "top-k は定員固定なので、1位が0.98の場面でも無理やりk個残してしまい、逆に迷っている場面ではk個より多く残せません。"
+            },
+            {
+              "id": "c",
+              "text": "どちらも常に同じ個数の候補を残す",
+              "wrongReason": "top-k は個数固定ですが、top-p は確率分布の形によって残る個数が動的に変わります。"
+            },
+            {
+              "id": "d",
+              "text": "**くり返しペナルティ**（すでに出た語の確率を0にする）",
+              "wrongReason": "くり返しペナルティは既出トークンのスコアを下げる仕組みであり、累積確率で候補数を絞る仕組みではありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「定員固定で上位k人を選ぶ」vs「得点合計が90%に達するまで上から選ぶ」を比べてみましょう。",
+          "reasoning": "top-p（nucleus sampling）は確率の質量（累積和）を基準にするため、確信度が高い場面での暴走を防ぎつつ、多様性が欲しい場面では豊富な候補を保てます。",
+          "steps": [
+            "自信満々（1位 0.98）＋ `top-p = 0.9` → 1位だけで 0.98 ≥ 0.9 → 1個だけ残る。",
+            "迷っている（各0.08が10語＋α）＋ `top-p = 0.9` → 累積が0.9を超えるまで12個ほど残る。",
+            "このように分布の尖り具合に自動適応するのが top-p の最大の強み。"
+          ],
+          "altExample": "実務では `temperature=0.7, top_p=0.8, top_k=20` のように top-k と top-p を併用することもよくあります（Qwen2.5の標準設定もこれです）。"
+        },
+        {
+          "prompt": "top-k や top-p で不要な候補の確率を `0` にした後、必ず **`keep / keep.sum()`**（合計で割り直す操作）を行う理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "切り落とした分だけ確率の合計が1未満になっているため、残った候補の合計がちょうど `1.0` の確率分布になるように再正規化するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "残った候補すべての確率を均等（同じ値）にするため",
+              "wrongReason": "定数 `keep.sum()` で割っても候補どうしの比率は保たれます（均等にはなりません）。"
+            },
+            {
+              "id": "c",
+              "text": "確率をロジット（生の点数）に戻すため",
+              "wrongReason": "合計で割るのは確率分布の条件（和＝1）を満たすための正規化であり、ロジットへ戻す操作ではありません。"
+            },
+            {
+              "id": "d",
+              "text": "切り落とした候補を復活させるため",
+              "wrongReason": "`0 / keep.sum()` は `0` のままなので、切り落とした候補は0のまま変わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "たとえば `[0.5, 0.3, 0.0, 0.0, 0.0]` の合計は `0.8` です。これをサイコロの確率分布にするには何をすればよいでしょう？",
+          "reasoning": "確率分布は「各要素 $\\ge 0$ かつ合計 $= 1$」を満たす必要があります。残った合計（例：0.8）で割り直すことで、比率を保ったまま合計1の分布へ戻します。",
+          "steps": [
+            "切り落とし後：`[0.5, 0.3, 0.0, 0.0, 0.0]`（合計 `0.8`）。",
+            "合計 `0.8` で各要素を割る：`[0.625, 0.375, 0.0, 0.0, 0.0]`。",
+            "合計は `0.625 + 0.375 = 1.0`、比率 `0.625 : 0.375 = 5 : 3` も完全に保たれる。"
+          ],
+          "altExample": "ロジットの段階で除外候補を `-inf` にしてから `softmax` を掛ける方法（第15章の `generate`）でも、数学的にまったく同じ再正規化が自動で行われます。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q08",
+      "chapter": "16-scale",
+      "section": "賢いサイコロ：top-k と top-p",
+      "sectionAnchor": "#s4",
+      "concept": "impl-top-k-filter",
+      "conceptLabel": "【自力実装】純Pythonによる top_k_filter（再正規化つき）",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：確率分布"],
+      "variants": [
+        {
+          "prompt": "確率のリスト `probs`（昇順・降順に並んでいない場合もある）と整数 `k`（$1 \\le k \\le \\text{len}(probs)$）を受け取り、確率が大きい上位 `k` 個だけを残してそれ以外を `0.0` にし、合計が `1.0` になるよう再正規化した**同じ長さのリスト（元の並び順を保つ）**を返す関数 `top_k_filter(probs, k)` を標準Pythonだけで自力実装し、検算テストを通してください。",
+          "starterCode": "def top_k_filter(probs, k):\n    # 1. インデックス 0..len(probs)-1 を probs[i] の大きい順に並べ、先頭 k 個を取る\n    # 2. keep = [0.0] * len(probs) を作り、選ばれたインデックスだけ probs[i] を入れる\n    # 3. total = sum(keep) で全要素を割って返す\n    pass",
+          "solutionCode": "def top_k_filter(probs, k):\n    top_idx = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)[:k]\n    keep = [0.0] * len(probs)\n    for i in top_idx:\n        keep[i] = probs[i]\n    total = sum(keep)\n    return [x / total for x in keep]",
+          "colabCheck": "p = [0.10, 0.50, 0.30, 0.05, 0.05]\nout = top_k_filter(p, 2)\nassert len(out) == 5\nassert abs(sum(out) - 1.0) < 1e-9\nassert out[0] == 0.0 and out[3] == 0.0 and out[4] == 0.0\nassert abs(out[1] - 0.625) < 1e-9 and abs(out[2] - 0.375) < 1e-9\nout1 = top_k_filter([0.2, 0.7, 0.1], 1)\nassert out1 == [0.0, 1.0, 0.0]\nprint(\"ALL PASSED\")",
+          "hint": "`sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)[:k]` で、元の位置（インデックス）を保ったまま上位 `k` 個の位置を取得できます。",
+          "reasoning": "確率リストそのものをソートすると単語との対応（インデックス）が崩れてしまいます。インデックスをソートして元の位置に書き戻し、最後に合計で割るのがポイントです。",
+          "steps": [
+            "インデックスを確率降順に並べて上位 `k` 個を取得する。",
+            "`keep = [0.0] * len(probs)` の該当位置だけ元の確率をコピーする。",
+            "`total = sum(keep)` で割って合計 `1.0` に再正規化して返す。"
+          ],
+          "altExample": "`k=1` にすると最大確率の1語だけが `1.0` になり、greedy（貪欲法）と完全に一致します。",
+          "selfCheckCriteria": [
+            "未ソートリストでの `k=2` と `k=1` のすべての `assert` が通った",
+            "元の単語インデックス順を保ったまま上位 `k` 個以外を `0.0` にし再正規化できる理由を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch16-q09",
+      "chapter": "16-scale",
+      "section": "賢いサイコロ：top-k と top-p",
+      "sectionAnchor": "#s4",
+      "concept": "impl-top-p-filter",
+      "conceptLabel": "【自力実装】純Pythonによる top_p_filter（nucleus sampling＋再正規化）",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：確率分布"],
+      "variants": [
+        {
+          "prompt": "確率のリスト `probs`（未ソート可）としきい値 `p`（$0 < p \\le 1.0$）を受け取り、確率の高い順に累積和が初めて `p` 以上になるまでの最小の候補集合だけを残してそれ以外を `0.0` にし、合計が `1.0` になるよう再正規化した**元の並び順のリスト**を返す関数 `top_p_filter(probs, p)` を標準Pythonだけで自力実装し、検算テストを通してください。",
+          "starterCode": "def top_p_filter(probs, p):\n    # 1. インデックスを probs[i] の降順に並べる\n    # 2. cum = 0.0 から順に足し、keep[i] = probs[i] を設定し、cum >= p になったら break\n    # 3. total = sum(keep) で全要素を割って返す\n    pass",
+          "solutionCode": "def top_p_filter(probs, p):\n    order = sorted(range(len(probs)), key=lambda i: probs[i], reverse=True)\n    keep = [0.0] * len(probs)\n    cum = 0.0\n    for i in order:\n        keep[i] = probs[i]\n        cum += probs[i]\n        if cum >= p:\n            break\n    total = sum(keep)\n    return [x / total for x in keep]",
+          "colabCheck": "p = [0.10, 0.50, 0.30, 0.05, 0.05]\nout85 = top_p_filter(p, 0.85)\nassert abs(sum(out85) - 1.0) < 1e-9\nassert out85[3] == 0.0 and out85[4] == 0.0\nassert abs(out85[1] - 0.50 / 0.90) < 1e-9\nassert abs(out85[2] - 0.30 / 0.90) < 1e-9\nassert abs(out85[0] - 0.10 / 0.90) < 1e-9\nout75 = top_p_filter(p, 0.75)\nassert out75[0] == 0.0 and abs(out75[1] - 0.625) < 1e-9 and abs(out75[2] - 0.375) < 1e-9\nout30 = top_p_filter(p, 0.30)\nassert out30 == [0.0, 1.0, 0.0, 0.0, 0.0]\nprint(\"ALL PASSED\")",
+          "hint": "ループ内で「まず `keep[i] = probs[i]` して `cum += probs[i]`、そのあと `if cum >= p: break`」の順に書くことで、1位だけで `p` を超えても必ず最低1個は残ります。",
+          "reasoning": "「先に採用してからしきい値判定して `break`」という順番が、top-p（nucleus）の「累積が $p$ を超える最小個数を必ず1個以上残す」仕様をバグなく簡潔に表現します。",
+          "steps": [
+            "インデックスを確率の降順に並べる。",
+            "先頭から `keep[i] = probs[i]` と `cum += probs[i]` を行い、`cum >= p` に達した瞬間に `break` する。",
+            "`total = sum(keep)` で全体を割り、元の並び順のまま返す。"
+          ],
+          "altExample": "本文のPyTorch版（`torch.cumsum`）とまったく同じ結果を、依存ライブラリゼロの純Python10行で再現できました。",
+          "selfCheckCriteria": [
+            "`p=0.85`（3個残る）、`p=0.75`（2個残る）、`p=0.30`（1個だけ残る）のすべての `assert` が通った",
+            "`if cum >= p: break` を `keep[i] = probs[i]` の**後**に書く理由を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch16-q10",
+      "chapter": "16-scale",
+      "section": "学習の工学1：勾配累積",
+      "sectionAnchor": "#s5",
+      "concept": "grad-accum-div-and-zero-grad",
+      "conceptLabel": "勾配累積で損失を accum_steps で割る理由と zero_grad() のタイミング",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：.grad の加算と zero_grad()"],
+      "variants": [
+        {
+          "prompt": "マイクロバッチサイズ `8` で `accum_steps = 4` 回の**勾配累積**を行い、実質バッチサイズ `32` の学習を再現します。もし誤って損失を `4` で割らずに `loss.backward()` を4回呼んでから `opt.step()` すると、何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`.grad` に4回分の勾配がそのまま足し込まれて本来の **4倍の大きさの勾配** になり、実質的に学習率を4倍にしたのと同じ状態になって学習が不安定になる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "4回目の勾配だけが残り、最初の3回分のミニバッチが捨てられる",
+              "wrongReason": "PyTorchの `.backward()` は `.grad` を上書きせず「足し算」するため、4回分がそのまま加算されます。"
+            },
+            {
+              "id": "c",
+              "text": "勾配が4分の1に小さくなって学習がほとんど進まなくなる",
+              "wrongReason": "逆です。4回分の平均ではなく4回分の「合計」になるため、4倍大きくなります。"
+            },
+            {
+              "id": "d",
+              "text": "バッチ32のときと数学的に完全に同じ勾配になる",
+              "wrongReason": "`F.cross_entropy` は既定でバッチ内の**平均**を返すため、4つの平均をそのまま足すと「全体の平均」の4倍になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "8件ずつの平均を4回足すと、32件全体の平均の何倍になるか考えましょう。",
+          "reasoning": "32件全体の平均損失は $\\frac{1}{4}(\\bar{L}_1 + \\bar{L}_2 + \\bar{L}_3 + \\bar{L}_4)$ です。各マイクロバッチで $\\bar{L}_i / 4$ にしてから `backward()` することで初めて、バッチ32一括と数学的に完全一致します。",
+          "steps": [
+            "バッチ32の平均損失 $= \\frac{1}{32}\\sum_{j=1}^{32} \\ell_j$。",
+            "バッチ8の平均を4つに分けると $= \\frac{1}{4}\\left(\\frac{1}{8}\\sum_{1..8}\\ell_j + \\dots + \\frac{1}{8}\\sum_{25..32}\\ell_j\\right)$。",
+            "したがって各回 `loss / 4` を `backward()` し、4回たまった後に `opt.step()` と `opt.zero_grad()` を1回だけ呼ぶ。"
+          ],
+          "altExample": "もう1つのよくあるバグは「毎回 `opt.zero_grad()` を呼んでしまう」ことです。これだと累積されず、最後の1マイクロバッチ分しか更新に反映されません。"
+        },
+        {
+          "prompt": "バッチサイズ8 × 勾配累積4回（実質バッチ32）にしたとき、バッチ32を一括で計算する場合と比べて**大幅に減るメモリ**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "順伝播・逆伝播の途中の計算結果（**活性化メモリ**）が約4分の1に減る",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルの重みとAdamWの状態メモリ（1パラメータ約16バイト）が4分の1に減る",
+              "wrongReason": "モデルの重み・勾配・AdamWの記録はバッチサイズに依存しないため、勾配累積では一切減りません。"
+            },
+            {
+              "id": "c",
+              "text": "学習に必要な総計算量（FLOPs）が4分の1に減る",
+              "wrongReason": "合計32サンプルを計算する点では同じなので、総計算量は減りません（小分けのオーバーヘッドでわずかに遅くなります）。"
+            },
+            {
+              "id": "d",
+              "text": "データセットのトークン数が4分の1に減る",
+              "wrongReason": "データ量自体は変わらず、GPUに一度に載せるサンプル数（マイクロバッチ）だけを小さくします。"
+            }
+          ],
+          "answer": "a",
+          "hint": "GPUメモリの中身を「モデル固定分（重み・勾配・Adam）」と「バッチサイズに比例する分（活性化）」に分けて考えましょう。",
+          "reasoning": "1回の `forward` + `backward` でGPU上に同時に保持する活性化がバッチ8件分だけで済むため、活性化メモリが約4分の1に減ります。",
+          "steps": [
+            "重み・勾配・AdamW状態：バッチサイズに無関係（変化なし）。",
+            "活性化（各層の中間テンソル）：バッチサイズに比例 → 32から8にすると約1/4！",
+            "総計算量：8×4＝32件分をすべて計算するのでほぼ同じ。"
+          ],
+          "altExample": "第18〜19章のファインチューニング（T4 GPU）でも、`per_device_train_batch_size=2, gradient_accumulation_steps=8`（実質バッチ16）のように毎回使います。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q11",
+      "chapter": "16-scale",
+      "section": "学習の工学1：勾配累積",
+      "sectionAnchor": "#s5",
+      "concept": "grad-accum-mean-equivalence",
+      "conceptLabel": "勾配累積の平均と全体平均の一致を純Pythonで確認",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "8個の損失値を「一括で平均」した場合と、「2個ずつ4回に分けて `4` で割りながら累積」した場合を比べます。次のコードの出力を予測してください。",
+          "code": "losses = [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]\nfull_mean = sum(losses) / len(losses)\n\naccum = 0.0\nfor i in range(4):\n    chunk = losses[i*2:(i+1)*2]\n    accum += (sum(chunk) / len(chunk)) / 4\n\nprint(full_mean, accum, full_mean == accum)",
+          "accept": ["9.0 9.0 True"],
+          "placeholder": "例：9.0 9.0 True",
+          "hint": "`losses` は 2 から 16 までの等差数列なので平均はちょうど真ん中の `9.0` です。",
+          "reasoning": "各チャンクの平均 `(3.0, 7.0, 11.0, 15.0)` をそれぞれ `4` で割って足すと `(3+7+11+15)/4 = 36/4 = 9.0` となり、一括平均 `9.0` と完全に一致します。",
+          "steps": [
+            "一括平均：`(2+4+6+8+10+12+14+16) / 8 = 72 / 8 = 9.0`。",
+            "4つのチャンク平均：`3.0, 7.0, 11.0, 15.0`。",
+            "それぞれを4で割って足す：`(3.0 + 7.0 + 11.0 + 15.0) / 4 = 9.0` → `9.0 9.0 True`。"
+          ],
+          "altExample": "微分の線形性（和の微分＝微分の和）により、損失が完全一致すればその勾配も完全一致します。"
+        },
+        {
+          "prompt": "もし同じコードで `/ 4` を書き忘れると、`accum` はいくらになりますか？出力を予測してください。",
+          "code": "losses = [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]\naccum_wrong = 0.0\nfor i in range(4):\n    chunk = losses[i*2:(i+1)*2]\n    accum_wrong += sum(chunk) / len(chunk)\nprint(accum_wrong)",
+          "accept": ["36.0"],
+          "placeholder": "例：36.0",
+          "hint": "`3.0 + 7.0 + 11.0 + 15.0` の合計です（本来の `9.0` のちょうど4倍）。",
+          "reasoning": "累積回数4で割り忘れると、勾配も4倍の `36.0` スケールになってしまいます。",
+          "steps": [
+            "チャンク平均：`3.0, 7.0, 11.0, 15.0`。",
+            "そのまま合計：`3.0 + 7.0 + 11.0 + 15.0 = 36.0`。"
+          ],
+          "altExample": "PyTorchの `Trainer` や TRL は内部で自動スケーリングしてくれますが、自作ループで勾配累積を書くときは必ず `/ accum_steps` を入れましょう。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q12",
+      "chapter": "16-scale",
+      "section": "学習の工学2：活性化の再計算",
+      "sectionAnchor": "#s6",
+      "concept": "activation-checkpointing-tradeoff",
+      "conceptLabel": "活性化の再計算（勾配チェックポイント）のトレードオフ",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：計算グラフと逆伝播"],
+      "variants": [
+        {
+          "prompt": "**勾配チェックポイント（activation checkpointing）** の仕組みとトレードオフとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "順伝播の途中結果（活性化）を保存せず捨てておき、逆伝播で必要になったときに再計算することで、計算時間が約3割増える代わりにメモリを大幅に節約できる（勾配の値は数学的に同じ）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "途中の層の逆伝播をまるごと省略して近似勾配を使うため、計算が2倍速くなるが精度が落ちる",
+              "wrongReason": "逆伝播を省略するのではなく、必要な中間値を「もう一度計算し直す」ため、勾配は数学的に完全一致し、計算時間はむしろ約3割増えます。"
+            },
+            {
+              "id": "c",
+              "text": "モデルの重みをハードディスクに退避させることで推論速度を5倍にする技術",
+              "wrongReason": "重みの退避ではなく、学習時の活性化（中間計算結果）をメモリに保持せず再計算する技術です。"
+            },
+            {
+              "id": "d",
+              "text": "学習の途中でモデルを定期的にファイルへ保存する（チェックポイント保存）機能そのもの",
+              "wrongReason": "名前が似ていますが、ファイル保存のモデルチェックポイントとは別物で、逆伝播用の活性化メモリを節約する技法です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「メモを取らずに、必要なときに考え直す」というたとえを思い出しましょう。",
+          "reasoning": "「計算時間（約1.3倍）」と引き換えに「活性化メモリ」を劇的に減らす、時間とメモリの典型的なトレードオフです。",
+          "steps": [
+            "通常：全ブロックの途中の値をVRAMに保存 → 長文や深いモデルでVRAMがパンク。",
+            "チェックポイント：各ブロックの入口だけ覚え、内部の中間値は捨てる。",
+            "逆伝播時：そのブロックだけ順伝播をやり直して中間値を復元し、正確な勾配を計算する。"
+          ],
+          "altExample": "本文の検証で `torch.allclose(g1, g2)` が `True` になったとおり、勾配は1ビットの近似もなく一致します。"
+        },
+        {
+          "prompt": "勾配チェックポイントが**学習時（fine-tuning / pre-training）**には非常に有効なのに、**推論時（`torch.no_grad()`）**には使わない理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "推論時は逆伝播を行わないため、もともと途中の活性化を保存していないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "推論時はGPUメモリが無限に使えるから",
+              "wrongReason": "推論時もVRAM上限はあります（KVキャッシュが問題になります）が、活性化を保持しないのでチェックポイントの対象自体がありません。"
+            },
+            {
+              "id": "c",
+              "text": "推論時にチェックポイントを使うと出力トークンが変わってしまうから",
+              "wrongReason": "出力は変わりませんが、そもそも保存すべき逆伝播用の中間値が存在しないため不要です。"
+            },
+            {
+              "id": "d",
+              "text": "`torch.utils.checkpoint` はCPUでしか動かないから",
+              "wrongReason": "むしろGPUのVRAM節約のために使われるのが主用途です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`with torch.no_grad():` が何をオフにしているか思い出しましょう。",
+          "reasoning": "推論時は計算グラフや中間活性化を一切保持しないため、活性化の再計算は不要です。",
+          "steps": [
+            "学習時：逆伝播のために各層の中間値を保持 → 活性化メモリが大きい → チェックポイントが効く。",
+            "推論時：`no_grad()` で中間値は使い捨て → チェックポイントの出番はない（代わりにKVキャッシュが重要）。"
+          ],
+          "altExample": "「推論のメモリ対策＝KVキャッシュ＆GQA＆量子化」「学習のメモリ対策＝勾配累積＆勾配チェックポイント＆LoRA」と整理すると見通しが良くなります。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q13",
+      "chapter": "16-scale",
+      "section": "学習の工学3：FlashAttention",
+      "sectionAnchor": "#s7",
+      "concept": "flash-attention-sram-hbm",
+      "conceptLabel": "FlashAttentionが速く省メモリな理由（HBM vs SRAMのメモリ階層）",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第11章：Attentionスコア行列 T×T"],
+      "variants": [
+        {
+          "prompt": "**FlashAttention** が、通常のAttentionと**数学的に同じ結果**を出しながらずっと速く・省メモリになる本質的な理由は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "巨大な $T \\times T$ のスコア行列を遅いGPUメインメモリ（**HBM**）に丸ごと書き出さず、小さなタイルに分割してGPUチップ内の超高速メモリ（**SRAM**）上だけで計算を完結させるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "過去のトークンの9割をランダムに無視して、計算回数自体を10分の1に減らす近似アルゴリズムだから",
+              "wrongReason": "FlashAttentionは近似ではなく完全一致（exact）なAttentionです（本文でも `torch.allclose(manual, fast, atol=1e-5)` が `True` でした）。"
+            },
+            {
+              "id": "c",
+              "text": "softmaxの代わりに単純な足し算を使うから",
+              "wrongReason": "オンラインsoftmaxの工夫で、タイル分割しながら通常のsoftmaxと数学的にまったく同じ結果を計算します。"
+            },
+            {
+              "id": "d",
+              "text": "CPUとGPUの代わりにネットワーク経由で別マシンに計算を丸投げするから",
+              "wrongReason": "同じGPUチップ内部のメモリ階層（SRAMとHBMの速度差）を最大限に活かすアルゴリズムです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "GPUのボトルネックは「計算の速さ」よりも、巨大な $T \\times T$ 行列をメインメモリ（HBM）と往復させる「データ転送の遅さ」でした。",
+          "reasoning": "標準Attentionは $Q K^\\top$・マスク・softmax のたびに巨大な $T \\times T$ 行列をHBMへ読み書きしますが、FlashAttentionはタイルごとにSRAM内で一気に処理して出力だけをHBMへ書き戻すため、メモリ使用量も $O(T^2)$ から $O(T)$ へ激減します。",
+          "steps": [
+            "GPUには「大容量だが遅い **HBM**（VRAM）」と「極小（数十MB）だが超高速な **SRAM**（チップ内キャッシュ）」がある。",
+            "標準Attentionは $T \\times T$ 行列をHBMに丸ごと作って何度も読み書きするため遅くメモリを食う。",
+            "FlashAttentionは $Q, K, V$ を小さなブロック（タイル）に分けてSRAMへ読み込み、オンラインsoftmaxで $T \\times T$ をHBMに作らずに同じ答えを求める。"
+          ],
+          "altExample": "PyTorchでは `F.scaled_dot_product_attention(q, k, v, is_causal=True)` の1行に書き換えるだけで、対応GPUなら自動的にFlashAttention系カーネルが使われます。"
+        },
+        {
+          "prompt": "系列長 $T = 8{,}000$ の文章で、標準的なAttention（$T \\times T$ のスコア行列をHBMに作成）と FlashAttention（タイル計算）を比べたとき、HBM上のAttentionスコア行列に必要なメモリ規模はどう変わりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "標準Attentionは $O(T^2)$（6,400万マス×ヘッド数×バッチ）必要だが、FlashAttentionは $T \\times T$ 行列をHBMに保存しないため $O(T)$ に劇的に減る",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "FlashAttentionのほうがタイル分だけ余計にHBMを消費して $O(T^3)$ になる",
+              "wrongReason": "逆です。タイルは超高速なSRAMに一時的に置くだけでHBMには巨大な $T \\times T$ を作らないため、HBM消費量は大幅に減ります。"
+            },
+            {
+              "id": "c",
+              "text": "どちらもHBM消費量はまったく同じで、実行速度だけが少し変わる",
+              "wrongReason": "FlashAttentionの大きな利点の1つが、長文でのメモリ使用量を $O(T^2)$ から $O(T)$ に削減できる点です。"
+            },
+            {
+              "id": "d",
+              "text": "標準Attentionは $O(1)$ で、FlashAttentionは $O(T)$ である",
+              "wrongReason": "標準Attentionは `att = q @ k.transpose(-2, -1)` で長さ $T \\times T$ のテンソルを明示的に作るため $O(T^2)$ です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "長さ $T = 8{,}000$ のとき $T^2 = 64{,}000{,}000$（6400万）になります。",
+          "reasoning": "$T \\times T$ の巨大な中間行列をHBM上に実体化しないため、長文（32K・128Kトークン）を扱う現代のLLMにとってFlashAttentionは不可欠な基盤技術です。",
+          "steps": [
+            "標準Attention：HBM上に `[B, H, T, T]` を確保（$O(T^2)$）。",
+            "FlashAttention：SRAM上の小ブロックで処理し、出力 `[B, H, T, d]` と統計量のみHBMに保持（$O(T)$）。"
+          ],
+          "altExample": "長文対応のLLMが数年で4K→128K→1Mトークンへ急拡大できた背景には、FlashAttentionとGQAの貢献があります。"
+        }
+      ]
+    },
+    {
+      "id": "ch16-q14",
+      "chapter": "16-scale",
+      "section": "何百枚ものGPUで学習する：分散学習",
+      "sectionAnchor": "#s8",
+      "concept": "distributed-training-strategies",
+      "conceptLabel": "分散学習の4方式（DDP・ZeRO/FSDP・テンソル並列・パイプライン並列）",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第15章：学習メモリ16バイト/param"],
+      "variants": [
+        {
+          "prompt": "巨大なLLMの学習では1枚のGPUにモデル全体（重み・勾配・AdamW状態）が乗り切りません。モデルの重み・勾配・AdamWの状態を複数GPUで**分割して持ち合い**、必要な層を計算するときだけ集めてくる分散学習の方式はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "**ZeRO / FSDP**（Fully Sharded Data Parallel）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "単純な**データ並列（DDP）**",
+              "wrongReason": "DDPは全GPUにモデル・勾配・AdamW状態を丸ごとコピーして持つため、1枚に乗らないモデルには使えません。"
+            },
+            {
+              "id": "c",
+              "text": "**top-p（nucleus sampling）**",
+              "wrongReason": "top-pは推論時のトークン選択（サンプリング）手法であり、分散学習ではありません。"
+            },
+            {
+              "id": "d",
+              "text": "**KVキャッシュ**",
+              "wrongReason": "KVキャッシュは推論時の過去Key・Valueの再利用であり、分散学習ではありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「データ並列の発展版で、16バイト/パラメータの内訳をGPU間で分割（シャード）して持ち合う」方式です。",
+          "reasoning": "DDPでは各GPUに同じコピーが重複して無駄が生じますが、ZeRO / FSDPはその重複をなくしてGPU間で分割保持することで、1枚に収まらない巨大モデルの学習を可能にします。",
+          "steps": [
+            "DDP：各GPUにモデル丸ごとコピー＋違うデータを担当。",
+            "ZeRO / FSDP：重み・勾配・Adam状態をGPU間で分割保持（シャード）し、必要時に通信で集める。",
+            "テンソル並列：1つの行列積自体を複数GPUに分割。",
+            "パイプライン並列：1〜10層をGPU1、11〜20層をGPU2のように層ごとに分担。"
+          ],
+          "altExample": "数千枚GPUでの超大規模事前学習では、データ並列（ZeRO）・テンソル並列・パイプライン並列をすべて組み合わせる「3D並列」が使われます。"
+        },
+        {
+          "prompt": "次の分散学習の説明のうち、「1〜10層はGPU 1、11〜20層はGPU 2、21〜30層はGPU 3……」のように**モデルの層（ブロック）ごとに担当GPUを分ける**方式はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "**パイプライン並列**（Pipeline Parallelism）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "**テンソル並列**（Tensor Parallelism）",
+              "wrongReason": "テンソル並列は層ごとではなく、1つの層の中にある大きな行列積自体を複数GPUで横に分割して並列計算します。"
+            },
+            {
+              "id": "c",
+              "text": "**データ並列**（DDP）",
+              "wrongReason": "データ並列は全GPUが全層を持ち、入力データのバッチを分割して担当します。"
+            },
+            {
+              "id": "d",
+              "text": "**勾配累積**（Gradient Accumulation）",
+              "wrongReason": "勾配累積は1枚のGPUでも使える、マイクロバッチを時間方向に分割して勾配をためる技術です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "工場の「流れ作業（ベルトコンベア）」のように、前の層が終わったら次のGPUへバトンを渡す方式です。",
+          "reasoning": "層を縦に分割して流れ作業にするのがパイプライン並列です。GPUの待ち時間（バブル）を減らすためにミニバッチをさらに細かく流す工夫（マイクロバッチ化）と併用されます。",
+          "steps": [
+            "データを分ける → データ並列（DDP / ZeRO）。",
+            "1つの行列積を横に割る → テンソル並列。",
+            "層を縦に分けてバトンリレー → パイプライン並列。"
+          ],
+          "altExample": "テンソル並列は層内で頻繁に通信するため同じマシン内（NVLink接続）で使い、パイプライン並列やデータ並列はマシンをまたぐ通信にも使われます。"
+        }
+      ]
+    }
+  ]
+}

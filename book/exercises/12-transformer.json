@@ -1,0 +1,925 @@
+{
+  "chapter": "12-transformer",
+  "exercises": [
+    {
+      "id": "ch12-q01",
+      "chapter": "12-transformer",
+      "section": "全体図",
+      "sectionAnchor": "#s2",
+      "concept": "gpt-five-components",
+      "conceptLabel": "ミニGPTを構成する5部品とデータの流れ",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第11章：Headクラスと位置埋め込み"],
+      "variants": [
+        {
+          "prompt": "ミニGPT（`code/minigpt.py`）の中で、入力トークンID列 `idx` が「次の文字の点数 `logits`」になるまでの正しい順番はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "文字埋め込み＋位置埋め込み → Dropout → Transformer Block を `n_layer` 回くり返す → 最終 `LayerNorm`（`ln_f`）→ 出力線形層（`lm_head`）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "出力線形層（`lm_head`）→ Transformer Block → 文字埋め込み＋位置埋め込み",
+              "wrongReason": "順番が逆です。まずトークンIDを埋め込みベクトルに変えてから Block を通し、最後に `lm_head` で語彙数 `V` 個の点数へ変換します。"
+            },
+            {
+              "id": "c",
+              "text": "文字埋め込み → `softmax` → `FeedForward` のみ（Attention は使わない）",
+              "wrongReason": "Transformer Block は Multi-Head Attention（話し合い）と FeedForward（考える）のセットを何層も積み重ねます。"
+            },
+            {
+              "id": "d",
+              "text": "Transformer Block を1回だけ通り、毎回最後に `tok_emb` を掛け算して終了",
+              "wrongReason": "Block は `n_layer` 層積み重ね、最後に `ln_f` と `lm_head`（`nn.Linear(n_embd, vocab_size)`）を通します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "全体図の「下から上」の矢印（入力ID → 埋め込み → Block×N → LayerNorm → 出力層）をたどりましょう。",
+          "reasoning": "GPTは「埋め込み（入口）→ Block×N（話し合い＋考えるの反復）→ 最終LayerNorm＋出力層（出口）」という驚くほどシンプルな1本道でできています。",
+          "steps": [
+            "入口：`self.drop(self.tok_emb(idx) + self.pos_emb(pos))`。",
+            "本体：`self.blocks(x)`（`Block` を `n_layer` 個直列につないだ `nn.Sequential`）。",
+            "出口：`self.lm_head(self.ln_f(x))` で `[B, T, vocab_size]` のロジットを得る。"
+          ],
+          "altExample": "本物の GPT-2 や Llama も、この基本骨格（埋め込み → Block×N → 正規化 → 出力層）はまったく同じです。"
+        },
+        {
+          "prompt": "Transformer の1つの `Block` の中で起きている2段階の処理は、どのような役割分担になっていますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "前半の `MultiHeadAttention` で「文字どうしが情報をやりとりする（話し合い）」、後半の `FeedForward` で「各位置が独立に情報を消化する（ひとりで考える）」",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "前半の `MultiHeadAttention` で文字をトークンIDに変換し、後半の `FeedForward` で日本語を英語に翻訳する",
+              "wrongReason": "ID化はモデルの前のトークナイザーの仕事です。Block内部は埋め込みベクトルを変換し続けます。"
+            },
+            {
+              "id": "c",
+              "text": "前半の `MultiHeadAttention` で各位置が独立に計算し、後半の `FeedForward` で過去の文字とやりとりする",
+              "wrongReason": "役割が逆です。文字間の情報交換を担うのが Attention、各位置で独立に計算するのが FeedForward です。"
+            },
+            {
+              "id": "d",
+              "text": "どちらもまったく同じ計算を2回繰り返しているだけ",
+              "wrongReason": "Attention はトークン方向（時間軸 `T`）に情報を混ぜ、FeedForward は各トークン内の特徴次元（`n_embd`）を非線形変換します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「話し合い（時間方向のやりとり）」→「ひとりで考える（位置ごとのMLP）」の交互反復です。",
+          "reasoning": "位置をまたいで文脈を集める Attention と、集めた情報を各位置の広い作業机（`4 * n_embd`）で加工する FeedForward を交互に積むことで、深い表現力が生まれます。",
+          "steps": [
+            "`x = x + self.attn(self.ln1(x))`：異なる位置のトークン同士が話し合う。",
+            "`x = x + self.ffwd(self.ln2(x))`：各位置が独立に MLP（`4 * n_embd`）で考える。"
+          ],
+          "altExample": "会議で情報共有（Attention）してから各自のデスクに戻って作業（FeedForward）するサイクルを `n_layer` 回くり返すイメージです。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q02",
+      "chapter": "12-transformer",
+      "section": "部品2：マルチヘッドAttention",
+      "sectionAnchor": "#s4",
+      "concept": "mha-head-size-calc",
+      "conceptLabel": "マルチヘッドAttentionの head_size 計算（n_embd // n_head）",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`n_embd = 384`、`n_head = 6` のとき、マルチヘッドAttention の1つのヘッドの大きさ（`head_size`）はいくつになりますか？",
+          "answer": { "value": 64, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "`head_size = n_embd // n_head` です。$384 \\div 6$ を計算しましょう。",
+          "reasoning": "全体の埋め込み次元 `n_embd` を `n_head` 個のヘッドに均等に分け、各ヘッドの出力を最後に横につなげて元の `n_embd` に戻します。",
+          "steps": [
+            "`n_embd = 384`、`n_head = 6`。",
+            "`head_size = 384 // 6 = 64`。",
+            "6個のヘッド出力 `[B, T, 64]` を `dim=-1` で連結すると `[B, T, 384]` に戻る。"
+          ],
+          "altExample": "第13章の大きいモデル（`train_big`）がちょうどこの `n_embd=384, n_head=6` 設定です。"
+        },
+        {
+          "prompt": "本物の GPT-2（small）は `n_embd = 768`、`n_head = 12` です。1つのヘッドの大きさ（`head_size`）はいくつになりますか？",
+          "answer": { "value": 64, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "$768 \\div 12$ を計算しましょう。",
+          "reasoning": "実務のLLMでも `head_size` は `64` や `128` などのきれいな2のべき乗になるように `n_embd` と `n_head` を設計します。",
+          "steps": [
+            "`n_embd = 768`、`n_head = 12`。",
+            "`head_size = 768 // 12 = 64`。"
+          ],
+          "altExample": "もし割り切れない組み合わせ（例：`n_embd=64, n_head=5`）を指定すると、`5 * 12 = 60 != 64` となり `self.proj` で形エラーが起きます。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q03",
+      "chapter": "12-transformer",
+      "section": "部品2：マルチヘッドAttention",
+      "sectionAnchor": "#s4",
+      "concept": "mha-why-and-concat-proj",
+      "conceptLabel": "マルチヘッドの分業・torch.cat(dim=-1)・self.proj の役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第11章：1ヘッドの限界"],
+      "variants": [
+        {
+          "prompt": "`MultiHeadAttention.forward` では `out = torch.cat([h(x) for h in self.heads], dim=-1)` のあとに `self.proj(out)` を通しています。`torch.cat(..., dim=-1)` と `self.proj` の役割の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`torch.cat(..., dim=-1)` で各ヘッドの出力 `[B, T, hs]` を特徴次元方向に連結して `[B, T, n_embd]` に戻し、`self.proj`（線形層）で複数ヘッドの見方を混ぜ合わせる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`torch.cat(..., dim=-1)` で文章の数 `B` を4倍に増やし、`self.proj` で1文章だけ選んで残りを捨てる",
+              "wrongReason": "`dim=-1` は一番最後の軸（特徴次元 `hs`）をつなぐ指定なので、バッチ数 `B` も文字数 `T` も変わりません。"
+            },
+            {
+              "id": "c",
+              "text": "`torch.cat(..., dim=-1)` で全ヘッドの平均をとり、`self.proj` で未来の文字をマスクする",
+              "wrongReason": "`cat` は平均ではなく横並びの連結（concatenation）です。また未来のマスクは各 `Head` の中で済んでいます。"
+            },
+            {
+              "id": "d",
+              "text": "`self.proj` は何の計算もしない飾りなので、削除しても表現力は変わらない",
+              "wrongReason": "`cat` した直後は各ヘッドの結果が隣り合って並んでいるだけで混ざっていません。`self.proj`（`nn.Linear(n_embd, n_embd)`）で全ヘッドの情報を統合して残差ストリームへ戻します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "4人の担当者がそれぞれメモ（16次元ずつ）を持ち寄り（`cat` で64次元に並べる）、最後に会議で1枚の報告書（`self.proj`）にまとめる流れです。",
+          "reasoning": "小さなヘッドを並列に走らせて特徴次元で連結すると、1つの大きいヘッドとほぼ同じ計算量・QKVパラメータ数のまま、複数の異なる注目パターン（直前、主語、括弧など）を同時に捉えられます。",
+          "steps": [
+            "各ヘッド `h(x)` の出力は `[B, T, head_size]`。",
+            "`n_head` 個を `dim=-1` で連結すると `[B, T, n_head * head_size] = [B, T, n_embd]`。",
+            "`self.proj(out)` で各ヘッドの情報を線形結合して混ぜ合わせ、残差接続へ渡す。"
+          ],
+          "altExample": "`n_embd = 64, n_head = 4` のとき、`4` 個の `[B, T, 16]` が `cat` で `[B, T, 64]` になり、`proj` 後も `[B, T, 64]` です。"
+        },
+        {
+          "prompt": "`n_embd = 64, n_head = 5` のように割り切れない設定で `MultiHeadAttention` を実行すると、`RuntimeError: mat1 and mat2 shapes cannot be multiplied (...x60 and 64x64)` が出ました。原因はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`head_size = 64 // 5 = 12` となり、5ヘッドを連結した `out` の最後の次元が `5 * 12 = 60` なのに、`self.proj` が入力次元 `64` を期待しているから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`n_head` は必ず偶数でなければ PyTorch が動かないから",
+              "wrongReason": "奇数でも `n_embd` を割り切れれば（例：`n_embd=60, n_head=5` → `head_size=12`）エラーなく動きます。"
+            },
+            {
+              "id": "c",
+              "text": "`block_size` が `5` で割り切れないから",
+              "wrongReason": "`block_size`（文章の最大長）と `n_head` の間に割り切れ制約はありません。制約があるのは `n_embd % n_head == 0` です。"
+            },
+            {
+              "id": "d",
+              "text": "GPUメモリが 60 MB しかないから",
+              "wrongReason": "`...x60 and 64x64` はメモリ容量ではなく、行列積の列数（`60`）と行数（`64`）が一致しないという形エラーです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Pythonの整数除算 `64 // 5` は余りを切り捨てて `12` になります。",
+          "reasoning": "`head_size = n_embd // n_head` が余りを切り捨てるため、`n_embd % n_head != 0` だと連結後の次元が `n_embd` より小さくなり、`self.proj = nn.Linear(n_embd, n_embd)` と噛み合わなくなります。",
+          "steps": [
+            "`head_size = 64 // 5 = 12`。",
+            "5ヘッド連結後の次元：`5 * 12 = 60`。",
+            "`self.proj` の重みは `64 × 64` なので `60` と掛けられずエラー。"
+          ],
+          "altExample": "実務のコードでは `__init__` の先頭に `assert n_embd % n_head == 0` を入れて、実行前にすぐ気づけるようにするのが定石です。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q04",
+      "chapter": "12-transformer",
+      "section": "部品2：マルチヘッドAttention",
+      "sectionAnchor": "#s4",
+      "concept": "nn-modulelist-pitfall",
+      "conceptLabel": "nn.ModuleList を使わず普通のリストにしたときの落とし穴",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：nn.Module"],
+      "variants": [
+        {
+          "prompt": "`MultiHeadAttention.__init__` で `self.heads = nn.ModuleList([...])` の代わりに、うっかり普通の Python リスト `self.heads = [Head(...) for _ in range(n_head)]` と書いてしまいました。何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "順伝播自体は一見動くが、各 `Head` のパラメータが `model.parameters()` に登録されず、学習で一切更新されない（さらに `.to(device)` でGPUにも移らない）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Python の構文エラー（`SyntaxError`）になり、クラス定義の時点で即座に止まる",
+              "wrongReason": "普通の Python リストなので構文エラーにはならず、CPU上ではそのまま走ってしまうのが一番怖い点です。"
+            },
+            {
+              "id": "c",
+              "text": "`nn.ModuleList` より計算が2倍速くなり、精度もまったく同じになる",
+              "wrongReason": "PyTorch が子モジュールとして認識できないため、`optimizer` に渡されずヘッドの重みが永遠に初期値のままになります。"
+            },
+            {
+              "id": "d",
+              "text": "ヘッドが1つだけ自動的に削除される",
+              "wrongReason": "リスト内のヘッドはすべて `forward` で呼ばれますが、全ヘッドが PyTorch の管理外になってしまいます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "PyTorch の `nn.Module` は「属性が `nn.Module` または `nn.ModuleList` / `nn.Sequential` のときだけ」中のパラメータを探し出します。",
+          "reasoning": "普通の Python `list` に入れた層は `model.parameters()` にも `model.state_dict()` にも `model.to(device)` にも含まれません。これがPyTorch初心者が最もハマりやすいサイレントバグの1つです。",
+          "steps": [
+            "普通の `list` は PyTorch のサブモジュール登録機構を通らない。",
+            "`opt = AdamW(model.parameters())` に各 Head の Q/K/V 重みが入らず、学習されない。",
+            "`model.to(\"cuda\")` でも Head が CPU に置き去りになりエラーになる。"
+          ],
+          "altExample": "`print(model)` やパラメータ数チェック、さらに1バッチ丸暗記テストを行えば、こうした登録漏れをすぐに見抜けます。"
+        },
+        {
+          "prompt": "`nn.ModuleList` と `nn.Sequential` の使い分けとして最も適切なのはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "同じ入力 `x` を並列に通して自分で集計したいとき（複数ヘッドなど）は `nn.ModuleList`、部品を順番にベルトコンベアのように直列に流すとき（`FeedForward` や `blocks`）は `nn.Sequential`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "どちらもまったく同じ機能で、`nn.ModuleList` をそのまま `self.heads(x)` と呼び出せる",
+              "wrongReason": "`nn.ModuleList` には `forward` が定義されていないため `self.heads(x)` とは呼べず、リストのようにループで回して使います。"
+            },
+            {
+              "id": "c",
+              "text": "`nn.Sequential` はパラメータを学習せず、`nn.ModuleList` だけが学習する",
+              "wrongReason": "どちらも PyTorch にパラメータを正しく登録して学習されます。"
+            },
+            {
+              "id": "d",
+              "text": "層が2個以下のときは `nn.ModuleList`、3個以上のときは `nn.Sequential` を使う決まりがある",
+              "wrongReason": "個数の決まりではなく、直列につなぐか（`Sequential`）、自分で自由に呼び出すか（`ModuleList`）の違いです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`FeedForward` では `Linear → GELU → Linear → Dropout` を順番に通し、`MultiHeadAttention` では `[h(x) for h in self.heads]` で並列に通していました。",
+          "reasoning": "`nn.Sequential` は順番に1本道で通す用途、`nn.ModuleList` は並列実行や途中の出力を取り出したい用途に使い分けます。",
+          "steps": [
+            "`nn.Sequential(A, B, C)`：`net(x)` で自動的に `C(B(A(x)))` を計算。",
+            "`nn.ModuleList([h1, h2, ...])`：`forward` で `[h(x) for h in self.heads]` のように自在に制御。"
+          ],
+          "altExample": "`GPT` の `self.blocks = nn.Sequential(*[Block(...) for _ in range(n_layer)])` は、`Block` を直列に積み上げるので `Sequential` がぴったりです。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q05",
+      "chapter": "12-transformer",
+      "section": "部品3：フィードフォワード（考える時間）",
+      "sectionAnchor": "#s5",
+      "concept": "ffn-expansion-and-role",
+      "conceptLabel": "FeedForward 層の 4倍拡張・GELU・独立処理の意味",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：MLPと非線形活性化関数"],
+      "variants": [
+        {
+          "prompt": "`FeedForward` 層（`Linear(C, 4*C) → GELU → Linear(4*C, C) → Dropout`）の説明として**正しい**ものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "各トークン位置ごとに独立に適用され、一度次元を 4 倍（`4 * n_embd`）の広い作業空間へ広げて非線形変換（GELU）してから元の次元 `n_embd` に戻す",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "文章中の全トークン同士の内積を計算して、過去の文字と情報を混ぜる層である",
+              "wrongReason": "トークン同士を混ぜるのは Attention です。FeedForward は各位置 `t` について他の位置を見ずに独立して計算します。"
+            },
+            {
+              "id": "c",
+              "text": "入力 `[B, T, C]` を受け取ると出力の形が `[B, T, 4*C]` に変わり、次の層へそのまま渡される",
+              "wrongReason": "2つ目の `nn.Linear(4 * n_embd, n_embd)` で元の `[B, T, C]` に戻すため、残差接続 `x = x + self.ffwd(...)` が成り立ちます。"
+            },
+            {
+              "id": "d",
+              "text": "GELU を取り除いて線形層2枚だけにしても、表現力はまったく同じである",
+              "wrongReason": "第9章で学んだ通り、非線形活性化関数がないと線形層2枚の合成はただの1枚の線形層に潰れてしまいます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "入口 `[B, T, C]` → 途中 `[B, T, 4*C]`（広い作業机）→ 出口 `[B, T, C]` の流れを確認しましょう。",
+          "reasoning": "Attention で集めた情報を、各位置ごとに広い中間表現（`4 * n_embd`）へ展開して非線形に組み替え、再び残差ストリームの幅 `n_embd` へ戻します。モデルの事実知識の多くはこの層に蓄えられます。",
+          "steps": [
+            "入力：`[B, T, C]`。",
+            "1層目 `Linear(C, 4C)` + `GELU`：`[B, T, 4C]`（広い空間で特徴を組み合わせる）。",
+            "2層目 `Linear(4C, C)` + `Dropout`：`[B, T, C]`（元の幅に戻す）。"
+          ],
+          "altExample": "最新の Llama や Qwen では、この `FeedForward` をさらに発展させた **SwiGLU**（第25章）が使われています。"
+        },
+        {
+          "prompt": "Transformer Block 1個の中で、パラメータ数の割合がいちばん大きい部品はどれですか？（`n_embd` を $C$ とします）",
+          "options": [
+            {
+              "id": "a",
+              "text": "`FeedForward` 層（約 $8C^2$ 個で、Block 全体の約 2/3 を占める）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`LayerNorm`（`ln1` と `ln2` で、Block 全体の約 80% を占める）",
+              "wrongReason": "`LayerNorm` 2つ分は $4C$ 個だけで、$C^2$ に比例する Attention や FFN に比べるとごくわずかです。"
+            },
+            {
+              "id": "c",
+              "text": "`MultiHeadAttention` の方が `FeedForward` の 4 倍多い",
+              "wrongReason": "`MultiHeadAttention` は Q・K・V・proj で約 $4C^2$ 個、`FeedForward` は $C \\to 4C \\to C$ で約 $8C^2$ 個なので、`FeedForward` のほうが約2倍多いです。"
+            },
+            {
+              "id": "d",
+              "text": "`Dropout` 層がパラメータの半分を占める",
+              "wrongReason": "`Dropout` はランダムに値を0にする操作だけで、学習パラメータを1つも持ちません（0個）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Attention は Q, K, V, proj の4枚の $C \\times C$ 相当（約 $4C^2$）、FeedForward は $C \\times 4C$ と $4C \\times C$（約 $8C^2$）です。",
+          "reasoning": "1つの Block のパラメータ数は約 $12C^2$ で、内訳は Attention が約 $4C^2$（1/3）、FeedForward が約 $8C^2$（2/3）です。だからこそ「知識の多くは FFN に詰まっている」と言われます。",
+          "steps": [
+            "`MultiHeadAttention`：Q・K・V で $3C^2$、proj で $C^2 + C$ → 計 $4C^2 + C$。",
+            "`FeedForward`：拡張 $4C^2 + 4C$、縮小 $4C^2 + C$ → 計 $8C^2 + 5C$。",
+            "`ln1 + ln2`：$4C$。",
+            "Block 合計：$12C^2 + 10C$（うち約 2/3 が `FeedForward`）。"
+          ],
+          "altExample": "`C = 128` のとき、Attention は約 6.6万個、FeedForward は約 13.2万個でちょうど2倍です。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q06",
+      "chapter": "12-transformer",
+      "section": "部品3：フィードフォワード（考える時間）",
+      "sectionAnchor": "#s5",
+      "concept": "ffn-param-count",
+      "conceptLabel": "FeedForward 層の正確なパラメータ数計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第9章：nn.Linearのパラメータ数"],
+      "variants": [
+        {
+          "prompt": "`n_embd = 16` のとき、`FeedForward(n_embd=16, dropout=0.1)` のパラメータ総数（バイアス込み）はいくつになりますか？",
+          "answer": { "value": 2128, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "1層目 `Linear(16, 64)` は `16 * 64 + 64`、2層目 `Linear(64, 16)` は `64 * 16 + 16` です（公式：$8C^2 + 5C$）。",
+          "reasoning": "`nn.Linear(in_f, out_f)` は重み `in_f * out_f` とバイアス `out_f` を持ちます。`GELU` と `Dropout` のパラメータは0個です。",
+          "steps": [
+            "`4 * n_embd = 64`。",
+            "1層目 `Linear(16, 64)`：`16 * 64 + 64 = 1024 + 64 = 1088`。",
+            "2層目 `Linear(64, 16)`：`64 * 16 + 16 = 1024 + 16 = 1040`。",
+            "合計：`1088 + 1040 = 2128`（公式 $8 \\times 16^2 + 5 \\times 16 = 2048 + 80 = 2128$）。"
+          ],
+          "altExample": "同じ `n_embd = 16` でも `C` を2倍（`32`）にすると、$C^2$ に比例してパラメータは約4倍（`8,352`）に増えます。"
+        },
+        {
+          "prompt": "`n_embd = 32` のとき、`FeedForward(n_embd=32, dropout=0.1)` のパラメータ総数（バイアス込み）はいくつになりますか？",
+          "answer": { "value": 8352, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "公式 $8C^2 + 5C$ に $C = 32$ を代入してみましょう（$32^2 = 1024$）。",
+          "reasoning": "1層目 `Linear(32, 128)` が `4,224` 個、2層目 `Linear(128, 32)` が `4,128` 個、合計 `8,352` 個になります。",
+          "steps": [
+            "$C = 32$、$4C = 128$。",
+            "1層目：$32 \\times 128 + 128 = 4096 + 128 = 4224$。",
+            "2層目：$128 \\times 32 + 32 = 4096 + 32 = 4128$。",
+            "合計：$4224 + 4128 = 8352$。"
+          ],
+          "altExample": "式 $8C^2 + 5C$ を覚えておくと、論文のモデルサイズ表を暗算で検算できるようになります。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q07",
+      "chapter": "12-transformer",
+      "section": "部品4：Block（残差接続とLayerNorm）",
+      "sectionAnchor": "#s6",
+      "concept": "residual-connection-gradient-highway",
+      "conceptLabel": "残差接続 x = x + sublayer(ln(x)) が勾配消失を防ぐ理由",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第8章：連鎖律（微分の掛け算）", "第10章：深い層の勾配消失"],
+      "variants": [
+        {
+          "prompt": "`Block.forward` の `x = x + self.attn(self.ln1(x))` から `x +` を消して `x = self.attn(self.ln1(x))` に変えると、特に層を深くしたときに何が困りますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "元の情報が毎層上書きされて失われやすく、さらに逆伝播の勾配が $1 + F'(x)$ の近道（高速道路）を失って毎層掛け算で弱まり、深い層の学習が進みにくくなる（勾配消失）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "テンソルの形（shape）が `[B, T, C]` から `[B, T, 2*C]` に変わってエラーになる",
+              "wrongReason": "要素ごとの足し算なので `x +` の有無で形 `[B, T, C]` は変わりません。変わるのは情報の保持と勾配の通りやすさです。"
+            },
+            {
+              "id": "c",
+              "text": "パラメータ数が半分に減ってしまう",
+              "wrongReason": "残差接続はただの足し算 `+` なので、追加のパラメータは 0 個です。"
+            },
+            {
+              "id": "d",
+              "text": "因果マスクが無効になり未来が見えるようになる",
+              "wrongReason": "因果マスクは `Head` の内部にあり、残差接続の有無とは無関係です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "$y = x + F(x)$ を $x$ で微分すると $\\frac{\\partial y}{\\partial x} = 1 + F'(x)$ になる点に注目しましょう！",
+          "reasoning": "残差接続 $y = x + F(x)$ では微分の式に必ず `+ 1` が残るため、たとえ途中の層の微分 $F'(x)$ が小さくても、勾配が入口まで減衰せずまっすぐ届く「勾配の高速道路」になります。",
+          "steps": [
+            "残差なし：$y = F(x)$ → 層を $L$ 回通ると微分が $F_L' \\cdots F_1'$ の掛け算になり、$0.5^{20} \\approx 10^{-6}$ のように消える。",
+            "残差あり：$y = x + F(x)$ → 微分は $1 + F'(x)$。`+ 1` の直通ルートを通って勾配が入口まで届く。",
+            "順伝播でも元の情報（残差ストリーム）に差分だけをそっと上乗せできる。"
+          ],
+          "altExample": "100層以上の巨大LLMが安定して学習できるのは、この ResNet 由来のたった3文字 `x +` のおかげです。"
+        },
+        {
+          "prompt": "残差接続 $y = x + F(x)$ において、ある位置の出力 $y$ に対する損失の勾配 $\\frac{\\partial L}{\\partial y} = 2.0$ が戻ってきました。もしこの層でたまたま $F'(x) = 0.0$ だったとき、入力 $x$ に届く勾配 $\\frac{\\partial L}{\\partial x}$ はいくつになりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`2.0`（`+ 1` の高速道路を通ってそのまま届く）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`0.0`（$F'(x) = 0$ なので勾配が完全に消える）",
+              "wrongReason": "残差なし（$y = F(x)$）なら $2.0 \\times 0.0 = 0.0$ で消えますが、残差ありなら $2.0 \\times (1 + 0.0) = 2.0$ がそのまま届きます！"
+            },
+            {
+              "id": "c",
+              "text": "`1.0`（常に 1 に固定される）",
+              "wrongReason": "連鎖律により $\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y} \\cdot (1 + F'(x)) = 2.0 \\times 1 = 2.0$ です。"
+            },
+            {
+              "id": "d",
+              "text": "`4.0`（2倍に増幅される）",
+              "wrongReason": "$F'(x) = 0$ なので $1 + 0 = 1$ 倍であり、`2.0` のままです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "連鎖律 $\\frac{\\partial L}{\\partial x} = \\frac{\\partial L}{\\partial y} \\cdot (1 + F'(x))$ に代入してみましょう。",
+          "reasoning": "途中の部品 $F$ の勾配が一時的に 0 になっても、足し算の分岐（`1`）が勾配をそのまま下流へバイパスするため、学習が完全に死ぬのを防ぎます。",
+          "steps": [
+            "$\\frac{\\partial y}{\\partial x} = 1 + F'(x) = 1 + 0.0 = 1.0$。",
+            "$\\frac{\\partial L}{\\partial x} = 2.0 \\times 1.0 = 2.0$。"
+          ],
+          "altExample": "逆に残差接続がないと、1か所でも $F'(x) = 0$ の層があるだけでそれより前の全層の勾配が `0.0` になって止まります。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q08",
+      "chapter": "12-transformer",
+      "section": "部品4：Block（残差接続とLayerNorm）",
+      "sectionAnchor": "#s6",
+      "concept": "pre-norm-vs-post-norm",
+      "conceptLabel": "Pre-Norm と Post-Norm の違い（なぜ GPT-2 以降は Pre-Norm なのか）",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第10章：LayerNorm"],
+      "variants": [
+        {
+          "prompt": "現代のGPT（`Block`）では **Pre-Norm**（`x = x + self.attn(self.ln1(x))`）が使われ、2017年の元祖 Transformer の **Post-Norm**（`x = self.ln1(x + self.attn(x))`）とは LayerNorm の位置が違います。Pre-Norm の最大の利点はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "残差ストリーム `x` の幹線道路上に LayerNorm を挟まず「純粋な足し算」のまま保てるため、深い層でも勾配が安定して学習しやすい",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Post-Norm に比べて LayerNorm のパラメータ数が半分になる",
+              "wrongReason": "使う `LayerNorm` の数（1ブロックあたり2個）とパラメータ数はどちらもまったく同じです。"
+            },
+            {
+              "id": "c",
+              "text": "Pre-Norm を使うと `lm_head` の直前の最終 `ln_f` が不要になる",
+              "wrongReason": "むしろ Pre-Norm では残差ストリーム本体が正規化されずに足し続けられるため、最後の出力層 `lm_head` の直前に `self.ln_f` を1回入れるのが定番です。"
+            },
+            {
+              "id": "d",
+              "text": "Pre-Norm を使うと Dropout が不要になる",
+              "wrongReason": "LayerNorm は数値スケールの安定化、Dropout は過学習防止であり、役割が異なります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "ベルトコンベア（残差ストリーム `x`）の上に障害物を置くか、作業員が手元のコピーだけ整えるかの違いを比べましょう。",
+          "reasoning": "Post-Norm では毎回残差ストリーム全体が LayerNorm を通るため、深い層では勾配の大きさが不安定になりやすいです。Pre-Norm は幹線道路を純粋な足し算に保つことで学習を劇的に安定させます。",
+          "steps": [
+            "Post-Norm：`x = ln(x + sublayer(x))` → 幹線道路 `x` の途中に毎回 `ln` が挟まる。",
+            "Pre-Norm：`x = x + sublayer(ln(x))` → 幹線道路 `x` は純粋な足し算のまま、部品への入力だけを整える。",
+            "最後に `ln_f(x)` で整えてから `lm_head` へ渡す。"
+          ],
+          "altExample": "GPT-2、GPT-3、Llama、Qwen など現代のほとんどのLLMが Pre-Norm（または RMSNorm による Pre-Norm）を採用しています。"
+        },
+        {
+          "prompt": "Pre-Norm 構造の `GPT` で、`self.blocks(x)` の直後（`self.lm_head` の直前）に `self.ln_f = nn.LayerNorm(n_embd)` が置かれているのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "Pre-Norm では残差ストリーム `x` 自体には一度も正規化がかからず各層の出力が足され続けるため、出力層 `lm_head` へ渡す直前にスケールを整えるため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "語彙数 `V` を `n_embd` に変換するため",
+              "wrongReason": "`ln_f` は次元を変えません（`n_embd → n_embd`）。語彙数 `V` へ変換するのは `self.lm_head` です。"
+            },
+            {
+              "id": "c",
+              "text": "出力を確率（合計1）に変換するため",
+              "wrongReason": "確率への変換は `softmax`（または `F.cross_entropy` の内部）であり、`LayerNorm` は平均0・分散1への正規化です。"
+            },
+            {
+              "id": "d",
+              "text": "最後の Block だけ `ln2` を書き忘れたのを補うため",
+              "wrongReason": "最後の Block にも `ln2` はありますが、`x = x + ffwd(ln2(x))` の足し算の結果 `x` は正規化されていないため、出口で `ln_f` を通します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`x = x + sublayer(ln(x))` を何度も繰り返した直後の `x` には、足し算のあとの正規化がまだかかっていません。",
+          "reasoning": "Pre-Norm の設計では、残差ストリームの最終出力を整えるために `ln_f`（final LayerNorm）を1つ置くのが GPT-2 以降の標準構成です。",
+          "steps": [
+            "各 Block は `x = x + ...` で終わるため、`self.blocks(x)` の出力は未正規化。",
+            "`self.ln_f(x)` で平均0・分散1付近に整えてから `self.lm_head(...)` でロジットを計算する。"
+          ],
+          "altExample": "本物の GPT-2 の重みにも、まさに `transformer.ln_f` という名前の最終 LayerNorm が存在します（第15章で確認します）。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q09",
+      "chapter": "12-transformer",
+      "section": "部品5：GPT（全体）",
+      "sectionAnchor": "#s7",
+      "concept": "gpt-init-weights-and-context-crop",
+      "conceptLabel": "self.apply による初期化（std=0.02）と generate 時の block_size 切り詰め",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第10章：初期損失 log V と重み初期化"],
+      "variants": [
+        {
+          "prompt": "`GPT.generate` の先頭に `idx_cond = idx[:, -self.block_size:]` という1行があるのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "生成が進んで `idx` の長さが `block_size` を超えると、位置埋め込み `pos_emb` や因果マスク `tril` の範囲外（`IndexError` 等）になるため、直近 `block_size` トークンだけを切り出すため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "文章の先頭 `block_size` 文字だけを永遠に見続けるため",
+              "wrongReason": "スライス `-self.block_size:` は「先頭から」ではなく「**末尾から**最大 `block_size` 文字」を切り出します。"
+            },
+            {
+              "id": "c",
+              "text": "バッチサイズ `B` を 1 に減らすため",
+              "wrongReason": "スライスしているのは軸0（`B`）ではなく軸1（時間軸 `T`）です。`:` なのでバッチ数は変わりません。"
+            },
+            {
+              "id": "d",
+              "text": "温度パラメータを 1.0 にリセットするため",
+              "wrongReason": "温度の割り算は次の行 `logits[:, -1, :] / temperature` で行っており、切り詰めとは別です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`self.pos_emb = nn.Embedding(block_size, n_embd)` は `0` 〜 `block_size - 1` の位置しか持っていません。",
+          "reasoning": "固定長の位置埋め込みを持つ GPT では、入力長が `block_size` を1文字でも超えると `pos_emb(torch.arange(T))` で `IndexError` が起きます。スライス `[:, -self.block_size:]` により、どれだけ長く生成しても常に最新の窓幅に収まります。",
+          "steps": [
+            "生成前は長さ `T <= block_size` でも、`max_new_tokens` 文字生成すると `T > block_size` になり得る。",
+            "`idx[:, -self.block_size:]` は長さが `block_size` 未満ならそのまま、超えたら末尾 `block_size` 文字だけを取る。",
+            "これによって `pos_emb` と `tril` のサイズ内に常に収まる。"
+          ],
+          "altExample": "長さ 100 のリスト `a` に対して `a[-64:]` は後ろ64要素、長さ 10 のリスト `b` に対して `b[-64:]` はそのまま全10要素になります。"
+        },
+        {
+          "prompt": "`GPT.__init__` の最後にある `self.apply(self._init_weights)` で全 `Linear` / `Embedding` の重みを `std = 0.02` の正規分布で初期化した直後、学習前の損失が約 `7.656`（$\\log 2061 \\approx 7.631$）になりました。これは何を意味していますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "全 2,061 語に対してほぼ均等（約 1/2061 の確率）に予測する健康な初期状態であり、変な極端な自信（初期ロジットの爆発）が起きていない",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "初期化に失敗しており、最初から損失は 0.0 に近くなるべきである",
+              "wrongReason": "まだ1文字も学習していないのに損失0になるのはカンニングなどのバグです。語彙数 $V$ の完全ランダム予測の理論値 $\\log V$ に一致するのが正常です。"
+            },
+            {
+              "id": "c",
+              "text": "学習率が大きすぎるサインである",
+              "wrongReason": "まだ1回もパラメータ更新（`opt.step()`）をしていない学習前の損失なので、学習率は関係ありません。"
+            },
+            {
+              "id": "d",
+              "text": "`n_layer` が小さすぎてモデルが壊れているサインである",
+              "wrongReason": "層数に関わらず、適切に初期化された分類・言語モデルの初期損失は $\\approx \\log V$ になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第10章の「診察その1：最初の損失は $\\log V$ 付近か？」を思い出しましょう。",
+          "reasoning": "重みが大きすぎると初期ロジットが極端にばらついて初期損失が $\\log V$ よりずっと大きくなり、最初のステップから無駄な学習を強いられます。`std=0.02` 初期化で $\\approx \\log V$ に揃うのを確認するのは重要な健康診断です。",
+          "steps": [
+            "語彙数 $V = 2061$ で全語彙に均等確率 $1/2061$ を置いたときの交差エントロピーは $-\\log(1/2061) = \\log 2061 \\approx 7.631$。",
+            "実測の初期損失は `7.656` でほぼ一致 → 初期化は健康。"
+          ],
+          "altExample": "第13章では語彙が $V = 3665$ に増えるため、初期損失の目安は $\\log 3665 \\approx 8.207$ に上がります（実際に `8.217` から始まります！）。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q10",
+      "chapter": "12-transformer",
+      "section": "部品5：GPT（全体）",
+      "sectionAnchor": "#s7",
+      "concept": "predict-topk-masking",
+      "conceptLabel": "コード予測：generate 内の top_k フィルタリングの動き",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第3章：softmaxとサンプリング"],
+      "variants": [
+        {
+          "prompt": "`GPT.generate` の `top_k` 処理と同じロジックを純Pythonで書きました。次のコードを実行すると何が表示されますか？",
+          "code": "logits = [1.0, 5.0, 2.0, 4.0, 0.5]\nk = 2\nthresh = sorted(logits, reverse=True)[k - 1]\nfiltered = [x if x >= thresh else float(\"-inf\") for x in logits]\nprint(filtered)",
+          "accept": ["[-inf, 5.0, -inf, 4.0, -inf]"],
+          "placeholder": "表示されるリストを入力",
+          "hint": "大きい順に並べた上位2個は `5.0` と `4.0` なので、しきい値 `thresh` は `4.0` です。",
+          "reasoning": "`top_k = 2` は上位2位の点数 `thresh` 未満の候補をすべて `-inf` に置き換えます。そのあと softmax をかけると上位2個以外が確率 `0.0` になり、変な低確率トークンを引く暴走を防げます。",
+          "steps": [
+            "`sorted(logits, reverse=True)` → `[5.0, 4.0, 2.0, 1.0, 0.5]`。",
+            "`thresh = [k - 1]`（インデックス1）→ `4.0`。",
+            "`4.0` 未満（`1.0, 2.0, 0.5`）が `-inf` に置換される。",
+            "`[-inf, 5.0, -inf, 4.0, -inf]` が出力される。"
+          ],
+          "altExample": "PyTorch の `v, _ = torch.topk(logits, k); logits[logits < v[:, [-1]]] = -float('inf')` もまったく同じ処理をしています。"
+        },
+        {
+          "prompt": "次のコードで `top_k = 3` を適用したとき、何個の候補が `-inf` 以外の有限の値として残りますか？ 出力を予測してください。",
+          "code": "logits = [3.0, 1.0, 9.0, 6.0, 2.0]\nk = 3\nthresh = sorted(logits, reverse=True)[k - 1]\nkept = [x for x in logits if x >= thresh]\nprint(len(kept), min(kept))",
+          "accept": ["3 3.0"],
+          "placeholder": "表示される2つの数をスペース区切りで入力",
+          "hint": "大きい順3つは `9.0, 6.0, 3.0` です。",
+          "reasoning": "上位3位の点数 `3.0` 以上だけが残るので、残る個数は `3`、その最小値は `3.0` です。",
+          "steps": [
+            "降順：`[9.0, 6.0, 3.0, 2.0, 1.0]`。",
+            "`thresh = 3.0`。",
+            "`kept = [3.0, 9.0, 6.0]` → 個数 `3`、最小値 `3.0`。"
+          ],
+          "altExample": "`top_k = 1` にすると1位だけが残るため、温度によらず greedy（決定的選択）と同じになります。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q11",
+      "chapter": "12-transformer",
+      "section": "動かしてみる",
+      "sectionAnchor": "#s8",
+      "concept": "gpt-param-breakdown-scaling",
+      "conceptLabel": "GPTのパラメータ内訳とスケール時の変化",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "小さい設定（`V=2061, n_embd=64, n_layer=2`）では埋め込みと出力層が全体の約73%を占め、Transformerブロックは27%だけでした。ここから `n_embd` や `n_layer` を大きくしていくと（例：GPT-2や大規模LLM）、パラメータの割合はどう変わりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "埋め込み・出力層は $O(V \\cdot C)$ で増える一方、ブロック群は $O(L \\cdot C^2)$（$C$ の2乗 × 層数 $L$）で増えるため、モデルが大きくなるほど Transformer ブロックが圧倒的大多数を占めるようになる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "どれだけ大きくしても、必ず埋め込みと出力層が 73%・ブロックが 27% の比率で固定される",
+              "wrongReason": "ブロックのパラメータは $n\\_layer \\times 12 C^2$ で増えるため、`n_embd` や `n_layer` が増えるほどブロックの比率が急上昇します。"
+            },
+            {
+              "id": "c",
+              "text": "`pos_emb`（位置埋め込み）が全体の 90% 以上を占めるようになる",
+              "wrongReason": "`pos_emb` は `block_size * C` しかないので、大きなモデルでは全体のごくわずかな割合です。"
+            },
+            {
+              "id": "d",
+              "text": "`n_layer` を増やしてもブロックのパラメータ数は一切変わらない",
+              "wrongReason": "各層（Block）はそれぞれ独立した重みを持つため、`n_layer` に比例して増えます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "埋め込み＋出力層は $2 V C$、ブロック全体は $12 L C^2$ です。$C$ と $L$ が増えるとどちらが速く大きくなるでしょう？",
+          "reasoning": "語彙数 $V$ はモデルを大きくしてもほぼ一定ですが、$C$（`n_embd`）と $L$（`n_layer`）は大きく増えるため、大規模LLMではパラメータの大部分（80〜95%以上）が Transformer ブロック本体に集中します。",
+          "steps": [
+            "埋め込み＋出力層：約 $2 V C$（$C$ の1乗に比例）。",
+            "Transformer ブロック群：約 $12 L C^2$（$C$ の2乗と層数 $L$ に比例）。",
+            "例：第12章（$C=64, L=2$）ではブロック27% → 第13章（$C=128, L=4$）では約45% → 第13章 `train_big`（$C=384, L=6$）では約82%！"
+          ],
+          "altExample": "本物の GPT-2（1.24億パラメータ）では、さらに埋め込みと出力層の重み共有（weight tying）も行うため、ブロックが約70%以上を占めます。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q12",
+      "chapter": "12-transformer",
+      "section": "動かしてみる",
+      "sectionAnchor": "#s8",
+      "concept": "impl-count-gpt-params",
+      "conceptLabel": "【自力実装】GPTの設定 (V, T, C, n_layer) から正確なパラメータ総数を計算",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第12章：GPTのパラメータ数公式"],
+      "variants": [
+        {
+          "prompt": "PyTorch を使わず純Pythonで、第12章の `GPT(vocab_size, block_size, n_embd, n_head, n_layer)`（`code/minigpt.py` と同一構造）の**正確なパラメータ総数**（整数）を返す関数 `count_gpt_params(V, block_size, n_embd, n_layer)` を実装し、本文の実測値 `369,677` などと完全一致することを検証してください。",
+          "starterCode": "def count_gpt_params(V, block_size, n_embd, n_layer):\n    C = n_embd\n    # 1. emb: tok_emb (V * C) + pos_emb (block_size * C)\n    # 2. per_block: ln1+ln2 (4*C) + attn (4*C*C + C) + ffwd (8*C*C + 5*C)\n    # 3. head: ln_f (2*C) + lm_head (C * V + V)\n    # 合計を返す\n    pass",
+          "solutionCode": "def count_gpt_params(V, block_size, n_embd, n_layer):\n    C = n_embd\n    emb = V * C + block_size * C\n    per_block = 12 * C * C + 10 * C\n    head = 2 * C + C * V + V\n    return emb + n_layer * per_block + head",
+          "colabCheck": "# 第12章本文の実測値と完全一致するか確認\nassert count_gpt_params(2061, 64, 64, 2) == 369677\n# 第13章ミニGPT（約175万パラメータ）\nassert count_gpt_params(3665, 128, 128, 4) == 1750097\n# 小さな検算（V=10, T=4, C=8, L=1）\n# emb = 80+32=112, block = 12*64+80=848, head = 16+80+10=106 -> 1066\nassert count_gpt_params(10, 4, 8, 1) == 1066\nprint(\"ALL PASSED\")",
+          "hint": "1ブロックあたり `ln1+ln2` が `4*C`、`attn`（Q,K,Vは `bias=False`、projは `bias=True`）が `4*C*C + C`、`ffwd` が `8*C*C + 5*C` で、合計 `12*C*C + 10*C` です。",
+          "reasoning": "モデルを実行する前に設定値だけでパラメータ総数（＝おおよそのVRAM必要量）を1個単位で正確に見積もれるようになると、LLM研究の設計力が一気に上がります。",
+          "steps": [
+            "埋め込み：`tok_emb`（$VC$）＋ `pos_emb`（$TC$）。",
+            "1ブロック：`ln1, ln2`（$4C$）＋ `attn`（$4C^2 + C$）＋ `ffwd`（$8C^2 + 5C$）＝ $12C^2 + 10C$。",
+            "出口：`ln_f`（$2C$）＋ `lm_head`（$CV + V$）。",
+            "合計：`emb + n_layer * per_block + head`。"
+          ],
+          "altExample": "float32（1パラメータ4バイト）で保存すると、`1,750,097 × 4 ≒ 7.0 MB` となり、第13章のチェックポイント容量（約8 MB）とも整合します！",
+          "selfCheckCriteria": [
+            "第12章の実測値 `369677` と第13章の `1750097` を含むすべての `assert` が通った",
+            "なぜ `n_head` の数（割り切れる限り）がパラメータ総数に影響しないのか説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch12-q13",
+      "chapter": "12-transformer",
+      "section": "動かしてみる",
+      "sectionAnchor": "#s8",
+      "concept": "impl-trace-block-shapes",
+      "conceptLabel": "【自力実装】Transformer Block 内のテンソル shape を全追跡する関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第11章：Attentionのshape早見表", "第12章：MHAとFFNのshape"],
+      "variants": [
+        {
+          "prompt": "入力サイズ `(B, T, n_embd)` とヘッド数 `n_head` を受け取り、`n_embd` が `n_head` で割り切れない場合は `ValueError` を出し、割り切れる場合は Transformer `Block` 内の各段階のテンソル shape（タプル）を辞書で返す関数 `trace_block_shapes(B, T, n_embd, n_head)` を純Pythonで実装してください。",
+          "starterCode": "def trace_block_shapes(B, T, n_embd, n_head):\n    # 1. n_embd % n_head != 0 なら ValueError を送出\n    # 2. hs = n_embd // n_head を計算\n    # 3. 以下のキーを持つ辞書を返す:\n    #    \"input\", \"qkv_per_head\", \"scores\", \"mha_concat\", \"mha_out\", \"ffn_hidden\", \"block_out\"\n    pass",
+          "solutionCode": "def trace_block_shapes(B, T, n_embd, n_head):\n    if n_embd % n_head != 0:\n        raise ValueError(\"n_embd must be divisible by n_head\")\n    hs = n_embd // n_head\n    return {\n        \"input\": (B, T, n_embd),\n        \"qkv_per_head\": (B, T, hs),\n        \"scores\": (B, T, T),\n        \"mha_concat\": (B, T, n_embd),\n        \"mha_out\": (B, T, n_embd),\n        \"ffn_hidden\": (B, T, 4 * n_embd),\n        \"block_out\": (B, T, n_embd),\n    }",
+          "colabCheck": "s = trace_block_shapes(4, 64, 128, 4)\nassert s[\"input\"] == (4, 64, 128)\nassert s[\"qkv_per_head\"] == (4, 64, 32)\nassert s[\"scores\"] == (4, 64, 64)\nassert s[\"mha_concat\"] == (4, 64, 128)\nassert s[\"mha_out\"] == (4, 64, 128)\nassert s[\"ffn_hidden\"] == (4, 64, 512)\nassert s[\"block_out\"] == (4, 64, 128)\n# 割り切れないときは ValueError になるか確認\nraised = False\ntry:\n    trace_block_shapes(2, 8, 64, 5)\nexcept ValueError:\n    raised = True\nassert raised\nprint(\"ALL PASSED\")",
+          "hint": "`scores` は `[B, T, T]`、`qkv_per_head` は `[B, T, hs]`、`ffn_hidden` は `[B, T, 4 * n_embd]`、それ以外はすべて `[B, T, n_embd]` です。",
+          "reasoning": "Transformer の実装デバッグで起きるバグの8割は shape 不一致です。各段階の正確な shape をコードで予測・検証できれば、独自アーキテクチャの改造（第25章）も怖くなくなります。",
+          "steps": [
+            "`n_embd % n_head != 0` なら `ValueError` を投げる。",
+            "`hs = n_embd // n_head`。",
+            "各段階：`input (B,T,C)` → `qkv_per_head (B,T,hs)` → `scores (B,T,T)` → `mha_concat/mha_out (B,T,C)` → `ffn_hidden (B,T,4C)` → `block_out (B,T,C)`。"
+          ],
+          "altExample": "`Block` の入口 `input` と出口 `block_out` がどちらも `(B, T, n_embd)` で一致するからこそ、`nn.Sequential` で何層でも積み重ねられます。",
+          "selfCheckCriteria": [
+            "7つの shape キーと `ValueError` チェックの `assert` がすべて通った",
+            "`Block` を何層重ねても shape が変わらない理由を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch12-q14",
+      "chapter": "12-transformer",
+      "section": "1バッチで丸暗記させるテスト",
+      "sectionAnchor": "#s9",
+      "concept": "one-batch-overfit-sanity-test",
+      "conceptLabel": "1バッチ丸暗記（過学習）テストが最強のデバッグ技である理由",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第10章：過学習とデバッグの心構え"],
+      "variants": [
+        {
+          "prompt": "新しいモデルを実装したとき、いきなり全データで長時間学習させるのではなく、最初に「**同じ1バッチだけを（`dropout=0.0` で）丸暗記させるテスト**」を行うのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "たった1バッチすら損失ほぼ0に暗記できないならモデル構造や学習ループにバグがあると数秒で分かり、逆に暗記できれば順伝播・逆伝播・パラメータ更新の基本配線が正しいことを確認できるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "1バッチだけ学習させれば全データで学習したのと同じ汎化性能が得られるから",
+              "wrongReason": "1バッチの丸暗記は汎化（本番性能）のためではなく、バグ検出のための健全性テスト（sanity check）です。"
+            },
+            {
+              "id": "c",
+              "text": "1バッチで丸暗記させておくと、本学習のときに検証損失が0.0になるから",
+              "wrongReason": "本番学習では新しいモデルを作り直して `dropout=0.1` などで学習します。丸暗記テスト用の重みは使い捨てです。"
+            },
+            {
+              "id": "d",
+              "text": "PyTorch の規約で、1バッチテストを先に実行しないと `AdamW` が動かないから",
+              "wrongReason": "規約ではなく、時間とGPUコストを無駄にしないための機械学習研究者の鉄板デバッグ習慣です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "数時間 GPU を回したあとに「`nn.ModuleList` にし忘れてた！」と気づく悲劇を数秒で防げます。",
+          "reasoning": "過学習できる能力は、モデルが正しく学習できるための最低条件です。1バッチテストで損失が0付近まで落ちない場合、`ModuleList` 漏れ・`zero_grad` 漏れ・正解のずらしミス・学習率異常などのバグを即座に特定できます。",
+          "steps": [
+            "`dropout=0.0` でノイズを切り、固定の1バッチ `(x, y)` を300ステップ繰り返す。",
+            "損失が `7.656 → 0.009` のように0近くまで落ちれば、基本配線はOK。",
+            "もし下がらなければ、本格学習に入る前にバグを直す。"
+          ],
+          "altExample": "Andrej Karpathy の有名なレシピ『A Recipe for Training Neural Networks』でも、最初の必須チェックとして「overfit one batch」が挙げられています。"
+        },
+        {
+          "prompt": "1バッチ丸暗記テストで `dropout=0.0` に設定している理由として最も適切なものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "丸暗記テストでは「わざと完全に過学習できるか」を確かめたいので、過学習を邪魔するランダムな Dropout をオフにして純粋な配線の正しさを検証するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`dropout > 0` にすると `GPT` クラスがエラーで止まるから",
+              "wrongReason": "次節の本学習では `dropout=0.1` で問題なく動いています。"
+            },
+            {
+              "id": "c",
+              "text": "`dropout=0.0` にするとパラメータ数が2倍になるから",
+              "wrongReason": "Dropout の確率を変えてもパラメータ数は1個も変わりません。"
+            },
+            {
+              "id": "d",
+              "text": "CPU では `dropout=0.0` しか使えないから",
+              "wrongReason": "CPUでも `dropout=0.1` は問題なく使えます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Dropout は「丸暗記を防ぐブレーキ」です。テストではあえてブレーキを外してアクセルが効くか確かめます。",
+          "reasoning": "正則化（Dropout）を切った状態で損失がほぼ0に張り付くかを見ることで、正則化のせいで下がらないのかバグのせいで下がらないのかを切り分けられます。",
+          "steps": [
+            "テストの目的：モデルと学習ループにバグがないか確認する。",
+            "`dropout=0.0` で丸暗記を妨げる要因を外す。",
+            "損失が `0.01` 未満まで落ちればテスト合格 → 本学習では `dropout=0.1` を戻す。"
+          ],
+          "altExample": "本番学習では過学習を抑えるために `dropout=0.1`（大きいモデルでは `0.2`）を有効にします。"
+        }
+      ]
+    },
+    {
+      "id": "ch12-q15",
+      "chapter": "12-transformer",
+      "section": "このコードの行き先",
+      "sectionAnchor": "#s11",
+      "concept": "minigpt-vs-real-gpt2",
+      "conceptLabel": "自作ミニGPTの全体設計と本物のGPT-2との3つの違い",
+      "level": 4,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第11章：Self-Attention", "第12章：5つのクラス"],
+      "variants": [
+        {
+          "prompt": "第12章で作った `minigpt.py`（`Head`・`MultiHeadAttention`・`FeedForward`・`Block`・`GPT`）の構造は本物の GPT-2 とほとんど同じです。本物の GPT-2 との主な3つの違いを挙げ、なぜ第12章のミニGPTではその簡易版を選んだのか説明してください。",
+          "modelAnswer": "本物の GPT-2 との主な違いは、(1) Q・K・V を作る3つの線形層を1つの大きな線形層にまとめて高速化している点（数学的には同一）、(2) Q・K・V の線形層にもバイアス（bias）がある点、(3) 出力層 `lm_head` の重みを文字埋め込み `tok_emb` と共有（weight tying）してパラメータを節約している点、の3つです。第12章のミニGPTでは「計算の速さや細かな最適化」よりも「Q・K・V や各部品の役割が一目で読めるわかりやすさ」を優先して素直に書いており、数学的な本質は GPT-2 と同じです（第15章でこの3点を合わせて本物のGPT-2重みを読み込みます）。",
+          "hint": "「もっと深く：本物のGPT-2との違い」の3項目（QKVのまとめ方、バイアス、weight tying）を整理して書きましょう。",
+          "reasoning": "たった120行の `code/minigpt.py` が、本質的に OpenAI の GPT-2 と同じアーキテクチャであることを理解すれば、現代LLMの構造はもうブラックボックスではありません。",
+          "steps": [
+            "違い①：Q・K・V の3層を1つの線形層に統合（高速化・数学的には同じ）。",
+            "違い②：Q・K・V の線形層にもバイアスあり。",
+            "違い③：`tok_emb` と `lm_head` の重み共有（weight tying）。",
+            "ミニGPTでは学習者が1行ずつ構造を理解しやすいように簡潔に書いている。"
+          ],
+          "altExample": "第15章ではこの3点を揃えるだけで、Hugging Face 上の本物の GPT-2（1.24億パラメータ）の重みを自分のコードへ流し込んで文章生成させます！",
+          "selfCheckCriteria": [
+            "本物のGPT-2との3つの違い（QKV統合・QKVバイアス・weight tying）のうち2つ以上を正確に挙げられた",
+            "ミニGPTと本物のGPT-2が数学的な基本骨格（Pre-LN Transformer デコーダ）で一致している点を理解した"
+          ]
+        }
+      ]
+    }
+  ]
+}

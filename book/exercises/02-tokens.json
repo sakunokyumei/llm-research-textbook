@@ -1,0 +1,808 @@
+{
+  "chapter": "02-tokens",
+  "exercises": [
+    {
+      "id": "ch02-q01",
+      "chapter": "02-tokens",
+      "section": "LLMの「辞書」を借りる",
+      "sectionAnchor": "#s2",
+      "concept": "tokenizer-object-vocab",
+      "conceptLabel": "トークナイザー・トークン・語彙の意味",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：オブジェクトとメソッド"],
+      "variants": [
+        {
+          "prompt": "`tok = AutoTokenizer.from_pretrained(\"Qwen/Qwen2.5-0.5B-Instruct\")` を実行したあとの `tok` と `len(tok)` について、正しい説明はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`tok` は「文章⇔数字」を変換するオブジェクトで、`len(tok)` はその辞書が知っているトークンの総数（語彙数）を返す",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`len(tok)` はモデル名の文字数（25文字）を返す",
+              "wrongReason": "`tok` は文字列ではなくトークナイザーのオブジェクトなので、`len(tok)` は文字列長ではなく語彙数（151,665）を返します。"
+            },
+            {
+              "id": "c",
+              "text": "`len(tok)` はモデルのパラメータ数（約5億）を返す",
+              "wrongReason": "パラメータ数はモデル本体（`chat.model.parameters()`）のもので、トークナイザーの語彙数とは別です。"
+            },
+            {
+              "id": "d",
+              "text": "`AutoTokenizer.from_pretrained(...)` は毎回モデル本体（約1GB）も必ずダウンロードする",
+              "wrongReason": "トークナイザーの辞書ファイル（数MB程度）だけをダウンロードするため一瞬で終わります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "トークナイザーは「言葉のかけら（トークン）と番号の対応表」を持つ道具オブジェクトです。",
+          "reasoning": "`クラス名.from_pretrained(...)` は公開ファイルから部品オブジェクトを組み立てて返すクラスメソッドです。`tok` は語彙一覧と変換メソッドを持っています。",
+          "steps": [
+            "`AutoTokenizer`（設計図）の `from_pretrained` を呼ぶと、`tok`（実物オブジェクト）が返る。",
+            "`len(tok)` は登録されているトークンの種類数＝語彙数（151,665）を返す。",
+            "モデル本体（重み）とは別部品なので軽量でCPUだけでもすぐ動く。"
+          ],
+          "altExample": "第1章の `chat.tokenizer` も、実は中で同じ `AutoTokenizer` オブジェクトを持っています。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q02",
+      "chapter": "02-tokens",
+      "section": "文章を数字に変える",
+      "sectionAnchor": "#s3",
+      "concept": "encode-decode-types",
+      "conceptLabel": "encode/decodeの入出力型と tok.decode([i]) の [ ]",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "1つずつのトークンを確認するループ `for i in ids: print(i, tok.decode([i]))` で、`tok.decode(i)` ではなく **`[i]` と角かっこで囲んで渡す理由**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`tok.decode(...)` は「トークンIDのリスト（並び）」を入力として受け取る設計なので、1個だけの整数 `i` でも長さ1のリスト `[i]` にして渡す必要があるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`[i]` と書くと `i` の値が自動で1大きくなるから",
+              "wrongReason": "`[i]` は値を変えず、要素が1個だけのリストを作ります（例：`i = 100472` なら `[100472]`）。"
+            },
+            {
+              "id": "c",
+              "text": "`[i]` はPythonの辞書を作る記号だから",
+              "wrongReason": "辞書は `{ }` です。`[ ]` はリストを作ります。"
+            },
+            {
+              "id": "d",
+              "text": "`tok.decode` は文字列しか受け取らないから",
+              "wrongReason": "`decode` は「数字（IDの列）→ 文章（文字列）」に戻すメソッドです。文字列→数字にするのは `encode` です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`ids` の型は `list[int]`、ループ変数 `i` の型は `int` です。型の違いに注目しましょう。",
+          "reasoning": "関数の引数に「どの型を渡すべきか」を意識するのがPython・AIコード読解の鍵です。`ids` は `list` ですが、`for i in ids:` で取り出した `i` はただの整数 `int` なので、`[i]` で長さ1のリストに包んでいます。",
+          "steps": [
+            "`ids = [106046, 116599, ...]`（型：`list`）。",
+            "`for i in ids:` で取り出した `i` は `106046`（型：`int`）。",
+            "`tok.decode(...)` はIDの列（`list`）を受け取るのが基本形なので、`[i]`（型：`list`）にして渡す。"
+          ],
+          "altExample": "複数のID `[100472, 126230]` を渡せば `\"猫である\"`、1個だけの `[100472]` を渡せば `\"猫\"` が返ります。"
+        },
+        {
+          "prompt": "`tok.encode(\"吾輩は猫である。\")` の「入力の型」と「出力の型」の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "入力：`str`（文字列） → 出力：`list`（整数トークンIDのリスト）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "入力：`list`（整数のリスト） → 出力：`str`（文字列）",
+              "wrongReason": "それは逆の `tok.decode(...)` の入出力です。"
+            },
+            {
+              "id": "c",
+              "text": "入力：`str`（文字列） → 出力：`bytes`（バイト列）",
+              "wrongReason": "`bytes` を返すのは Python文字列のメソッド `\"猫\".encode(\"utf-8\")` です。`tok.encode(...)` はトークンIDのリストを返します。"
+            },
+            {
+              "id": "d",
+              "text": "入力：`int`（整数） → 出力：`dict`（辞書）",
+              "wrongReason": "文章（`str`）を整数IDのリスト（`list[int]`）へ変換します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`encode` は「人間向け（文字列）→ LLM向け（数字の並び）」の変換です。",
+          "reasoning": "メソッドを使うときは常に「入力の型 → 出力の型」をセットで覚えると、エラー（`TypeError`など）が激減します。",
+          "steps": [
+            "入力：`\"吾輩は猫である。\"`（`str`）。",
+            "処理：辞書を使ってトークンに分割し、各トークンのID番号を引く。",
+            "出力：`[106046, 116599, 15322, 100472, 126230, 1773]`（`list[int]`）。"
+          ],
+          "altExample": "逆の `tok.decode(ids)` は、入力 `list[int]` → 出力 `str` です。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q03",
+      "chapter": "02-tokens",
+      "section": "文章を数字に変える",
+      "sectionAnchor": "#s3",
+      "concept": "repr-visibility",
+      "conceptLabel": "repr()を使う理由",
+      "level": 1,
+      "type": "choice",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "トークンの中身を表示するとき、`print(tok.decode([i]))` ではなく `print(repr(tok.decode([i])))` を使うと何が嬉しいですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "文字列が `' am'` や `'\\n'` のように引用符つきで表示され、先頭の半角スペースや改行などの「見えない文字」に気づける",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "日本語がすべて英語に自動翻訳される",
+              "wrongReason": "`repr` は翻訳機能ではなく、Pythonでの文字列表現をそのまま見せる組み込み関数です。"
+            },
+            {
+              "id": "c",
+              "text": "トークンIDの数字が2倍になる",
+              "wrongReason": "値は変えません。表示形式が変わるだけです。"
+            },
+            {
+              "id": "d",
+              "text": "空白や改行を自動で全部削除してくれる",
+              "wrongReason": "削除するのではなく、見えない空白や改行（`\\n`）を目に見える形で表示してくれます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`print(\" am\")` と `print(\"am\")` を見比べたとき、引用符がないと空白に気づきにくいことを想像してみてください。",
+          "reasoning": "トークナイザーのデバッグでは「先頭にスペースが付いているか」「改行文字が入っているか」が非常に重要なので、`repr()` で可視化します。",
+          "steps": [
+            "`print(\" am\")` → ` am`（空白があるか見落としやすい）。",
+            "`print(repr(\" am\"))` → `' am'`（引用符の直後にスペースがあるとはっきり分かる）。",
+            "`print(repr(\"\\n\"))` → `'\\n'`（改行文字であることが一目で分かる）。"
+          ],
+          "altExample": "英語の `\"I am a cat.\"` を分解すると `['I', ' am', ' a', ' cat', '.']` のように単語の前の空白もトークンに含まれていることが `repr` で分かります。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q04",
+      "chapter": "02-tokens",
+      "section": "トークンの切れ目を観察する",
+      "sectionAnchor": "#s4",
+      "concept": "py-list-comprehension",
+      "conceptLabel": "リスト内包表記とfor文の対応",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "リスト内包表記の動きを確かめます。次のコードを実行すると何が表示されますか？",
+          "code": "nums = [2, 5, 10]\ndoubled = [x * 2 for x in nums]\nprint(doubled)",
+          "accept": ["[4, 10, 20]"],
+          "placeholder": "出力されるリストを入力（例：[4, 10, 20]）",
+          "hint": "`nums` の各要素 `2, 5, 10` を順番に `x` に入れ、`x * 2` を並べた新しいリストを作ります。",
+          "reasoning": "`[式 for 変数 in リスト]` は、空リストを作って `for` 文で `append` する処理の1行版です。",
+          "steps": [
+            "`x = 2` → `2 * 2 = 4`",
+            "`x = 5` → `5 * 2 = 10`",
+            "`x = 10` → `10 * 2 = 20`",
+            "結果：`[4, 10, 20]`"
+          ],
+          "altExample": "`[tok.decode([i]) for i in ids]` もまったく同じ構造で、`ids` の各 `i` に `tok.decode([i])` を適用したリストを作っています。"
+        },
+        {
+          "prompt": "次のリスト内包表記の出力を予測してください。",
+          "code": "words = [\"猫\", \"犬\", \"鳥\"]\ntagged = [f\"<{w}>\" for w in words]\nprint(tagged)",
+          "accept": ["['<猫>', '<犬>', '<鳥>']"],
+          "placeholder": "出力されるリストを入力",
+          "hint": "各文字 `w` が `\"<\" + w + \">\"` に変換され、Pythonのリスト表示では文字列がシングルクォート `'` で囲まれます。",
+          "reasoning": "`for` 文で各要素を加工して新しいリストに集めるのがリスト内包表記の基本形です。",
+          "steps": [
+            "`w = \"猫\"` → `'<猫>'`",
+            "`w = \"犬\"` → `'<犬>'`",
+            "`w = \"鳥\"` → `'<鳥>'`",
+            "`print(tagged)` → `['<猫>', '<犬>', '<鳥>']`"
+          ],
+          "altExample": "リスト内包表記に慣れるまでは `res = []; for w in words: res.append(...)` の3行で書いてもまったく同じ結果になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q05",
+      "chapter": "02-tokens",
+      "section": "文字の正体はバイトの列",
+      "sectionAnchor": "#s5",
+      "concept": "two-encode-methods",
+      "conceptLabel": "tok.encode() と str.encode('utf-8') の違い",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：メソッドとオブジェクト"],
+      "variants": [
+        {
+          "prompt": "第2章には `tok.encode(\"猫\")` と `\"猫\".encode(\"utf-8\")` という同じ `.encode` という名前のメソッドが2つ出てきます。両者の違いとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`tok.encode(\"猫\")` はトークナイザーのメソッドでトークンIDのリスト（例：`[100472]`）を返し、`\"猫\".encode(\"utf-8\")` は文字列のメソッドでUTF-8のバイト列（`b'\\xe7\\x8c\\xab'`）を返す",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "名前が同じなので、どちらもまったく同じ `[231, 140, 171]` を返す",
+              "wrongReason": "Pythonでは「どのオブジェクトのメソッドか（`.` の左側）」によって動きがまったく変わります。`tok` はトークナイザー、`\"猫\"` は文字列です。"
+            },
+            {
+              "id": "c",
+              "text": "`\"猫\".encode(\"utf-8\")` は `transformers` を `import` しないと使えない",
+              "wrongReason": "`\"猫\".encode(\"utf-8\")` はPython標準の文字列メソッドなので、ライブラリなしでいつでも使えます。"
+            },
+            {
+              "id": "d",
+              "text": "`tok.encode(\"猫\")` は1文字につき必ず3個の数字を返す",
+              "wrongReason": "UTF-8では「猫」は3バイトですが、Qwenの語彙には「猫」が1トークンとして登録されているため `tok.encode(\"猫\")` は1個のID `[100472]` を返します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`.`（ドット）の左側が「どのオブジェクトか」を見比べるのがコツです。",
+          "reasoning": "オブジェクト指向プログラミングでは、異なるクラスが同じ名前のメソッド（例：`encode`）を持つことがよくあります。必ず「何に対して呼んでいるか」と「戻り値の型」を確認します。",
+          "steps": [
+            "`tok.encode(\"猫\")` → `tok`（`AutoTokenizer`）の仕事 → 戻り値は `list[int]`（トークンID）。",
+            "`\"猫\".encode(\"utf-8\")` → `\"猫\"`（`str`）の仕事 → 戻り値は `bytes`（0〜255のバイト列）。",
+            "両者は別物だが、バイトレベルBPEは内部でまずUTF-8バイト列にしてからトークンにまとめる関係にある。"
+          ],
+          "altExample": "リストの `.count()` と文字列の `.count()` も名前は同じですが、対象が違う別々のメソッドです。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q06",
+      "chapter": "02-tokens",
+      "section": "文字の正体はバイトの列",
+      "sectionAnchor": "#s5",
+      "concept": "utf8-byte-length",
+      "conceptLabel": "UTF-8バイト数の計算",
+      "level": 1,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "英数字は1バイト、一般的な日本語（ひらがな・漢字）は3バイトのとき、文字列 `\"AI猫\"` をUTF-8で表すと合計何バイトになりますか？",
+          "answer": { "value": 5, "tolerance": 0 },
+          "unit": "バイト",
+          "placeholder": "整数で入力（例：5）",
+          "hint": "1文字ずつ数えて足します：`A`（1）＋ `I`（1）＋ `猫`（3）。",
+          "reasoning": "UTF-8は文字の種類によってバイト数が変わる可変長符号化です。ASCII英数字は1バイト、日本語の多くは3バイト、絵文字は4バイトです。",
+          "steps": [
+            "`'A'` → 1バイト",
+            "`'I'` → 1バイト",
+            "`'猫'` → 3バイト",
+            "合計：$1 + 1 + 3 = 5$ バイト（`len(\"AI猫\".encode(\"utf-8\"))` で確認可能）。"
+          ],
+          "altExample": "`\"GPT-2入門\"` なら英数字・記号5文字（5バイト）＋漢字2文字（6バイト）＝11バイトです。"
+        },
+        {
+          "prompt": "英数字1バイト、日本語3バイト、絵文字4バイトのとき、文字列 `\"LLM猫🐈\"` はUTF-8で何バイトになりますか？",
+          "answer": { "value": 10, "tolerance": 0 },
+          "unit": "バイト",
+          "placeholder": "整数で入力",
+          "hint": "`L`(1) + `L`(1) + `M`(1) + `猫`(3) + `🐈`(4) を足します。",
+          "reasoning": "各文字のUTF-8バイト数を合算すると全体のバイト列の長さが分かります。",
+          "steps": [
+            "`\"LLM\"`：3文字 × 1バイト ＝ 3バイト",
+            "`\"猫\"`：1文字 × 3バイト ＝ 3バイト",
+            "`\"🐈\"`：1文字 × 4バイト ＝ 4バイト",
+            "合計：$3 + 3 + 4 = 10$ バイト。"
+          ],
+          "altExample": "`\"aあ\"` なら $1 + 3 = 4$ バイトです。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q07",
+      "chapter": "02-tokens",
+      "section": "文字の正体はバイトの列",
+      "sectionAnchor": "#s5",
+      "concept": "hex-to-dec",
+      "conceptLabel": "16進数バイト表現 \\xe7 の読み方",
+      "level": 2,
+      "type": "numeric",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`\"猫\".encode(\"utf-8\")` の先頭バイト `\\xe7` は16進数の `e7` です（`a=10, b=11, c=12, d=13, e=14, f=15`）。10進数に直すと `14 × 16 + 7` でいくつになりますか？",
+          "answer": { "value": 231, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "$14 \\times 16 = 224$、それに $7$ を足します。",
+          "reasoning": "16進数の2桁 `XY` は「上の桁 × 16 ＋ 下の桁」で0〜255の10進数（1バイト）に対応します。",
+          "steps": [
+            "16進数の `e` は10進数の `14`。",
+            "上の桁：$14 \\times 16 = 224$。",
+            "下の桁の `7` を足して：$224 + 7 = 231$。",
+            "`list(\"猫\".encode(\"utf-8\"))` の先頭 `231` とぴったり一致！"
+          ],
+          "altExample": "`0xab` なら `a=10, b=11` なので $10 \\times 16 + 11 = 171$ です。"
+        },
+        {
+          "prompt": "16進数の `8c`（`c=12`）を10進数に直すと、いくつになりますか？",
+          "answer": { "value": 140, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "$8 \\times 16 + 12$ を計算しましょう。",
+          "reasoning": "16進数の上の桁は16の位、下の桁は1の位です。",
+          "steps": [
+            "$8 \\times 16 = 128$",
+            "`c` は `12` なので $128 + 12 = 140$"
+          ],
+          "altExample": "`0xff` は $15 \\times 16 + 15 = 255$（1バイトで表せる最大の数）です。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q08",
+      "chapter": "02-tokens",
+      "section": "文字の正体はバイトの列",
+      "sectionAnchor": "#s5",
+      "concept": "byte-level-bpe-why",
+      "conceptLabel": "「鰯」が  3つになる理由とバイトレベルBPEの利点",
+      "level": 2,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "Qwenのトークナイザーで「鰯」を1トークンずつ `decode` すると `['', '', '']` と表示されるのに、3つまとめて `decode` すると正しく `'鰯'` に戻ります。なぜそうなるのか、またこの方式の利点は何かを説明してください。",
+          "modelAnswer": "「鰯」はUTF-8で3バイトですが、学習データに少なく3バイト一体のトークンが語彙にないため、1バイトずつの3トークンに分かれました。1バイトだけでは文字にならないため個別にdecodeすると文字化け記号 `` になりますが、3バイトまとめてdecodeすれば元のUTF-8バイト列が揃い正しく「鰯」に戻ります。利点は、すべての文字を0〜255のバイトに分解できるため、未知語（読めない文字）が一切起きないことです。",
+          "hint": "「3バイトがバラバラ」「まとめて戻せば完全復元」「未知の文字が起きない」の3点を入れましょう。",
+          "reasoning": "バイトを最小単位にすることで、絵文字・珍しい漢字・新語でも必ず数値列へ変換でき、情報も失われません。",
+          "steps": [
+            "「鰯」はUTF-8で3バイトの列になる。",
+            "辞書に3バイト一体の登録がないため、1バイト＝1トークンの3個に分かれる。",
+            "1バイト単体ではUTF-8文字として不完全なので `` になるが、3個つなげて `decode` すれば完全に戻る。",
+            "結果として「未知の文字でエラー／情報欠落」が起きない。"
+          ],
+          "altExample": "新しい絵文字が追加されても、バイト列としては既存の0〜255の組み合わせなので、辞書を作り直さずそのまま扱えます。",
+          "selfCheckCriteria": [
+            "「鰯」が3バイトに分かれたため1トークンずつでは文字にならず `` になることを説明した",
+            "3つまとめて `decode` すれば情報が失われず元に戻ることを説明した",
+            "バイト単位を土台にすることで未知の文字が起きない利点に触れた"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch02-q09",
+      "chapter": "02-tokens",
+      "section": "なぜ「トークン」なの？",
+      "sectionAnchor": "#s6",
+      "concept": "word-char-token-tradeoff",
+      "conceptLabel": "単語・文字・トークンのトレードオフ",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "大規模なLLMが「1文字＝1トークン」ではなく、よく出る並びをまとめた「サブワード（トークン）」を使う一番の理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "語彙サイズを現実的な大きさに抑えつつ、同じ文章をより短いトークン列で表して計算量とコンテキスト消費を減らせるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "1文字ごとだとそもそもPythonでトークナイザーを作れないから",
+              "wrongReason": "1文字ごとの文字トークナイザーはとても簡単に作れます（この章の後半で自作し、第4〜13章でも使います）。"
+            },
+            {
+              "id": "c",
+              "text": "日本語はすべての文字が1バイトだから",
+              "wrongReason": "日本語の多くはUTF-8で3バイトです。"
+            },
+            {
+              "id": "d",
+              "text": "トークン数を増やすほどモデルの計算が速くなるから",
+              "wrongReason": "逆です。Transformerの計算はトークン列が長くなるほど重くなる（長さの2乗で効く部分がある）ため、トークン数は少ないほど有利です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「単語ごと（辞書が巨大すぎる）」と「文字ごと（列が長すぎる）」のちょうど真ん中です。",
+          "reasoning": "トークン設計は「語彙の大きさ」と「文章の長さ（トークン数）」のバランスをとる工学的なトレードオフです。",
+          "steps": [
+            "単語単位：辞書が膨大になり、未知語だらけになる。",
+            "文字単位：辞書は小さいが、1000文字＝1000ステップになり計算が重く、コンテキスト長もすぐ使い切る。",
+            "サブワード（トークン）：よく出る塊（「こんにちは」「である」等）を1トークンにし、短い列と適度な語彙数を両立する。"
+          ],
+          "altExample": "API料金が「100万トークンあたり◯ドル」の場合、同じ内容でもトークン数が少ない言語・トークナイザーほど安く速く処理できます。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q10",
+      "chapter": "02-tokens",
+      "section": "特別なトークン",
+      "sectionAnchor": "#s7",
+      "concept": "special-tokens-stop",
+      "conceptLabel": "特殊トークン <|im_end|> で生成が止まる仕組み",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：チャット＝台本の続き"],
+      "variants": [
+        {
+          "prompt": "【第1章の復習連動】LLMが返答を書き終えたあと、永遠にしゃべり続けずに**自分で止まれる理由**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "10文字書いたら強制的に電源が切れる仕組みだから",
+              "wrongReason": "固定文字数で止まるわけではなく、返答の内容に応じて適切なタイミングで止まります（上限の安全装置が `max_new_tokens` です）。"
+            },
+            {
+              "id": "b",
+              "text": "返答の終わりに `<|im_end|>` という特別なトークン（1個のID）を次のトークンとして予測するように訓練されており、それが出たら生成ループを終了するから",
+              "wrongReason": ""
+            },
+            {
+              "id": "c",
+              "text": "句点「。」が出たら必ず止まるルールだから",
+              "wrongReason": "長い返答では「。」が何度出ても書き続けます。止まる合図は特別な終了トークン `<|im_end|>` です。"
+            },
+            {
+              "id": "d",
+              "text": "トークナイザーが毎回ランダムに文章を途中で切るから",
+              "wrongReason": "止めるタイミングを予測しているのはモデル本体（次トークン予測）です。"
+            }
+          ],
+          "answer": "b",
+          "hint": "第1章で見た台本の最後に `<|im_end|>` が付いていたのを思い出しましょう。",
+          "reasoning": "「止まること」さえも、特別なトークンID（Qwenでは151645番）を次のトークンとして予測する仕組みに統一されています。",
+          "steps": [
+            "`<|im_end|>` は10文字の普通の文字列ではなく、語彙に登録された**1つの特別なトークン**（ID: 151645）。",
+            "モデルは「答えを言い終えたら次は `<|im_end|>` の確率を高くする」よう訓練されている。",
+            "生成プログラム側が `<|im_end|>` を受け取ったらループを終了する。"
+          ],
+          "altExample": "もしモデルが `<|im_end|>` を出し忘れた場合に備えて、上限の安全装置として `max_new_tokens=200` を指定します。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q11",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "py-set-sorted",
+      "conceptLabel": "set() と sorted() による語彙作成",
+      "level": 1,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "語彙を作る最初の1行を確認します。次のコードの出力を予測してください。",
+          "code": "text = \"ばなな\"\nchars = sorted(set(text))\nprint(chars)\nprint(len(chars))",
+          "accept": ["['な', 'ば']\n2"],
+          "placeholder": "2行の出力を改行して入力",
+          "hint": "`set(\"ばなな\")` で重複する `'な'` が1つになり、`sorted(...)` で五十音順（文字コード順：`'な'` の方が `'ば'` より小さい）に並びます。",
+          "reasoning": "`set(text)` は重複を除いた文字の集合を作り、`sorted(...)` は毎回同じ順序（決定的なリスト）に並べ替えます。",
+          "steps": [
+            "`set(\"ばなな\")` → `{'な', 'ば'}`（重複除去、種類は2つ）。",
+            "`sorted(...)` → `['な', 'ば']`（Unicodeコードポイント順で `'な'` < `'ば'`）。",
+            "`len(chars)` → `2`。"
+          ],
+          "altExample": "`sorted(set(\"ababa\"))` は `['a', 'b']`、長さは `2` です。`sorted` を挟むことで、実行するたびに番号が入れ替わるのを防いでいます。"
+        },
+        {
+          "prompt": "次のコードを実行すると何が表示されますか？",
+          "code": "text = \"catcat\"\nchars = sorted(set(text))\nprint(chars)\nprint(len(chars))",
+          "accept": ["['a', 'c', 't']\n3"],
+          "placeholder": "2行の出力を改行して入力",
+          "hint": "重複を除くと `a`, `c`, `t` の3文字になり、アルファベット順に並びます。",
+          "reasoning": "`set` で重複をなくし、`sorted` で昇順リストにします。",
+          "steps": [
+            "`set(\"catcat\")` → `{'c', 'a', 't'}`。",
+            "`sorted(...)` → `['a', 'c', 't']`。",
+            "`len(chars)` → `3`。"
+          ],
+          "altExample": "もし `sorted` を付けずに `list(set(text))` にすると、Python起動ごとに順番が変わってしまい、学習済みモデルと辞書IDがずれる大事故になります！"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q12",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "py-enumerate-stoi-itos",
+      "conceptLabel": "enumerateとstoi/itos辞書の仕組み",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "自作トークナイザーの `stoi`（文字→番号）と `itos`（番号→文字）を追跡しましょう。次のコードの出力を予測してください。",
+          "code": "chars = ['あ', 'い', 'う']\nstoi = {ch: i for i, ch in enumerate(chars)}\nitos = {i: ch for ch, i in stoi.items()}\nprint([stoi[c] for c in \"うあう\"])\nprint(\"\".join(itos[i] for i in [1, 0, 2]))",
+          "accept": ["[2, 0, 2]\nいあう"],
+          "placeholder": "2行の出力を改行して入力",
+          "hint": "`stoi` は `{'あ': 0, 'い': 1, 'う': 2}`、`itos` は `{0: 'あ', 1: 'い', 2: 'う'}` です。",
+          "reasoning": "`encode` は1文字ずつ `stoi[c]` を引いてリストにし、`decode` は1番号ずつ `itos[i]` を引いて `\"\".join(...)` でつなげます。",
+          "steps": [
+            "`stoi`：`あ→0, い→1, う→2`。",
+            "`\"うあう\"` → `[2, 0, 2]`。",
+            "`[1, 0, 2]` → `'い'`, `'あ'`, `'う'` を `\"\".join(...)` → `いあう`。"
+          ],
+          "altExample": "もし `\"-\".join(...)` にすれば `い-あ-う` のように区切り文字が入ります。"
+        },
+        {
+          "prompt": "次のコードの出力を予測してください。",
+          "code": "chars = ['a', 'b', 'c']\nstoi = {ch: i for i, ch in enumerate(chars)}\nitos = {i: ch for ch, i in stoi.items()}\nids = [stoi[c] for c in \"cab\"]\nprint(ids)\nprint(\"\".join(itos[i] for i in ids))",
+          "accept": ["[2, 0, 1]\ncab"],
+          "placeholder": "2行の出力を改行して入力",
+          "hint": "`a:0, b:1, c:2` なので `\"cab\"` は `[2, 0, 1]` になり、`decode` すると元の `cab` に戻ります。",
+          "reasoning": "`encode` と `decode` は互いに逆変換（可逆変換）になっています。",
+          "steps": [
+            "`stoi`：`{'a': 0, 'b': 1, 'c': 2}`。",
+            "`ids = [2, 0, 1]`。",
+            "`\"\".join(...)` で `'c' + 'a' + 'b'` → `cab`。"
+          ],
+          "altExample": "トークナイザーを自作したら、必ず `decode(encode(s)) == s` になるかテストするのが鉄則です。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q13",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "why-sorted-vocab",
+      "conceptLabel": "語彙リストに sorted() を掛ける理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "自作トークナイザーで `chars = sorted(set(text))` のように **`sorted(...)` を必ず付ける理由**は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`set` は順番が保証されないため、`sorted` で毎回同じ並び順に固定しないと、実行のたびに文字とトークンIDの対応がずれてしまうから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`sorted` を付けないと `for` 文で回せないから",
+              "wrongReason": "`set` のままでも `for` 文や `enumerate` は動きます。問題は「順番が実行ごとに変わりうること」です。"
+            },
+            {
+              "id": "c",
+              "text": "`sorted` を使うと重複文字が自動で増えるから",
+              "wrongReason": "要素数は変わりません。重複を除くのは `set` の役割、`sorted` は昇順に並べ替えてリストにする役割です。"
+            },
+            {
+              "id": "d",
+              "text": "`sorted` を付けるとUTF-8のバイト数が1バイトに減るから",
+              "wrongReason": "文字コードのバイト数とは無関係です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "学習したときは「猫＝12番」だったのに、次にモデルを読み込んだとき「猫＝3番」になっていたらどうなるでしょう？",
+          "reasoning": "モデルは「12番の次に4番が来やすい」とID番号で覚えているため、文字とIDの対応表は常に100%再現可能（決定的）でなければなりません。",
+          "steps": [
+            "Pythonの `set` はハッシュ randomization により、セッションごとに要素の並び順が変わりうる。",
+            "`sorted(set(text))` にすれば、同じ `text` から常に同じ `chars`・`stoi`・`itos` が作られる。",
+            "実験の再現性を保つための重要な基本テクニック。"
+          ],
+          "altExample": "第13章で学習した漱石GPTを第24章でブラウザへ書き出すときも、語彙配列 `vocab` の順番をそのままJSONに保存します。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q14",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "keyerror-oov",
+      "conceptLabel": "未知文字とKeyErrorの原因",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`text = \"吾輩は猫である。\"` から作った文字トークナイザーで `encode(\"犬である\")` を実行すると何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`'犬'` が辞書 `stoi` に存在しないため `KeyError: '犬'` が発生する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "自動的に `'犬'` をUTF-8の3バイトに分解して変換してくれる",
+              "wrongReason": "バイト分解をしてくれるのはバイトレベルBPE（Qwenや第14章で作るもの）です。この素朴な文字トークナイザーにはその機能がありません。"
+            },
+            {
+              "id": "c",
+              "text": "`'犬'` が無視されて `[4, 1, 7]` だけ返る",
+              "wrongReason": "`stoi[c]` はキーが無いとき無視せず、必ず `KeyError` を発生させます。"
+            },
+            {
+              "id": "d",
+              "text": "`'犬'` が自動的に `'猫'` に置き換わる",
+              "wrongReason": "辞書引き `stoi[c]` に意味の類推機能はありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "辞書に存在しないキーを `dict[key]` で引くと、Pythonはどんなエラーを出すでしょう？",
+          "reasoning": "語彙外の文字（OOV: Out-Of-Vocabulary）への弱さが、素朴な文字トークナイザーの限界です。だからこそ実用LLMではバイトレベルBPEや未知トークン `<unk>` を使います。",
+          "steps": [
+            "`text` に `'犬'` は一度も登場していないので `\"犬\" in stoi` は `False`。",
+            "`[stoi[c] for c in \"犬である\"]` の先頭で `stoi[\"犬\"]` を実行する。",
+            "キーが存在しないため `KeyError: '犬'` で停止する。"
+          ],
+          "altExample": "エラーを避けて未知文字を扱うには、特別な `<unk>` トークンを用意して `stoi.get(c, stoi[\"<unk>\"])` のように書きます（次の実装課題で挑戦！）。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q15",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "impl-char-tokenizer",
+      "conceptLabel": "【自力実装】未知文字にも対応する文字トークナイザー",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "文字列 `corpus` から文字トークナイザー（`stoi`, `itos`, `encode`, `decode`）を作る関数 `build_tokenizer(corpus)` を自力実装しましょう。語彙の0番目に未知文字用の `\"<unk>\"` を入れ、辞書にない文字が来たら `0` に変換する仕様にします。",
+          "starterCode": "def build_tokenizer(corpus):\n    # 1. 0番目に \"<unk>\"、1番目以降に sorted(set(corpus)) を並べた vocab を作る\n    # 2. stoi, itos 辞書を作る\n    # 3. encode(s): 辞書になければ 0 (\"<unk>\" のID) を使う\n    # 4. decode(ids): itos を使って1つの文字列につなげる\n    # 5. (stoi, itos, encode, decode) を返す\n    pass",
+          "solutionCode": "def build_tokenizer(corpus):\n    vocab = [\"<unk>\"] + sorted(set(corpus))\n    stoi = {ch: i for i, ch in enumerate(vocab)}\n    itos = {i: ch for ch, i in stoi.items()}\n    def encode(s):\n        return [stoi.get(c, 0) for c in s]\n    def decode(ids):\n        return \"\".join(itos[i] for i in ids)\n    return stoi, itos, encode, decode",
+          "colabCheck": "stoi, itos, encode, decode = build_tokenizer(\"猫である\")\nassert stoi[\"<unk>\"] == 0\nassert len(stoi) == 5\nids = encode(\"猫である\")\nassert decode(ids) == \"猫である\"\nunk_ids = encode(\"犬である\")\nassert unk_ids[0] == 0\nassert decode(unk_ids) == \"<unk>である\"\nprint(\"ALL PASSED\")",
+          "hint": "`stoi.get(c, 0)` を使うと、キー `c` が辞書にあればそのID、なければ `0` を返してくれます。",
+          "reasoning": "未知文字対策として `<unk>` を0番目に予約し、`dict.get(key, default)` で安全に変換するのは自然言語処理の定番パターンです。",
+          "steps": [
+            "`vocab = [\"<unk>\"] + sorted(set(corpus))` で0番目を `<unk>` に固定。",
+            "`stoi` と `itos` を `enumerate` で構築。",
+            "`encode(s)` は `stoi.get(c, 0)` で未知文字でも `KeyError` を起こさないようにする。",
+            "`decode(ids)` は `\"\".join(itos[i] for i in ids)` で復元する。"
+          ],
+          "altExample": "さらに発展させると、第1章で見た `<|im_start|>` のような特殊トークンも同じように `vocab` の先頭や末尾に追加できます。",
+          "selfCheckCriteria": [
+            "すべての `assert`（既知文の往復復元と、未知文字 `'犬'` の `<unk>` 変換）がColabで通った",
+            "`stoi[c]` と `stoi.get(c, 0)` の挙動の違いを説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch02-q16",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "impl-byte-tokenizer",
+      "conceptLabel": "【発展実装】未知文字ゼロの「バイトトークナイザー」",
+      "level": 5,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第2章：UTF-8バイト列"],
+      "variants": [
+        {
+          "prompt": "語彙サイズ256（0〜255の整数）だけで「どんな日本語も絵文字も絶対にエラーにならず往復復元できる」**バイトトークナイザー** `byte_encode(s)` と `byte_decode(ids)` を自力で実装し、検算テストを通してください。",
+          "starterCode": "def byte_encode(s):\n    # 文字列 s を UTF-8 のバイト列に変換し、0〜255 の整数リストにして返す\n    pass\n\ndef byte_decode(ids):\n    # 0〜255 の整数リストを bytes(ids) に戻し、UTF-8 で文字列に復元して返す\n    pass",
+          "solutionCode": "def byte_encode(s):\n    return list(s.encode(\"utf-8\"))\n\ndef byte_decode(ids):\n    return bytes(ids).decode(\"utf-8\")",
+          "colabCheck": "for sample in [\"吾輩は猫である。\", \"鰯と🐈とAI\", \"\"]:\n    ids = byte_encode(sample)\n    assert all(isinstance(x, int) and 0 <= x <= 255 for x in ids)\n    assert byte_decode(ids) == sample\nassert len(byte_encode(\"猫\")) == 3\nprint(\"ALL PASSED\")",
+          "hint": "`list(s.encode(\"utf-8\"))` で整数のリストになり、逆は `bytes(ids).decode(\"utf-8\")` です。",
+          "reasoning": "実はこれこそが、第14章で自作する「バイトレベルBPE」の出発点（合体前の0ステップ目）そのものです！",
+          "steps": [
+            "`s.encode(\"utf-8\")` は `bytes` オブジェクトを返す。",
+            "`list(...)` にすると `[231, 140, 171]` のような `list[int]` になる。",
+            "逆は `bytes(ids)` でバイト列に戻し、`.decode(\"utf-8\")` で文字列へ復元する。"
+          ],
+          "altExample": "このバイトトークナイザーは未知文字ゼロ・語彙256個で完璧ですが、日本語1文字が3トークンになるため列が3倍長くなります。そこでよく出るバイトペアを合体させるのがBPE（第14章）です。",
+          "selfCheckCriteria": [
+            "「鰯」「🐈」「空文字」を含むすべての `assert` が通った",
+            "バイト単位だけだと日本語のトークン列が長くなりすぎる課題と、BPEで合体する理由を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch02-q17",
+      "chapter": "02-tokens",
+      "section": "なぜ「トークン」なの？",
+      "sectionAnchor": "#s6",
+      "concept": "context-length-cost",
+      "conceptLabel": "【応用】コンテキスト長とトークン数の見積もり",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "ある日本語文章をトークン化すると、平均して **1文字あたり 0.8 トークン** になるとします。コンテキスト長が **32,000 トークン** のLLMには、おおよそ何文字の日本語を一度に入力できますか？",
+          "answer": { "value": 40000, "tolerance": 100 },
+          "unit": "文字",
+          "placeholder": "整数で入力（例：40000）",
+          "hint": "文字数 × 0.8 ＝ 32,000 なので、文字数 ＝ 32,000 ÷ 0.8 です。",
+          "reasoning": "「1文字あたり何トークンか」が分かれば、コンテキスト長（トークン上限）やAPI料金から扱える文字数を概算できます。",
+          "steps": [
+            "トークン数 ＝ 文字数 × 0.8。",
+            "文字数 ＝ $32000 \\div 0.8 = 40000$ 文字（文庫本のおよそ3分の1〜半分弱）。"
+          ],
+          "altExample": "もし文字トークナイザー（1文字＝1トークン）やバイトトークナイザー（1文字＝3トークン）だったら、同じ32,000トークン枠にそれぞれ32,000文字、約10,666文字しか入りません。"
+        }
+      ]
+    },
+    {
+      "id": "ch02-q18",
+      "chapter": "02-tokens",
+      "section": "自分でトークナイザーを作る",
+      "sectionAnchor": "#s8",
+      "concept": "review-ch01-ch02-pipeline",
+      "conceptLabel": "【復習連動】第1章〜第2章のデータの流れ",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：チャット＝台本の続き", "第1章：次トークン予測"],
+      "variants": [
+        {
+          "prompt": "【第1章・第2章のまとめ】チャットで質問を投げてから返事が画面に出るまでのデータ変換の流れとして、正しい順番はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "会話リスト `messages` → 台本文字列（`apply_chat_template`）→ トークンIDの列（`encode`）→ モデルが次のIDを予測 → 文字列に戻す（`decode`）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "会話リスト `messages` → そのまま日本語文字列をGPUで足し算 → 最後に `encode` して画面表示",
+              "wrongReason": "GPUとモデル本体は日本語文字列を直接計算できず、必ず先にトークンIDの数字列へ変換（`encode`）します。画面表示の前は `decode` です。"
+            },
+            {
+              "id": "c",
+              "text": "まず `decode` してから `apply_chat_template` し、最後に `encode` した数字の列をそのまま人間が読む",
+              "wrongReason": "`encode`（文字→数字）と `decode`（数字→文字）の向きが逆になっています。"
+            },
+            {
+              "id": "d",
+              "text": "モデル本体が文字を直接UTF-8の16進数にして人間に見せる",
+              "wrongReason": "人間が読む前にはトークナイザーの `decode` で元の文字列に戻します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「人間が読める形 → 数字 → モデル計算 → 数字 → 人間が読める形」のサンドイッチ構造です。",
+          "reasoning": "第1章の `pipeline` が裏で自動的にやっていた処理は、まさに「台本化 → `encode` → モデル推論の繰り返し → `decode`」というパイプラインです。",
+          "steps": [
+            "1. `messages` を台本文字列にする（第1章）。",
+            "2. トークナイザーの `encode` でトークンIDの列にする（第2章）。",
+            "3. モデルが次のトークンIDの確率を予測して1つ選ぶ（第3章で中身を自作！）。",
+            "4. 生成されたID列を `decode` で文字列に戻して表示する。"
+          ],
+          "altExample": "次の第3章では、まさにこのステップ3（モデルが出した生の点数 → softmaxで確率 → サイコロで選ぶ）を自分の手で実装します。"
+        }
+      ]
+    }
+  ]
+}

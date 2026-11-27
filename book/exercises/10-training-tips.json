@@ -1,0 +1,925 @@
+{
+  "chapter": "10-training-tips",
+  "exercises": [
+    {
+      "id": "ch10-q01",
+      "chapter": "10-training-tips",
+      "section": "診察1：最初の損失を見る",
+      "sectionAnchor": "#s2",
+      "concept": "initial-loss-sanity-check",
+      "conceptLabel": "初期損失と log V の比較による初期化診断",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：でたらめモデルの損失 log V", "第8章：初期化直後の損失"],
+      "variants": [
+        {
+          "prompt": "語彙数 $V = 2061$（$\\log V \\approx 7.63$）のモデルを作った直後に最初の損失を測ったら `37.8` と極端に大きくなっていました。モデル内部で何が起きている可能性が最も高いですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "出力層の初期重みが大きすぎて、何も学んでいないのに特定の文字へ極端に高いロジットを付け、「自信満々に間違えている」状態になっている",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "訓練データと検証データの分割割合を 9:1 にしたことが原因",
+              "wrongReason": "データ分割の割合は初期損失のスケールにはほとんど影響しません。原因は初期ロジットのばらつきが大きすぎることです。"
+            },
+            {
+              "id": "c",
+              "text": "出力層の重みを全部 0 にしたことが原因",
+              "wrongReason": "重みが全部 0 なら全文字が等確率 $1/V$ になり、初期損失はちょうど $\\log V = 7.631$ になります。"
+            },
+            {
+              "id": "d",
+              "text": "初期損失は大きいほどたくさん学習できる余地があるので、むしろ理想的な状態である",
+              "wrongReason": "初期損失が大きすぎると、学習の前半を「自信過剰を直す無駄な作業」に浪費してしまいます。$\\log V$ 付近が最も健康的です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "確率 `0.000000001` を付けた文字が正解だと、$-\\log(p)$ は一気に数十まで跳ね上がります！",
+          "reasoning": "学習を始める前に「初期損失 $\\approx \\log V$」を必ずチェックするのは、初期化ミスやバグを最初の1秒で見抜くプロの習慣です。",
+          "steps": [
+            "理想（まっさらな均等予測）：全文字の確率 $\\approx 1/V$ → 損失 $\\approx \\log V = 7.631$。",
+            "重みを30倍にしてロジットが暴れる → 間違った文字に自信満々、正解文字の確率が極小 → $-\\log(p_{\\text{正解}})$ が 37.8 に爆発。",
+            "処方箋：出力層の重みを小さめに初期化し、初期損失が $\\log V$ 付近になることを確認する。"
+          ],
+          "altExample": "第13章のGPTでも、学習ループを回す前にまず初期損失が $\\log V$ に近いかどうかを確認します。"
+        },
+        {
+          "prompt": "語彙数 $V = 1000$ の新しい言語モデルを作りました。学習開始直前の「健康な初期損失」の目安はおよそいくつですか？（ヒント：$\\log 10 \\approx 2.30$）",
+          "options": [
+            {
+              "id": "a",
+              "text": "約 `6.91`（$\\log 1000 = 3 \\times \\log 10$）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "約 `0.001`（$1 / 1000$）",
+              "wrongReason": "`0.001` は一様分布のときの各文字の**確率** $p$ です。損失は $-\\log(p) = \\log 1000 \\approx 6.91$ です。"
+            },
+            {
+              "id": "c",
+              "text": "約 `1000`（語彙数そのまま）",
+              "wrongReason": "損失は $V$ ではなく自然対数 $\\log V$ です。"
+            },
+            {
+              "id": "d",
+              "text": "ちょうど `0.0`",
+              "wrongReason": "損失 0 は「100%確実に正解を当てた」状態であり、何も学んでいない初期状態ではあり得ません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "$1000 = 10^3$ なので、$\\log(1000) = 3 \\log(10) \\approx 3 \\times 2.303$ です。",
+          "reasoning": "語彙数が 10 倍になるごとに $\\log V$ は約 `2.30` 増えます（10→2.30、100→4.61、1000→6.91）。",
+          "steps": [
+            "各文字の初期確率 $\\approx 1 / 1000$。",
+            "初期損失 $= -\\log(1 / 1000) = \\log(1000) = 3 \\log 10 \\approx 6.91$。"
+          ],
+          "altExample": "もしここで初期損失が `25.0` だったら重みが大きすぎ、`1.0` だったら正解リークなどのバグを疑います。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q02",
+      "chapter": "10-training-tips",
+      "section": "統計の道具：平均・分散・標準偏差",
+      "sectionAnchor": "#s3",
+      "concept": "mean-variance-std-hand-calc",
+      "conceptLabel": "平均 μ・分散 σ^2・標準偏差 σ の手計算",
+      "level": 1,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第3章：Σ記号"],
+      "variants": [
+        {
+          "prompt": "3個のデータ `x = [2, 4, 6]` について、母分散 $\\sigma^2 = \\dfrac{1}{N} \\sum_{i=1}^{N} (x_i - \\mu)^2$ を手計算してください（小数第2位まで、誤差 $\\pm 0.05$ まで正解）。",
+          "answer": { "value": 2.67, "tolerance": 0.05 },
+          "placeholder": "小数で入力（例：2.67）",
+          "hint": "まず平均 $\\mu = (2+4+6)/3 = 4$。次に各データの平均からのずれ `[-2, 0, +2]` を2乗して `[4, 0, 4]`、その平均をとります。",
+          "reasoning": "分散は「平均からのずれを2乗したものの平均」です。$[2, 4, 6]$ では $(4 + 0 + 4) / 3 = 8 / 3 \\approx 2.667$ になります。",
+          "steps": [
+            "平均：$\\mu = (2 + 4 + 6) / 3 = 4$。",
+            "ずれ（偏差）：$2-4 = -2$、$4-4 = 0$、$6-4 = +2$。",
+            "ずれの2乗：$(-2)^2 = 4$、$0^2 = 0$、$2^2 = 4$。",
+            "分散：$\\sigma^2 = (4 + 0 + 4) / 3 = 8 / 3 \\approx 2.67$。"
+          ],
+          "altExample": "さらに平方根をとった標準偏差は $\\sigma = \\sqrt{8/3} \\approx 1.633$ です。"
+        },
+        {
+          "prompt": "4個のデータ `x = [1, 3, 5, 7]` について、母分散 $\\sigma^2 = \\dfrac{1}{N} \\sum_{i=1}^{N} (x_i - \\mu)^2$ を手計算してください。",
+          "answer": { "value": 5, "tolerance": 0.01 },
+          "placeholder": "整数で入力",
+          "hint": "平均 $\\mu = 4$。ずれは `[-3, -1, +1, +3]`、2乗すると `[9, 1, 1, 9]` です。合計を 4 で割ります。",
+          "reasoning": "$(9 + 1 + 1 + 9) / 4 = 20 / 4 = 5$。平方根をとると標準偏差 $\\sigma = \\sqrt{5} \\approx 2.236$ です。",
+          "steps": [
+            "平均：$\\mu = (1 + 3 + 5 + 7) / 4 = 4$。",
+            "ずれの2乗：$(-3)^2 = 9, (-1)^2 = 1, 1^2 = 1, 3^2 = 9$。",
+            "分散：$\\sigma^2 = (9 + 1 + 1 + 9) / 4 = 20 / 4 = 5$。"
+          ],
+          "altExample": "すべての要素が同じ値 `[4, 4, 4, 4]` なら、ずれは全部 0 なので分散も標準偏差もぴったり `0` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q03",
+      "chapter": "10-training-tips",
+      "section": "統計の道具：平均・分散・標準偏差",
+      "sectionAnchor": "#s3",
+      "concept": "stats-symbols-and-unbiased",
+      "conceptLabel": "記号 μ・σ^2・σ の意味と PyTorch の unbiased=False",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "分散の定義 $\\sigma^2 = \\dfrac{1}{N} \\sum_{i=1}^{N} (x_i - \\mu)^2$ で、$(x_i - \\mu)$ をそのまま平均せずに**2乗してから平均し、最後に平方根をとって標準偏差 $\\sigma$ にする**理由として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "そのまま足すとプラスとマイナスのずれが必ず打ち消し合って 0 になるため2乗してばらつきを測り（分散）、2乗で変わった単位を元に戻すため平方根をとる（標準偏差）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "分散を常に 1.0 に固定するため",
+              "wrongReason": "データのばらつきが大きいほど分散も大きくなります。1.0 に固定されるわけではありません。"
+            },
+            {
+              "id": "c",
+              "text": "平均 $\\mu$ を必ず 0 にするため",
+              "wrongReason": "平均 $\\mu$ はデータの中心であり 0 とは限りません（例：`[2, 4, 6]` の $\\mu$ は 4）。"
+            },
+            {
+              "id": "d",
+              "text": "2乗するとデータの個数 $N$ が半分に減って計算が速くなるため",
+              "wrongReason": "データの個数 $N$ は変わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`[2, 4, 6]` の平均からのずれ `[-2, 0, +2]` を2乗せずに足すといくつになりますか？",
+          "reasoning": "平均の定義上、$\\sum (x_i - \\mu)$ はどんなデータでも必ずちょうど 0 になってしまいます。2乗で正にしてから平均（分散 $\\sigma^2$）をとり、平方根で元のスケールに戻したものが標準偏差 $\\sigma$ です。",
+          "steps": [
+            "ずれの和：$(-2) + 0 + (+2) = 0$（どんなデータでも必ず 0！）。",
+            "2乗の平均（分散 $\\sigma^2$）：ばらつきが測れるが、単位が「元の単位の2乗（例：$\\text{cm}^2$）」になる。",
+            "平方根（標準偏差 $\\sigma$）：元の単位（例：$\\text{cm}$）に戻る。"
+          ],
+          "altExample": "第7章の二乗誤差（MSE）で「差をそのまま平均すると打ち消し合うので2乗する」のと同じ理由です。"
+        },
+        {
+          "prompt": "本文の LayerNorm 手計算コードで `h.std(dim=1, keepdim=True, unbiased=False)` と **`unbiased=False`** を付けている理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "PyTorch の `.std()` はデフォルトで $N - 1$ で割る（不偏標準偏差）が、LayerNorm の数式どおり $N$ で割るために `unbiased=False` を指定している",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`unbiased=False` を付けないと計算結果が必ずマイナスになるから",
+              "wrongReason": "標準偏差は平方根なのでどちらの設定でも 0 以上です。分母が $N - 1$ か $N$ かの違いです。"
+            },
+            {
+              "id": "c",
+              "text": "`unbiased=False` はバイアス項 $b$ を削除するオプションだから",
+              "wrongReason": "全結合層の `bias=False` とは別物で、統計の「不偏推定（$N-1$ で割る）」をオフにする指定です。"
+            },
+            {
+              "id": "d",
+              "text": "`unbiased=False` にすると自動で学習率も調整されるから",
+              "wrongReason": "標準偏差の計算式の分母（$N$ vs $N-1$）を切り替えるだけです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "要素数 $N=6$ のとき、$N$ で割るのと $N-1=5$ で割るのでは答えが少しずれて、`nn.LayerNorm` と完全一致しなくなります！",
+          "reasoning": "統計学で標本から母集団を推定するときは $N-1$（ベッセル補正）を使いますが、LayerNorm では目の前の特徴ベクトル $N$ 個そのものを正規化するので $N$ で割ります。",
+          "steps": [
+            "`unbiased=True`（デフォルト）：$\\sqrt{\\frac{1}{N-1} \\sum (x_i - \\mu)^2}$。",
+            "`unbiased=False`：$\\sqrt{\\frac{1}{N} \\sum (x_i - \\mu)^2}$（LayerNorm の定義）。",
+            "`nn.LayerNorm` と手計算を小数点以下まできっちり一致させるには `unbiased=False` を使う。"
+          ],
+          "altExample": "`x = [2, 4, 6]` なら `unbiased=False` で $\\sqrt{8/3} \\approx 1.633$、`unbiased=True` で $\\sqrt{8/2} = 2.0$ と大きく変わります。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q04",
+      "chapter": "10-training-tips",
+      "section": "統計の道具：平均・分散・標準偏差",
+      "sectionAnchor": "#s3",
+      "concept": "impl-mean-var-std",
+      "conceptLabel": "【自力実装】純Pythonで平均・母分散・母標準偏差を計算する関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：Σとfor文", "第10章：平均・分散・標準偏差"],
+      "variants": [
+        {
+          "prompt": "数値のリスト `xs` を受け取り、平均 `mean`、母分散 `var`（$N$ で割る）、母標準偏差 `std` の3つをタプル `(mean, var, std)` で返す関数 `compute_stats(xs)` を標準ライブラリ `math` だけで自力実装してください。",
+          "starterCode": "import math\n\ndef compute_stats(xs):\n    # 1. mean = sum(xs) / len(xs)\n    # 2. var = sum((x - mean) ** 2 for x in xs) / len(xs)\n    # 3. std = math.sqrt(var)\n    # return mean, var, std\n    pass",
+          "solutionCode": "import math\n\ndef compute_stats(xs):\n    n = len(xs)\n    mean = sum(xs) / n\n    var = sum((x - mean) ** 2 for x in xs) / n\n    std = math.sqrt(var)\n    return mean, var, std",
+          "colabCheck": "import math\nm, v, s = compute_stats([2, 4, 6])\nassert abs(m - 4.0) < 1e-9\nassert abs(v - 8.0 / 3.0) < 1e-9\nassert abs(s - math.sqrt(8.0 / 3.0)) < 1e-9\nm2, v2, s2 = compute_stats([1, 3, 5, 7])\nassert abs(m2 - 4.0) < 1e-9\nassert abs(v2 - 5.0) < 1e-9\nassert abs(s2 - math.sqrt(5.0)) < 1e-9\nm3, v3, s3 = compute_stats([5.0, 5.0, 5.0])\nassert m3 == 5.0 and v3 == 0.0 and s3 == 0.0\nprint(\"ALL PASSED\")",
+          "hint": "`mean = sum(xs) / len(xs)`、`var = sum((x - mean) ** 2 for x in xs) / len(xs)`、`std = math.sqrt(var)` の3行です。",
+          "reasoning": "この3つの統計量が、そのまま次の節の LayerNorm の心臓部になります。",
+          "steps": [
+            "`n = len(xs)`、`mean = sum(xs) / n`。",
+            "`var = sum((x - mean) ** 2 for x in xs) / n`。",
+            "`std = math.sqrt(var)` を計算して `(mean, var, std)` を返す。"
+          ],
+          "altExample": "定数リスト `[5.0, 5.0, 5.0]` のとき `var == 0.0, std == 0.0` になる点に注目してください——これが LayerNorm で $\\epsilon$ が必要になる直接の理由です！",
+          "selfCheckCriteria": [
+            "`[2, 4, 6]`・`[1, 3, 5, 7]`・`[5.0, 5.0, 5.0]` のすべての `assert` が通った",
+            "数式 $\\mu, \\sigma^2, \\sigma$ とPythonコードの1対1対応が説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch10-q05",
+      "chapter": "10-training-tips",
+      "section": "診察2：層を通るたびに暴れる数",
+      "sectionAnchor": "#s4",
+      "concept": "saturation-vanishing-and-init-scale",
+      "conceptLabel": "tanhの飽和・勾配消失と 1/√d_in 初期化の原理",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：連鎖律", "第9章：tanh活性化関数"],
+      "variants": [
+        {
+          "prompt": "10層の `tanh` ネットワークで重みの初期スケールを変えたとき、「重みが大きすぎる（1.0）」場合と「小さすぎる（0.01）」場合に起きる問題の組み合わせとして**正しい**のはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "大きすぎると `tanh` の出力が ±1 に張り付いて傾きがほぼ 0 になり勾配が伝わらない（**飽和**）、小さすぎると層を通るたびに信号と勾配が 0 へ縮んで消える（**勾配消失**）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "大きすぎると信号が 0 に消え、小さすぎると ±1 に張り付く",
+              "wrongReason": "ちょうど逆です。大きい入力が `tanh` に入ると ±1 の平らな端に張り付き（飽和）、小さい重みを何度も掛けると 0 に縮みます（消失）。"
+            },
+            {
+              "id": "c",
+              "text": "どちらも層が深くなるほど自動的に標準偏差 1.0 に安定するので問題ない",
+              "wrongReason": "本文の実験で、1.0 では全層 `0.974`（飽和）、0.01 では5層目で `0.0`（消失）と壊滅的になることを確認しました。"
+            },
+            {
+              "id": "d",
+              "text": "重みの初期値は学習1ステップ目で完全に上書きされるので、最初の大きさはまったく影響しない",
+              "wrongReason": "飽和や消失が起きると最初のステップから勾配がほぼ 0 になり、学習そのものが進まなくなります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`tanh` のグラフの左右の端（±1付近）はまっ平らで傾きがほぼ 0 です！",
+          "reasoning": "深いネットワークで信号も勾配も潰さず奥まで届けるには、各層を通っても標準偏差が極端に膨らんだり縮んだりしない初期スケールが不可欠です。",
+          "steps": [
+            "重み 1.0（大きすぎ）：256個の和で分散が256倍 → `tanh` が ±1 に張り付き勾配ほぼ 0（飽和）。",
+            "重み 0.01（小さすぎ）：毎回縮んで4〜5層目で `0.0`（勾配消失）。",
+            "重み $1 / \\sqrt{256}$：256個足して膨らむ $\\sqrt{256} = 16$ 倍をちょうど打ち消し、深い層まで信号が届く。"
+          ],
+          "altExample": "PyTorchの `nn.Linear` が最初から $1 / \\sqrt{\\text{in\\_features}}$ スケールで初期化してくれているのはこのためです。"
+        },
+        {
+          "prompt": "入力次元が `d_in = 256` の全結合層で、重みを標準偏差 `1 / sqrt(256) = 1/16` 程度に初期化するとちょうど良い数学的な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "独立な256個の数を足し合わせると分散が256倍（標準偏差が $\\sqrt{256} = 16$ 倍）に膨らむため、重みを $1/16$ にしておくと出力の標準偏差がほぼ 1 に保たれるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "256 を 256 で割ると 1 になるから重みは $1/256$ にすべきだが、計算を省いて平方根にしたから",
+              "wrongReason": "もし $1/256$ にすると、標準偏差は $\\sqrt{256} / 256 = 1/16$ に縮んでしまい、数層で 0 に消失します。"
+            },
+            {
+              "id": "c",
+              "text": "学習率を $1/16$ にするため",
+              "wrongReason": "これは学習率ではなく、層の初期重みのスケール（Xavier / Kaiming 初期化の原理）です。"
+            },
+            {
+              "id": "d",
+              "text": "GPUのメモリが16GBだから",
+              "wrongReason": "ハードウェア容量とは無関係で、和の分散の法則（確率論）から導かれる普遍的な係数です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "平均0・分散1の独立な数 $d$ 個を足すと、分散は $d$ 倍、標準偏差は $\\sqrt{d}$ 倍になります！",
+          "reasoning": "「$d$ 個の和の標準偏差は $\\sqrt{d}$ 倍になる」という法則は、この初期化だけでなく第11章の Attention の $\\div \\sqrt{d_k}$ にもそのまま再登場する超重要原理です！",
+          "steps": [
+            "各積 $h_i w_i$ の分散を $v$ とすると、256個の和の分散は $256 v$。",
+            "標準偏差を 1 に保つには $256 v = 1 \\implies v = 1/256$。",
+            "よって重みの標準偏差は $\\sqrt{1/256} = 1 / \\sqrt{256} = 1/16$。"
+          ],
+          "altExample": "第11章の Scaled Dot-Product Attention で内積を $\\sqrt{d_k}$ で割るのも、まさにまったく同じ理由です。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q06",
+      "chapter": "10-training-tips",
+      "section": "治療1：LayerNorm（層正規化）",
+      "sectionAnchor": "#s5",
+      "concept": "layernorm-hand-calc",
+      "conceptLabel": "LayerNorm（γ=1, β=0）の具体的な手計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第10章：平均・分散・標準偏差"],
+      "variants": [
+        {
+          "prompt": "ベクトル `x = [2, 4, 6]` に倍率・足し算なし（$\\gamma=1, \\beta=0$）の LayerNorm をかけたとき、3番目の要素 `6` はおよそいくつに変換されますか？（小数第2位まで、誤差 $\\pm 0.03$ まで正解）",
+          "answer": { "value": 1.22, "tolerance": 0.03 },
+          "placeholder": "小数で入力（例：1.22）",
+          "hint": "平均 $\\mu = 4$、標準偏差 $\\sigma = \\sqrt{8/3} \\approx 1.633$ です。$(6 - 4) / 1.633$ を計算しましょう。",
+          "reasoning": "LayerNorm は $(x_i - \\mu) / \\sqrt{\\sigma^2 + \\epsilon}$ なので、`[2, 4, 6]` は `[-1.225, 0.0, +1.225]`（平均0・標準偏差1）へ変換されます。",
+          "steps": [
+            "平均：$\\mu = (2 + 4 + 6) / 3 = 4$。",
+            "分散：$\\sigma^2 = ((-2)^2 + 0^2 + 2^2) / 3 = 8/3 \\approx 2.667$、$\\sigma \\approx 1.633$。",
+            "3番目の要素：$(6 - 4) / 1.633 \\approx +1.225$（小数第2位で `1.22`）。"
+          ],
+          "altExample": "元の章末クイズの検算です。元の値が `[200, 400, 600]`（100倍）でも、LayerNorm 後はまったく同じ `[-1.225, 0.0, +1.225]` にそろいます！"
+        },
+        {
+          "prompt": "2要素のベクトル `x = [10, 20]` に倍率・足し算なし（$\\gamma=1, \\beta=0$）の LayerNorm をかけたとき、2番目の要素 `20` はいくつになりますか？（$\\epsilon$ は極めて小さいものとして無視）",
+          "answer": { "value": 1.0, "tolerance": 0.01 },
+          "placeholder": "数値で入力",
+          "hint": "平均 $\\mu = 15$、ずれは `[-5, +5]`、分散 $\\sigma^2 = (25 + 25)/2 = 25$、標準偏差 $\\sigma = 5$ です！",
+          "reasoning": "平均15を引いて標準偏差5で割ると、`(20 - 15) / 5 = 1.0`（全体では `[-1.0, +1.0]`）になります。",
+          "steps": [
+            "$\\mu = (10 + 20) / 2 = 15$。",
+            "$\\sigma^2 = ((-5)^2 + 5^2) / 2 = 25 \\implies \\sigma = 5$。",
+            "2番目の要素：$(20 - 15) / 5 = 1.0$。"
+          ],
+          "altExample": "どんな2つの異なる数 `[a, b]`（$a < b$）を入れても、LayerNorm 後は必ず `[-1.0, +1.0]` にそろいます。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q07",
+      "chapter": "10-training-tips",
+      "section": "治療1：LayerNorm（層正規化）",
+      "sectionAnchor": "#s5",
+      "concept": "layernorm-epsilon-gamma-beta",
+      "conceptLabel": "LayerNorm の数式における ε・γ・β の役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "LayerNorm の式 $\\text{LayerNorm}(x)_i = \\dfrac{x_i - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} \\cdot \\gamma_i + \\beta_i$ において、小さな定数 $\\epsilon$（イプシロン、例：`1e-5`）と、学習可能パラメータ $\\gamma$（ガンマ）・$\\beta$（ベータ）の役割として**正しい**組み合わせはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "$\\epsilon$ は分散 $\\sigma^2 = 0$ のときのゼロ除算（`nan`）を防ぐ安全装置、$\\gamma$（倍率）と $\\beta$（シフト）は正規化で縛られすぎないよう最適なスケールと中心をモデルが学習で復元できるようにするため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "$\\epsilon$ は学習率のこと、$\\gamma$ と $\\beta$ は毎回ランダムにニューロンを 0 にするための乱数",
+              "wrongReason": "ランダムに 0 にするのはドロップアウトです。$\\gamma, \\beta$ は各特徴次元に1個ずつ持つ学習可能パラメータ（初期値 $\\gamma=1, \\beta=0$）です。"
+            },
+            {
+              "id": "c",
+              "text": "$\\epsilon$ は平均を 1 にするため、$\\gamma$ と $\\beta$ は常に 0 に固定して学習しない",
+              "wrongReason": "もし $\\gamma = 0$ にすると出力がすべて 0 になって情報が消えます。初期値は $\\gamma = 1, \\beta = 0$ で、学習により調整されます。"
+            },
+            {
+              "id": "d",
+              "text": "$\\epsilon$ は他のバッチのデータと混ぜるため、$\\gamma$ と $\\beta$ は語彙数 $V$ を増やすため",
+              "wrongReason": "LayerNorm は1データ（1行）の中で完結するため、他のバッチのデータには一切依存しません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "もし入力が `[5, 5, 5]` だったら $\\sigma^2 = 0$ で分母が 0 になってしまいます。また「常に平均0・標準偏差1」が最適とは限らないときは？",
+          "reasoning": "$\\epsilon$ が数値安定性（ゼロ除算防止）を守り、学習可能な $\\gamma, \\beta$ が表現力（必要なら元のスケールやオフセットに戻せる自由度）を守ります。",
+          "steps": [
+            "$\\epsilon$（例：`1e-5`）：全要素が同じ値で $\\sigma^2 = 0$ になっても、分母 $\\sqrt{0 + 10^{-5}} > 0$ で `nan` を防ぐ。",
+            "$\\gamma$（初期値 `1`）：正規化後の倍率を次元ごとに学習。",
+            "$\\beta$（初期値 `0`）：正規化後の足し算（中心位置）を次元ごとに学習。"
+          ],
+          "altExample": "もし次の層が「平均0・標準偏差1」のままを望めば $\\gamma=1, \\beta=0$ のままになり、「もっと広い範囲が欲しい」なら $\\gamma$ が自然に大きくなります。"
+        },
+        {
+          "prompt": "自然言語処理（LLM）で、画像分野のバッチ正規化（BatchNorm）ではなく **LayerNorm（層正規化）** が広く使われる主な利点はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "バッチ内の他の文章に一切依存せず、1つのデータ（1トークンの特徴ベクトル）単独で完結して計算できるため、文章長が変わる場合やバッチサイズ 1 の生成時でも安定して動くから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "LayerNorm は平均や標準偏差を計算する必要がなく、ただ 2 倍するだけだから",
+              "wrongReason": "LayerNorm は1データ（特徴軸 `dim=-1`）ごとに平均と標準偏差を計算して正規化します。"
+            },
+            {
+              "id": "c",
+              "text": "LayerNorm は学習時だけ動かして推論時は完全にオフにするから",
+              "wrongReason": "学習時と推論時で動作を変えるのはドロップアウトです。LayerNorm は学習時も推論時もまったく同じ式で動きます。"
+            },
+            {
+              "id": "d",
+              "text": "BatchNorm は PyTorch に実装されていないから",
+              "wrongReason": "PyTorch には `nn.BatchNorm1d` 等も実装されています。NLP・LLM のデータ構造との相性が理由です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "推論（文章生成）のときはバッチサイズ 1（自分の1文だけ）で動かしますよね。バッチの仲間に頼らない仕組みならどうでしょう？",
+          "reasoning": "1トークンごとの特徴ベクトル内で完結する LayerNorm（およびその簡略版 RMSNorm）は、バッチサイズ 1 の推論や可変長テキストと抜群の相性を持ちます。",
+          "steps": [
+            "BatchNorm：同じ特徴列を「バッチの仲間全体」で平均・標準偏差をとる。",
+            "LayerNorm：1つのデータ（1行）の中で「特徴方向」に平均・標準偏差をとる。",
+            "他のデータに依存しないため、訓練時と推論時（バッチ1）で挙動が完全一致する。"
+          ],
+          "altExample": "第12章のGPTでは各ブロックに2回ずつ `nn.LayerNorm` が登場します。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q08",
+      "chapter": "10-training-tips",
+      "section": "治療1：LayerNorm（層正規化）",
+      "sectionAnchor": "#s5",
+      "concept": "impl-layer-norm-pure-python",
+      "conceptLabel": "【自力実装】純Pythonによる layer_norm(x, eps=1e-5) の実装",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第10章：平均・分散・標準偏差", "第10章：LayerNormの数式"],
+      "variants": [
+        {
+          "prompt": "1次元リスト `x` に対して LayerNorm $\\dfrac{x_i - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} \\cdot \\gamma_i + \\beta_i$ を計算する関数 `layer_norm(x, gamma=None, beta=None, eps=1e-5)` を標準ライブラリ `math` だけで自力実装してください（`gamma` 省略時は全 `1.0`、`beta` 省略時は全 `0.0`）。",
+          "starterCode": "import math\n\ndef layer_norm(x, gamma=None, beta=None, eps=1e-5):\n    # 1. 平均 mu と母分散 var を計算\n    # 2. denom = math.sqrt(var + eps)\n    # 3. normed = [(v - mu) / denom for v in x]\n    # 4. gamma が指定されていれば掛け、beta が指定されていれば足して返す\n    pass",
+          "solutionCode": "import math\n\ndef layer_norm(x, gamma=None, beta=None, eps=1e-5):\n    n = len(x)\n    mu = sum(x) / n\n    var = sum((v - mu) ** 2 for v in x) / n\n    denom = math.sqrt(var + eps)\n    out = [(v - mu) / denom for v in x]\n    if gamma is not None:\n        out = [o * g for o, g in zip(out, gamma)]\n    if beta is not None:\n        out = [o + b for o, b in zip(out, beta)]\n    return out",
+          "colabCheck": "import math\ny = layer_norm([2.0, 4.0, 6.0])\nassert abs(y[0] - (-1.22474)) < 1e-4\nassert abs(y[1] - 0.0) < 1e-6\nassert abs(y[2] - 1.22474) < 1e-4\n# 正規化後は平均ほぼ0・標準偏差ほぼ1\nmean_y = sum(y) / len(y)\nstd_y = math.sqrt(sum((v - mean_y) ** 2 for v in y) / len(y))\nassert abs(mean_y) < 1e-9 and abs(std_y - 1.0) < 1e-4\n# 全要素が同じでも eps のおかげでゼロ除算しない！\ny_const = layer_norm([5.0, 5.0, 5.0])\nassert all(abs(v) < 1e-9 for v in y_const)\n# gamma と beta が正しく効く\ny_aff = layer_norm([10.0, 20.0], gamma=[2.0, 2.0], beta=[1.0, -1.0], eps=0.0)\nassert abs(y_aff[0] - (-1.0)) < 1e-9 and abs(y_aff[1] - 1.0) < 1e-9\nprint(\"ALL PASSED\")",
+          "hint": "`math.sqrt(var + eps)` のように **`eps` は平方根の中（`var + eps`）に足す**のが PyTorch の `nn.LayerNorm` の正確な式です！",
+          "reasoning": "たった数行の純Pythonコードで `nn.LayerNorm` の中身が完全に再現できました。これで第12章のGPTの `LayerNorm` もブラックボックスではなくなります！",
+          "steps": [
+            "`mu = sum(x) / n`、`var = sum((v - mu) ** 2 for v in x) / n`。",
+            "`denom = math.sqrt(var + eps)` でゼロ除算を防止。",
+            "`out = [(v - mu) / denom for v in x]` で平均0・標準偏差1に正規化。",
+            "`gamma` と `beta` があれば要素ごとに掛け算・足し算して返す。"
+          ],
+          "altExample": "定数ベクトル `[5.0, 5.0, 5.0]` を入れてもエラーにならず `[0.0, 0.0, 0.0]` が安全に返ることをテストで確認できます。",
+          "selfCheckCriteria": [
+            "`[2.0, 4.0, 6.0]` が `[-1.2247, 0.0, 1.2247]` に変換され、平均0・標準偏差1になった",
+            "定数ベクトル `[5.0, 5.0, 5.0]` でも `eps` のおかげでゼロ除算せず通った",
+            "`gamma` と `beta` によるスケール・シフト変換のテストも通った"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch10-q09",
+      "chapter": "10-training-tips",
+      "section": "治療2：Adam（賢い坂の下り方）",
+      "sectionAnchor": "#s6",
+      "concept": "adamw-momentum-and-adaptive-lr",
+      "conceptLabel": "AdamW の2大機能（慣性・パラメータごとの歩幅）と W（重み減衰分離）",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第8章：ミニバッチSGD"],
+      "variants": [
+        {
+          "prompt": "Adam の「**慣性（モーメンタム）**」は、SGD のどのような問題を和らげますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ミニバッチごとに勾配の向きがぶれてジグザグに進んでしまう問題を、過去の勾配の平均的な向きを覚えることで滑らかに直進させる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルのパラメータ数を半分に削減する",
+              "wrongReason": "パラメータ数は変わりません（むしろ慣性と2乗平均の記憶用にオプティマイザ状態を持ちます）。"
+            },
+            {
+              "id": "c",
+              "text": "訓練データを自動で2倍に増やす",
+              "wrongReason": "データ拡張ではなく、勾配の更新方向の計算方法の工夫です。"
+            },
+            {
+              "id": "d",
+              "text": "逆伝播（`loss.backward()`）を不要にする",
+              "wrongReason": "Adam も毎ステップ `loss.backward()` で求めた勾配を使って更新します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "重いボールが坂を転がるとき、小さな石ころ（ミニバッチのぶれ）があっても勢いで平均的な下り方向へ進みます！",
+          "reasoning": "元の章末クイズの復習です。Adam = モーメンタム（慣性）＋ RMSprop（パラメータごとの歩幅調整）のハイブリッドです。",
+          "steps": [
+            "慣性（モーメンタム）：過去の勾配の移動平均 $m$ で向きを安定化。",
+            "適応歩幅（RMSprop）：過去の勾配の2乗の移動平均 $v$ の平方根で割り、よく動くパラメータは慎重に・あまり動かないパラメータは大きめに更新。",
+            "結果として SGD の 1/5 のステップ数で同じ検証損失に到達するほど速く賢く下れる。"
+          ],
+          "altExample": "本文でも SGD で 10,000 ステップかかった検証損失 3.4 台に、AdamW はたった 2,000 ステップで到達しました。"
+        },
+        {
+          "prompt": "従来の `Adam` ではなく、現代のLLM学習で標準となっている **`AdamW`** の「W」は何を改良したものですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "重み減衰（Weight Decay）を勾配に混ぜず、Adamの適応歩幅の割り算から切り離して（decoupled）正しく重みを縮めるよう修正した版",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Windows 専用に作られた高速版 Adam という意味",
+              "wrongReason": "OSの名前ではなく Weight Decay（重み減衰）の W です。"
+            },
+            {
+              "id": "c",
+              "text": "重み（Weight）を一切更新しない推論専用オプティマイザという意味",
+              "wrongReason": "重みを学習で更新しつつ、過学習防止の重み減衰を正しく効かせるための学習用オプティマイザです。"
+            },
+            {
+              "id": "d",
+              "text": "ウォームアップ（Warmup）を自動で行うため学習率スケジュールが不要になるという意味",
+              "wrongReason": "ウォームアップは別途スケジュール関数（`lr_at` など）で設定します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "従来の Adam では重み減衰項まで $\\sqrt{v}$ で割られてしまい、重みの大きいパラメータに減衰が弱くなる歪みがありました。",
+          "reasoning": "AdamW は「適応歩幅による勾配更新」と「一定の割合で重みを 0 側へ縮める重み減衰」を独立させたことで、高い汎化性能を実現しています。",
+          "steps": [
+            "旧 Adam（L2正則化）：重み減衰を勾配に足す → 適応学習率で割られて効果が歪む。",
+            "AdamW：勾配ステップとは別に直接 $w \\leftarrow w - \\eta \\lambda w$ と縮める。",
+            "GPT・LLaMA・Qwen を含むほぼすべての現代LLMでデファクトスタンダード。"
+          ],
+          "altExample": "第13章のGPT学習でも `torch.optim.AdamW` をそのまま使います。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q10",
+      "chapter": "10-training-tips",
+      "section": "診察3：過学習",
+      "sectionAnchor": "#s7",
+      "concept": "diagnosing-and-treating-overfitting",
+      "conceptLabel": "学習曲線からの過学習診断と治療法の選択",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：汎化のギャップ"],
+      "variants": [
+        {
+          "prompt": "学習中、訓練損失は `2.0` まで下がり続けていますが、検証損失は `3.5` を底にして `3.7` へ上がり始めました。何が起きており、有効な対策はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "**過学習**が起きている。データを増やす、ドロップアウトや重み減衰を強める、モデルを小さくする、検証損失が最小だった時点で止める、などが有効",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "**学習不足**が起きている。さらに長く学習を続け、モデルを10倍大きくしてドロップアウトを 0 にする",
+              "wrongReason": "すでに訓練データを丸暗記しすぎているのにモデルを巨大化・長期学習すると、過学習がさらに悪化します。"
+            },
+            {
+              "id": "c",
+              "text": "**勾配消失**が起きている。訓練データをもっと減らす",
+              "wrongReason": "訓練損失が `2.0` まで順調に下がっているので勾配消失ではありません。またデータを減らすと過学習はさらに酷くなります。"
+            },
+            {
+              "id": "d",
+              "text": "**初期化ミス**が起きている。出力層の重みを30倍にする",
+              "wrongReason": "出力層の重みを30倍にすると初期損失が爆発するだけで過学習の解決になりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "訓練は下がり続け、検証が底を打って U 字に上がり始めるのが、教科書的な過学習のサインです。",
+          "reasoning": "元の章末クイズの確認です。本文の AdamW 治療前（`hist_a`）でも3000ステップを境にまさに同じU字の悪化が起きました。",
+          "steps": [
+            "症状：訓練損失 ↓（2.0）、検証損失 ↑（3.5 → 3.7）＝ 過学習。",
+            "原因：データ量に対してモデルの記憶容量が大きすぎる／学習が長すぎる。",
+            "治療：データ増量・ドロップアウト・重み減衰・早期終了（Early Stopping）。"
+          ],
+          "altExample": "本文でドロップアウト 0.3 ＋ 重み減衰 0.1 ＋ スケジュールを入れたところ、検証損失のU字反転が消えて `3.177` まで下がり続けました。"
+        },
+        {
+          "prompt": "同じモデル・同じデータで「治療前（dropout=0, wd=0）」と「治療後（dropout=0.3, wd=0.1, schedule=True）」を比べたとき、治療後の学習曲線に見られる**良い変化**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "治療前より訓練損失自体はやや高め（2.47 vs 1.94）だが、訓練と検証のギャップが縮まり、検証損失が最後まで下がり続けて `3.177` の新記録を達成した",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "訓練損失が `0.000` になり、検証損失が `7.631` になった",
+              "wrongReason": "それは極端な丸暗記（過学習の悪化）です。正則化を入れると訓練損失の丸暗記が抑えられ、代わりに検証損失が良くなります。"
+            },
+            {
+              "id": "c",
+              "text": "訓練損失も検証損失も最初から最後までまったく動かなくなった",
+              "wrongReason": "治療後は 7.70 → 3.177 まで順調に下がり続けました。"
+            },
+            {
+              "id": "d",
+              "text": "ドロップアウトのおかげで検証損失が常に訓練損失のちょうど半分になった",
+              "wrongReason": "治療後も検証損失（3.177）は訓練損失（2.469）よりやや上ですが、ギャップが大幅に改善しました。"
+            }
+          ],
+          "answer": "a",
+          "hint": "ドロップアウトでわざと練習を難しくするので、訓練損失は少し高くなる代わりに本番（検証）が強くなります！",
+          "reasoning": "過学習対策（正則化）の目的は訓練損失を0にすることではなく、「未知データに対する検証損失を最小にすること」です。",
+          "steps": [
+            "治療前（6000ステップ）：訓練 `1.937`、検証 `3.465`（差 `1.53`、3000ステップ以降悪化）。",
+            "治療後（6000ステップ）：訓練 `2.469`、検証 `3.177`（差 `0.71`、最後まで改善継続）。"
+          ],
+          "altExample": "重りを背負って練習（ドロップアウト）すると練習タイム自体は少し落ちますが、重りを外した本番（`model.eval()`）でベスト記録が出るのと同じです。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q11",
+      "chapter": "10-training-tips",
+      "section": "治療3：ドロップアウトと重み減衰",
+      "sectionAnchor": "#s8",
+      "concept": "dropout-train-vs-eval-and-weight-decay",
+      "conceptLabel": "ドロップアウトの model.train() / model.eval() 切替と重み減衰",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "ドロップアウト（`nn.Dropout(0.3)`）を入れたモデルを検証・生成するとき、`model.eval()` を呼び忘れて学習モード（`model.train()`）のまま評価してしまうと何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "評価時にも毎回ランダムに30%のニューロンが 0 に休まされてしまい、同じモデル・同じデータなのに実行するたびに検証損失がぶれて本来の性能より悪く出る",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "検証データでモデルの重みが勝手に書き換わってしまう",
+              "wrongReason": "重みの更新には `loss.backward()` と `opt.step()` が必要なので、`model.train()` のままでも重み自体は書き換わりません。ドロップアウトがONのままになるのが問題です。"
+            },
+            {
+              "id": "c",
+              "text": "`model.eval()` を呼ばないと `with torch.no_grad():` が無効になる",
+              "wrongReason": "`model.eval()`（層の挙動切替）と `torch.no_grad()`（勾配記録の停止）は独立した別々の機能なので、評価時は**両方**セットで使います。"
+            },
+            {
+              "id": "d",
+              "text": "何も変わらない。`model.eval()` はコメントと同じ飾りである",
+              "wrongReason": "ドロップアウト（およびBatchNorm）を含むモデルでは、`eval()` と `train()` で出力が大きく変わります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "練習中（`train()`）はわざと3割休ませ、本番（`eval()`）は全員出席にします！",
+          "reasoning": "評価関数 `val_loss` の先頭で `model.eval()`、末尾で `model.train()` に戻すセットの書き方は、PyTorch実務の必須定型文です。",
+          "steps": [
+            "学習時（`model.train()`）：ランダムに30%を0にし、残りを `1 / 0.7` 倍して期待値を保つ。",
+            "評価時（`model.eval()`）：ドロップアウトをオフにして全ニューロンを使い、決定的に評価する。",
+            "評価後に学習を再開するなら、忘れずに `model.train()` へ戻す。"
+          ],
+          "altExample": "本文の「よくあるつまずき」でも、同じモデルなのに検証損失が毎回ぶれる原因として `model.eval()` 忘れを挙げています。"
+        },
+        {
+          "prompt": "重み減衰（`weight_decay=0.1`）が過学習を抑える仕組みとして、正しい説明はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "毎ステップ重みをわずかに 0 方向へ縮めることで、特定の訓練サンプルだけに極端に大きく反応するいびつな重みを防ぐ",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "重みが 0 に近いニューロンをどんどん大きい値へ引き伸ばす",
+              "wrongReason": "逆です。大きい重みほど強く 0 方向へ引き戻します（$w \\leftarrow (1 - \\eta \\lambda) w$）。"
+            },
+            {
+              "id": "c",
+              "text": "学習が進むにつれてモデルからランダムに層を1つずつ削除する",
+              "wrongReason": "層の数は変わりません。重みの絶対値が極端に大きくなるのを穏やかに抑えます。"
+            },
+            {
+              "id": "d",
+              "text": "検証データの一部を訓練データに自動で移動する",
+              "wrongReason": "検証データを訓練に混ぜるのはデータリーク（カンニング）であり厳禁です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "重みが大きすぎると「この1文だけ極端に反応する丸暗記」になりがちです。少しずつ 0 に寄せるブレーキをかけます。",
+          "reasoning": "重み減衰は第8章で触れた「正則化」の代表で、モデルが滑らかで一般的な特徴を学ぶように導きます。",
+          "steps": [
+            "毎ステップ $w \\leftarrow (1 - \\eta \\lambda) w$ のように少しだけ 0 へ縮める。",
+            "本当にデータ全体で役に立つ重みは勾配が支え続けるため残り、訓練データのノイズ暗記用の極端な重みは縮んで消える。"
+          ],
+          "altExample": "AdamW では `weight_decay=0.1` が LLM 事前学習でもよく使われる定番値です。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q12",
+      "chapter": "10-training-tips",
+      "section": "治療4：学習率スケジュール",
+      "sectionAnchor": "#s9",
+      "concept": "warmup-cosine-schedule-trace",
+      "conceptLabel": "ウォームアップ＋コサイン減衰 lr_at の値の変化予測",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "本文の学習率スケジュール関数 `lr_at` のウォームアップ期間と終了時の値を確認します。次のコードを実行すると何が表示されますか？",
+          "code": "import math\n\ndef lr_at(step, max_lr, total, warmup=200):\n    if step < warmup:\n        return max_lr * step / warmup\n    progress = (step - warmup) / (total - warmup)\n    return max_lr * 0.5 * (1 + math.cos(math.pi * progress))\n\nprint(round(lr_at(100, 2.0, 1000, warmup=200), 2), round(lr_at(200, 2.0, 1000, warmup=200), 2))",
+          "accept": ["1.0 2.0"],
+          "placeholder": "表示される2つの小数を入力（例：1.0 2.0）",
+          "hint": "`step=100` はウォームアップ（200）のちょうど半分なので `max_lr` の半分。`step=200` は `progress=0` なので `cos(0)=1` で `max_lr` です。",
+          "reasoning": "ウォームアップで `0` から `max_lr` まで直線的に立ち上がり、`step == warmup` でちょうど最大値 `max_lr` に到達します。",
+          "steps": [
+            "`step = 100 < 200`：`2.0 * 100 / 200 = 1.0`。",
+            "`step = 200`：`progress = 0.0` → `2.0 * 0.5 * (1 + cos(0)) = 2.0 * 0.5 * 2 = 2.0`。"
+          ],
+          "altExample": "もし `step = 0` なら `0.0` からスタートして徐々に歩幅を広げます。"
+        },
+        {
+          "prompt": "同じ `lr_at` 関数で、コサイン減衰のちょうど中間（`step=600`）と最終ステップ（`step=1000`）の値を計算します。次のコードの出力を予測してください。",
+          "code": "import math\n\ndef lr_at(step, max_lr, total, warmup=200):\n    if step < warmup:\n        return max_lr * step / warmup\n    progress = (step - warmup) / (total - warmup)\n    return max_lr * 0.5 * (1 + math.cos(math.pi * progress))\n\nprint(round(lr_at(600, 2.0, 1000, warmup=200), 2), round(lr_at(1000, 2.0, 1000, warmup=200), 2))",
+          "accept": ["1.0 0.0"],
+          "placeholder": "表示される2つの小数を入力（例：1.0 0.0）",
+          "hint": "`step=600` は `progress = 400/800 = 0.5` なので `cos(π/2) = 0`、`step=1000` は `progress = 1.0` なので `cos(π) = -1` です！",
+          "reasoning": "コサイン関数は `0 → π` のあいだで `1 → 0 → -1` と滑らかに下がるため、`0.5 * (1 + cos(π * progress))` は `1.0 → 0.5 → 0.0` の美しいS字減衰になります。",
+          "steps": [
+            "`step = 600`：`progress = 0.5` → `cos(π/2) = 0` → `2.0 * 0.5 * (1 + 0) = 1.0`。",
+            "`step = 1000`：`progress = 1.0` → `cos(π) = -1` → `2.0 * 0.5 * (1 - 1) = 0.0`。"
+          ],
+          "altExample": "実務では最後に完全な 0 ではなく `0.1 * max_lr` 程度まで下げる変種もよく使われます。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q13",
+      "chapter": "10-training-tips",
+      "section": "治療4：学習率スケジュール",
+      "sectionAnchor": "#s9",
+      "concept": "schedule-and-grad-clipping",
+      "conceptLabel": "ウォームアップ・コサイン減衰・勾配クリッピングの役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：学習率"],
+      "variants": [
+        {
+          "prompt": "学習率スケジュール（ウォームアップ＋コサイン減衰）と、勾配クリッピング `clip_grad_norm_(model.parameters(), 1.0)` それぞれの役割の組み合わせとして**正しい**のはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ウォームアップは初期の荒れた勾配での転倒を防ぎ、コサイン減衰は終盤に小股で谷底へ着地させ、勾配クリッピングは異常に巨大な勾配を向きを保ったまま上限 1.0 に縮めて爆発を防ぐ",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "勾配クリッピングは勾配が 1.0 を超えたパラメータを削除して 0 にリセットする処理である",
+              "wrongReason": "削除したり 0 にしたりするのではなく、勾配ベクトルの**向きはそのまま**に、全体の長さ（ノルム）だけを上限 `1.0` にスケーリングして縮めます。"
+            },
+            {
+              "id": "c",
+              "text": "ウォームアップは学習の最後に学習率を最大まで上げる処理である",
+              "wrongReason": "ウォームアップは学習の**最初**に0から徐々に上げる処理です。最後は減衰で小さくします。"
+            },
+            {
+              "id": "d",
+              "text": "AdamW を使う場合はウォームアップも勾配クリッピングもエラーになるため併用できない",
+              "wrongReason": "本文の `train` 関数および現代のほぼすべてのGPT学習で、AdamW＋ウォームアップ＋コサイン減衰＋勾配クリッピングは鉄板セットとして併用されます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「最初は慎重に（ウォームアップ）→ 最後はそっと着地（減衰）＋ 突然の巨大な勾配には安全ベルト（クリッピング）」です。",
+          "reasoning": "これら3つの安定化技を揃えることで、大きめの最大学習率（`2e-3` など）でも吹き飛ばずに速く深く下れるようになります。",
+          "steps": [
+            "ウォームアップ：初期化直後の荒れた勾配で暴走しないよう小股から開始。",
+            "コサイン減衰：終盤に谷底を飛び越えないよう歩幅を滑らかに縮小。",
+            "勾配クリッピング：全勾配のノルムが `max_norm=1.0` を超えたら比率縮小（安全ベルト）。"
+          ],
+          "altExample": "第13章のGPT事前学習でも `clip_grad_norm_(..., 1.0)` とウォームアップ＋コサイン減衰をそのまま使います。"
+        },
+        {
+          "prompt": "勾配クリッピング `clip_grad_norm_(model.parameters(), 1.0)` は学習ループのどこで呼ぶのが正しいですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`loss.backward()` の直後、`opt.step()` の直前",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`opt.zero_grad()` の直後、`loss.backward()` の前",
+              "wrongReason": "`backward()` の前はまだ勾配が 0（または `None`）なのでクリップする対象がありません。"
+            },
+            {
+              "id": "c",
+              "text": "`opt.step()` の後",
+              "wrongReason": "`opt.step()` の後では、すでに爆発した巨大な勾配でパラメータが吹き飛んでしまった後になってしまいます。"
+            },
+            {
+              "id": "d",
+              "text": "学習ループの外で、モデルを作る直前に1回だけ呼ぶ",
+              "wrongReason": "毎ステップの勾配に対して安全ベルトを掛ける必要があるため、ループ内で毎回呼びます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "勾配が計算された後（`backward()` 後）、その勾配で重みを動かす前（`step()` 前）にチェックして縮めます！",
+          "reasoning": "`zero_grad()` → `backward()` → `clip_grad_norm_()` → `step()` の順番を体に覚えさせましょう。",
+          "steps": [
+            "`opt.zero_grad()`：前回の勾配を消す。",
+            "`loss.backward()`：今回の勾配を計算する。",
+            "`clip_grad_norm_(..., 1.0)`：大きすぎる勾配を縮める。",
+            "`opt.step()`：安全になった勾配でパラメータを更新する。"
+          ],
+          "altExample": "本文の `train` 関数（249〜252行目）でも、まさにこの4行の並びになっています。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q14",
+      "chapter": "10-training-tips",
+      "section": "学習したモデルを保存する",
+      "sectionAnchor": "#s11",
+      "concept": "state-dict-save-load",
+      "conceptLabel": "state_dict による保存・読み込みの仕組みと注意点",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：class と nn.Module"],
+      "variants": [
+        {
+          "prompt": "`torch.save(model.state_dict(), path)` で保存したファイルを後から読み込むとき、`loaded = MLP(V, T, ...)` と**同じ設計図（同じ `d, H, T, V`）でモデルを作り直してから `loaded.load_state_dict(...)` を呼ぶ必要がある**理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`state_dict()` に保存されるのはパラメータの「名前 → テンソル（数値の中身）」の辞書だけであり、クラスの設計図や構造自体は保存されないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`state_dict()` は損失の履歴リストしか保存しないから",
+              "wrongReason": "`state_dict()` はモデルの全パラメータ（重み・バイアス・LayerNormの $\\gamma, \\beta$ など）の数値を丸ごと保存します。"
+            },
+            {
+              "id": "c",
+              "text": "読み込み直後に必ず最初から再学習させるため",
+              "wrongReason": "学習済みの中身を復元してすぐ推論や追加学習に使うための機能です。再学習は不要です。"
+            },
+            {
+              "id": "d",
+              "text": "`dropout` の値だけは `0.0` に戻さないとエラーになるから",
+              "wrongReason": "`Dropout` には学習パラメータがないため、`dropout` の値の違いは `state_dict` の読み込みエラーになりません（`d, H, T, V` の不一致でエラーになります）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "ゲームのセーブデータ（数値だけ）を読み込むには、同じゲーム本体（クラス定義とハイパーパラメータ）が必要です！",
+          "reasoning": "`state_dict()` 形式で保存すると、Python のクラス定義に依存せず軽量かつ安全に重みを受け渡しできるため、PyTorch 公式でも推奨されています。",
+          "steps": [
+            "保存：`torch.save(model_b.state_dict(), \"mlp_kokoro.pt\")`（中身の数値辞書だけ保存）。",
+            "復元①：`loaded = MLP(V, T, dropout=0.3)`（同じ構造の空の入れ物を用意）。",
+            "復元②：`loaded.load_state_dict(torch.load(\"mlp_kokoro.pt\"))`（数値を流し込む）。"
+          ],
+          "altExample": "構造（`H=256` と `H=512` など）が食い違うと `RuntimeError: Error(s) in loading state_dict` で形不一致を教えてくれます。"
+        }
+      ]
+    },
+    {
+      "id": "ch10-q15",
+      "chapter": "10-training-tips",
+      "section": "学習の診察表",
+      "sectionAnchor": "#s12",
+      "concept": "training-diagnostics-and-overfit-one-batch",
+      "conceptLabel": "学習トラブルの診察手順と「まず1バッチで過学習させる」検証法",
+      "level": 3,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第7章：勾配リセットと学習率", "第10章：学習の診察表"],
+      "variants": [
+        {
+          "prompt": "新しいニューラルモデルを学習させ始めたとき、①「損失がまったく下がらない」、②「途中で損失が `nan` になった」という2つの症状が出たら、それぞれ何を疑ってどう処置するか説明してください。また、本番学習の前に「まず1バッチだけで過学習させてみる」のはなぜ有効かも説明してください。",
+          "modelAnswer": "①損失がまったく下がらないときは、学習率が小さすぎるか、`zero_grad()`・`requires_grad` 忘れや勾配が切れているバグを疑い、学習率を上げてコードを見直します。②途中で `nan` になったときは学習率が大きすぎるか勾配爆発が原因なので、学習率を下げ、勾配クリッピングやウォームアップ・LayerNormを入れます。また本番前に1バッチだけで過学習させて訓練損失がほぼ0まで下がるか確認すれば、「丸暗記すらできない＝モデルや学習ループにバグがある」ことを数秒で見抜けます。",
+          "hint": "①下がらない（lr過小／コードバグ）、②nan（lr過大／勾配爆発→lr低下・クリッピング・ウォームアップ）、③1バッチ過学習テスト（バグ切り分け）の3点をまとめましょう。",
+          "reasoning": "「診察表」と「1バッチ過学習テスト」を手に入れておけば、第12〜13章で自分でGPTを実装するときも迷わず原因を突き止められます。",
+          "steps": [
+            "症状①（下がらない）：`lr` が小さすぎる、または `zero_grad()` / `backward()` / `step()` 周辺のバグを疑う。",
+            "症状②（`nan`）：`lr` 過大・勾配爆発 → `lr` を下げる＋勾配クリッピング＋ウォームアップ＋LayerNorm。",
+            "1バッチ過学習テスト：極小データで損失が0近くまで落ちなければ、ハイパーパラメータ以前に実装バグがあると即座に切り分けられる。"
+          ],
+          "altExample": "プロの研究者も、何時間もかかるGPU学習を回す前に必ず「初期損失 $\\approx \\log V$」と「1バッチ過学習」の2つを1分で確認します。",
+          "selfCheckCriteria": [
+            "「損失が下がらない」原因（lr過小やバグ）と対策を書けた",
+            "「`nan` になる」原因（lr過大・勾配爆発）と対策（lr低下・勾配クリッピング・ウォームアップ等）を書けた",
+            "「1バッチで過学習させる」目的（モデルや学習ループの実装バグの早期発見）を説明できた"
+          ]
+        }
+      ]
+    }
+  ]
+}

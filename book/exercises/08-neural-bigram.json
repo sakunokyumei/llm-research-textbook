@@ -1,0 +1,842 @@
+{
+  "chapter": "08-neural-bigram",
+  "exercises": [
+    {
+      "id": "ch08-q01",
+      "chapter": "08-neural-bigram",
+      "section": "準備",
+      "sectionAnchor": "#s1",
+      "concept": "next-char-shift-slicing",
+      "conceptLabel": "1文字ずらし教師データ xs = data[:-1], ys = data[1:] の仕組み",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第2章：トークンID列", "第4章：bigramのペア"],
+      "variants": [
+        {
+          "prompt": "文章のID列から「今の文字 `xs`」と「次の文字 `ys`」のペアを作るスライスを確認します。次のコードを実行すると何が表示されますか？",
+          "code": "data = [10, 20, 30, 40]\nxs = data[:-1]\nys = data[1:]\nprint(xs, ys)",
+          "accept": ["[10, 20, 30] [20, 30, 40]"],
+          "placeholder": "表示される出力を入力",
+          "hint": "`[:-1]` は「最後の1個を除いた全部」、`[1:]` は「先頭の1個を除いた全部」です。",
+          "reasoning": "1文字ずらして並べるだけで、長さ $N$ の文章から $N - 1$ 組の「入力 → 正解」ペアを一瞬で作れます。",
+          "steps": [
+            "`data[:-1]` → 末尾の `40` を除いた `[10, 20, 30]`。",
+            "`data[1:]` → 先頭の `10` を除いた `[20, 30, 40]`。",
+            "ペアは `(10→20), (20→30), (30→40)` の3組になる。"
+          ],
+          "altExample": "本文の `train_data`（長さ 146,220）に対して `xs, ys = train_data[:-1], train_data[1:]` とすると、146,219組の教師データが作れます。"
+        },
+        {
+          "prompt": "次のコードで `pairs` を表示すると何が出力されますか？",
+          "code": "chars = [\"先\", \"生\", \"と\", \"私\"]\npairs = list(zip(chars[:-1], chars[1:]))\nprint(len(pairs), pairs[0])",
+          "accept": ["3 ('先', '生')"],
+          "placeholder": "表示される出力を入力",
+          "hint": "長さ4のリストから1文字ずらしのペアを作ると、ペアは `4 - 1 = 3` 個になります。",
+          "reasoning": "最後の文字「私」には次の文字がないため、ペアの総数は必ず元の文字数より1少なくなります。",
+          "steps": [
+            "`chars[:-1]` は `['先', '生', 'と']`。",
+            "`chars[1:]` は `['生', 'と', '私']`。",
+            "`zip` で組にすると3個、先頭は `('先', '生')`。"
+          ],
+          "altExample": "長さ $N$ の文章から作れるbigram教師データは常に $N - 1$ 組です。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q02",
+      "chapter": "08-neural-bigram",
+      "section": "モデル：中身がでたらめな表",
+      "sectionAnchor": "#s2",
+      "concept": "table-lookup-equals-onehot-matmul",
+      "conceptLabel": "W[x] の行取り出しと one-hot × W の数学的一致",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第6章：one-hot × 行列"],
+      "variants": [
+        {
+          "prompt": "ニューラルbigramでは、形 `[V, V]` のロジットの表 `W` から `logits = W[x]` で次の文字の点数を取り出しています。これは第6章で学んだ行列の掛け算とどのような関係にありますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`x` を one-hot ベクトル（形 `[B, V]`）にして `one_hot(x) @ W` を計算するのと数学的に完全に同じ結果になる（ただし `W[x]` のほうが無駄な 0 の掛け算を省けて圧倒的に速い）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`W[x]` は `W` の全要素を足し合わせる計算なので、`one_hot(x) @ W` とはまったく別の結果になる",
+              "wrongReason": "第6章で確認した通り、one-hot ベクトルに右から行列 `W` を掛けると、ちょうど `1` が立っている番号の行がそのまま取り出されます。"
+            },
+            {
+              "id": "c",
+              "text": "`W[x]` を使うと自動微分（`backward()`）が動かなくなる",
+              "wrongReason": "PyTorch のインデックス参照 `W[x]` は完全に微分可能で、選ばれた行にだけ正しく勾配が流れます。"
+            },
+            {
+              "id": "d",
+              "text": "`W[x]` はすでに確率（合計1）を返すので、softmax は不要になる",
+              "wrongReason": "`W` の中身は生の点数（ロジット）であり、合計1にはなっていません。確率にするには `F.softmax` が必要です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第6章の「one-hot × 表 ＝ 表の行の取り出し」を思い出しましょう！",
+          "reasoning": "ニューラルbigramは「入力を one-hot にして1層の線形変換（重み行列 `W`）に通す最小のニューラルネットワーク」そのものです。",
+          "steps": [
+            "`one_hot(x)` は `x` 番目だけ `1`、残り $V-1$ 個が `0` のベクトル。",
+            "`one_hot(x) @ W` を計算すると、`x` 行目に `1`、他の行に `0` を掛けて足すので、`W[x]` そのままになる。",
+            "コードでは巨大な one-hot 行列を作らずに `W[x]` と書くことで高速かつ省メモリに実行できる。"
+          ],
+          "altExample": "第9章の `nn.Embedding`（埋め込み層）も、これとまったく同じ「行の取り出し＝ one-hot × 表」の仕組みを使います。"
+        },
+        {
+          "prompt": "表 `W` を `torch.zeros((V, V), requires_grad=True)` と**全部 0** で初期化した直後、`F.softmax(W[x], dim=1)` で得られる各文字の確率はどうなりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "$e^0 = 1$ なので、すべての文字が均等に確率 $1 / V$ になる（何も知らないまっさらな一様分布）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "全部 0 なので、すべての文字の確率が `0.0` になる",
+              "wrongReason": "softmax は $e^{z_i} / \\sum_j e^{z_j}$ なので、$z_i = 0$ のとき $e^0 = 1$ となり、$1 / V$ になります。"
+            },
+            {
+              "id": "c",
+              "text": "ゼロ除算エラー（`ZeroDivisionError`）が起きる",
+              "wrongReason": "分母は $\\sum_{j=1}^V e^0 = V > 0$ なのでゼロ除算にはなりません。"
+            },
+            {
+              "id": "d",
+              "text": "0番目の文字だけ確率 `1.0` になり、他は `0.0` になる",
+              "wrongReason": "ロジットがすべて等しい `0` なので、全文字が同じ重み $e^0 = 1$ を持ち、均等な確率 $1/V$ になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第3章で学んだ $e^0 = 1$ を思い出しましょう。分子が `1`、分母は `1` を $V$ 回足したもの！",
+          "reasoning": "ロジットが全部0なら、どの文字にもえこひいきのない完璧な一様分布 $p_i = 1/V$ から学習をスタートできます。",
+          "steps": [
+            "全ロジット $z_j = 0$ → $e^{z_j} = e^0 = 1$。",
+            "分母の合計：$\\sum_{j=1}^V 1 = V$。",
+            "各文字の確率：$p_i = 1 / V$（$V=2061$ なら約 `0.000485`）。"
+          ],
+          "altExample": "本文でも `probs[0, stoi[\"生\"]]` が `0.0004852... = 1 / 2061` になることを確認しました。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q03",
+      "chapter": "08-neural-bigram",
+      "section": "モデル：中身がでたらめな表",
+      "sectionAnchor": "#s2",
+      "concept": "bigram-table-param-count",
+      "conceptLabel": "ニューラルbigramのパラメータ数 V × V の計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第6章：行列のshape"],
+      "variants": [
+        {
+          "prompt": "語彙数が $V = 100$ 文字のテキストでニューラルbigramのロジット表 `W = torch.zeros((V, V))` を作りました。このモデルのパラメータ数はいくつですか？",
+          "answer": { "value": 10000, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "形が `[100, 100]` の表にはマス目が `100 × 100` 個あります。",
+          "reasoning": "直前の文字（$V$ 通り）それぞれに対して次の文字（$V$ 通り）のロジットを持つため、パラメータ数は $V^2$ です。",
+          "steps": [
+            "`W.shape` は `[100, 100]`。",
+            "パラメータ数 `W.numel()` は $100 \\times 100 = 10000$。"
+          ],
+          "altExample": "『こころ』（$V = 2061$）では $2061 \\times 2061 = 4,247,721$ 個（約425万個）のパラメータになります。"
+        },
+        {
+          "prompt": "語彙数が $V = 50$ 文字のとき、ニューラルbigramのパラメータ数 `W.numel()` はいくつですか？",
+          "answer": { "value": 2500, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "$V \\times V = 50 \\times 50$ を計算します。",
+          "reasoning": "bigram表のサイズは語彙数の2乗 $V^2$ に比例して増えます。",
+          "steps": [
+            "`W.shape` は `[50, 50]`。",
+            "パラメータ数は $50 \\times 50 = 2500$。"
+          ],
+          "altExample": "もし語彙が15万語（Qwenなど）だと $V^2$ は225億個にもなってしまい、bigram表すら巨大すぎて持てなくなります。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q04",
+      "chapter": "08-neural-bigram",
+      "section": "損失：交差エントロピー",
+      "sectionAnchor": "#s3",
+      "concept": "f-cross-entropy-raw-logits",
+      "conceptLabel": "F.cross_entropy が融合する3処理と「生のロジットを渡す」鉄則",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：softmax", "第5章：交差エントロピー損失"],
+      "variants": [
+        {
+          "prompt": "`F.cross_entropy(logits, targets)` が内部でひとまとめに実行している3つの処理と、第1引数に渡すべきものの組み合わせとして**正しい**のはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "①オーバーフロー安全な softmax → ②正解クラスの確率の $-\\log$ → ③バッチ平均。第1引数には必ず **softmax 前の生のロジット** を渡す",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "①二乗誤差 → ②平方根 → ③合計。第1引数には必ず softmax 後の確率を渡す",
+              "wrongReason": "二乗誤差ではなく分類用の交差エントロピー（softmax ＋ $-\\log$ ＋ 平均）であり、softmax 後の確率を渡すと2重 softmax のバグになります。"
+            },
+            {
+              "id": "c",
+              "text": "①正解クラスの確率の $-\\log$ だけを行う。だから事前に必ず `F.softmax` を掛けて確率にしてから渡す必要がある",
+              "wrongReason": "`F.cross_entropy` は内部で `log_softmax` を実行するため、事前に `F.softmax` を掛けてしまうと **softmax を2回掛ける** 定番バグになります！"
+            },
+            {
+              "id": "d",
+              "text": "①勾配の計算（`backward()`）→ ②パラメータの更新 → ③勾配リセット。損失値は返さない",
+              "wrongReason": "`F.cross_entropy` は損失テンソル（スカラー）を返すだけで、逆伝播や更新は行いません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`F.cross_entropy` の中身は「`log_softmax` ＋ 正解の取り出し（マイナス符号）＋ 平均」です。",
+          "reasoning": "softmax と log を別々に計算すると非常に小さい確率で $\\log(0) = -\\infty$ の数値不安定が起きやすいため、`F.cross_entropy` は生のロジットから一気に安定計算する設計になっています。",
+          "steps": [
+            "ステップ1：生のロジット `logits`（形 `[B, V]`）に安全な `log_softmax` を適用。",
+            "ステップ2：各行 $i$ について正解番号 `targets[i]` の値を取り出し、符号を反転（$-\\log p_i$）。",
+            "ステップ3：バッチ $B$ 個ぶんの平均をスカラーとして返す。"
+          ],
+          "altExample": "もし誤って確率 `[0.99, 0.01]` を `F.cross_entropy` に渡すと、さらに softmax が掛かって `[0.73, 0.27]` になり、正解確率 99% なのに損失が 0.32 もあるという壊れた学習になります。"
+        },
+        {
+          "prompt": "あるモデルが3クラス分類で正解（クラス0）にほぼ確信を持ち、softmax 後の確率 `probs = [0.99, 0.005, 0.005]` を得ました。もしうっかり `F.cross_entropy(probs, target=0)` と**確率をそのまま渡してしまう**と何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "内部でもう一度 softmax が掛かってしまい、本来の損失（約 `0.01`）よりはるかに大きい誤った損失（約 `0.56`）になって正しく学習できない",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorchが自動で「これはすでに確率だ」と判別して softmax を飛ばしてくれる",
+              "wrongReason": "PyTorchは渡されたテンソルがロジットか確率かを自動判別できません。常に生のロジットとして処理します。"
+            },
+            {
+              "id": "c",
+              "text": "損失がちょうど `0.0` になる",
+              "wrongReason": "`probs` は `[0, 1]` の狭い範囲に押し込められているため、再 softmax すると確率分布が平坦になり、損失は 0 から遠く離れます（約 0.56）。"
+            },
+            {
+              "id": "d",
+              "text": "即座に `ValueError` でプログラムが止まる",
+              "wrongReason": "エラーは出ずにそのまま誤った損失で学習が回ってしまうため、非常に気づきにくいバグです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`[0.99, 0.005, 0.005]` をロジットとしてさらに softmax すると $e^{0.99} / (e^{0.99} + e^{0.005} + e^{0.005}) \\approx 0.57$ になってしまいます！",
+          "reasoning": "「モデルの最後の層では softmax を付けずに生のロジットを返し、`F.cross_entropy` にそのまま渡す」が PyTorch の鉄則です。",
+          "steps": [
+            "本来の損失：$-\\log(0.99) \\approx 0.010$。",
+            "誤って `probs` に再 softmax：$p'_0 = e^{0.99} / (e^{0.99} + 2e^{0.005}) \\approx 2.69 / 4.70 \\approx 0.572$。",
+            "誤った損失：$-\\log(0.572) \\approx 0.558$（いくら学習しても損失が 0.55 以下に下がらない！）。"
+          ],
+          "altExample": "第9章の `MLP.forward` でも、最後の `self.fc2(h)` に softmax を掛けず生のロジットを返しているのはこのためです。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q05",
+      "chapter": "08-neural-bigram",
+      "section": "損失：交差エントロピー",
+      "sectionAnchor": "#s3",
+      "concept": "initial-uniform-loss-log-v",
+      "conceptLabel": "初期化直後の理想損失 log V の計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第5章：自然対数 log"],
+      "variants": [
+        {
+          "prompt": "語彙が $V = 100$ 文字のモデルを、ロジットが全部 0 の状態から学習し始めました。最初の交差エントロピー損失はおよそいくつになるはずですか？（自然対数 $\\log 100$ を小数第2位までで入力、誤差 $\\pm 0.05$ まで正解）",
+          "answer": { "value": 4.61, "tolerance": 0.05 },
+          "placeholder": "小数で入力（例：4.61）",
+          "hint": "全文字が等確率 $1/100$ なので、損失は $-\\log(1/100) = \\log 100$ です。$e^{4.605} \\approx 100$ をヒントに！",
+          "reasoning": "すべての文字の確率が $1/V$ のとき、どの文字が正解であっても $-\\log(1/V) = \\log V$ になります。",
+          "steps": [
+            "ロジットが全部 0 → どの文字の確率も $p = 1 / 100 = 0.01$。",
+            "交差エントロピー損失：$-\\log(1 / 100) = \\log 100$。",
+            "$\\log 100 = 2 \\times \\log 10 \\approx 2 \\times 2.3026 \\approx 4.605$（小数第2位で `4.61`）。"
+          ],
+          "altExample": "元の章末クイズの検算です。最初の損失がこの $\\log V$ から大きくずれていたら初期化のバグを疑います（第10章）。"
+        },
+        {
+          "prompt": "語彙が $V = 10$ 文字のモデルをロジット全部 0 で初期化したとき、最初の損失 $\\log 10$ はおよそいくつになりますか？（小数第2位まで、誤差 $\\pm 0.05$ まで正解）",
+          "answer": { "value": 2.3, "tolerance": 0.05 },
+          "placeholder": "小数で入力（例：2.30）",
+          "hint": "$e^2 \\approx 7.39$、$e^3 \\approx 20.09$ なので、$e^x = 10$ となる $x$ は `2.3` 付近です。",
+          "reasoning": "自然対数 $\\log 10 \\approx 2.3026$ はよく使う基準値として覚えておくと、10倍ごとの $\\log V$ が暗算できます（$V=100 \\to 4.61$, $V=1000 \\to 6.91$）。",
+          "steps": [
+            "全10文字が等確率 $1/10$。",
+            "$-\\log(1/10) = \\log 10 \\approx 2.3026$。"
+          ],
+          "altExample": "語彙数が 10 倍になるごとに、初期損失 $\\log V$ は約 `2.30` ずつ増えます。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q06",
+      "chapter": "08-neural-bigram",
+      "section": "損失：交差エントロピー",
+      "sectionAnchor": "#s3",
+      "concept": "fancy-indexing-targets",
+      "conceptLabel": "probs[arange(B), y] の「各行から正解列を取り出す」動き",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第6章：2つのリストで同時に選ぶ"],
+      "variants": [
+        {
+          "prompt": "本文の `probs[torch.arange(len(y)), y]` を純Pythonのリスト内包表記で書いた次のコードの出力を予測してください。",
+          "code": "probs = [\n    [0.1, 0.7, 0.2],\n    [0.6, 0.3, 0.1],\n    [0.2, 0.2, 0.6],\n]\ny = [1, 0, 2]\np_correct = [probs[i][y[i]] for i in range(len(y))]\nprint(p_correct)",
+          "accept": ["[0.7, 0.6, 0.6]"],
+          "placeholder": "表示されるリストを入力",
+          "hint": "0行目の1列目、1行目の0列目、2行目の2列目を順に取り出します。",
+          "reasoning": "バッチ内の各サンプル $i$ について、「予測確率表の $i$ 行目・正解番号 `y[i]` 列目」をまとめて抜き出す操作です。",
+          "steps": [
+            "`i=0, y[0]=1` → `probs[0][1] = 0.7`。",
+            "`i=1, y[1]=0` → `probs[1][0] = 0.6`。",
+            "`i=2, y[2]=2` → `probs[2][2] = 0.6`。"
+          ],
+          "altExample": "PyTorchでは `probs[torch.arange(3), y]` と1行で書け、ループなしでGPU並列に実行されます。"
+        },
+        {
+          "prompt": "次のコードの出力を予測してください。",
+          "code": "table = [[10, 20, 30], [40, 50, 60]]\ncols = [2, 0]\npicked = [table[r][c] for r, c in zip(range(len(cols)), cols)]\nprint(picked)",
+          "accept": ["[30, 40]"],
+          "placeholder": "表示されるリストを入力",
+          "hint": "0行目の2列目と、1行目の0列目を取り出します。",
+          "reasoning": "行番号 `[0, 1]` と列番号 `[2, 0]` をペアにして `(0, 2)` と `(1, 0)` の要素を抜き出しています。",
+          "steps": [
+            "`(r=0, c=2)` → `table[0][2] = 30`。",
+            "`(r=1, c=0)` → `table[1][0] = 40`。"
+          ],
+          "altExample": "もし `table[:, cols]` と書いてしまうと「全行の2列目と0列目（2×2の表）」になってしまうので、行番号 `arange` とペアで指定するのがポイントです。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q07",
+      "chapter": "08-neural-bigram",
+      "section": "損失：交差エントロピー",
+      "sectionAnchor": "#s3",
+      "concept": "impl-cross-entropy-from-logits",
+      "conceptLabel": "【自力実装】生のロジットから交差エントロピー損失を計算する関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：安全なsoftmax", "第5章：交差エントロピー"],
+      "variants": [
+        {
+          "prompt": "バッチ分の生のロジット `logits_batch`（2次元リスト `[B, V]`）と正解IDリスト `targets`（長さ `B`）を受け取り、オーバーフロー安全な softmax → 正解確率の $-\\log$ → バッチ平均 を計算して返す `cross_entropy_from_logits(logits_batch, targets)` を標準ライブラリ `math` だけで実装してください。",
+          "starterCode": "import math\n\ndef cross_entropy_from_logits(logits_batch, targets):\n    # 各サンプル (row, t) について:\n    # 1. m = max(row) を引いて安全な exps = [math.exp(z - m) for z in row]\n    # 2. p_t = exps[t] / sum(exps)\n    # 3. loss_i = -math.log(p_t) を足し上げ、最後に len(targets) で割って返す\n    pass",
+          "solutionCode": "import math\n\ndef cross_entropy_from_logits(logits_batch, targets):\n    total = 0.0\n    for row, t in zip(logits_batch, targets):\n        m = max(row)\n        exps = [math.exp(z - m) for z in row]\n        p_t = exps[t] / sum(exps)\n        total += -math.log(p_t)\n    return total / len(targets)",
+          "colabCheck": "import math\n# 1. 全ロジット0なら log(V)\nl0 = cross_entropy_from_logits([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [0, 2])\nassert abs(l0 - math.log(3)) < 1e-9\n# 2. 正解ロジットが大きければ損失は小さい\nl1 = cross_entropy_from_logits([[10.0, 0.0, 0.0], [0.0, 10.0, 0.0]], [0, 1])\nassert l1 < 0.001\n# 3. 巨大な定数を足してもオーバーフローせず同じ値（平行移動不変性）\nl_a = cross_entropy_from_logits([[2.0, 1.0, 0.0]], [0])\nl_b = cross_entropy_from_logits([[1002.0, 1001.0, 1000.0]], [0])\nassert abs(l_a - l_b) < 1e-9\nprint(\"ALL PASSED\")",
+          "hint": "各行 `row` ごとに `m = max(row)` を引いてから `math.exp(z - m)` を計算すれば、1000超えのロジットでもオーバーフローしません。",
+          "reasoning": "この関数は PyTorch の `F.cross_entropy(logits, targets)` が中でやっている計算（safe softmax + NLL + mean）と数学的にまったく同じです！",
+          "steps": [
+            "`zip(logits_batch, targets)` で各サンプルのロジット行 `row` と正解 `t` を取り出す。",
+            "`m = max(row)` を引いて `exps` を作り、`p_t = exps[t] / sum(exps)` で正解確率を得る。",
+            "`-math.log(p_t)` を合計し、サンプル数 `len(targets)` で割って返す。"
+          ],
+          "altExample": "さらに数値精度を極める実装では `-( (row[t] - m) - math.log(sum(exps)) )`（log-sum-exp トリック）を使い、極小確率でも `log(0)` を回避します。",
+          "selfCheckCriteria": [
+            "全0ロジットで `math.log(3)` に一致した",
+            "正解ロジットが大きいときに損失が 0.001 未満になった",
+            "`[1002, 1001, 1000]` でもオーバーフローせず `[2, 1, 0]` と一致した"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch08-q08",
+      "chapter": "08-neural-bigram",
+      "section": "損失：交差エントロピー",
+      "sectionAnchor": "#s3",
+      "concept": "impl-verify-initial-uniform-loss",
+      "conceptLabel": "【自力実装】語彙数 V での初期損失 = log V の検証関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第5章：でたらめモデルの損失 log V"],
+      "variants": [
+        {
+          "prompt": "語彙数 `V` を受け取り、長さ `V` の全0ロジット `[0.0] * V` から安全な softmax と $-\\log(p_0)$ で初期損失を計算する関数 `uniform_init_loss(V)` を純Pythonで実装し、複数の語彙数（10, 100, 2061）で `math.log(V)` と一致することを検証してください。",
+          "starterCode": "import math\n\ndef uniform_init_loss(V):\n    # 1. logits = [0.0] * V を作る\n    # 2. m = max(logits) を引いて softmax 確率 probs を計算する\n    # 3. どの文字でも同じ確率なので -math.log(probs[0]) を返す\n    pass",
+          "solutionCode": "import math\n\ndef uniform_init_loss(V):\n    logits = [0.0] * V\n    m = max(logits)\n    exps = [math.exp(z - m) for z in logits]\n    total = sum(exps)\n    p0 = exps[0] / total\n    return -math.log(p0)",
+          "colabCheck": "import math\nfor V in [2, 10, 100, 2061]:\n    got = uniform_init_loss(V)\n    expected = math.log(V)\n    assert abs(got - expected) < 1e-9, f\"V={V}: {got} != {expected}\"\nassert abs(uniform_init_loss(2061) - 7.63094658) < 1e-6\nprint(\"ALL PASSED\")",
+          "hint": "`logits = [0.0] * V` のあと `exps = [math.exp(z - m) for z in logits]`、`p0 = exps[0] / sum(exps)`、`-math.log(p0)` を返します。",
+          "reasoning": "語彙数 `V` のどんな言語モデルでも、学習開始前の「健全な初期損失」は常に $\\log V$ です。この検算は第10章・第13章のデバッグでも毎回使います。",
+          "steps": [
+            "全0のロジット列 `[0.0] * V` を作成。",
+            "softmax すると `p0 = 1.0 / V`。",
+            "`-math.log(1.0 / V) = math.log(V)` を返し、`V = 2, 10, 100, 2061` で一致を確認。"
+          ],
+          "altExample": "『こころ』（`V=2061`）なら `7.631`、Qwen2.5（`V=151936`）なら $\\log(151936) \\approx 11.93$ が初期損失の目安です。",
+          "selfCheckCriteria": [
+            "`V = 2, 10, 100, 2061` のすべてで `math.log(V)` と誤差 $10^{-9}$ 未満で一致した",
+            "`V = 2061` で本文の `7.631` と一致することを確認した"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch08-q09",
+      "chapter": "08-neural-bigram",
+      "section": "学習：ミニバッチで坂を下る",
+      "sectionAnchor": "#s4",
+      "concept": "five-step-neural-training-loop",
+      "conceptLabel": "ニューラル学習ループ5ステップ（forward → loss → zero_grad → backward → step）",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：学習ループの基本4ステップ"],
+      "variants": [
+        {
+          "prompt": "ニューラルネットワークの1ステップの学習ループとして、**正しい順番**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "①順伝播（ロジット計算）→ ②損失計算（`F.cross_entropy`）→ ③勾配リセット（`W.grad = None`）→ ④逆伝播（`loss.backward()`）→ ⑤更新（`no_grad` 内で `W -= lr * W.grad`）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "①逆伝播（`loss.backward()`）→ ②勾配リセット（`W.grad = None`）→ ③更新（`W -= lr * W.grad`）→ ④順伝播",
+              "wrongReason": "`backward()` の直後に `W.grad = None` をすると、せっかく計算した勾配を消してから更新しようとしてエラーになります！"
+            },
+            {
+              "id": "c",
+              "text": "①順伝播 → ②更新（`W -= lr * W.grad`）→ ③損失計算 → ④逆伝播",
+              "wrongReason": "まだ今回の損失と勾配を計算する前に更新してしまっています。"
+            },
+            {
+              "id": "d",
+              "text": "①勾配リセット → ②更新 → ③順伝播 → ④損失計算（`backward()` は不要）",
+              "wrongReason": "`loss.backward()` を呼ばなければ勾配が一切計算されず、学習は進みません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「予測 → 採点（損失）→ 前回の勾配を消す → 今回の勾配を測る → 坂を下る」の流れです。",
+          "reasoning": "勾配リセットは「`backward()` の前」か「`step()` の後」に置きます。`backward()` と `step()` の間に置いてしまうと勾配が消えてしまうので絶対NGです。",
+          "steps": [
+            "① 順伝播：`logits = W[xs[ix]]`。",
+            "② 損失：`loss = F.cross_entropy(logits, ys[ix])`。",
+            "③ 勾配リセット：`W.grad = None`（`W.grad.zero_()` より省メモリ）。",
+            "④ 逆伝播：`loss.backward()`。",
+            "⑤ 更新：`with torch.no_grad(): W -= lr * W.grad`。"
+          ],
+          "altExample": "第9章以降のオプティマイザ記法でも `loss = ...; optimizer.zero_grad(); loss.backward(); optimizer.step()` とまったく同じ順番です。"
+        },
+        {
+          "prompt": "第8章で `W.grad.zero_()` の代わりに `W.grad = None` を使っている理由として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "勾配をリセットする効果は同じだが、0を書き込む手間とメモリ消費を減らせるため、PyTorchで推奨されているから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`W.grad = None` にするとパラメータ `W` の中身もすべて 0 にリセットされるから",
+              "wrongReason": "`W.grad` は勾配の入れ物であり、`W` の値そのものは変わりません。"
+            },
+            {
+              "id": "c",
+              "text": "2次元テンソルでは `.grad.zero_()` がエラーになるから",
+              "wrongReason": "2次元でも `.grad.zero_()` は動きます。速度・メモリ面で `= None` のほうが有利だから使われます。"
+            },
+            {
+              "id": "d",
+              "text": "`W.grad = None` にすると次の `loss.backward()` を呼ばなくて済むから",
+              "wrongReason": "次の `loss.backward()` を呼ぶことで新しい勾配テンソルが作られます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "0のテンソルを保持し続ける代わりに、いったん空（`None`）にして次の `backward()` で作り直す発想です。",
+          "reasoning": "`optimizer.zero_grad(set_to_none=True)` もこれと同じ仕組みで、PyTorch 2系ではデフォルト動作になっています。",
+          "steps": [
+            "`W.grad.zero_()`：既存の勾配テンソルに全要素 0 を書き込む。",
+            "`W.grad = None`：古い勾配への参照を外し、次の `backward()` で新しく作る。",
+            "どちらも「前のステップの勾配が累積するのを防ぐ」効果は同じ。"
+          ],
+          "altExample": "なお初回ステップは `W.grad` がまだ `None` なので、`W.grad = None` なら初回でも `AttributeError` にならず安全です。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q10",
+      "chapter": "08-neural-bigram",
+      "section": "学習：ミニバッチで坂を下る",
+      "sectionAnchor": "#s4",
+      "concept": "minibatch-sgd-and-randint",
+      "conceptLabel": "ミニバッチSGDの利点と torch.randint の (1024,) の意味",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "全14万件のデータで毎回損失を計算する代わりに、毎回ランダムに1024件だけ選ぶ **ミニバッチ確率的勾配降下法（SGD）** を使う最大の理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "1ステップの計算が圧倒的に軽くなり、同じ時間で何十〜何百倍もの回数パラメータを更新できるから（個々のぶれは平均すると正しい方向を向く）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "1024件だけ使えば残りの14万件は一度も学習に使う必要がないから",
+              "wrongReason": "毎回ランダムに選び直すため、何百ステップも回すうちに訓練データ全体が何度も使われます。"
+            },
+            {
+              "id": "c",
+              "text": "ミニバッチにすると訓練損失のぶれが完全にゼロになり、一直線に下がるから",
+              "wrongReason": "むしろ一部だけ選ぶため訓練損失は少しガタガタぶれます。しかし計算の軽さによる更新回数の多さが圧倒的に勝ります。"
+            },
+            {
+              "id": "d",
+              "text": "PyTorchの `F.cross_entropy` は最大1024件までしか入力できない仕様だから",
+              "wrongReason": "検証損失では16,246件を一度に渡しています。件数制限ではなく学習効率とメモリ制約が理由です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "全問題（14万問）を解いてから1回だけ復習するより、1024問解くたびにすぐ復習するほうが圧倒的に早く上達します！",
+          "reasoning": "ミニバッチSGDは、GPUメモリに収まる範囲で並列計算の効率を最大化し、高速に何度も坂を下るための現代深層学習の標準手法です。",
+          "steps": [
+            "全データ（14万件）で1回更新する時間で、ミニバッチ（1024件）なら100回以上更新できる。",
+            "ミニバッチごとの勾配には多少のノイズ（ぶれ）があるが、期待値は全データの勾配と一致する。",
+            "結果として、はるかに短い時間で低い損失に到達できる。"
+          ],
+          "altExample": "バッチサイズが大きすぎるとメモリ不足になり、小さすぎると勾配が暴れすぎるため、32〜1024あたりがよく選ばれます。"
+        },
+        {
+          "prompt": "`ix = torch.randint(0, len(xs), (1024,), generator=g)` の中で、`(1024)` ではなく **`(1024,)` とカンマが付いている**理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "Pythonでは要素が1個だけのタプル（形の指定）を作るとき、ただの括弧 `(1024)` だと整数 `1024` と見なされるため、カンマでタプルであることを明示する必要があるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "書き間違い（タイポ）であり、カンマは消してもまったく同じに動く",
+              "wrongReason": "`(1024)` にすると整数 `1024` になり、`torch.randint` は `size` にタプルを要求するため `TypeError` で落ちます。"
+            },
+            {
+              "id": "c",
+              "text": "カンマを付けると2次元テンソル `[1024, 1024]` が作られるから",
+              "wrongReason": "要素1個のタプル `(1024,)` は長さ1024の**1次元テンソル**を作ります。"
+            },
+            {
+              "id": "d",
+              "text": "カンマの後ろに自動で乱数シードが入るから",
+              "wrongReason": "乱数シードは `generator=g` で指定しています。`(1024,)` はPythonの1要素タプル記法です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Pythonで `type((1024))` は `int`、`type((1024,))` は `tuple` になります！",
+          "reasoning": "Python のタプルは括弧ではなく「カンマ」で作られるという文法ルールのため、1次元テンソルの `size` を渡すときは `(N,)` と書きます。",
+          "steps": [
+            "`(1024)` → ただの計算用の括弧なので整数 `1024`。",
+            "`(1024,)` → 要素1個のタプル（1次元で長さ1024の形）。",
+            "`torch.randint(0, len(xs), (1024,))` → 0以上 `len(xs)` 未満のランダムな整数1024個の1次元テンソル。"
+          ],
+          "altExample": "2次元なら `(32, 8)` とカンマが自然に入るので気づきにくいですが、1次元のときだけ末尾カンマ `(1024,)` が必要になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q11",
+      "chapter": "08-neural-bigram",
+      "section": "学習：ミニバッチで坂を下る",
+      "sectionAnchor": "#s4",
+      "concept": "epoch-calculation",
+      "conceptLabel": "エポック数 = (ステップ数 × バッチサイズ) ÷ 訓練データ数の計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "訓練データが `100,000` 件、ミニバッチサイズ `1,000` 件で `500` ステップ学習しました。これは合計で何エポック（データ全体を何周した計算）に相当しますか？",
+          "answer": { "value": 5, "tolerance": 0.01 },
+          "placeholder": "整数で入力",
+          "hint": "延べ学習サンプル数は `1000 × 500 = 500,000` 件です。これをデータ総数 `100,000` 件で割ります。",
+          "reasoning": "1エポック＝訓練データ全体1周分。ミニバッチで見た延べ件数をデータ数で割ればエポック数が出ます。",
+          "steps": [
+            "1エポックに必要なステップ数：`100,000 / 1,000 = 100` ステップ。",
+            "`500` ステップ ÷ `100` ステップ/エポック ＝ `5` エポック。"
+          ],
+          "altExample": "本文では `1024 × 3000 / 146,219 ≒ 21` エポック分のデータを回しています。"
+        },
+        {
+          "prompt": "訓練データが `50,000` 件、ミニバッチサイズ `500` 件で `200` ステップ学習すると、何エポックに相当しますか？",
+          "answer": { "value": 2, "tolerance": 0.01 },
+          "placeholder": "整数で入力",
+          "hint": "`(500 × 200) / 50,000` を計算します。",
+          "reasoning": "100ステップでちょうど1周（50,000件）なので、200ステップで2エポックです。",
+          "steps": [
+            "延べ件数：`500 × 200 = 100,000` 件。",
+            "エポック数：`100,000 / 50,000 = 2` エポック。"
+          ],
+          "altExample": "第17章のファインチューニングでは「3エポック」のようにエポック単位で学習量を表すことも多くなります。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q12",
+      "chapter": "08-neural-bigram",
+      "section": "学習曲線を描く",
+      "sectionAnchor": "#s5",
+      "concept": "reading-learning-curve",
+      "conceptLabel": "学習曲線の読み方（訓練のぶれ・検証の収束・lrが大きすぎる兆候）",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：訓練と検証の分割", "第7章：学習率"],
+      "variants": [
+        {
+          "prompt": "ニューラルbigramの学習曲線で、訓練損失の線が検証損失の線よりも**ガタガタ上下にぶれている**主な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "訓練損失はそのステップでランダムに選んだ1024件のミニバッチだけで計算しているが、検証損失は検証データ全体（約1.6万件）で毎回計算しているから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "訓練データには毎回ランダムなノイズ文字を混ぜているから",
+              "wrongReason": "文字を改変しているわけではなく、毎回違う1024問のサブセットを抽出しているため問題の難易度にばらつきが出るのです。"
+            },
+            {
+              "id": "c",
+              "text": "学習率が小さすぎるため",
+              "wrongReason": "学習率が小さいときは曲線はむしろゆっくり滑らかになります。"
+            },
+            {
+              "id": "d",
+              "text": "バグで勾配リセットが抜けており、学習に失敗しているから",
+              "wrongReason": "本文の学習は順調に 7.63 → 3.68 へ下がっており、ミニバッチ損失の細かい上下は正常な現象です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "毎回違う小テスト（1024問）の点数と、毎回同じ全範囲模試（16,246問）の点数を比べてみましょう。",
+          "reasoning": "ミニバッチごとの訓練損失は「たまたま簡単な箇所を引いた回／難しい箇所を引いた回」で上下しますが、検証損失は全件固定で測るため滑らかな曲線になります。",
+          "steps": [
+            "訓練損失：毎回ランダムな1024問で算出 → サンプルの引きで上下にぶれる。",
+            "検証損失：毎回同じ `vxs, vys` 全16,246問で算出 → なめらかに推移する。",
+            "学習の進み具合を正しく見るには、検証損失のカーブと訓練の平均的な傾向を見る。"
+          ],
+          "altExample": "ステップ0だけ検証損失 `7.531` が訓練 `7.631` より低いのは、コード上で1回更新した直後に検証を測っているためでした。"
+        },
+        {
+          "prompt": "ニューラルbigramの学習率を `lr = 200` にして十分学習させても、検証損失が約 `3.58`（第5章の数えたbigramと同じ値）のあたりで止まり、それ以上大きく下がらない本質的な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "モデルが「直前1文字だけ」しか見ていない構造である以上、数えたbigram（最尤推定の厳密解）と同じ表現力の限界に達したから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorchの `F.cross_entropy` は 3.58 以下の値を計算できないから",
+              "wrongReason": "第9章のMLPでは同じ `F.cross_entropy` で 3.395、第10章では 3.177 まで下がります。"
+            },
+            {
+              "id": "c",
+              "text": "GPUではなくCPUで学習したから",
+              "wrongReason": "CPUでもGPUでも数学的な計算と到達する限界は同じです。"
+            },
+            {
+              "id": "d",
+              "text": "ステップ数が足りないだけで、100万ステップ回せば損失は 0.0 になるから",
+              "wrongReason": "直前1文字だけでは「先」の次に「生」も「へ」も「刻」も来うるため、検証損失は 0 にはならず約 3.58 が構造上の下限です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「どんな入力情報を使っているか」に注目してください。直前1文字だけで文脈のすべてを当てられますか？",
+          "reasoning": "モデル構造（直前1文字のみ）の限界を超えたいなら、学習率やステップ数をいじるだけでなく、第9章のように「もっと前の文字を見るモデル」へ進化させる必要があります。",
+          "steps": [
+            "ニューラルbigramの最適解＝訓練データのbigram頻度表（数えた版と同じ）。",
+            "したがって検証損失も数えた版（3.581）付近が頭打ちになる。",
+            "この壁を破るには、文脈を8文字へ広げる（第9章 MLP）などのモデル改良が必要。"
+          ],
+          "altExample": "本文の「やってみよう」でも `lr = 200` で `3.58` に到達し、まさに数えた版（3.581）と一致しました。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q13",
+      "chapter": "08-neural-bigram",
+      "section": "学習した表の中身を見る",
+      "sectionAnchor": "#s6",
+      "concept": "mle-equals-counting",
+      "conceptLabel": "最尤推定：交差エントロピー最小化が「数えた頻度」と一致する理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第4章：bigramの頻度表", "第5章：交差エントロピー"],
+      "variants": [
+        {
+          "prompt": "ニューラルbigramを十分長く学習させると、softmax後の確率の表はどのような値に近づきますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "訓練データで数えた実際の出現割合（頻度）に近づく（交差エントロピー最小化＝最尤推定の答えと一致するため）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "どの文字もすべて等しく $1/V$ の一様分布に近づく",
+              "wrongReason": "$1/V$ は学習を始める前の初期状態です。学習すると「先」→「生」が 0.895 のようにデータの偏りを学びます。"
+            },
+            {
+              "id": "c",
+              "text": "ランダムに選んだ1文字だけが 1.0 になり、他はすべて 0.0 になる",
+              "wrongReason": "たとえば「先」の次に「生」88%、「へ」2.6%のように、実際のデータに出現する割合どおりの確率分布に近づきます。"
+            },
+            {
+              "id": "d",
+              "text": "数えた割合とはまったく無関係な値になる",
+              "wrongReason": "本文で「先」の次が「生」0.895（数えた版は0.88）とほぼ一致した通り、数学的に同じ答えへ向かいます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "交差エントロピーの勾配は「モデルの予測確率 − 実際の出現割合」というきれいな形になります！",
+          "reasoning": "交差エントロピーの勾配が 0（坂の下りが止まる谷底）になるのは、モデルの予測確率がデータの実際の出現割合とぴったり一致したときです。",
+          "steps": [
+            "交差エントロピー損失のロジットに対する勾配 ＝ `予測確率 p − 実際の頻度 q`。",
+            "予測が低すぎれば勾配が負 → ロジットを増やして確率を上げる。",
+            "予測が高すぎれば勾配が正 → ロジットを減らして確率を下げる。",
+            "`p == q` で勾配が 0 になり、数えた頻度と同じ答えでピタリと止まる。"
+          ],
+          "altExample": "数えるbigramは答えを直接計算したもの、ニューラルbigramは同じ答えを勾配降下法で探したものです。"
+        },
+        {
+          "prompt": "交差エントロピー最小化が「**最尤推定**（Maximum Likelihood Estimation）」と呼ばれる理由として正しいのはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "正解の確率の $-\\log$ の平均を最小にすることは、訓練データ全体がモデルから生じる確率（尤度：もっともらしさ）を最大にすることと数学的に同じだから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルのパラメータ数を最大にする推定方法だから",
+              "wrongReason": "パラメータ数ではなく、データが観測される確率（尤度、likelihood）を最大化する考え方です。"
+            },
+            {
+              "id": "c",
+              "text": "学習率を最大にして1ステップで終わらせる方法だから",
+              "wrongReason": "学習率を最大にすると発散します。最尤推定は損失関数の意味（確率最大化）を指す統計用語です。"
+            },
+            {
+              "id": "d",
+              "text": "検証データの数を最大にするデータ分割法だから",
+              "wrongReason": "データ分割法ではなく、パラメータ推定の原理です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "確率 $p_1 \\times p_2 \\times \\dots \\times p_N$ を最大にしたい → 対数をとって和 $\\sum \\log p_i$ を最大にしたい → マイナスを付けて $-\\frac{1}{N}\\sum \\log p_i$ を最小にしたい！",
+          "reasoning": "「データが最も起きそう（尤もらしい）になるように確率を調整する」のが最尤推定で、マイナス対数をつければそのまま交差エントロピー損失の最小化になります。",
+          "steps": [
+            "全データの同時確率（尤度）：$p_1 \\times p_2 \\times \\dots \\times p_N$ を大きくしたい。",
+            "掛け算はアンダーフローするので対数をとる：$\\sum_i \\log p_i$ を大きくしたい。",
+            "「小さいほど良い損失」にするためマイナスを掛けて平均する：$-\\frac{1}{N} \\sum_i \\log p_i$。"
+          ],
+          "altExample": "現代のGPTの事前学習も、本質的には超巨大モデルに対する最尤推定（次トークンの交差エントロピー最小化）です。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q14",
+      "chapter": "08-neural-bigram",
+      "section": "学習した表の中身を見る",
+      "sectionAnchor": "#s6",
+      "concept": "smoothing-and-regularization",
+      "conceptLabel": "数えるモデルのスムージングとニューラルモデルの正則化の関係",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：スムージング"],
+      "variants": [
+        {
+          "prompt": "第5章の数えるbigramで使った「スムージング」と、ニューラルモデルの「正則化（重み `W` が大きくなりすぎると罰を与える）」に共通する役割はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "訓練データに極端に偏って確率が 0 や 1 に張り付くのを防ぎ、未知のデータに対してもほどよく控えめな確率分布を保つこと",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "訓練データの文字をすべてひらがなに変換すること",
+              "wrongReason": "テキスト前処理ではなく、確率分布や重みが極端になるのを抑える仕組みです。"
+            },
+            {
+              "id": "c",
+              "text": "学習ステップを 0 回にして計算時間をゼロにすること",
+              "wrongReason": "学習自体は通常どおり行いますが、重みが際限なく大きくなるのにブレーキをかけます。"
+            },
+            {
+              "id": "d",
+              "text": "語彙数 $V$ を半分に削ること",
+              "wrongReason": "語彙数は変わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "ロジット `W` を 0 付近に引き戻す力が働くと、softmax 後の確率は一様分布（$1/V$）側へ少し近づきます！",
+          "reasoning": "重みを 0 に近づける正則化（第10章の `weight_decay`）は、ロジットを穏やかにして確率が極端な 0 になるのを防ぐため、スムージングと同じ効果を持ちます。",
+          "steps": [
+            "スムージング：全ペアの回数に $+k$ を足して、未出現でも確率 0 を防ぐ。",
+            "正則化（重み減衰）：`W` が大きくなりすぎるのに罰を与え、ロジットを 0 寄りに抑える。",
+            "ロジットが 0 に近いほど確率は一様分布に近づくため、両者は同じ「極端さの抑制」を果たす。"
+          ],
+          "altExample": "第10章で `AdamW(..., weight_decay=0.1)` として本格的に過学習対策に活躍します。"
+        }
+      ]
+    },
+    {
+      "id": "ch08-q15",
+      "chapter": "08-neural-bigram",
+      "section": "記録表",
+      "sectionAnchor": "#s8",
+      "concept": "why-train-neural-bigram",
+      "conceptLabel": "数えれば一瞬のbigramをわざわざ勾配降下法で学習させた意味",
+      "level": 3,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第4章：組み合わせ爆発", "第7章：勾配降下法"],
+      "variants": [
+        {
+          "prompt": "bigram だけなら数えるほうが一瞬で検証損失 3.581 に着くのに、この章でわざわざ数分かけて勾配降下法（3.685）で学習させた「本当の意義」を、第4章の組み合わせ爆発とつなげて自分の言葉で説明してください。",
+          "modelAnswer": "直前1文字のbigramなら数えられますが、直前8文字や100文字を見ようとすると組み合わせが爆発して数える方法は使えなくなります。一方「損失を決めて勾配降下法で坂を下る」学習の枠組みなら、どんなに複雑なニューラルネットワークにもそのまま拡張できます。この章は、正解（数えた頻度）が分かっている問題で「勾配降下法だけで本当に正しい確率分布にたどり着けること」を答え合わせ付きで確かめるステップです。",
+          "hint": "「数える方法は文脈が長くなると組み合わせ爆発で詰む」「勾配降下法は複雑なモデルにもそのまま使える」「答えが分かる問題での検証」の3点を書きましょう。",
+          "reasoning": "「数える」は1文字文脈で行き止まりですが、「勾配降下法＋交差エントロピー」は第9章のMLP、第12〜13章のGPTへとそのまま続く王道ルートです。",
+          "steps": [
+            "数える方法の限界：直前8文字なら $2061^8$ 通りで組み合わせ爆発（第4章）。",
+            "学習の一般性：ロジットを出す仕組みをどんなネットワークに差し替えても同じ学習ループが動く。",
+            "この章の役割：答えが既知のbigramで、学習が最尤解（数えた頻度）へ収束することを実証した。"
+          ],
+          "altExample": "次の第9章では、まさにこの `W[x]` の部分だけを MLP に差し替え、同じ交差エントロピー＋ミニバッチ学習で 3.581 の壁を破ります！",
+          "selfCheckCriteria": [
+            "「数える方法は長い文脈で組み合わせ爆発が起きる」点に触れた",
+            "「勾配降下法の枠組みはより複雑なモデル（MLPやGPT）にそのまま拡張できる」点に触れた",
+            "「正解が分かるbigramで学習の正しさを確かめる練習だった」点に触れた"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,883 @@
+{
+  "chapter": "13-train-gpt",
+  "exercises": [
+    {
+      "id": "ch13-q01",
+      "chapter": "13-train-gpt",
+      "section": "準備：GPUのランタイムにする",
+      "sectionAnchor": "#s1",
+      "concept": "gpu-device-placement",
+      "conceptLabel": "device 自動判定とモデル・データ両方の .to(device)",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：.to(model.device)"],
+      "variants": [
+        {
+          "prompt": "Colab の GPU 環境（`device = \"cuda\"`）で学習ループを回したところ、`RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!` が発生しました。原因と正しい直し方はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "モデル（`GPT(...).to(device)`）とミニバッチのデータ（`x.to(device), y.to(device)`）の片方が CPU に残ったまま計算しようとしている。モデルと入力データの両方を `.to(device)` で同じ装置へ移す",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "GPU が壊れているので、`torch.cuda.is_available()` を `False` に書き換えて CPU しか使わないようにする",
+              "wrongReason": "GPU の故障ではなく、モデルとデータの置き場所が CPU と GPU に分かれてしまっただけの典型的なエラーです。"
+            },
+            {
+              "id": "c",
+              "text": "`batch_size` が大きすぎるため、`batch_size = 1` に減らせば解決する",
+              "wrongReason": "メモリ不足（`CUDA out of memory`）とは別エラーであり、バッチサイズを減らしても配置先の違いは解消されません。"
+            },
+            {
+              "id": "d",
+              "text": "テキストデータ `all_train` を `str` 型のまま GPU に送っていないから",
+              "wrongReason": "GPU に送るのは文字列ではなく、整数トークンIDのテンソル（`x`, `y`）とモデルのパラメータです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "エラー文にある `cuda:0 and cpu` に注目！ 計算する2つのテンソルは必ず同じ机の上（GPU同士、またはCPU同士）に置く必要があります。",
+          "reasoning": "PyTorch では異なるデバイス（CPU と GPU）にあるテンソル同士を直接演算できません。モデル生成時の `.to(device)` と、`get_batch` / `val_loss` / `write` 内の入力 `.to(device)` の両方を揃えるのが鉄則です。",
+          "steps": [
+            "`device = \"cuda\" if torch.cuda.is_available() else \"cpu\"` で使う装置を決める。",
+            "モデル：`model = GPT(...).to(device)`。",
+            "データ：`x.to(device), y.to(device)`（`get_batch` や `val_loss`、生成時の `idx` も忘れずに）。"
+          ],
+          "altExample": "第11章の `register_buffer(\"tril\", ...)` を使っていたおかげで、`model.to(device)` すると `tril` も自動で GPU へ引っ越してくれます。"
+        },
+        {
+          "prompt": "`device = \"cuda\" if torch.cuda.is_available() else \"cpu\"` と書いておく最大のメリットはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "GPU が使える環境では自動で高速な `cuda` を使い、GPU が使えない環境でもコードを1行も書き換えずにそのまま `cpu` で動かせる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "CPU と GPU を同時に使って計算速度を 2 倍にできる",
+              "wrongReason": "条件分岐（三項演算子）なので、使われるのは `\"cuda\"` か `\"cpu\"` のどちらか一方です。"
+            },
+            {
+              "id": "c",
+              "text": "GPU がないパソコンに仮想の GPU を新しく作り出せる",
+              "wrongReason": "ハードウェアがなければ `\"cpu\"` にフォールバックするだけで、仮想GPUを作るわけではありません。"
+            },
+            {
+              "id": "d",
+              "text": "モデルのパラメータ数を自動的に半分に圧縮してくれる",
+              "wrongReason": "`device` 変数は計算を行う装置名の文字列であり、モデルサイズには影響しません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "Python の三項演算子 `A if 条件 else B` の動きを確認しましょう。",
+          "reasoning": "さらに混合精度も `enabled=(device == \"cuda\")` にしておくことで、GPU・CPU どちらでも1つのコードがそのまま安全に動くポータブルな設計になります。",
+          "steps": [
+            "GPU あり：`torch.cuda.is_available()` が `True` → `device = \"cuda\"`。",
+            "GPU なし：`False` → `device = \"cpu\"`。",
+            "`enabled=(device == \"cuda\")` で混合精度も自動切替。"
+          ],
+          "altExample": "教科書の検証環境（CPU）でも Colab（T4 GPU）でも同じセルがそのまま動くのは、この書き方のおかげです。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q02",
+      "chapter": "13-train-gpt",
+      "section": "漱石の7作品を読み込む",
+      "sectionAnchor": "#s3",
+      "concept": "fair-validation-split-no-leakage",
+      "conceptLabel": "実験間の公平な比較（同一の検証データ kokoro_val を使う理由）",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：訓練データと検証データの分割"],
+      "variants": [
+        {
+          "prompt": "実験2では訓練データを漱石の7作品に増やしましたが、検証データにはあえて「**『こころ』の最後の10%（`kokoro_val`）**」をそのまま使い、さらに他の6作品からも前90%だけを取って `all_train` に混ぜています。検証データを『こころ』の最後の10%に固定する主な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "実験1（『こころ』だけ）やこれまでの章（第5〜12章）とまったく同じテスト問題（ものさし）で採点することで、データ増加の効果を公平に比較できるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "『こころ』以外の小説は日本語の文字コードが違うため検証に使えないから",
+              "wrongReason": "7作品すべて同じ `load_soseki` で読み込んでおり、同じ語彙 `stoi` で扱っています。"
+            },
+            {
+              "id": "c",
+              "text": "`kokoro_val` を訓練データ `all_train` の中にも入れて復習させるため",
+              "wrongReason": "検証データを訓練データに混ぜてしまうとデータリーク（カンニング）になり、汎化性能が測れなくなります。`kokoro_train` は前90%、`kokoro_val` は後ろ10%で厳密に分離しています。"
+            },
+            {
+              "id": "d",
+              "text": "検証データが小さいほど検証損失の数値が必ず小さくなるから",
+              "wrongReason": "検証損失は1トークンあたりの平均損失なので、サイズを小さくしても有利にはなりません。同一データで比較することが目的です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「テスト問題そのもの」を変えてしまうと、点数が上がった理由が「モデルが賢くなったから」か「問題が簡単になったから」か分からなくなります。",
+          "reasoning": "科学実験（アブレーション研究）の大原則は「変えたい条件（訓練データ量）だけを変え、評価ベンチマーク（`kokoro_val`）を固定する」ことです。",
+          "steps": [
+            "実験1：訓練＝『こころ』前90%（14.6万字）、検証＝`kokoro_val`。",
+            "実験2：訓練＝7作品の前90%（91.9万字）、検証＝同じ `kokoro_val`。",
+            "同じテスト問題で検証損失が `3.075 → 2.635` に下がったため、「データ増加が効いた」と明確に結論できる。"
+          ],
+          "altExample": "もし実験2の検証データを7作品全体に変えてしまうと、語彙や難易度の違いが混ざり実験1との直接比較ができなくなります。"
+        },
+        {
+          "prompt": "もしうっかり `kokoro_val`（検証データ）を `all_train`（訓練データ）にも混ぜて学習してしまった場合、検証損失はどうなり、何が問題になりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "モデルがテスト問題を事前に丸暗記してしまう（データリーク）ため、見かけの検証損失が不自然に良くなるが、本当の未知データへの実力は測れなくなる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorch がデータリークを自動検出して即座にエラーで止めてくれる",
+              "wrongReason": "PyTorch はどれが訓練用でどれが検証用か知らないため、エラーは出ずにそのまま走ってしまいます。"
+            },
+            {
+              "id": "c",
+              "text": "検証損失が無限大（`inf`）に発散する",
+              "wrongReason": "逆に見かけ上どんどん下がってしまい、過学習や性能向上を誤認する原因になります。"
+            },
+            {
+              "id": "d",
+              "text": "問題はなく、むしろモデルが賢くなる正しい手法である",
+              "wrongReason": "テスト問題を事前に配って平均点を見るのと同じで、研究・評価としては重大なミス（データ汚染 / data contamination）です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "学校の試験問題をそのまま前日の宿題に混ぜてしまった状況を想像しましょう。",
+          "reasoning": "訓練データと検証データの厳密な分離は機械学習研究の命です。現代のLLM評価でもベンチマーク汚染（benchmark contamination）は最大級の注意点とされています。",
+          "steps": [
+            "訓練データに検証データが混入すると、未知データへの予測力ではなく暗記力を測ることになる。",
+            "本文では `kokoro[:nk]`（前90%）と `kokoro[nk:]`（後10%）で境界を厳密に切っている。"
+          ],
+          "altExample": "重複文章が多いWebデータでLLMを学習するときも、検証セットとの重複除去（deduplication）が不可欠です。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q03",
+      "chapter": "13-train-gpt",
+      "section": "学習の道具をそろえる",
+      "sectionAnchor": "#s4",
+      "concept": "eval-train-vs-no-grad",
+      "conceptLabel": "model.eval() / model.train() と torch.no_grad() の違いと両方必要な理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：torch.no_grad()", "第10章：Dropout"],
+      "variants": [
+        {
+          "prompt": "`val_loss` 関数では `@torch.no_grad()` を付けた上で、先頭で `model.eval()` を呼び、末尾で `model.train()` に戻しています。`model.eval()` と `@torch.no_grad()` の役割の違いとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`model.eval()` は Dropout などの層を評価モード（無効化）に切り替え、`@torch.no_grad()` は逆伝播用の計算グラフ記録を止めて高速・省メモリにする（役割が違うため両方必要）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "どちらもまったく同じ機能（勾配記録の停止）なので、片方だけ書けば十分である",
+              "wrongReason": "`model.eval()` は勾配記録を止めませんし、`torch.no_grad()` は Dropout を止めません。別々のスイッチなので両方必要です。"
+            },
+            {
+              "id": "c",
+              "text": "`model.eval()` はモデルを GPU から CPU へ移動し、`@torch.no_grad()` は重みを初期化する",
+              "wrongReason": "どちらもデバイスの移動や重みの初期化は行いません。"
+            },
+            {
+              "id": "d",
+              "text": "`@torch.no_grad()` を付けると重みの更新が速くなるため、訓練ループ本体にも必ず付ける",
+              "wrongReason": "訓練ループ本体に `no_grad()` を付けると勾配が計算できず `loss.backward()` でエラーになります。評価・生成時だけに付けます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「Dropout のオン・オフ」と「微分用メモ（autograd）のオン・オフ」はまったく別の2つのスイッチです！",
+          "reasoning": "評価時に `model.eval()` を忘れると検証中にも Dropout がランダムに働いて損失がブレて悪化し、`torch.no_grad()` を忘れると不要な中間計算グラフで GPU メモリ（VRAM）を浪費します。",
+          "steps": [
+            "`@torch.no_grad()`：微分用の中間記録をオフ → 速く・VRAM節約（ただし Dropout はオンのまま）。",
+            "`model.eval()`：Dropout をオフ → 決定的な実力評価（ただし勾配記録はオンのまま）。",
+            "末尾の `model.train()`：次の訓練ステップのために Dropout を再びオンに戻す！"
+          ],
+          "altExample": "もし末尾の `model.train()` を書き忘れると、最初の検証（ステップ0）以降、残りの5000ステップずっと Dropout がオフのまま学習されてしまいます。"
+        },
+        {
+          "prompt": "`val_loss` の最後にある `model.train()` をうっかり書き忘れたまま `train(...)` を実行すると、何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ステップ0で `val_loss` が呼ばれた瞬間に `eval` モードのまま固定され、それ以降の全訓練ステップで Dropout が効かなくなり過学習しやすくなる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`loss.backward()` が即座にエラーを出して止まる",
+              "wrongReason": "`model.eval()` は勾配計算を止めないため、エラーを出さずにサイレントに学習が進んでしまいます。"
+            },
+            {
+              "id": "c",
+              "text": "`opt.step()` が自動で `model.train()` に戻してくれるので何も起きない",
+              "wrongReason": "`optimizer` はモデルの `train`/`eval` モードを自動で戻してはくれません。"
+            },
+            {
+              "id": "d",
+              "text": "モデルが自動的に Google ドライブへ保存される",
+              "wrongReason": "`model.train()` はモード切替だけで、保存処理とは無関係です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`step == 0` のときに `step % log_every == 0` が成り立ち、`val_loss` が最初に呼ばれます！",
+          "reasoning": "`model.eval()` 状態でも `backward()` はエラーなく通ってしまうため、末尾の `model.train()` 忘れは気づきにくい典型バグです。",
+          "steps": [
+            "ステップ0で `val_loss` が実行され、`model.eval()` になる。",
+            "`model.train()` がないと、ステップ1〜5000もずっと `eval` モード（Dropout無効）のまま。",
+            "エラーは出ないが、正則化が効かず過学習が進行する。"
+          ],
+          "altExample": "評価関数の入口で `model.eval()`・出口で `model.train()` を対にして書く習慣をつけましょう。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q04",
+      "chapter": "13-train-gpt",
+      "section": "学習の道具をそろえる",
+      "sectionAnchor": "#s4",
+      "concept": "cosine-lr-schedule-values",
+      "conceptLabel": "ウォームアップ付きコサイン学習率スケジュールの手計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第10章：学習率スケジュール"],
+      "variants": [
+        {
+          "prompt": "本文の `lr_at(step, max_lr=0.001, total=1000, warmup=200)` について、ウォームアップのちょうど半分にあたる **`step = 100`** のときの学習率はいくつになりますか？（小数で入力してください）",
+          "answer": { "value": 0.0005, "tolerance": 0.00001 },
+          "placeholder": "小数で入力（例：0.0005）",
+          "hint": "`step < warmup` のときは線形ウォームアップ `max_lr * step / warmup` です。",
+          "reasoning": "ウォームアップ区間（`step < 200`）では学習率を `0` から `max_lr` まで直線的に上げていき、学習初期の不安定な勾配による発散を防ぎます。",
+          "steps": [
+            "`step = 100 < warmup = 200` なのでウォームアップ区間。",
+            "`lr = 0.001 * 100 / 200 = 0.0005`（`5e-4`）。"
+          ],
+          "altExample": "`step = 0` では `0.0`、`step = 200` で最大の `0.001` に達します。"
+        },
+        {
+          "prompt": "同じく `lr_at(step, max_lr=0.001, total=1000, warmup=200)` について、コサイン減衰区間のちょうど真ん中にあたる **`step = 600`** のときの学習率はいくつになりますか？（$\\cos(\\pi/2) = 0$ を使います）",
+          "answer": { "value": 0.0005, "tolerance": 0.00001 },
+          "placeholder": "小数で入力（例：0.0005）",
+          "hint": "`progress = (600 - 200) / (1000 - 200) = 0.5` です。`max_lr * 0.5 * (1 + cos(pi * 0.5))` を計算しましょう。",
+          "reasoning": "コサイン減衰の中間点（`progress = 0.5`）では $\\cos(\\pi/2) = 0$ なので、学習率はちょうど `max_lr` の半分になります。",
+          "steps": [
+            "`progress = (600 - 200) / (1000 - 200) = 400 / 800 = 0.5`。",
+            "$\\cos(\\pi \\times 0.5) = \\cos(\\pi/2) = 0$。",
+            "`lr = 0.001 * 0.5 * (1 + 0) = 0.0005`。"
+          ],
+          "altExample": "`step = 1000`（`progress = 1.0`）では $\\cos(\\pi) = -1$ なので `0.0` に滑らかに着地します。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q05",
+      "chapter": "13-train-gpt",
+      "section": "学習の道具をそろえる",
+      "sectionAnchor": "#s4",
+      "concept": "impl-cosine-warmup-lr",
+      "conceptLabel": "【自力実装】ウォームアップ付きコサイン学習率スケジュール lr_at",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第10章：ウォームアップとコサイン減衰"],
+      "variants": [
+        {
+          "prompt": "標準ライブラリ `math` のみを使って、ステップ `step` における学習率を返す関数 `lr_at(step, max_lr, total, warmup=200)` を自力実装してください（`step < warmup` は線形ウォームアップ、それ以降は `0.5 * (1 + cos(pi * progress))` によるコサイン減衰。`step >= total` になっても `0.0` に収めること）。",
+          "starterCode": "import math\n\ndef lr_at(step, max_lr, total, warmup=200):\n    # 1. step < warmup のとき: max_lr * step / warmup\n    # 2. step >= total のとき: 0.0\n    # 3. それ以外: progress = (step - warmup) / (total - warmup)\n    #    max_lr * 0.5 * (1.0 + math.cos(math.pi * progress)) を返す\n    pass",
+          "solutionCode": "import math\n\ndef lr_at(step, max_lr, total, warmup=200):\n    if step < warmup:\n        return max_lr * step / warmup\n    if step >= total:\n        return 0.0\n    progress = (step - warmup) / (total - warmup)\n    return max_lr * 0.5 * (1.0 + math.cos(math.pi * progress))",
+          "colabCheck": "assert abs(lr_at(0, 1e-3, 1000, 200) - 0.0) < 1e-12\nassert abs(lr_at(100, 1e-3, 1000, 200) - 5e-4) < 1e-12\nassert abs(lr_at(200, 1e-3, 1000, 200) - 1e-3) < 1e-12\nassert abs(lr_at(600, 1e-3, 1000, 200) - 5e-4) < 1e-12\nassert abs(lr_at(1000, 1e-3, 1000, 200) - 0.0) < 1e-12\nassert lr_at(200, 1e-3, 1000, 200) > lr_at(400, 1e-3, 1000, 200) > lr_at(800, 1e-3, 1000, 200)\nprint(\"ALL PASSED\")",
+          "hint": "`math.cos(0) == 1.0`、`math.cos(math.pi / 2) == 0.0`、`math.cos(math.pi) == -1.0` を使うと、区間 `[0, 1]` の `progress` がちょうど `1.0 → 0.5 → 0.0` に滑らかに落ちます。",
+          "reasoning": "GPT-3 や Llama を含むほぼすべての現代LLMの事前学習で、この「線形ウォームアップ＋コサイン減衰」が標準の学習率スケジュールとして使われています。",
+          "steps": [
+            "ウォームアップ区間（`step < warmup`）：`0` から `max_lr` へ直線増加。",
+            "終了以降（`step >= total`）：`0.0` を返して再上昇を防ぐ。",
+            "減衰区間：`progress = (step - warmup) / (total - warmup)` に対して `max_lr * 0.5 * (1 + cos(pi * progress))`。"
+          ],
+          "altExample": "実務では終盤の学習率を完全に `0` にせず `min_lr = 0.1 * max_lr` まで落とす変種もよく使われます。",
+          "selfCheckCriteria": [
+            "`step = 0, 100, 200, 600, 1000` の各点と単調減少の `assert` がすべて通った",
+            "学習開始直後にウォームアップを入れる理由を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch13-q06",
+      "chapter": "13-train-gpt",
+      "section": "学習ループ（GPU対応版）",
+      "sectionAnchor": "#s5",
+      "concept": "mixed-precision-and-gradscaler",
+      "conceptLabel": "混合精度（autocast + float32原本）と GradScaler の役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：アンダーフロー"],
+      "variants": [
+        {
+          "prompt": "GPU 学習で float16 の混合精度を使うとき、`torch.amp.GradScaler` が必要な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "float16 は非常に小さな数を表せず勾配が 0 に潰れる（アンダーフロー）ことがあるため、損失を一時的に大きく拡大してから逆伝播し、更新前に元の大きさに戻すため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "学習率を毎ステップ2倍に増やして早く収束させるため",
+              "wrongReason": "拡大した倍率は `unscale_` で元に戻すため、実効的な学習率や更新幅は変わりません。"
+            },
+            {
+              "id": "c",
+              "text": "入力テキストの語彙数を float16 に収まる 16 個に減らすため",
+              "wrongReason": "float16 は16ビット浮動小数点数であり、語彙数とは無関係です。"
+            },
+            {
+              "id": "d",
+              "text": "CPU で計算するときにだけ必要で、GPU では無効にされる",
+              "wrongReason": "逆です！ `enabled=(device == \"cuda\")` の通り、float16 を使う GPU のときだけ有効になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "float16 で表せる最小の正の数は約 $6 \\times 10^{-5}$ です。それより小さな勾配はどうなるでしょう？",
+          "reasoning": "小さな勾配が float16 の表現限界を下回って 0 になる（アンダーフロー）のを防ぐため、`GradScaler` は「損失を数千倍して勾配を大きく保ったまま `backward()` し、更新前に `unscale_` で割り戻す」拡大鏡の役目を果たします。",
+          "steps": [
+            "`scaler.scale(loss).backward()`：損失を定数倍して勾配のアンダーフローを防ぐ。",
+            "`scaler.unscale_(opt)`：拡大した勾配を元のスケールへ割り戻す。",
+            "`scaler.step(opt)` / `scaler.update()`：もし `inf/nan` が出たら更新を飛ばして倍率を自動調整する。"
+          ],
+          "altExample": "float32 と同じ指数部8ビットを持つ **bfloat16**（A100/H100など新しいGPU）ではアンダーフローが起きにくいため、通常 `GradScaler` は不要になります。"
+        },
+        {
+          "prompt": "混合精度（mixed precision）で「重い行列積は float16 で計算する一方、モデルの重み原本（マスターウェイト）は float32 のまま保持する」のはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "パラメータ更新量（学習率 × 勾配）はとても小さいため、float16 の重みにそのまま足すと桁落ちして更新が無視されてしまうから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorch では float16 のテンソルをメモリに保存することが文法上禁止されているから",
+              "wrongReason": "推論時（第1章・第3章）のように float16 で重みを持つこと自体は可能です。学習時の微小な更新を失わないために原本を float32 にしています。"
+            },
+            {
+              "id": "c",
+              "text": "float32 のほうがメモリ使用量が半分だから",
+              "wrongReason": "メモリが半分なのは float16（2バイト）の方で、float32 は4バイトです。"
+            },
+            {
+              "id": "d",
+              "text": "float16 では整数の足し算しかできないから",
+              "wrongReason": "float16 も小数（浮動小数点数）ですが、仮数部が10ビットと粗いため微小な更新の足し算で丸め落ちが起きます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "たとえば `1.0 + 0.00001` を粗い桁数の小数で計算すると、丸められて `1.0` のまま動かないことがあります。",
+          "reasoning": "「計算が重い行列積は速い float16、微小な更新を積み上げる重みの原本は正確な float32」という役割分担により、速度と精度を両立しています。",
+          "steps": [
+            "順伝播の行列積：`autocast` により自動で float16 を使って高速化。",
+            "パラメータ更新：float32 のマスターウェイトに微小な更新量を正確に足し込む。"
+          ],
+          "altExample": "大きな数字 `1.0` に小さな更新 `1e-5` を 1000 回足しても、float16 だと毎回丸められてずっと `1.0` のままになりますが、float32 なら正しく `1.01` まで動きます。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q07",
+      "chapter": "13-train-gpt",
+      "section": "学習ループ（GPU対応版）",
+      "sectionAnchor": "#s5",
+      "concept": "float16-vs-bfloat16-bits",
+      "conceptLabel": "float16 と bfloat16 のビット配分（指数部 vs 仮数部）の違い",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "同じ16ビット（2バイト）の浮動小数点数である **float16**（指数部5ビット・仮数部10ビット）と **bfloat16**（指数部8ビット・仮数部7ビット）の違いとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "bfloat16 は float32 と同じ指数部8ビットを持つため「表せる数の範囲」が float32 並みに広くオーバーフロー／アンダーフローしにくい代わりに、細かさ（仮数部）は float16 より粗い",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "bfloat16 は float16 の2倍のメモリ（4バイト）を消費する",
+              "wrongReason": "どちらも16ビット（符号1＋指数＋仮数＝16ビット）なのでメモリ消費量は同じ2バイトです。"
+            },
+            {
+              "id": "c",
+              "text": "float16 のほうが表せる数の範囲が広く、bfloat16 のほうが仮数部が多い",
+              "wrongReason": "逆です。指数部が多い bfloat16（8ビット）のほうが範囲が広く、仮数部が多い float16（10ビット）のほうが細かさ（有効桁数）が高いです。"
+            },
+            {
+              "id": "d",
+              "text": "bfloat16 は負の数を表すことができない",
+              "wrongReason": "どちらにも符号部（1ビット）があるため、正の数も負の数も表せます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "指数部が多いほど「桁の範囲（最大〜最小）」が広く、仮数部が多いほど「有効数字の細かさ」が上がります。",
+          "reasoning": "深層学習の学習では「有効数字の細かい精度」よりも「勾配や損失がオーバーフロー／アンダーフローしない広い範囲」のほうが重要なため、新しいGPUでは bfloat16 が標準になっています。",
+          "steps": [
+            "float16：符号1 + 指数5 + 仮数10 = 16 bit（細かいが範囲が狭い → `GradScaler` が必要）。",
+            "bfloat16：符号1 + 指数8 + 仮数7 = 16 bit（範囲が float32 並みに広い → 学習が安定）。"
+          ],
+          "altExample": "Colab 無料枠の T4 GPU（Turing 世代）はハードウェアで bfloat16 に非対応なため、この章では float16 ＋ `GradScaler` を使っています。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q08",
+      "chapter": "13-train-gpt",
+      "section": "学習ループ（GPU対応版）",
+      "sectionAnchor": "#s5",
+      "concept": "gradient-clipping-and-unscale-order",
+      "conceptLabel": "勾配クリッピング（clip_grad_norm_）の理由と unscale_ との順番",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第7章：勾配降下法"],
+      "variants": [
+        {
+          "prompt": "学習ループの中で `torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)` を行う目的と、その数学的な振る舞いとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "全パラメータの勾配ベクトルのL2ノルム（長さ）が `1.0` を超えたときだけ全成分を同じ比率で縮めて `1.0` に抑えることで、勾配の向きを保ったまま勾配爆発（ロスのスパイクや `NaN`）を防ぐ",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "勾配が `1.0` より小さいときに無理やり `1.0` まで引き上げて学習を加速させる",
+              "wrongReason": "ノルムが `max_norm`（`1.0`）以下のときは**何もしません**。上限を超えた暴走だけを刈り取る安全装置です。"
+            },
+            {
+              "id": "c",
+              "text": "モデルの重みそのものをすべて `-1.0` 〜 `1.0` の間に強制的に丸める",
+              "wrongReason": "クリップするのは重み本体ではなく**勾配（`.grad`）**です。"
+            },
+            {
+              "id": "d",
+              "text": "勾配が負の要素をすべて 0 に置き換える",
+              "wrongReason": "符号は変えません。全勾配を正の定数 `max_norm / norm` 倍するため、勾配ベクトルの方向は1ミリも変わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "全成分に同じ比率 `max_norm / norm` を掛けると、ベクトルの「向き」は変わらず「長さ」だけが `max_norm` に揃います。",
+          "reasoning": "まれに難しいバッチや深い層で巨大な勾配（勾配爆発）が起きると、1ステップでせっかく学習した重みが吹き飛びます。L2ノルムクリッピングは向きを保ったまま歩幅の上限を抑える必須の安全ベルトです。",
+          "steps": [
+            "全勾配のL2ノルム $\\|\\boldsymbol{g}\\|_2 = \\sqrt{\\sum_i g_i^2}$ を計算する。",
+            "$\\|\\boldsymbol{g}\\|_2 \\le 1.0$ ならそのまま通す。",
+            "$\\|\\boldsymbol{g}\\|_2 > 1.0$ なら全勾配に $\\frac{1.0}{\\|\\boldsymbol{g}\\|_2}$ を掛けて長さをちょうど `1.0` に縮める。"
+          ],
+          "altExample": "たとえば `g = [3.0, 4.0]`（ノルム `5.0`）を `max_norm = 1.0` でクリップすると `[0.6, 0.8]`（ノルム `1.0`、比率 `3:4` は不変）になります。"
+        },
+        {
+          "prompt": "混合精度の学習ループでは、なぜ `clip_grad_norm_` を呼ぶ**前**に `scaler.unscale_(opt)` を呼ぶ必要があるのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`scaler.scale(loss).backward()` 直後の勾配は数千倍に拡大された状態なので、先に `unscale_` で元の大きさに戻してからでないと、本来のノルムに対して `1.0` で正しく判定・クリップできないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`scaler.unscale_(opt)` がモデルの重みを全部 0 に初期化してくれるから",
+              "wrongReason": "`unscale_` は重みを初期化せず、拡大されていた勾配を元の倍率へ割り戻す処理です。"
+            },
+            {
+              "id": "c",
+              "text": "順番はどちらでもまったく同じ結果になる",
+              "wrongReason": "拡大されたまま（例：65536倍）で `max_norm = 1.0` でクリップすると、ほぼ毎ステップ極端に小さく縮められてしまい、さらにその後の `scaler.step` で再び割られて更新が消滅します！"
+            },
+            {
+              "id": "d",
+              "text": "`clip_grad_norm_` を呼ぶと自動で `scaler` が削除されてしまうから",
+              "wrongReason": "`clip_grad_norm_` は `scaler` を削除しませんが、正しい元のスケールの勾配をクリップするために `unscale_` が先です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "拡大鏡で 65,536 倍に大きくされた勾配に対して「長さが 1.0 を超えたら縮める」をやると何が起きるでしょう？",
+          "reasoning": "「拡大して逆伝播 → `unscale_` で元の大きさに戻す → `clip_grad_norm_` で上限 `1.0` に整える → `scaler.step` で更新」が PyTorch AMP の鉄板の4行です。",
+          "steps": [
+            "`scaler.scale(loss).backward()`：勾配が $S$ 倍（例：65536倍）の状態で求まる。",
+            "`scaler.unscale_(opt)`：勾配を $1/S$ して本来の大きさに戻す。",
+            "`clip_grad_norm_(..., 1.0)`：本来の大きさの勾配に対して正しく上限 `1.0` でクリップ。",
+            "`scaler.step(opt)` & `scaler.update()`：安全にパラメータ更新。"
+          ],
+          "altExample": "この4行の順番は、PyTorch公式ドキュメントの Mixed Precision レシピそのままの標準形です。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q09",
+      "chapter": "13-train-gpt",
+      "section": "学習ループ（GPU対応版）",
+      "sectionAnchor": "#s5",
+      "concept": "l2-grad-clip-hand-calc",
+      "conceptLabel": "L2 勾配ノルムクリッピングの手計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "勾配ベクトルが $\\boldsymbol{g} = [3.0, 4.0]$ のとき、上限 `max_norm = 1.0` で L2 ノルムクリッピングを行うと、1番目の成分 `3.0` はいくつになりますか？（$\\sqrt{3^2 + 4^2} = 5.0$）",
+          "answer": { "value": 0.6, "tolerance": 0.001 },
+          "placeholder": "小数で入力（例：0.6）",
+          "hint": "L2 ノルムは `5.0 > 1.0` なので、全成分に `1.0 / 5.0 = 0.2` を掛けます。",
+          "reasoning": "L2ノルム `5.0` が上限 `1.0` を超えているため、倍率 `1.0 / 5.0 = 0.2` を掛けて `[0.6, 0.8]` に縮めます。",
+          "steps": [
+            "L2ノルム：$\\sqrt{3.0^2 + 4.0^2} = \\sqrt{9 + 16} = 5.0$。",
+            "$5.0 > 1.0$ なので倍率 `scale = 1.0 / 5.0 = 0.2`。",
+            "1番目の成分：$3.0 \\times 0.2 = 0.6$（2番目は $4.0 \\times 0.2 = 0.8$）。",
+            "検算：$\\sqrt{0.6^2 + 0.8^2} = \\sqrt{0.36 + 0.64} = 1.0$。"
+          ],
+          "altExample": "もし `max_norm = 2.5` なら、倍率は `2.5 / 5.0 = 0.5` で `[1.5, 2.0]` になります。"
+        },
+        {
+          "prompt": "勾配ベクトルが $\\boldsymbol{g} = [0.3, 0.4]$ のとき、上限 `max_norm = 1.0` で L2 ノルムクリッピングを行うと、1番目の成分 `0.3` はいくつになりますか？",
+          "answer": { "value": 0.3, "tolerance": 0.001 },
+          "placeholder": "小数で入力",
+          "hint": "まず L2 ノルム $\\sqrt{0.3^2 + 0.4^2}$ を計算し、`1.0` を超えているか確かめましょう！",
+          "reasoning": "L2ノルムは `0.5 <= 1.0` なので上限を超えていません。したがってクリッピングは発動せず、`0.3` のまま変化しません。",
+          "steps": [
+            "L2ノルム：$\\sqrt{0.09 + 0.16} = \\sqrt{0.25} = 0.5$。",
+            "$0.5 \\le 1.0$ なのでそのまま `[0.3, 0.4]` を返す。",
+            "1番目の成分は `0.3` のまま。"
+          ],
+          "altExample": "通常の穏やかなステップではクリッピングは発動せず、暴走しそうなスパイクの瞬間だけブレーキが効きます。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q10",
+      "chapter": "13-train-gpt",
+      "section": "学習ループ（GPU対応版）",
+      "sectionAnchor": "#s5",
+      "concept": "impl-l2-grad-clip",
+      "conceptLabel": "【自力実装】純PythonでL2勾配ノルムクリッピング clip_grad_norm",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第13章：勾配クリッピング"],
+      "variants": [
+        {
+          "prompt": "標準ライブラリ `math` のみを使って、勾配のリスト `grads` と上限 `max_norm` を受け取り、L2 ノルムが `max_norm` を超えていれば向きを保ったままノルムが `max_norm` になるよう縮小し、超えていなければそのままのコピーを返す関数 `clip_grad_norm(grads, max_norm)` を実装してください（すべて `0.0` の場合もゼロ除算しないこと）。",
+          "starterCode": "import math\n\ndef clip_grad_norm(grads, max_norm):\n    # 1. norm = math.sqrt(sum(g * g for g in grads))\n    # 2. norm > max_norm かつ norm > 0 なら scale = max_norm / norm を全要素に掛ける\n    # 3. そうでなければ list(grads) を返す\n    pass",
+          "solutionCode": "import math\n\ndef clip_grad_norm(grads, max_norm):\n    norm = math.sqrt(sum(g * g for g in grads))\n    if norm > max_norm and norm > 0.0:\n        scale = max_norm / norm\n        return [g * scale for g in grads]\n    return list(grads)",
+          "colabCheck": "c1 = clip_grad_norm([3.0, 4.0], 1.0)\nassert abs(c1[0] - 0.6) < 1e-9 and abs(c1[1] - 0.8) < 1e-9\nassert abs(math.sqrt(sum(x * x for x in c1)) - 1.0) < 1e-9\nc2 = clip_grad_norm([3.0, 4.0], 2.5)\nassert abs(c2[0] - 1.5) < 1e-9 and abs(c2[1] - 2.0) < 1e-9\nc3 = clip_grad_norm([0.3, 0.4], 1.0)\nassert c3 == [0.3, 0.4]\nc4 = clip_grad_norm([0.0, 0.0], 1.0)\nassert c4 == [0.0, 0.0]\n# 負の勾配も符号・比率が保たれるか確認\nc5 = clip_grad_norm([-6.0, 8.0], 1.0)\nassert abs(c5[0] - (-0.6)) < 1e-9 and abs(c5[1] - 0.8) < 1e-9\nprint(\"ALL PASSED\")",
+          "hint": "`norm = math.sqrt(sum(g * g for g in grads))` を計算し、`if norm > max_norm and norm > 0.0:` のときだけ `[g * (max_norm / norm) for g in grads]` を返します。",
+          "reasoning": "`torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)` は、モデルの全パラメータの勾配を1本の巨大なベクトルとみなして、まさにこの関数と同じ計算を行っています。",
+          "steps": [
+            "二乗和の平方根で L2 ノルム `norm` を求める。",
+            "`norm > max_norm`（かつ `norm > 0`）なら `scale = max_norm / norm` を全成分に掛ける。",
+            "上限以下なら元の値を変えずに返す。"
+          ],
+          "altExample": "もし全成分を個別に `[-1, 1]` で切る「値クリッピング（`clip_grad_value_`）」を使うと、たとえば `[10, 1]` が `[1, 1]` になってしまい勾配の向きが歪みます。L2 ノルムクリッピングなら向きを保てます！",
+          "selfCheckCriteria": [
+            "縮小・そのまま・ゼロベクトル・負の勾配のすべての `assert` が通った",
+            "各成分を個別に切る方式ではなく L2 ノルムで一括スケーリングする理由（向きの保存）を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch13-q11",
+      "chapter": "13-train-gpt",
+      "section": "大事なモデルを保存する",
+      "sectionAnchor": "#s8",
+      "concept": "checkpoint-state-dict-config-chars",
+      "conceptLabel": "state_dict() チェックポイントに config・chars と map_location が必要な理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：辞書アンパック **config"],
+      "variants": [
+        {
+          "prompt": "学習したモデルを `torch.save` で保存するとき、`model_all.state_dict()` だけでなく **`chars`（語彙）と `config`（設定辞書）** も同じ辞書にまとめて保存しています。その理由として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`state_dict()` には学習済みの重みテンソルしか入っていないため、再読み込み時に同じ形の `GPT(**ckpt[\"config\"])` を作り、同じ文字↔ID対応（`chars`）を再現するために両方必要だから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`torch.save` はキーがちょうど3つある辞書しか保存できない仕様だから",
+              "wrongReason": "`torch.save` は任意のPython辞書やテンソルを保存できます。設計上の再現性のために3つセットで保存しています。"
+            },
+            {
+              "id": "c",
+              "text": "`chars` を入れないと Google ドライブのファイル容量が 0 MB になるから",
+              "wrongReason": "ファイル容量の大部分（約8MB）は `state_dict()` の重みテンソルです。"
+            },
+            {
+              "id": "d",
+              "text": "`state_dict()` にはPythonのクラス定義コード（`class GPT`）も全部入っているので、`config` は飾りである",
+              "wrongReason": "`state_dict()` にはクラス定義もハイパーパラメータも入らないため、`GPT(**ckpt[\"config\"])` で入れ物を作ってから `load_state_dict` で流し込む必要があります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "重みの数字だけ渡されても、「何層・何次元の箱に流し込むのか（`config`）」と「ID 42 がどの文字なのか（`chars`）」が分からなければ文章を生成できません。",
+          "reasoning": "チェックポイントは「重み（`state_dict`）＋設計図の寸法（`config`）＋語彙表（`chars`）」の3点セットで保存するのが、後日や別環境（第24章のブラウザ版など）で確実に復元するためのベストプラクティスです。",
+          "steps": [
+            "`ckpt[\"config\"]` を使って `GPT(**ckpt[\"config\"])` で同じ形のモデルを作る。",
+            "`model.load_state_dict(ckpt[\"model\"])` で重みを流し込む。",
+            "`ckpt[\"chars\"]` で当時と同じ `stoi` / `itos` を復元する。"
+          ],
+          "altExample": "もし語彙（`chars`）が1文字でもずれてID番号が変わってしまうと、出力がまったく意味不明な文字化けになります。"
+        },
+        {
+          "prompt": "チェックポイントを読み込むときに `torch.load(..., map_location=device)` と `map_location=device` を付けているのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "GPU（`cuda`）上で保存したチェックポイントを、後日 CPU しかない環境で読み込んでもエラーにならず現在の `device` へ安全に展開するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Google ドライブのフォルダの場所（URL）を指定するため",
+              "wrongReason": "ファイルのパスは第1引数で指定します。`map_location` はテンソルを展開する装置（CPU/GPU）の指定です。"
+            },
+            {
+              "id": "c",
+              "text": "モデルの重みを自動で float16 に圧縮するため",
+              "wrongReason": "`map_location` はデータ型（dtype）ではなく配置デバイス（device）の変換オプションです。"
+            },
+            {
+              "id": "d",
+              "text": "保存したときの乱数シードを復元するため",
+              "wrongReason": "乱数シードではなく、保存元と読み込み先のデバイス違いによるエラーを防ぎます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "T4 GPU で学習・保存した `.pt` ファイルを、翌日 GPU が空いていない CPU ランタイムで開く場面を想像しましょう。",
+          "reasoning": "`map_location` を指定しないと、`cuda` 上で保存したファイルは読み込み時にも `cuda` を要求して CPU 環境でエラーになります。`map_location=device` を付けておけばどの環境でも安全に読み込めます。",
+          "steps": [
+            "GPUで保存した `state_dict` には「元々 `cuda:0` にあった」という情報がついている。",
+            "CPU環境でそのまま `torch.load` すると `Attempting to deserialize object on a CUDA device` エラーになる。",
+            "`map_location=device` を指定すれば現在の装置へ自動変換される。"
+          ],
+          "altExample": "第24章でブラウザ向けに重みを書き出すときも、CPU環境から安全に `soseki_gpt.pt` を読み込めます。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q12",
+      "chapter": "13-train-gpt",
+      "section": "2つの実験を比べる",
+      "sectionAnchor": "#s9",
+      "concept": "data-scaling-train-val-gap",
+      "conceptLabel": "訓練損失と検証損失のギャップから読み解くデータスケーリング効果",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第10章：過学習の兆候"],
+      "variants": [
+        {
+          "prompt": "まったく同じミニGPT（175万パラメータ）で学習した2つの実験の結果を比べます。\n- **実験1（『こころ』のみ・14.6万字）**：ステップ3000で訓練 `2.091`・検証 `3.091`（ステップ1500の `3.075` から悪化開始）\n- **実験2（7作品・91.9万字）**：ステップ5000で訓練 `2.876`・検証 **`2.635`**（最後まで下がり続けた）\n\n同じモデルなのに、実験2のほうが『こころ』の検証損失が大きく良くなった理由として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "訓練データが約 6.3 倍に増えたことで同じ文章の丸暗記（過学習）が起きにくくなり、他の6作品からも漱石の文体や日本語の共通パターンを広く学べたから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "実験2のほうが訓練損失が低い（`2.876` < `2.091`）から",
+              "wrongReason": "訓練損失は実験1の `2.091` のほうがずっと低いです！ それは『こころ』を丸暗記（過学習）しているからであり、未知の検証データでは実験2（`2.635`）が圧勝しています。"
+            },
+            {
+              "id": "c",
+              "text": "実験2ではモデルの層数を 4 層から 12 層に増やしたから",
+              "wrongReason": "実験1と実験2はまったく同じモデル設定（4層・4ヘッド・128次元）で、変えたのは訓練データ量だけです。"
+            },
+            {
+              "id": "d",
+              "text": "実験2では `kokoro_val` を訓練データに混ぜたから",
+              "wrongReason": "検証データ `kokoro_val` はどちらの実験でも訓練データから厳密に除外しています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "実験1は「訓練 `2.09` vs 検証 `3.09`（ギャップ `+1.00`）」という典型的な過学習、実験2はデータ増量でそれが解消されています。",
+          "reasoning": "Dropout や重み減衰も有効ですが、過学習に対する最も強力な治療法は「データを増やすこと」です。同じ作家の他作品を読むことで、汎用的な文体・語彙・文法の知識が身につき、『こころ』の未知の続きの予測精度も劇的に上がります。",
+          "steps": [
+            "実験1：14.6万字を何十周もするため、途中から訓練損失だけ下がり検証損失が `3.075 → 3.091` と悪化（過学習）。",
+            "実験2：91.9万字（6.3倍）に増やすと丸暗記しにくくなり、検証損失が `2.635` まで下がり続けた。",
+            "訓練損失が実験1より高く見えても、検証損失（本番力）がはるかに良いのが重要。"
+          ],
+          "altExample": "大規模LLMの開発でモデルサイズと同じくらいデータ量（数兆トークン）が重視されるのも、まさにこの「データスケーリング則」（第15章）が理由です。"
+        },
+        {
+          "prompt": "実験1（『こころ』のみ）の学習ログを見ると、ステップ1500で訓練 `2.303`・検証 `3.075`、ステップ3000で訓練 `2.091`・検証 `3.091` でした。ステップ1500〜3000のあいだに起きている現象は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "過学習（overfitting）：訓練データの丸暗記が進んで訓練損失は下がり続ける一方、未知の検証データでは悪化に転じている",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "アンダーフィッティング（学習不足）：学習率が低すぎてまだ何も学べていない",
+              "wrongReason": "訓練損失は `8.217 → 2.091` と大きく下がっており、学習不足ではなく訓練データへの覚えすぎ（過学習）です。"
+            },
+            {
+              "id": "c",
+              "text": "勾配爆発：損失が無限大や `NaN` に発散している",
+              "wrongReason": "発散はしておらず、滑らかに訓練損失だけ下がり検証損失が底打ち・微増する過学習の曲線です。"
+            },
+            {
+              "id": "d",
+              "text": "データリーク：検証損失が 0.0 に近づいている",
+              "wrongReason": "検証損失は `3.075 → 3.091` と下がり止まって上がっているのでリークではありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「訓練は下がるのに、検証は底を打って上がる」——第10章で学んだ典型パターンです！",
+          "reasoning": "チェックポイントを「検証損失が最良を更新したとき」に保存（early stopping 相当）すれば、ステップ3000の過学習版ではなくステップ1500の最良版を残せます。",
+          "steps": [
+            "ステップ1500：訓練 `2.303`、検証 `3.075`（差 `0.77`）。",
+            "ステップ3000：訓練 `2.091`（改善）、検証 `3.091`（悪化、差 `1.00`）。",
+            "典型的な過学習のサイン → データを増やす（実験2）ことで根本解決。"
+          ],
+          "altExample": "実験2では同じ3000ステップ時点で検証損失が `2.710` まで下がり、さらに5000ステップで `2.635` まで伸び続けました。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q13",
+      "chapter": "13-train-gpt",
+      "section": "書かせてみる",
+      "sectionAnchor": "#s10",
+      "concept": "predict-batch-dim-and-config-unpack",
+      "conceptLabel": "コード予測：バッチ軸追加 [None] と **ckpt[\"config\"] の動き",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第3章：辞書アンパック **"],
+      "variants": [
+        {
+          "prompt": "生成時に `encode(start)[None]` のように1次元リスト `[T]` をバッチ次元つきの2次元 `[1, T]` に包む感覚と、`**config` 展開を確認します。次のコードの出力を予測してください。",
+          "code": "ids = [12, 45, 7]\nbatch = [ids]\nprint(len(batch), len(batch[0]))",
+          "accept": ["1 3"],
+          "placeholder": "2つの整数をスペース区切りで入力",
+          "hint": "`batch` は「長さ3のリストが1個入ったリスト」（形 `[1, 3]`）です。",
+          "reasoning": "GPT の `forward(idx)` は常に `[B, T]`（バッチ数 × トークン長）の2次元テンソルを期待するため、1文章だけ生成するときも `[None]`（または `[ids]`）で `B = 1` の軸を足して `[1, T]` にします。",
+          "steps": [
+            "`ids = [12, 45, 7]`（長さ `T = 3`）。",
+            "`batch = [ids]` は `[[12, 45, 7]]`（形 `[1, 3]`）。",
+            "`len(batch) = 1`、`len(batch[0]) = 3` → `1 3`。"
+          ],
+          "altExample": "PyTorch では `encode(start)[None]` や `encode(start).unsqueeze(0)` がこれと同じ「先頭に長さ1の軸を足す」操作です。"
+        },
+        {
+          "prompt": "チェックポイント復元時の `GPT(**ckpt[\"config\"])` と同じ辞書アンパックの動きを確認します。次のコードの出力を予測してください。",
+          "code": "def make_tag(n_embd, n_head, n_layer):\n    return f\"L{n_layer}-H{n_head}-D{n_embd}\"\n\nckpt = {\"config\": {\"n_embd\": 128, \"n_head\": 4, \"n_layer\": 4}}\nprint(make_tag(**ckpt[\"config\"]))",
+          "accept": ["L4-H4-D128"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "`ckpt[\"config\"]` の辞書が `n_embd=128, n_head=4, n_layer=4` として渡されます。",
+          "reasoning": "設定を辞書 `ckpt[\"config\"]` として丸ごとチェックポイントに保存しておけば、復元時は `GPT(**ckpt[\"config\"])` の1行でまったく同じ構造を再現できます。",
+          "steps": [
+            "`ckpt[\"config\"]` は `{\"n_embd\": 128, \"n_head\": 4, \"n_layer\": 4}`。",
+            "`make_tag(**ckpt[\"config\"])` → `make_tag(n_embd=128, n_head=4, n_layer=4)`。",
+            "`\"L4-H4-D128\"` が出力される。"
+          ],
+          "altExample": "ハイパーパラメータが増えたときも、辞書に入れておけば `**ckpt[\"config\"]` の書き方を変えずに済みます。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q14",
+      "chapter": "13-train-gpt",
+      "section": "記録表",
+      "sectionAnchor": "#s11",
+      "concept": "loss-to-perplexity-comparison",
+      "conceptLabel": "記録表の検証損失からパープレキシティ（何択の迷い）への換算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第5章：交差エントロピーとパープレキシティ"],
+      "variants": [
+        {
+          "prompt": "7作品で学習したミニGPTの検証損失は **`2.635`** でした。これをパープレキシティ（$e^{\\text{loss}}$＝「だいたい何択で迷っているか」）に換算すると約何択になりますか？（$e^{2.635} \\approx 13.94$、誤差 $\\pm 0.3$ まで正解）",
+          "answer": { "value": 13.94, "tolerance": 0.3 },
+          "unit": "択",
+          "placeholder": "数値を入力（例：13.94 または 14）",
+          "hint": "パープレキシティは $\\exp(\\text{loss}) = e^{2.635}$ です。第5章の bigram（約36択）から半分以下になりました！",
+          "reasoning": "交差エントロピー損失 $L$ に対してパープレキシティ $e^L$ を計算すると、モデルの迷い具合を「均等な何択クイズ相当か」という直感的な数に直せます。",
+          "steps": [
+            "検証損失 $L = 2.635$。",
+            "パープレキシティ $= e^{2.635} \\approx 13.94$（約14択）。",
+            "でたらめ（2061択）→ bigram（36択）→ 治療済みMLP（24択）→ 7作品ミニGPT（約14択）と着実に進化！"
+          ],
+          "altExample": "もし損失がさらに `0.693`（$= \\ln 2$）下がるたびに、迷いの選択肢数はちょうど半分になります。"
+        },
+        {
+          "prompt": "第5章の bigram の検証損失は `3.581`（$e^{3.581} \\approx 35.9$ 択）、第10章のMLPは `3.177`（$e^{3.177} \\approx 24.0$ 択）でした。もし将来の改良で検証損失が `2.303`（$\\ln 10 \\approx 2.303$）まで下がったら、パープレキシティは約何択になりますか？",
+          "answer": { "value": 10.0, "tolerance": 0.2 },
+          "unit": "択",
+          "placeholder": "数値を入力",
+          "hint": "$e^{\\ln 10} = 10$ です！",
+          "reasoning": "自然対数 $\\ln$ と指数関数 $e^x$ は逆の操作なので、損失が $\\ln(10) \\approx 2.303$ ならパープレキシティはぴったり `10` 択になります。",
+          "steps": [
+            "$L = 2.303 \\approx \\ln 10$。",
+            "$\\mathrm{PPL} = e^{2.303} \\approx 10.0$ 択。"
+          ],
+          "altExample": "損失が `0.0` に近づくと $e^0 = 1.0$ 択（迷いなし＝100%確信）になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch13-q15",
+      "chapter": "13-train-gpt",
+      "section": "ヘッドたちの役割分担を見る",
+      "sectionAnchor": "#s12",
+      "concept": "part3-synthesis-multihead-specialization",
+      "conceptLabel": "【第3部総合】マルチヘッドの自然な役割分担とGPT自作の全体像",
+      "level": 4,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第11章：Self-Attention", "第12章：Transformer/GPT", "第13章：GPU学習とデータスケーリング"],
+      "variants": [
+        {
+          "prompt": "【第3部の総まとめ】最後の層の4つの Attention ヘッドを可視化すると、人間が役割を指示していないのにヘッドごとに異なる注目パターン（文頭を見る係、主語の区切り「は」を見る係、近くを広く見る係など）が自然に生まれました。なぜ学習だけでこのような分業が起きるのか、また第11章→第12章→第13章で性能（検証損失 `3.31 → 3.097 → 2.635`）が段階的に向上した要因を3つの視点（構造・最適化/GPU・データ）から説明してください。",
+          "modelAnswer": "マルチヘッドでは各ヘッドが異なるランダム初期値からスタートし、出力が連結されて `self.proj` で統合されるため、同じ場所ばかり見るヘッドが重複するよりも、別々の手がかり（文頭・助詞・直近の文脈など）を分担して拾ったほうが全体の次文字予測損失をより大きく下げられます。その結果、誤差逆伝播によって自然に役割分担が分化します。また第3部の性能向上は、(1) 構造面：1ヘッド Attention（第11章）から、マルチヘッド・FeedForward・残差接続・Pre-LN を4層積んだ GPT（第12章）への進化、(2) 学習・計算面：GPU＋混合精度（`autocast`/`GradScaler`）・コサイン学習率スケジュール・勾配クリッピングによる安定かつ長時間の学習、(3) データ面：1作品（14.6万字）から7作品（91.9万字）への6.3倍のデータ増加による過学習抑制と汎化向上、の3つの掛け算で達成されました。",
+          "hint": "①なぜ自然にヘッドが分業するのか（ランダム初期値＋損失を下げる勾配）、②第3部で効いた3要素（構造・学習/GPU・データ）の2つをまとめましょう。",
+          "reasoning": "モデル構造（Ch 11–12）・学習レシピと計算基盤（Ch 13前半）・データ量（Ch 13後半）の3本柱が揃って初めて強いLLMが育ちます。第4部ではここからトークナイザー（BPE）や本物のGPT-2へとさらにステップアップします。",
+          "steps": [
+            "分業の仕組み：異なる初期値を持つ複数ヘッドが、`proj` 経由で損失を下げる方向に更新されるうち、互いに補完的な注目先へ自動分化する。",
+            "構造の進化：1ヘッド（3.31）→ 4層4ヘッドGPT（こころ単体で3.075）。",
+            "計算と安定化：GPU＋混合精度＋ウォームアップ・コサインLR＋勾配クリッピング。",
+            "データスケーリング：7作品（6.3倍）で過学習を抑え検証損失 `2.635`（約14択）へ到達。"
+          ],
+          "altExample": "本物の大規模LLM（GPT-2やLlama）のヘッドを可視化しても、「直前のトークンを見るヘッド」「括弧や対応語を探すヘッド」「文法的な主語動詞を追うヘッド」など見事な役割分担が観察されます。",
+          "selfCheckCriteria": [
+            "人間が指示しなくても、損失を下げる学習過程でヘッド同士が別々の手がかりを分担する理由を説明できた",
+            "構造（Transformer/GPT）・学習安定化/GPU（混合精度・LR・クリッピング）・データ量（1作品→7作品）の3要素を整理できた"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,927 @@
+{
+  "chapter": "11-attention",
+  "exercises": [
+    {
+      "id": "ch11-q01",
+      "chapter": "11-attention",
+      "section": "準備と、新しい問題の出し方",
+      "sectionAnchor": "#s1",
+      "concept": "causal-lm-shifted-targets",
+      "conceptLabel": "全位置同時予測（1文字ずらし）とカンニング禁止ルール",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：コンテキスト窓と次文字予測"],
+      "variants": [
+        {
+          "prompt": "長さ $T = 8$ の入力 `x` が `'私の注意を母より'` のとき、正解 `y` は1文字ずらした `'の注意を母よりは'` になります。このとき、1つの窓から何問の「次の文字予測」を同時に学習でき、位置 `t = 2`（`'注'` の位置）ではどの範囲まで見てよいですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "8問同時に学習でき、位置 `2` では位置 `0〜2`（`'私の注'`）までしか見てはいけない",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "1問だけ学習でき、位置 `2` では後ろの `'意'` も含めて全8文字を見てよい",
+              "wrongReason": "全8位置それぞれで次の文字を予測するので8問同時に学習できます。また位置 `3` の `'意'` は位置 `2` の正解そのものなので見てはいけません。"
+            },
+            {
+              "id": "c",
+              "text": "8問同時に学習でき、どの位置でも全8文字を自由に見られる",
+              "wrongReason": "位置 `t` で位置 `t+1` を見てしまうと、予測すべき正解をそのままカンニングすることになります。"
+            },
+            {
+              "id": "d",
+              "text": "7問しか学習できず、位置 `0` は常に無視される",
+              "wrongReason": "位置 `0` でも `'私'` だけを見て `'の'` を予測する1問として学習に使います（合計 $T = 8$ 問）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "入力 `x` と正解 `y` はどちらも長さ8で、各位置 `t` について `x[0..t]` から `y[t]`（＝1つ先の文字）を当てます。",
+          "reasoning": "言語モデルの学習では、長さ $T$ の1つの窓から「1文字見て次を当てる」〜「$T$ 文字見て次を当てる」までの $T$ 問を並列に解かせます。ただし位置 `t` は位置 `0..t` だけを見て予測する制約が必要です。",
+          "steps": [
+            "入力 `x` は長さ $T = 8$、正解 `y` は `x` を1文字右にずらした長さ $8$。",
+            "各位置 `t = 0, 1, ..., 7` で1問ずつ、計8問を同時に採点する。",
+            "位置 `2` の正解は `y[2] = '意'`（これは `x[3]` と同じ）。カンニングを防ぐため見てよいのは `x[0..2]`（`'私の注'`）まで。"
+          ],
+          "altExample": "バッチサイズ $B = 32$、窓の長さ $T = 64$ なら、1回の順伝播で $32 \\times 64 = 2048$ 問の予測を同時に学習できます。"
+        },
+        {
+          "prompt": "文字列 `'吾輩は猫である'` から長さ $T = 5$ の入力 `x = '吾輩は猫で'` を切り出しました。対応する正解 `y` と、位置 `3`（`'猫'` の位置）で見てよい文字の組み合わせはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`y = '輩は猫であ'`、位置 `3` で見てよいのは `'吾輩は猫'`（位置 `0〜3`）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`y = '吾輩は猫で'`、位置 `3` で見てよいのは `'吾輩は猫で'`（位置 `0〜4`）",
+              "wrongReason": "正解 `y` は入力と同じではなく1文字先へずらします。また位置 `4` の `'で'` は位置 `3` の正解なので見てはいけません。"
+            },
+            {
+              "id": "c",
+              "text": "`y = '輩は猫であ'`、位置 `3` で見てよいのは `'猫'`（位置 `3`）のみ",
+              "wrongReason": "自分自身だけでなく、自分より前（過去）の位置 `0〜3` はすべて参照できます。"
+            },
+            {
+              "id": "d",
+              "text": "`y = 'は猫である'`、位置 `3` で見てよいのは `'吾輩は'`（位置 `0〜2`）",
+              "wrongReason": "`y` は2文字ではなく1文字だけずらします。また位置 `3` では自分自身（`'猫'`）も見られます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`y` は `x` より1文字ずつ後ろの文字が並びます。位置 `3` では `0, 1, 2, 3` 番目を見て `y[3]`（`'で'`）を当てます。",
+          "reasoning": "位置 `t` では `0` から `t` までの過去の情報を使って次の文字 `y[t]` を予測します。未来（`t+1` 以降）を遮断するからこそ、推論時と同じ条件で並列学習ができます。",
+          "steps": [
+            "`x = '吾輩は猫で'` の1文字先を並べると `y = '輩は猫であ'`。",
+            "位置 `3` の入力は `'猫'`、正解 `y[3]` は `'で'`。",
+            "見てよいのは位置 `0〜3` の `'吾輩は猫'` まで。"
+          ],
+          "altExample": "コードでは `x = data[i:i+T]`、`y = data[i+1:i+T+1]` の1行違いで切り出します。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q02",
+      "chapter": "11-attention",
+      "section": "ステップ1：過去を「平均」してみる",
+      "sectionAnchor": "#s2",
+      "concept": "prefix-average-bow",
+      "conceptLabel": "自分と過去の平均（Bag of Words）の計算",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第6章：スライスと平均"],
+      "variants": [
+        {
+          "prompt": "未来を見ずに「位置 `0` から位置 `t` までの平均」をとる処理を確認します。次のコードを実行すると何が表示されますか？",
+          "code": "vals = [2.0, 6.0, 4.0, 8.0]\nxbow = [sum(vals[:t + 1]) / (t + 1) for t in range(len(vals))]\nprint(xbow)",
+          "accept": ["[2.0, 4.0, 4.0, 5.0]"],
+          "placeholder": "表示されるリストを入力（例：[1.0, 2.0, ...]）",
+          "hint": "`t=0` は `[2.0]` の平均、`t=1` は `[2.0, 6.0]` の平均、`t=2` は `[2.0, 6.0, 4.0]` の平均、`t=3` は全4個の平均です。",
+          "reasoning": "位置 `t` の出力はスライス `vals[:t + 1]`（先頭から `t` 個目までの `t + 1` 個）の平均になり、未来の要素 `vals[t+1:]` は一切混ざりません。",
+          "steps": [
+            "`t=0`: `2.0 / 1 = 2.0`。",
+            "`t=1`: `(2.0 + 6.0) / 2 = 4.0`。",
+            "`t=2`: `(2.0 + 6.0 + 4.0) / 3 = 4.0`。",
+            "`t=3`: `(2.0 + 6.0 + 4.0 + 8.0) / 4 = 5.0`。"
+          ],
+          "altExample": "本文の `x[b, :t + 1].mean(dim=0)` は、これを各バッチ・各次元について同じように計算しています。"
+        },
+        {
+          "prompt": "次のコードを実行すると何が表示されますか？（`t=2` での出力のみ表示しています）",
+          "code": "vals = [10.0, 20.0, 30.0, 100.0]\nt = 2\nprint(sum(vals[:t + 1]) / (t + 1))",
+          "accept": ["20.0"],
+          "placeholder": "表示される小数を入力",
+          "hint": "`t = 2` のとき、`vals[:3]` には未来の `100.0` は入りません。",
+          "reasoning": "未来の要素 `vals[3] = 100.0` がどれだけ大きくても、位置 `2` の過去平均には一切影響しないことを確認できます。",
+          "steps": [
+            "`vals[:t + 1]` は `vals[:3] = [10.0, 20.0, 30.0]`。",
+            "合計は `60.0`、個数は `3`。",
+            "`60.0 / 3 = 20.0`。"
+          ],
+          "altExample": "これが後の「カンニング検査（最後の要素を書き換えても前の位置の出力が変わらない）」の原点です。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q03",
+      "chapter": "11-attention",
+      "section": "ステップ2：行列の掛け算で一気に",
+      "sectionAnchor": "#s3",
+      "concept": "tril-matmul-weighted-average",
+      "conceptLabel": "下三角行列 torch.tril と行列積 wei @ x による重みつき平均",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第6章：行列の掛け算 @"],
+      "variants": [
+        {
+          "prompt": "`wei` を形 `[T, T]` の下三角行列（各行の合計が1になるよう正規化済み）、`x` を形 `[B, T, C]` の入力テンソルとします。`wei @ x` を計算すると何が起き、結果の形は何になりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "二重の `for` 文なしで全バッチ・全位置の「過去の重みつき平均」が一括計算され、形は `[B, T, C]` になる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "形が合わないため必ずエラーになり、`wei` を `[B, C, T]` に変形する必要がある",
+              "wrongReason": "PyTorchの `@` は先頭のバッチ軸 `B` を自動でブロードキャストしてくれるため、`[T, T] @ [B, T, C]` はそのまま `[B, T, C]` になります。"
+            },
+            {
+              "id": "c",
+              "text": "未来の位置も含めた全文字の合計が計算され、形は `[B, T, T]` になる",
+              "wrongReason": "`wei` の右上が `0` なので未来の位置は掛けると `0` になって消えます。また出力の形は `[B, T, C]` です。"
+            },
+            {
+              "id": "d",
+              "text": "文字ごとのベクトルが連結され、形は `[B, T * C]` になる",
+              "wrongReason": "`wei @ x` は各行の重みで `x` の行ベクトルを足し合わせる（重みつき平均）操作なので、次元 `C` はそのまま `[B, T, C]` です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "行列積では `wei` の第 `t` 行（重み）と `x` の各列を掛けて足すので、「第 `t` 行の重みで過去のベクトルを混ぜた結果」が1発で出ます。",
+          "reasoning": "下三角の重み行列 `wei` を左から掛けるだけで、未来を遮断した重みつき平均が全バッチ・全位置同時に高速計算できます。GPUが得意な行列積に落とし込むのがTransformer高速化の要です。",
+          "steps": [
+            "`wei` の形 `[T, T]` はブロードキャストにより `[B, T, T]` として扱われる。",
+            "`[B, T, T] @ [B, T, C]` → 内側の `T` が消えて `[B, T, C]`。",
+            "`wei` の第 `t` 行は右上が `0`、左下が `1/(t+1)` なので、`x[b, 0..t]` の平均に一致する。"
+          ],
+          "altExample": "もし `wei` の第2行を `[0.1, 0.7, 0.2, 0, ...]` のように変えれば、位置2は位置1の情報を70%受け取る「内容に応じた注目」になります。"
+        },
+        {
+          "prompt": "長さ $T = 4$ で `wei = torch.tril(torch.ones(4, 4))` を作り、各行の合計で割った `wei = wei / wei.sum(dim=1, keepdim=True)` を作りました。3行目（インデックス `2`）の中身はどうなりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`[0.3333, 0.3333, 0.3333, 0.0000]`（位置 `0, 1, 2` を 1/3 ずつ、未来の位置 `3` は 0）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`[0.2500, 0.2500, 0.2500, 0.2500]`（全4位置を 1/4 ずつ）",
+              "wrongReason": "下三角なのでインデックス `2` の行では列 `3` は `0` のままです。合計は `3` なので `1/3` ずつになります。"
+            },
+            {
+              "id": "c",
+              "text": "`[0.0000, 0.0000, 0.5000, 0.5000]`（自分と未来を 1/2 ずつ）",
+              "wrongReason": "それは上三角（`triu`）の挙動です。`tril` は左下（自分と過去）に `1` が入ります。"
+            },
+            {
+              "id": "d",
+              "text": "`[1.0000, 1.0000, 1.0000, 0.0000]`（合計は 3 のまま）",
+              "wrongReason": "`wei.sum(dim=1, keepdim=True)` で各行の合計（この行は `3`）で割っているので、各行の和は `1.0` に正規化されます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "インデックス `2` は上から3番目の行なので、`tril` では左から3個が `1`、最後の1個が `0` です。",
+          "reasoning": "`tril` の第 `t` 行（0始まり）は先頭 `t + 1` 個が `1` で残りが `0` です。行和 `t + 1` で割ると、過去と自分への均等な重み `1/(t+1)` になります。",
+          "steps": [
+            "`tril` の行2：`[1, 1, 1, 0]`。",
+            "`dim=1` の合計は `3`。",
+            "`3` で割ると `[1/3, 1/3, 1/3, 0]`。"
+          ],
+          "altExample": "行0は `[1, 0, 0, 0]`、行1は `[0.5, 0.5, 0, 0]`、行3は `[0.25, 0.25, 0.25, 0.25]` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q04",
+      "chapter": "11-attention",
+      "section": "ステップ3：softmaxで重みを作る",
+      "sectionAnchor": "#s4",
+      "concept": "causal-mask-minus-inf-why",
+      "conceptLabel": "因果マスクで 0 ではなく -∞ を使う理由とマスク無し時の問題",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：指数関数 e^x と softmax"],
+      "variants": [
+        {
+          "prompt": "因果マスク（causal mask）を `scores` にかけるとき、未来の位置を `0` ではなく **`float(\"-inf\")`（$-\\infty$）** で埋めるのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`0` を入れても softmax の中で $e^0 = 1 \\neq 0$ となり未来に正の重みが残ってしまうが、$-\\infty$ なら $e^{-\\infty} = 0$ で未来の重みがぴったり 0 になるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorch の `softmax` は `0` を受け取るとエラーを出すから",
+              "wrongReason": "`softmax` は `0` でも問題なく計算できますが、$e^0 = 1$ になるため未来のトークンにも確率（重み）が割り当てられてしまいます。"
+            },
+            {
+              "id": "c",
+              "text": "$-\\infty$ を入れると未来の文字の重みが 1.0 になり、将来の文脈を強く学べるから",
+              "wrongReason": "逆です。未来の文字の重みをぴったり 0.0 にしてカンニングを防ぐのが目的です。"
+            },
+            {
+              "id": "d",
+              "text": "メモリ使用量を半分にするためであり、数学的な結果は `0` を入れたときとまったく同じだから",
+              "wrongReason": "メモリは変わりませんし、結果はまったく違います（`0` だと未来に正の重みがつき、$-\\infty$ だとちょうど `0` になります）。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第3章の softmax の式 $p_i = e^{z_i} / \\sum_j e^{z_j}$ に、$z_i = 0$ と $z_i = -\\infty$ をそれぞれ代入して比べてみましょう！",
+          "reasoning": "softmax は入力を指数関数 $e^z$ に通します。$e^0 = 1$ なので `0` は「無視」ではなく「ふつうの点数0点」として重みをもらいます。重みを完全に0にするには $e^{-\\infty} = 0$ となる $-\\infty$ が必須です。",
+          "steps": [
+            "たとえば位置0の点数が `[1.0, 2.0]` で、位置1が未来とする。",
+            "未来を `0.0` で埋めると `[1.0, 0.0]` → $e^1 \\approx 2.72, e^0 = 1$ → 未来の重みは約 `27%` も残る！",
+            "未来を `-inf` で埋めると `[1.0, -inf]` → $e^1 \\approx 2.72, e^{-\\infty} = 0$ → 未来の重みはぴったり `0%`。"
+          ],
+          "altExample": "もし行の**全部**を `-inf` にしてしまうと分母が `0` になって `nan` が出ますが、下三角は対角線（自分自身）を残すので必ず1個以上は有限の値が残ります。"
+        },
+        {
+          "prompt": "もし因果マスク（`masked_fill`）を書き忘れたまま言語モデルを学習させると、何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "学習中は未来の文字（＝正解そのもの）をカンニングできて損失が異常に下がるが、実際の生成時には未来が存在しないためまったく役に立たないモデルになる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "過去の文字も未来の文字も見られなくなり、損失がまったく下がらなくなる",
+              "wrongReason": "マスクを忘れると「見られなくなる」のではなく「未来まで全部見えてしまう」ため、カンニングによって学習損失はむしろ極端に下がります。"
+            },
+            {
+              "id": "c",
+              "text": "学習速度が2倍になり、生成される文章の品質も必ず向上する",
+              "wrongReason": "未来をカンニングして答えを丸写しする癖がつくため、未来がない推論（生成）では破綻します。"
+            },
+            {
+              "id": "d",
+              "text": "`F.softmax` が自動的に未来を隠してくれるので、何も変わらない",
+              "wrongReason": "`F.softmax` はただの数式変換であり、どれが未来かなんて知りません。明示的な因果マスクが必要です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "学習時は答えの入った文章全体が入力 `x` にある一方、生成時は「まだ書いていない未来の文字」は存在しません。",
+          "reasoning": "因果マスクを外すと、位置 `t` が隣の `x[t+1]`（＝自分の正解 `y[t]`）を直接覗き見してコピーするだけで損失ほぼ0を達成してしまいます。そのため生成時には使い物になりません。",
+          "steps": [
+            "学習時：`x` の位置 `t+1` に、位置 `t` が予測すべき正解 `y[t]` がそのまま入っている。",
+            "マスクなし：位置 `t` が位置 `t+1` に注目して丸写しすれば、訓練損失も検証損失もほぼ0になる（カンニング）。",
+            "生成時：位置 `t+1` はまだ存在しないため、モデルは何を出力すればよいか分からず崩壊する。"
+          ],
+          "altExample": "だからこそ本文後半では、最後の文字だけ書き換えて前の位置の出力が変わらないか確かめる「カンニング検査」を行います。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q05",
+      "chapter": "11-attention",
+      "section": "ステップ3：softmaxで重みを作る",
+      "sectionAnchor": "#s4",
+      "concept": "predict-mask-zero-vs-inf",
+      "conceptLabel": "コード予測：0埋めマスクと -inf マスクの softmax 出力の違い",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第3章：safe_softmax"],
+      "variants": [
+        {
+          "prompt": "未来の位置を `0.0` で埋めた場合と `float(\"-inf\")` で埋めた場合の softmax 結果（未来の重み）を比べます。次のコードの出力を予測してください。",
+          "code": "import math\n\ndef softmax(xs):\n    m = max(xs)\n    ex = [math.exp(x - m) for x in xs]\n    s = sum(ex)\n    return [round(e / s, 2) for e in ex]\n\nprint(softmax([0.0, 0.0]))\nprint(softmax([0.0, float(\"-inf\")]))",
+          "accept": ["[0.5, 0.5]\n[1.0, 0.0]"],
+          "placeholder": "2行の出力を入力",
+          "hint": "`[0.0, 0.0]` は $e^0=1$ が2個なので半分ずつ。`[0.0, -inf]` は $e^{-\\infty}=0$ なので1番目だけ `1.0` になります。",
+          "reasoning": "点数が同じ `0.0` のとき、未来を `0.0` で埋めたままにすると50%も未来を見てしまいます。`float(\"-inf\")` なら `math.exp(-inf) == 0.0` なのでぴったり `[1.0, 0.0]` になります。",
+          "steps": [
+            "`softmax([0.0, 0.0])`: `ex = [1.0, 1.0]` → `[0.5, 0.5]`。",
+            "`softmax([0.0, -inf])`: `m = 0.0`、`ex = [1.0, 0.0]` → `[1.0, 0.0]`。"
+          ],
+          "altExample": "Pythonの `math.exp(float('-inf'))` はエラーにならず正確に `0.0` を返します。"
+        },
+        {
+          "prompt": "次のコードは3トークン分の因果マスク済みスコア（すべて0点）を各行 softmax した結果を表示します。最後の行（行2）は何と表示されますか？",
+          "code": "import math\n\ndef softmax(xs):\n    m = max(xs)\n    ex = [math.exp(x - m) for x in xs]\n    s = sum(ex)\n    return [round(e / s, 2) for e in ex]\n\nscores = [\n    [0.0, float(\"-inf\"), float(\"-inf\")],\n    [0.0, 0.0, float(\"-inf\")],\n    [0.0, 0.0, 0.0],\n]\nprint(softmax(scores[1]))",
+          "accept": ["[0.5, 0.5, 0.0]"],
+          "placeholder": "表示されるリストを入力",
+          "hint": "`scores[1]` は `[0.0, 0.0, -inf]` です。",
+          "reasoning": "行1では位置0と位置1が均等に `0.5` ずつ、未来の位置2が `0.0` になります。",
+          "steps": [
+            "`scores[1] = [0.0, 0.0, -inf]`。",
+            "`ex = [1.0, 1.0, 0.0]`、合計 `2.0`。",
+            "割ると `[0.5, 0.5, 0.0]`。"
+          ],
+          "altExample": "`scores[0]` は `[1.0, 0.0, 0.0]`、`scores[2]` は `[0.33, 0.33, 0.33]` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q06",
+      "chapter": "11-attention",
+      "section": "内積：似ている度",
+      "sectionAnchor": "#s5",
+      "concept": "dot-product-similarity",
+      "conceptLabel": "内積の手計算と「向きの一致度」としての解釈",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第6章：ベクトルと行列の掛け算"],
+      "variants": [
+        {
+          "prompt": "2つのベクトル $\\boldsymbol{q} = [2, -1, 3]$ と $\\boldsymbol{k} = [4, 2, 1]$ の内積 $\\boldsymbol{q} \\cdot \\boldsymbol{k}$ を計算してください。",
+          "answer": { "value": 9, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "同じ位置どうしを掛けて全部足します：$2 \\times 4 + (-1) \\times 2 + 3 \\times 1$。",
+          "reasoning": "内積は対応する成分どうしの積の和 $\\sum_i q_i k_i$ です。値が大きいほど2つのベクトルが同じ方向を向いており、Attentionでは高い注目スコアになります。",
+          "steps": [
+            "1番目：$2 \\times 4 = 8$。",
+            "2番目：$(-1) \\times 2 = -2$。",
+            "3番目：$3 \\times 1 = 3$。",
+            "合計：$8 + (-2) + 3 = 9$。"
+          ],
+          "altExample": "もし $\\boldsymbol{k} = [-2, 1, -3]$（完全に逆向き）なら、内積は $-4 - 1 - 9 = -14$ の大きなマイナスになり、softmax後の重みは小さくなります。"
+        },
+        {
+          "prompt": "Query $\\boldsymbol{q} = [1, 2]$ に対して、Key A $\\boldsymbol{k}_A = [3, 1]$ と Key B $\\boldsymbol{k}_B = [-2, 1]$ があります。$\\boldsymbol{q}$ と $\\boldsymbol{k}_B$ の内積はいくつになりますか？",
+          "answer": { "value": 0, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "$1 \\times (-2) + 2 \\times 1$ を計算しましょう。",
+          "reasoning": "内積が `0` になるのは2つのベクトルがちょうど直角（無関係な向き）のときです。一方 Key A との内積は $1\\times 3 + 2\\times 1 = 5$ なので、Query は Key A により強く注目します。",
+          "steps": [
+            "1番目：$1 \\times (-2) = -2$。",
+            "2番目：$2 \\times 1 = 2$。",
+            "合計：$-2 + 2 = 0$（直角）。"
+          ],
+          "altExample": "Pythonでは `sum(a * b for a, b in zip(q, k))` で書けます。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q07",
+      "chapter": "11-attention",
+      "section": "ステップ4：Query・Key・Value",
+      "sectionAnchor": "#s6",
+      "concept": "qkv-roles",
+      "conceptLabel": "Query・Key・Value のそれぞれの役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "Self-Attention における **Query・Key・Value** の役割と計算の組み合わせとして、正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "注目する側の **Query** と注目される側の **Key** の内積から重み（Attention weights）を計算し、その重みで **Value** を重みつき平均して出力する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "**Key** と **Value** の内積から重みを計算し、その重みで **Query** を平均する",
+              "wrongReason": "重み（似ている度）を決めるのは「探す質問（Query）」と「背表紙のラベル（Key）」の内積であり、最後に混ぜて受け取る中身が Value です。"
+            },
+            {
+              "id": "c",
+              "text": "**Query**・**Key**・**Value** は人間が辞書で手作業で作る固定テーブルであり、学習では変化しない",
+              "wrongReason": "Q・K・V を作る3つの線形層（`nn.Linear`）の重みは、すべて誤差逆伝播によってデータから自動で学習されます。"
+            },
+            {
+              "id": "d",
+              "text": "**Query** は未来の文字、**Key** は過去の文字、**Value** は現在の文字だけを表す",
+              "wrongReason": "すべての文字（各位置）が自分自身のベクトル `x` から Q・K・V の3種類すべてを作ります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "図書館のたとえ：Query＝検索ワード、Key＝本の背表紙ラベル、Value＝本の中身。",
+          "reasoning": "「どの文字に注目するか」を決める照合ステップ（$QK^\\top$）と、「注目した先からどんな情報を引き出すか」（$V$）を別々の変換行列に分けることで、柔軟な情報収集が可能になります。",
+          "steps": [
+            "各位置の `x` から `q = query(x)`、`k = key(x)`、`v = value(x)` を作る。",
+            "照合：`scores = q @ k.transpose(-2, -1) / sqrt(d)` → マスク → `wei = softmax(scores)`。",
+            "情報取得：`out = wei @ v`（Value の重みつき平均）。"
+          ],
+          "altExample": "「彼女」の Query が「女性の人物」を探し、「奥さん」の Key が「女性の人物」と答えると、内積が大きくなって「奥さん」の Value が多く取り込まれます。"
+        },
+        {
+          "prompt": "なぜ同じ入力 `x` からわざわざ `key(x)`、`query(x)`、`value(x)` と3つの別々の `nn.Linear` を使うのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "「何を探しているか（Query）」「どう見つけてほしいか（Key）」「選ばれたら何を渡すか（Value）」という3つの異なる役割をそれぞれ別の変換で表現できるようにするため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "PyTorch の文法上、`nn.Linear` は必ず3個セットで定義しないといけないから",
+              "wrongReason": "そのような文法ルールはありません。3つの役割を分離するための設計上の理由です。"
+            },
+            {
+              "id": "c",
+              "text": "同じ文字どうしの内積を常に 0 にするため",
+              "wrongReason": "むしろ同じ文字や自分自身に注目したほうがよい場面も多く、0にする目的ではありません。"
+            },
+            {
+              "id": "d",
+              "text": "計算量を3分の1に減らすため",
+              "wrongReason": "1つの `x` をそのまま使うより線形層が3つ増えるので計算は増えますが、その分表現力が飛躍的に高まります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "もし `x` 同士をそのまま内積すると、同じ文字どうしばかりが高得点になってしまいます。",
+          "reasoning": "「彼女」は「彼女」自身ではなく「奥さん」に注目したいように、探す側（Query）と探される側（Key）は非対称です。さらに取り出したい情報（Value）も別に変換できるため、3つの線形層に分けています。",
+          "steps": [
+            "Query と Key を分けることで、「彼女→奥さん」のような非対称な関係に高いスコアをつけられる。",
+            "Value を分けることで、照合に使う特徴と、次の層に渡す情報の中身を分けられる。"
+          ],
+          "altExample": "Web検索でも「検索クエリ」「記事タイトル（キー）」「記事本文（バリュー）」は別物ですよね。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q08",
+      "chapter": "11-attention",
+      "section": "ステップ4：Query・Key・Value",
+      "sectionAnchor": "#s6",
+      "concept": "attention-shape-trace",
+      "conceptLabel": "Self-Attention 内部のテンソル shape トレース",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第6章：行列積の形のルール"],
+      "variants": [
+        {
+          "prompt": "バッチサイズ $B = 4$、文字数 $T = 8$、埋め込み次元 $C = 32$、ヘッド次元 $hs = 16$ のとき、Self-Attention 内の `k.transpose(-2, -1)`、`scores`（`q @ k.transpose(-2, -1)`）、および出力 `out`（`wei @ v`）の形の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`k.transpose(-2, -1)`: `[4, 16, 8]`、`scores`: `[4, 8, 8]`、`out`: `[4, 8, 16]`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`k.transpose(-2, -1)`: `[16, 8, 4]`、`scores`: `[4, 16, 16]`、`out`: `[4, 8, 32]`",
+              "wrongReason": "`transpose(-2, -1)` は先頭のバッチ軸 `4` は動かさず最後の2軸（`8` と `16`）だけを入れ替えます。また `out` の最後の次元は `v` の次元 `hs = 16` です。"
+            },
+            {
+              "id": "c",
+              "text": "`k.transpose(-2, -1)`: `[4, 16, 8]`、`scores`: `[4, 8, 16]`、`out`: `[4, 8, 8]`",
+              "wrongReason": "`[4, 8, 16] @ [4, 16, 8]` の結果は `[4, 8, 8]`（全文字ペアのスコア表）、そして `[4, 8, 8] @ [4, 8, 16]` の結果は `[4, 8, 16]` です。"
+            },
+            {
+              "id": "d",
+              "text": "`k.transpose(-2, -1)`: `[4, 8, 16]`、`scores`: `[4, 8, 8]`、`out`: `[4, 8, 32]`",
+              "wrongReason": "転置しない `[4, 8, 16] @ [4, 8, 16]` は内側の次元（`16` と `8`）が合わずエラーになります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`q, k, v` はすべて `[B, T, hs] = [4, 8, 16]` です。行列積 `[..., M, K] @ [..., K, N] -> [..., M, N]` を当てはめましょう。",
+          "reasoning": "Attention で迷子にならない最大のコツは、`scores` と `wei` が「文章ごとの全トークン対全トークン表 `[B, T, T]`」になり、最後に `v: [B, T, hs]` を掛けて `[B, T, hs]` に戻る流れを押さえることです。",
+          "steps": [
+            "`q`, `k`, `v`：`[4, 8, 16]`。",
+            "`k.transpose(-2, -1)`：最後の2軸を入れ替えて `[4, 16, 8]`。",
+            "`scores = q @ k^T`：`[4, 8, 16] @ [4, 16, 8]` → `[4, 8, 8]`（`wei` も同じ `[4, 8, 8]`）。",
+            "`out = wei @ v`：`[4, 8, 8] @ [4, 8, 16]` → `[4, 8, 16]`。"
+          ],
+          "altExample": "もし $T = 64$ に伸ばすと、`scores` と `wei` は `[B, 64, 64]` と $T^2$ に比例して大きくなります（長文でメモリが増える理由です）。"
+        },
+        {
+          "prompt": "入力 `x` の形が `[2, 12, 64]` で、`head_size = 16` の `Head` に通しました。Attention の重み `wei` の形と、`Head` の出力の形はそれぞれ何になりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`wei`: `[2, 12, 12]`、出力: `[2, 12, 16]`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`wei`: `[2, 16, 16]`、出力: `[2, 12, 64]`",
+              "wrongReason": "`wei` はトークン間の注目表なので `[B, T, T] = [2, 12, 12]` です。単一ヘッドの出力次元は `head_size = 16` です。"
+            },
+            {
+              "id": "c",
+              "text": "`wei`: `[2, 12, 16]`、出力: `[2, 12, 12]`",
+              "wrongReason": "`wei` と出力の最後の次元が逆になっています。"
+            },
+            {
+              "id": "d",
+              "text": "`wei`: `[12, 12]`、出力: `[2, 12, 16]`",
+              "wrongReason": "Attention の重みは文章（バッチ）ごとに内容が異なるため、先頭のバッチ軸 `B = 2` を保って `[2, 12, 12]` になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`B = 2, T = 12, C = 64, hs = 16` を早見表（`wei: [B, T, T]`、`out: [B, T, hs]`）に当てはめます。",
+          "reasoning": "第12章のマルチヘッドAttentionでは、この出力 `[2, 12, 16]` を4ヘッド分つなげることで `[2, 12, 64]` に戻します。",
+          "steps": [
+            "`B = 2, T = 12, hs = 16`。",
+            "`wei` は各バッチごとの $T \\times T$ 注目表 → `[2, 12, 12]`。",
+            "`out = wei @ v` は `[2, 12, 12] @ [2, 12, 16]` → `[2, 12, 16]`。"
+          ],
+          "altExample": "`C = 64` が `hs = 16` に縮むのは、各線形層 `nn.Linear(64, 16)` を通るためです。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q09",
+      "chapter": "11-attention",
+      "section": "ステップ4：Query・Key・Value",
+      "sectionAnchor": "#s6",
+      "concept": "attention-hand-calc-value-mix",
+      "conceptLabel": "Attention重みによる Value ベクトルの重みつき平均の手計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "2トークンの例で、位置1の Attention 重みが `wei[1] = [0.2, 0.8]`、各位置の Value ベクトルが $v_0 = [10, 0]$、$v_1 = [0, 20]$ だとします。位置1の出力ベクトル `out[1]` の **2番目の成分** はいくつになりますか？",
+          "answer": { "value": 16.0, "tolerance": 0.01 },
+          "placeholder": "数値を入力（例：16）",
+          "hint": "`out[1] = 0.2 * v_0 + 0.8 * v_1` です。2番目の成分だけ見ると `0.2 * 0 + 0.8 * 20` になります。",
+          "reasoning": "`wei @ V` の第1行は「位置0の Value を 0.2 倍 ＋ 位置1の Value を 0.8 倍」という重みつき平均です。",
+          "steps": [
+            "1番目の成分：$0.2 \\times 10 + 0.8 \\times 0 = 2.0$。",
+            "2番目の成分：$0.2 \\times 0 + 0.8 \\times 20 = 16.0$。",
+            "したがって `out[1] = [2.0, 16.0]`、2番目の成分は `16.0`。"
+          ],
+          "altExample": "もし重みが `[0.5, 0.5]` なら `[5.0, 10.0]`、重みが `[1.0, 0.0]` なら位置0の Value `[10.0, 0.0]` がそのまま取り出されます。"
+        },
+        {
+          "prompt": "3トークンの例で、位置2の Attention 重みが `[0.5, 0.25, 0.25]`、各位置の1次元 Value が `[4.0, 8.0, 12.0]` のとき、位置2の Attention 出力はいくつになりますか？",
+          "answer": { "value": 7.0, "tolerance": 0.01 },
+          "placeholder": "数値を入力",
+          "hint": "$0.5 \\times 4.0 + 0.25 \\times 8.0 + 0.25 \\times 12.0$ を計算しましょう。",
+          "reasoning": "Attention 出力は重み（合計1）で各位置の Value をブレンドした値になります。",
+          "steps": [
+            "$0.5 \\times 4.0 = 2.0$。",
+            "$0.25 \\times 8.0 = 2.0$。",
+            "$0.25 \\times 12.0 = 3.0$。",
+            "合計：$2.0 + 2.0 + 3.0 = 7.0$。"
+          ],
+          "altExample": "もし全位置を均等平均（`[1/3, 1/3, 1/3]`）すれば `8.0` ですが、位置0に重み `0.5` を置いたため `4.0` 寄りの `7.0` になりました。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q10",
+      "chapter": "11-attention",
+      "section": "なぜ √d で割るのか",
+      "sectionAnchor": "#s7",
+      "concept": "scaling-by-sqrt-d-why",
+      "conceptLabel": "QK^T を √d で割る理由（分散増大・softmax飽和・勾配消失）",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第3章：温度とsoftmaxの尖り", "第10章：和の分散と勾配消失"],
+      "variants": [
+        {
+          "prompt": "Scaled Dot-Product Attention の式 $\\mathrm{softmax}(QK^\\top / \\sqrt{d})V$ で、なぜ $QK^\\top$ を $\\sqrt{d}$ で割るのですか？ 割らないと何が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "次元 $d$ が大きいほど内積の分散が約 $d$ 倍に膨らみ、割らないと softmax がほぼ one-hot（1位だけ1・残り0）に飽和して勾配がほぼ 0 になり学習が止まるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "内積の計算結果が必ず負の数になるため、$\\sqrt{d}$ で割って正の数に変換するから",
+              "wrongReason": "$\\sqrt{d}$ は正の数なので割っても符号は変わりません。目的は点数のばらつき（分散）を約1に揃えることです。"
+            },
+            {
+              "id": "c",
+              "text": "未来の位置のスコアを 0 にするための因果マスクの代わりだから",
+              "wrongReason": "$\\sqrt{d}$ で割っても未来のスコアは消えません。未来を遮断するのは `-inf` の因果マスクの役目です。"
+            },
+            {
+              "id": "d",
+              "text": "行列 `q` と `k` の形を一致させてエラーを防ぐため",
+              "wrongReason": "スカラー $\\sqrt{d}$ で割ってもテンソルの形 `[B, T, T]` は一切変わりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "平均0・分散1の数を $d$ 個掛けて足すと分散は $d$ になります。$d = 256$ のとき点数の差はどのくらい大きくなるでしょう？",
+          "reasoning": "独立な標準正規分布の積の和は分散が $d$（標準偏差が $\\sqrt{d}$）になります。$\\sqrt{d}$ で割ることで分散を $d / (\\sqrt{d})^2 = 1$ に保ち、softmax の温度が極端に低くなる（飽和して勾配が消える）のを防ぎます。",
+          "steps": [
+            "$q_i, k_i$ が平均0・分散1なら、積 $q_i k_i$ の分散も1。",
+            "$d$ 個足すと分散は $d$、標準偏差は $\\sqrt{d}$ に膨らむ。",
+            "$\\sqrt{d}$ で割ると分散は $d / d = 1$ に戻る。",
+            "点数のばらつきが適度に保たれ、softmax の勾配が消えずに学習が進む。"
+          ],
+          "altExample": "第3章の温度にたとえると、$\\sqrt{d}$ で割り忘れるのは「次元が増えるほど勝手に温度 $T$ を下げてしまい、最初から1点集中で固まる」のと同じです。"
+        },
+        {
+          "prompt": "なぜ $d$ ではなく **$\\sqrt{d}$**（平方根）で割るのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "ある変数を定数 $c$ で割ると分散は $c^2$ で割られるため、分散 $d$ を 1 に戻すには $c^2 = d$ すなわち $c = \\sqrt{d}$ で割る必要があるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "$d$ で割ると必ずゼロ除算になるから",
+              "wrongReason": "$d \\ge 1$ なので $d$ で割ってもゼロ除算にはなりませんが、分散が $1/d$ まで縮みすぎてしまいます。"
+            },
+            {
+              "id": "c",
+              "text": "計算機は割り算より平方根のほうが速く計算できるから",
+              "wrongReason": "速さの問題ではなく、分散を $1$ に保つための確率論の性質 $\\mathrm{Var}(X/c) = \\mathrm{Var}(X)/c^2$ によるものです。"
+            },
+            {
+              "id": "d",
+              "text": "論文の著者がたまたま見た目で選んだだけで、$d$ で割っても同じだから",
+              "wrongReason": "$d$ で割ると分散が $1/d$ になり（例：$d=64$ で分散 $0.0156$）、すべての点数がほぼ同じになって今度は注目がぼやけすぎます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "分散は「2乗のばらつき」です。値を $1/\\sqrt{d}$ 倍すると、2乗のばらつき（分散）は何倍になるでしょう？",
+          "reasoning": "確率変数 $X$ を $\\sqrt{d}$ で割ると、標準偏差は $1/\\sqrt{d}$ 倍、分散は $(1/\\sqrt{d})^2 = 1/d$ 倍になります。元の分散が $d$ なので、ちょうど $d \\times (1/d) = 1$ に戻ります。",
+          "steps": [
+            "内積の分散 $\\mathrm{Var}(q \\cdot k) = d$。",
+            "定数 $c$ で割った分散は $\\mathrm{Var}(q \\cdot k / c) = d / c^2$。",
+            "$d / c^2 = 1$ を解くと $c = \\sqrt{d}$。"
+          ],
+          "altExample": "$d = 64$ のとき、$8 = \\sqrt{64}$ で割れば分散は $64 / 8^2 = 1$ に戻ります。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q11",
+      "chapter": "11-attention",
+      "section": "なぜ √d で割るのか",
+      "sectionAnchor": "#s7",
+      "concept": "scaling-divisor-calc",
+      "conceptLabel": "head_size に応じたスケーリング係数 √d の計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "`head_size`（$d$）が `64` のとき、$QK^\\top$ の点数をいくつ（$\\sqrt{d}$）で割りますか？",
+          "answer": { "value": 8, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "$8 \\times 8 = 64$ です。",
+          "reasoning": "`head_size = 64` のとき $\\sqrt{64} = 8$ で割ることで、内積の分散（約64）を $64 / 8^2 = 1$ に戻します。",
+          "steps": [
+            "$d = 64$。",
+            "$\\sqrt{d} = \\sqrt{64} = 8$。"
+          ],
+          "altExample": "本物の GPT-2（small）のヘッド次元もちょうど `head_size = 64` なので、スコアを `8` で割っています。"
+        },
+        {
+          "prompt": "`head_size`（$d$）が `256` のとき、$QK^\\top$ の点数をいくつ（$\\sqrt{d}$）で割りますか？",
+          "answer": { "value": 16, "tolerance": 0.001 },
+          "placeholder": "整数を入力",
+          "hint": "$16 \\times 16 = 256$ です。",
+          "reasoning": "$d = 256$ のまま割らないと分散は約256（標準偏差16）にもなり、softmaxが極端に飽和します。$\\sqrt{256} = 16$ で割って分散を1に戻します。",
+          "steps": [
+            "$d = 256$。",
+            "$\\sqrt{d} = \\sqrt{256} = 16$。"
+          ],
+          "altExample": "コードでは `math.sqrt(k.shape[-1])` と書くので、`head_size` を変えても自動で正しい $\\sqrt{d}$ が使われます。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q12",
+      "chapter": "11-attention",
+      "section": "部品にまとめる：Head クラス",
+      "sectionAnchor": "#s8",
+      "concept": "register-buffer-and-cheating-test",
+      "conceptLabel": "register_buffer・tril[:T, :T] の切り出し・カンニング検査",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：nn.Module とパラメータ管理"],
+      "variants": [
+        {
+          "prompt": "`Head` クラスで下三角マスク `tril` を `self.register_buffer(\"tril\", ...)` で登録し、`forward` の中で `self.tril[:T, :T]` と切り出している理由の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`register_buffer` は「学習で更新しないがモデルと一緒にGPU移動・保存したいテンソル」として登録するため、`:T, :T` は `block_size` より短い入力長 `T` にも対応するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`register_buffer` は `tril` を勾配降下で学習させて未来を見られるようにするため、`:T, :T` はバッチサイズを揃えるため",
+              "wrongReason": "`register_buffer` は学習対象（`model.parameters()`）には**入りません**。また `T` はバッチサイズではなく文章の長さ（トークン数）です。"
+            },
+            {
+              "id": "c",
+              "text": "`register_buffer` は変数を削除してメモリを解放するため、`:T, :T` は最後の文字を捨てるため",
+              "wrongReason": "`register_buffer` はモデルの一部として保持する仕組みで、`:T, :T` は入力の長さ `T` に合わせてマスクを切り出しています。"
+            },
+            {
+              "id": "d",
+              "text": "`register_buffer` は必須ではなく、`self.tril[:T, :T]` も常に `T == block_size` なので書かなくてよい",
+              "wrongReason": "文章生成の開始時など `T < block_size` の入力が来ると、切り出さない場合サイズ不一致の `RuntimeError` になります。また `register_buffer` がないと `.to(\"cuda\")` で `tril` がCPUに置き去りになります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "生成時は「私は」（`T=2`）のように `block_size` より短い入力が来ます。また第13章ではモデルをGPUへ移します。",
+          "reasoning": "モデル内の固定テンソル（マスクなど）を `register_buffer` に登録しておくと、学習で壊されることなく `.to(device)` や `state_dict()` に自動で追従します。また `[:T, :T]` の切り出しにより任意の長さ `T <= block_size` で動きます。",
+          "steps": [
+            "`tril` は固定マスクなのでパラメータではなく buffer として登録する。",
+            "`model.to(device)` したとき、`register_buffer` したテンソルも一緒にGPUへ移る。",
+            "入力の長さ `T` は毎回 `block_size` 未満になり得るため、`self.tril[:T, :T]` で形 `[T, T]` に合わせる。"
+          ],
+          "altExample": "カンニング検査では、最後の位置 `T-1` の入力だけ書き換えた `x2` を `head(x2)` に通し、位置 `0..T-2` の出力が `head(x1)` と完全一致することを確認しました。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q13",
+      "chapter": "11-attention",
+      "section": "部品にまとめる：Head クラス",
+      "sectionAnchor": "#s8",
+      "concept": "impl-causal-attention-weights",
+      "conceptLabel": "【自力実装】純Pythonで内積＋スケール＋因果マスク付きAttention重み",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：safe_softmax", "第11章：内積と因果マスク"],
+      "variants": [
+        {
+          "prompt": "PyTorch を使わず純Python（標準ライブラリ `math` のみ）で、2次元リスト `Q`（形 `[T, d]`）と `K`（形 `[T, d]`）から、スケール（$/\\sqrt{d}$）と因果マスク（`j > i` は `-inf`）を適用した Attention 重み行列 `wei`（形 `[T, T]`）を返す関数 `causal_attention_weights(Q, K)` を実装してください。",
+          "starterCode": "import math\n\ndef causal_attention_weights(Q, K):\n    T = len(Q)\n    d = len(Q[0])\n    scale = math.sqrt(d)\n    wei = []\n    for i in range(T):\n        # 1. 各 j (0..T-1) について:\n        #    j > i なら float(\"-inf\")、そうでなければ Q[i] と K[j] の内積を scale で割る\n        # 2. その行 scores_row にオーバーフロー安全な softmax をかけて wei に追加\n        pass\n    return wei",
+          "solutionCode": "import math\n\ndef causal_attention_weights(Q, K):\n    T = len(Q)\n    d = len(Q[0])\n    scale = math.sqrt(d)\n    wei = []\n    for i in range(T):\n        scores_row = []\n        for j in range(T):\n            if j > i:\n                scores_row.append(float(\"-inf\"))\n            else:\n                dot = sum(a * b for a, b in zip(Q[i], K[j]))\n                scores_row.append(dot / scale)\n        m = max(scores_row)\n        exps = [math.exp(s - m) for s in scores_row]\n        total = sum(exps)\n        wei.append([e / total for e in exps])\n    return wei",
+          "colabCheck": "Q = [[1.0, 0.0], [0.0, 2.0]]\nK = [[1.0, 0.0], [0.0, 1.0]]\nW = causal_attention_weights(Q, K)\nassert len(W) == 2 and len(W[0]) == 2\nassert abs(W[0][0] - 1.0) < 1e-9 and W[0][1] == 0.0\nassert abs(sum(W[1]) - 1.0) < 1e-9\nexpected_w11 = math.exp(math.sqrt(2)) / (1.0 + math.exp(math.sqrt(2)))\nassert abs(W[1][1] - expected_w11) < 1e-6\n# すべて0なら均等な下三角平均になることも確認\nZ = [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]\nW0 = causal_attention_weights(Z, Z)\nassert abs(W0[2][0] - 1/3) < 1e-9 and W0[0][2] == 0.0\nprint(\"ALL PASSED\")",
+          "hint": "行 `i` のループの中で列 `j` を回し、`j > i` なら `float(\"-inf\")`、それ以外は `sum(a * b for a, b in zip(Q[i], K[j])) / scale` を作ってから行ごとに `safe_softmax` します。",
+          "reasoning": "行列演算ライブラリの中身を素の Python ループで書ければ、「内積 → $\\sqrt{d}$ スケーリング → 上三角を $-\\infty$ でマスク → 行方向 softmax」という Self-Attention の心臓部が完全に自分のものになります。",
+          "steps": [
+            "`scale = math.sqrt(len(Q[0]))` を求める。",
+            "各行 `i` について、`j <= i` なら `dot(Q[i], K[j]) / scale`、`j > i` なら `float(\"-inf\")`。",
+            "行ごとに最大値 `m` を引いて `math.exp(s - m)` をとり、行和で割る。"
+          ],
+          "altExample": "本文の `Q = [[1, 0], [0, 2]], K = [[1, 0], [0, 1]]` を入れると、行0は `[1.0, 0.0]`、行1は約 `[0.196, 0.804]` になります。",
+          "selfCheckCriteria": [
+            "行0の未来成分 `W[0][1]` がぴったり `0.0` になり、全行の和が `1.0` になる",
+            "手計算の2×2例と `Z`（全0入力）のテスト `assert` がすべて通った"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch11-q14",
+      "chapter": "11-attention",
+      "section": "部品にまとめる：Head クラス",
+      "sectionAnchor": "#s8",
+      "concept": "impl-scaled-dot-product-attention",
+      "conceptLabel": "【自力実装】純Pythonで Scaled Dot-Product Attention 全体の出力を計算",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第11章：手計算の2×2例", "第11章：カンニング検査"],
+      "variants": [
+        {
+          "prompt": "純Python（`math` のみ）で、`Q`, `K`, `V`（すべて形 `[T, d]` の2次元リスト）を受け取り、因果マスク付き Scaled Dot-Product Attention の出力 `out = wei @ V`（形 `[T, d]`）を返す関数 `scaled_dot_product_attention(Q, K, V)` を実装し、2×2の例とカンニング検査のテストを通してください。",
+          "starterCode": "import math\n\ndef scaled_dot_product_attention(Q, K, V):\n    T = len(Q)\n    d = len(Q[0])\n    scale = math.sqrt(d)\n    out = []\n    for i in range(T):\n        # 1. 行 i のマスク付きスコアを作り softmax で重み row_w を計算\n        # 2. 各次元 c (0..d-1) について sum(row_w[j] * V[j][c] for j in range(T)) を計算\n        # 3. 結果ベクトルを out に追加\n        pass\n    return out",
+          "solutionCode": "import math\n\ndef scaled_dot_product_attention(Q, K, V):\n    T = len(Q)\n    d = len(Q[0])\n    scale = math.sqrt(d)\n    out = []\n    for i in range(T):\n        scores = [\n            float(\"-inf\") if j > i else sum(a * b for a, b in zip(Q[i], K[j])) / scale\n            for j in range(T)\n        ]\n        m = max(scores)\n        exps = [math.exp(s - m) for s in scores]\n        total = sum(exps)\n        row_w = [e / total for e in exps]\n        vec = [sum(row_w[j] * V[j][c] for j in range(T)) for c in range(d)]\n        out.append(vec)\n    return out",
+          "colabCheck": "Q = [[1.0, 0.0], [0.0, 2.0]]\nK = [[1.0, 0.0], [0.0, 1.0]]\nV = [[10.0, 0.0], [0.0, 20.0]]\nout = scaled_dot_product_attention(Q, K, V)\nassert abs(out[0][0] - 10.0) < 1e-9 and abs(out[0][1] - 0.0) < 1e-9\nw11 = math.exp(math.sqrt(2)) / (1.0 + math.exp(math.sqrt(2)))\nw10 = 1.0 - w11\nassert abs(out[1][0] - w10 * 10.0) < 1e-6\nassert abs(out[1][1] - w11 * 20.0) < 1e-6\n# カンニング検査：位置1の K, V を大きく書き換えても位置0の出力は変わらない\nK2 = [[1.0, 0.0], [99.0, -99.0]]\nV2 = [[10.0, 0.0], [999.0, 999.0]]\nout2 = scaled_dot_product_attention(Q, K2, V2)\nassert out[0] == out2[0]\nprint(\"ALL PASSED\")",
+          "hint": "行 `i` の重み `row_w`（長さ `T`）が求まったら、出力ベクトルの `c` 番目の要素は `sum(row_w[j] * V[j][c] for j in range(T))` です。",
+          "reasoning": "このわずか十数行の純Pythonコードが、世界中のLLMの心臓部 $\\mathrm{softmax}(QK^\\top / \\sqrt{d})V$ と数学的にまったく同一です。",
+          "steps": [
+            "各位置 `i` について、`j <= i` は内積 `/ sqrt(d)`、`j > i` は `-inf`。",
+            "行ごとに最大値を引いて softmax し、重み `row_w` を得る。",
+            "各次元 `c` について `V[j][c]` を `row_w[j]` で重みつき平均して `out[i]` を作る。"
+          ],
+          "altExample": "テスト後半のカンニング検査のように、`K2[1]` や `V2[1]` を `999.0` に書き換えても `out2[0]` は `[10.0, 0.0]` のまま1ビットも変わりません。",
+          "selfCheckCriteria": [
+            "手計算した2×2例の出力（位置0が `[10.0, 0.0]`、位置1が約 `[1.96, 16.09]`）と一致した",
+            "未来（位置1）を書き換えても位置0が変わらないカンニング検査 `assert` が通った"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch11-q15",
+      "chapter": "11-attention",
+      "section": "Attentionだけで言語モデルを作る",
+      "sectionAnchor": "#s9",
+      "concept": "positional-embedding-and-view-loss",
+      "conceptLabel": "位置埋め込みが必要な理由と logits.view(B * T, -1)",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第9章：文字埋め込み nn.Embedding"],
+      "variants": [
+        {
+          "prompt": "Self-Attention を使う言語モデルで、文字の埋め込み `self.tok(idx)` に加えて**位置の埋め込み** `self.pos(torch.arange(T))` を足すのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "Attention の計算（内積と重みつき平均）自体には文字の順番・距離の情報が含まれず（順番の入れ替えを区別できない）、位置埋め込みがないと語順が分からなくなるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "文字埋め込みの次元数が足りないため、位置埋め込みを横に連結して次元を2倍にするから",
+              "wrongReason": "連結ではなく同じ次元 `n_embd` のベクトルどうしを**足し算**（`+`）しています。"
+            },
+            {
+              "id": "c",
+              "text": "位置埋め込みを足すと因果マスクが不要になるから",
+              "wrongReason": "位置埋め込みは「今何文字目か」を教えるだけで、未来を見えなくする因果マスクは依然として必須です。"
+            },
+            {
+              "id": "d",
+              "text": "文字の個数 $V$ を減らすため",
+              "wrongReason": "語彙数 $V$ は変わりません。位置 $0, 1, \\dots, \\text{block\\_size}-1$ それぞれにベクトルを割り当てています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「犬が猫を噛んだ」と「猫が犬を噛んだ」を、位置情報なしの集合（袋）として見たときを想像しましょう。",
+          "reasoning": "Self-Attention は入力トークン集合のペアごとの内積で重みを決めるため、本質的に「順列に対して等変（順序の概念がない）」です。位置埋め込みを足すことで初めて「何番目の文字か」「どれくらい離れているか」を区別できます。",
+          "steps": [
+            "Attention の式 $\\mathrm{softmax}(QK^\\top/\\sqrt{d})V$ には位置インデックス $t$ が登場しない。",
+            "位置ごとに学習可能なベクトル `self.pos(torch.arange(T))` を用意して `self.tok(idx)` に足す。",
+            "同じ文字でも「0番目の私」と「5番目の私」が異なるベクトルになり、語順を学べる。"
+          ],
+          "altExample": "最新のLLM（Llama や Qwen など）では、位置埋め込みを足す代わりに Q と K を位置に応じて回転させる **RoPE**（第25章）を使います。"
+        },
+        {
+          "prompt": "`OneHeadLM.forward` で `F.cross_entropy(logits.view(B * T, -1), targets.view(B * T))` と書いているのはなぜですか？（`B=32, T=64, V=2061` とします）",
+          "options": [
+            {
+              "id": "a",
+              "text": "`logits`（形 `[32, 64, 2061]`）と `targets`（形 `[32, 64]`）を「2048問 × 2061語彙」と「2048個の正解ID」に平坦化して、全バッチ・全位置の損失を一度に計算するため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "最後の位置の予測だけを取り出して、途中の63位置を捨てるため",
+              "wrongReason": "`B * T` にまとめるのは途中の位置を捨てるのではなく、全 `32 * 64 = 2048` 位置すべてを学習に使うためです。"
+            },
+            {
+              "id": "c",
+              "text": "語彙数 `V` を `-1` に減らして計算を速くするため",
+              "wrongReason": "`.view(..., -1)` の `-1` は「残りの軸の長さ（ここでは `V = 2061`）を自動計算して」という PyTorch の指定です。"
+            },
+            {
+              "id": "d",
+              "text": "損失がマイナスにならないように符号を反転するため",
+              "wrongReason": "`.view(...)` は値の変更ではなくテンソルの形（shape）の並べ替えだけです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`F.cross_entropy` の基本の形は `[問題数, クラス数]` と `[問題数]` です。",
+          "reasoning": "`[B, T, V]` の3次元テンソルを `[B*T, V]` の2次元に並べ直すことで、32文章×64位置＝2048問の交差エントロピー平均を一気に計算できます。",
+          "steps": [
+            "`logits` の形は `[32, 64, 2061]`、`targets` の形は `[32, 64]`。",
+            "`logits.view(B * T, -1)` → `[2048, 2061]`。",
+            "`targets.view(B * T)` → `[2048]`。",
+            "`F.cross_entropy` が2048問の平均損失（スカラー）を返す。"
+          ],
+          "altExample": "この書き方は第12章の `GPT`（`code/minigpt.py`）でもそのまま使われます。"
+        }
+      ]
+    },
+    {
+      "id": "ch11-q16",
+      "chapter": "11-attention",
+      "section": "注目の様子をのぞく",
+      "sectionAnchor": "#s10",
+      "concept": "attention-vs-mlp-and-single-head-limit",
+      "conceptLabel": "Self-Attention が窓を広げても強い理由と1ヘッドの限界",
+      "level": 4,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第9章：MLPのコンテキスト窓"],
+      "variants": [
+        {
+          "prompt": "第9章のMLPと比べて、Self-Attention は「窓の長さ `block_size` を8文字から64文字へ広げたとき」にどんな強みがありますか？ また、それでもヘッドが1つ（`OneHeadLM`）だけでは不十分な理由もあわせて説明してください。",
+          "modelAnswer": "第9章のMLPは過去 `T` 文字の埋め込みをすべて横に連結して全結合層に渡すため、窓を広げるほど入力層の重みパラメータ数が `T` に比例して急増し、位置ごとに固定の重みしか学べませんでした。一方 Self-Attention は、すべての位置で同じ Q・K・V 変換行列を共有して内容に応じた重みで情報を集めるため、窓を64文字に広げても Attention 本体のパラメータ数は増えず、必要な過去の文字に柔軟に注目できます。ただしヘッドが1つだけだと「1種類の注目パターン」しか同時に表せないため、直前の文字・主語・括弧の対応など複数の観点を並行して追うには複数のヘッド（第12章のマルチヘッドAttention）が必要です。",
+          "hint": "①「窓を広げたときのパラメータ数と注目先の柔軟さ（MLPとの違い）」、②「1つのヘッドで同時にできる注目パターンの数」の2点を書きましょう。",
+          "reasoning": "「同じ Q/K/V 行列で長い文脈を動的に参照できる」のが Self-Attention の最大のブレークスルーであり、「複数の観点で同時に参照したい」という動機が第12章のマルチヘッドAttentionへ直結します。",
+          "steps": [
+            "MLPとの比較：MLPは窓を広げると連結ベクトルが伸びて重みが激増し、注目位置も固定。",
+            "Attentionの強み：Q・K・V行列は位置によらず共通なので窓を広げてもAttention部分のパラメータは増えず、文脈に応じて注目先を変えられる。",
+            "1ヘッドの限界：1枚の重み行列 `wei` では1種類の見方しか同時にできない → 次章で複数ヘッドに分業させる。"
+          ],
+          "altExample": "本文の比較表でも、1ヘッドAttention（28万パラメータ・窓64）は第9章のMLP（66万パラメータ・窓8）より少ないパラメータで良い検証損失を出しました。",
+          "selfCheckCriteria": [
+            "窓を広げても Attention 本体のパラメータが増えない点（または文脈に応じて注目先を変えられる点）を説明できた",
+            "1ヘッドでは1種類の注目パターンしか同時に扱いにくく、複数観点の分業のためにマルチヘッドが必要になる点に触れた"
+          ]
+        }
+      ]
+    }
+  ]
+}

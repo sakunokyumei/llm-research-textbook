@@ -18,9 +18,11 @@ import shutil
 import subprocess
 import sys
 
-from markdown_it import MarkdownIt
-
 sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from markdown_it import MarkdownIt
+except ImportError:
+    from mdfallback import MarkdownIt  # noqa: E402
 from bookparse import BOOK, ROOT, load_curriculum, read_source, parse_info, cells  # noqa: E402
 
 args = argparse.ArgumentParser()
@@ -193,8 +195,94 @@ BOX = {
     "python": ("Pythonの道具箱", "pybox"),
     "fe": ("基本情報とつながる", "fe"),
     "free": ("0円のコツ", "free"),
+    "review-bridge": ("これまでの復習とつながり", "review-bridge"),
 }
 widget_pages = set()
+EXERCISES_DIR = BOOK / "exercises"
+EXERCISES_BY_CHAPTER = {}
+EXERCISES_BY_ID = {}
+
+
+def load_exercises():
+    EXERCISES_BY_CHAPTER.clear()
+    EXERCISES_BY_ID.clear()
+    if not EXERCISES_DIR.exists():
+        return
+    for path in sorted(EXERCISES_DIR.glob("*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        slug = data.get("chapter") or path.stem
+        items = data.get("exercises", [])
+        EXERCISES_BY_CHAPTER[slug] = items
+        for item in items:
+            item.setdefault("chapter", slug)
+            EXERCISES_BY_ID[item["id"]] = item
+
+
+def render_inline_rich(text):
+    """Render inline markdown + math (restored from cache on second pass before JSON serialization)."""
+    if not text:
+        return ""
+    return restore_math(md.renderInline(protect_math(str(text))))
+
+
+def render_exercise_payload(item):
+    """Prepare a JSON-serializable copy of an exercise with KaTeX math placeholders rendered."""
+    out = {
+        "id": item["id"],
+        "chapter": item["chapter"],
+        "section": item.get("section", ""),
+        "sectionAnchor": item.get("sectionAnchor", ""),
+        "concept": item.get("concept", ""),
+        "conceptLabel": item.get("conceptLabel", item.get("concept", "")),
+        "level": int(item.get("level", 1)),
+        "type": item.get("type", "choice"),
+        "course": item.get("course", "all"),
+        "reviewOf": item.get("reviewOf", []),
+        "variants": [],
+    }
+    for v in item.get("variants", []):
+        rv = {
+            "prompt": render_inline_rich(v.get("prompt", "")),
+            "hint": render_inline_rich(v.get("hint", "")),
+            "reasoning": render_inline_rich(v.get("reasoning", "")),
+            "steps": [render_inline_rich(s) for s in v.get("steps", [])],
+            "altExample": render_inline_rich(v.get("altExample", "")),
+        }
+        if v.get("code"):
+            rv["code"] = v["code"]
+            rv["codeHtml"] = highlight_python(v["code"])
+        if v.get("options"):
+            rv["options"] = [
+                {
+                    "id": o["id"],
+                    "text": render_inline_rich(o["text"]),
+                    "wrongReason": render_inline_rich(o.get("wrongReason", "")),
+                }
+                for o in v["options"]
+            ]
+        if "answer" in v:
+            rv["answer"] = v["answer"]
+        if v.get("accept"):
+            rv["accept"] = v["accept"]
+        if v.get("placeholder"):
+            rv["placeholder"] = v["placeholder"]
+        if v.get("unit"):
+            rv["unit"] = v["unit"]
+        if v.get("starterCode"):
+            rv["starterCode"] = v["starterCode"]
+            rv["starterCodeHtml"] = highlight_python(v["starterCode"])
+        if v.get("solutionCode"):
+            rv["solutionCode"] = v["solutionCode"]
+            rv["solutionCodeHtml"] = highlight_python(v["solutionCode"])
+        if v.get("colabCheck"):
+            rv["colabCheck"] = v["colabCheck"]
+            rv["colabCheckHtml"] = highlight_python(v["colabCheck"])
+        if v.get("modelAnswer"):
+            rv["modelAnswer"] = render_inline_rich(v["modelAnswer"])
+        if v.get("selfCheckCriteria"):
+            rv["selfCheckCriteria"] = [render_inline_rich(c) for c in v["selfCheckCriteria"]]
+        out["variants"].append(rv)
+    return out
 
 
 def split_blocks(text):
@@ -266,6 +354,28 @@ def render_markdown(text, ctx):
     return html
 
 
+def render_exercise_html(ex_id, ctx):
+    item = EXERCISES_BY_ID.get(ex_id)
+    if not item:
+        raise SystemExit(f"unknown exercise id: {ex_id} in {ctx.get('slug')}")
+    ctx["exercise"] = ctx.get("exercise", 0) + 1
+    payload = render_exercise_payload(item)
+    payload["num"] = ctx["exercise"]
+    raw_json = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
+    v0 = payload["variants"][0] if payload["variants"] else {}
+    noscript_prompt = v0.get("prompt", "")
+    return (
+        f'<section class="exercise" id="ex-{escape(ex_id)}" data-exercise-id="{escape(ex_id)}" '
+        f'data-chapter="{escape(payload["chapter"])}" data-concept="{escape(payload["concept"])}" '
+        f'data-level="{payload["level"]}" data-type="{escape(payload["type"])}" '
+        f'data-course="{escape(payload["course"])}">'
+        f'<script type="application/json" class="ex-data">{raw_json}</script>'
+        f'<noscript><div class="ex-noscript"><p><b>確認問題 {ctx["exercise"]}</b>：{noscript_prompt}</p>'
+        f'<p>自動採点・ヒント・解説の表示にはJavaScriptを有効にしてください。</p></div></noscript>'
+        f'</section>\n'
+    )
+
+
 def render_block(name, arg, inner, ctx):
     if name in AVATARS:
         who, img = AVATARS[name]
@@ -279,6 +389,14 @@ def render_block(name, arg, inner, ctx):
         return (f'<section class="quiz"><p class="quiz-label">クイズ {ctx["quiz"]}{"：" + escape(arg) if arg else ""}</p>'
                 f'{render_markdown(question, ctx)}<details><summary>答えを見る（まず自分で考えてから！）</summary>'
                 f'{render_markdown(answer, ctx)}</details></section>\n')
+    if name == "exercise":
+        ids = [tok.strip() for tok in (arg + " " + inner).replace(",", " ").split() if tok.strip()]
+        if not ids:
+            raise SystemExit(f"empty :::exercise block in {ctx.get('slug')}")
+        return "".join(render_exercise_html(eid, ctx) for eid in ids)
+    if name == "scaffold":
+        return (f'<details class="scaffold" open><summary><span class="sc-badge">基礎の補足</span>{escape(arg or "じっくり確認しよう")}</summary>'
+                f'<div class="scaffold-body">{render_markdown(inner, ctx)}</div></details>\n')
     if name == "deep":
         return (f'<details class="deep"><summary><span>もっと深く</span>{escape(arg)}</summary>'
                 f'{render_markdown(inner, ctx)}</details>\n')
@@ -375,19 +493,20 @@ def page(title, body, active="index", toc="", description=None):
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(full_title)}</title><meta name="description" content="{escape(desc)}">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
-<script>try{{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+<script>try{{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t;const c=localStorage.getItem("tsukuru-llm-course")||"thorough";document.documentElement.dataset.course=c;}}catch(e){{}}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script>{widgets}</head>
+<script src="app.js" defer></script><script src="study.js" defer></script>{widgets}</head>
 <body data-page="{escape(active)}"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>{escape(SITE_TITLE)}</b><small>ボンゴ先生のLLM教室</small></span></a>
-<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div>{nav_html(active)}</aside>
 <main id="main" tabindex="-1">{body}
 <footer class="site-footer"><p><b>{escape(SITE_TITLE)}</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/{REPO}">GitHub</a></p></footer></main>{toc}</div></body></html>'''
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/{REPO}">GitHub</a></p></footer></main>{toc}</div></body></html>'''
 
 
 # ---------------------------------------------------------------- chapters
@@ -444,7 +563,7 @@ def colab_url(slug):
 
 def chapter_page(slug, prev_slug, next_slug):
     meta, body = META[slug], SOURCES[slug]
-    ctx = {"slug": slug, "quiz": 0}
+    ctx = {"slug": slug, "quiz": 0, "exercise": 0}
     html = render_markdown(body, ctx)
     html, toc = add_heading_ids(html)
     has_code = bool(cells(body))
@@ -458,26 +577,35 @@ def chapter_page(slug, prev_slug, next_slug):
     if meta.get("builds"):
         rows.append(f'<div><h3>つくるもの</h3><p>{md.renderInline(meta["builds"])}</p></div>')
     if meta.get("theory"):
-        rows.append('<div><h3>ついでに身につく理論</h3><ul>' + "".join(f"<li>{md.renderInline(protect_math(t))}</li>" for t in meta["theory"]) + "</ul></div>")
+        rows.append('<div><h3>身につく数学・理論</h3><ul>' + "".join(f"<li>{md.renderInline(protect_math(t))}</li>" for t in meta["theory"]) + "</ul></div>")
     if meta.get("python"):
-        rows.append('<div><h3>新しく使うPython</h3><ul>' + "".join(f"<li>{md.renderInline(t)}</li>" for t in meta["python"]) + "</ul></div>")
+        rows.append('<div><h3>新しく使うPython・PyTorch</h3><ul>' + "".join(f"<li>{md.renderInline(t)}</li>" for t in meta["python"]) + "</ul></div>")
     if rows:
         learn = f'<section class="learn-grid">{"".join(rows)}</section>'
+    ex_count = ctx["exercise"]
+    mastery_strip = (
+        f'<section class="mastery-strip" data-mastery-chapter="{slug}" data-exercise-count="{ex_count}" aria-label="この章の学習状況">'
+        f'<div class="ms-row"><span class="ms-stage" data-ms-stage>未学習</span>'
+        f'<span class="ms-detail" data-ms-detail>演習 {ex_count} 問 · 途中の確認問題と復習で定着を確かめられます</span>'
+        f'<a class="ms-link" href="review.html">学習状況・復習へ →</a></div>'
+        f'</section>'
+    )
     kicker = f'{escape(meta["part"])} · 第{meta["num"]}章'
     hero = (f'<header class="chapter-hero"><p class="kicker">{kicker}</p><h1>{escape(meta["title"])}</h1>'
             f'<p class="sub">{escape(meta.get("subtitle", ""))}</p><dl class="meta">'
             f'<div><dt>目安</dt><dd>{escape(meta.get("time", ""))}</dd></div>'
             f'<div><dt>環境</dt><dd>{escape(ENV_LABEL.get(meta.get("env", "cpu"), meta.get("env", "")))}</dd></div>'
-            f'<div><dt>難しさ</dt><dd aria-label="5段階中{meta.get("level", 1)}">{stars(meta.get("level", 1))}</dd></div></dl>{actions}</header>')
-    done = (f'<section class="chapter-done"><button type="button" class="btn primary" data-done="{slug}">この章をクリアした！</button>'
-            '<p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section>')
+            f'<div><dt>難しさ</dt><dd aria-label="5段階中{meta.get("level", 1)}">{stars(meta.get("level", 1))}</dd></div>'
+            f'<div><dt>確認問題</dt><dd>{ex_count}問</dd></div></dl>{actions}</header>')
+    done = (f'<section class="chapter-done"><button type="button" class="btn primary" data-done="{slug}">この章の説明を読み終えた！</button>'
+            '<p>説明の読了チェックです（ブラウザ内にのみ保存）。「理解・定着」は途中の確認問題・自力実装・間隔復習の結果と合わせて記録されます。</p></section>')
     pager = '<nav class="pager" aria-label="前後の章">'
     if prev_slug:
         pager += f'<a href="{prev_slug}.html"><small>← 前の章</small>{escape(META[prev_slug]["title"])}</a>'
     if next_slug:
         pager += f'<a class="next" href="{next_slug}.html"><small>次の章 →</small>{escape(META[next_slug]["title"])}</a>'
     pager += "</nav>"
-    article = f'<article class="chapter">{hero}{learn}{link_terms(html, slug)}{done}{pager}</article>'
+    article = f'<article class="chapter">{hero}{learn}{mastery_strip}{link_terms(html, slug)}{done}{pager}</article>'
     return page(meta["title"], article, slug, toc_html(toc), meta.get("subtitle"))
 
 
@@ -642,8 +770,106 @@ def search_records():
     return records
 
 
+# ---------------------------------------------------------------- review dashboard & exercise index
+def exercises_index_payload():
+    chapters = []
+    for slug in CHAPTER_ORDER:
+        m = META[slug]
+        ex_list = [render_exercise_payload(item) for item in EXERCISES_BY_CHAPTER.get(slug, [])]
+        chapters.append({
+            "slug": slug,
+            "num": int(m["num"]),
+            "title": m["title"],
+            "short": m["short"],
+            "part": m["part"],
+            "exercises": ex_list,
+        })
+    return {
+        "version": 2,
+        "defaultIntervalsDays": [1, 3, 7, 14, 30],
+        "reviewChains": [
+            {"id": "prob-softmax-att", "title": "確率 → softmax → Self-Attention → Transformer", "chapters": ["03-next-token", "04-bigram", "11-attention", "12-transformer"]},
+            {"id": "vec-mat-tensor", "title": "ベクトル・行列 → テンソル演算 → MLP・LoRA", "chapters": ["06-tensors", "09-mlp", "19-lora"]},
+            {"id": "diff-gd-gpt", "title": "微分・連鎖律 → 勾配降下法 → GPTの学習", "chapters": ["07-gradient", "08-neural-bigram", "10-training-tips", "13-train-gpt"]},
+            {"id": "loss-sft-dpo", "title": "損失関数（交差エントロピー）→ SFT → DPO・評価", "chapters": ["05-loss", "18-sft", "20-evaluation", "22-alignment"]},
+        ],
+        "chapters": chapters,
+    }
+
+
+def review_page():
+    body = '''<article class="chapter review-page">
+<header class="chapter-hero">
+  <p class="kicker">学習状況・間隔復習センター</p>
+  <h1>理解度ダッシュボードと復習</h1>
+  <p class="sub">「読んだ」だけで終わらせず、確認問題・自力実装・時間を空けた類題復習で定着を確かめます</p>
+</header>
+
+<section class="review-panel" aria-label="学習コースの選択">
+  <h2>1. 学習コースの切り替え</h2>
+  <p>どちらのコースを選んでも、<strong>最終的な技術的到達目標は同じ</strong>です。今の自分の得意・不得意に合わせて選べ、いつでも切り替えられます。</p>
+  <div class="course-cards" role="group" aria-label="コース選択">
+    <button type="button" class="course-card" data-set-course="thorough" aria-pressed="true">
+      <b>じっくり理解コース（おすすめ）</b>
+      <span>数学記号の読み方・なぜその式になるか・Python/PyTorchの構文分解（「基礎の補足」箱）をすべて開いた状態で表示し、段階的な演習と復習を重視します。</span>
+    </button>
+    <button type="button" class="course-card" data-set-course="standard" aria-pressed="false">
+      <b>標準コース</b>
+      <span>既知の基礎補足は折りたたみ表示にし、必要なときだけ開いて進めます。確認問題・応用・自力実装・復習の到達水準は同じです。</span>
+    </button>
+  </div>
+</section>
+
+<section class="review-panel" aria-label="7段階の習得状況">
+  <h2>2. 全体の学習状況（7段階）</h2>
+  <p class="muted-note">1回正解しただけでは「完全理解」とは表示しません。説明の読了、基礎・応用問題、自力実装、そして時間を空けた復習での再確認を区別して記録します。</p>
+  <div id="dash-summary" class="dash-summary" aria-live="polite"><p>読み込み中…</p></div>
+</section>
+
+<section class="review-panel" aria-label="今日の復習">
+  <h2>3. 今日復習すべき問題（間隔を空けた復習）</h2>
+  <p class="muted-note">初期設定では <strong>1日後 → 3日後 → 7日後 → 14日後 → 30日後</strong> の間隔で復習を提案します（これは一般的な初期目安であり、唯一最適な間隔ではありません。誤答すると間隔が1日に短くなり、類題で連続正解すると少しずつ長くなります）。</p>
+  <div id="dash-due" class="dash-due" aria-live="polite"><p>読み込み中…</p></div>
+</section>
+
+<section class="review-panel" aria-label="苦手な概念">
+  <h2>4. 苦手な概念・誤答が多かった項目</h2>
+  <div id="dash-weak" class="dash-weak" aria-live="polite"><p>読み込み中…</p></div>
+</section>
+
+<section class="review-panel" aria-label="知識のつながりマップ">
+  <h2>5. 章をまたぐ知識のつながり</h2>
+  <p class="muted-note">前の章で学んだ概念が、後の章の実装でそのまま土台になります。</p>
+  <div id="dash-chains" class="dash-chains"></div>
+</section>
+
+<section class="review-panel" aria-label="章別の詳細状況">
+  <h2>6. 章ごとの習得状況一覧</h2>
+  <div id="dash-chapters" class="dash-chapters"></div>
+</section>
+
+<section class="review-panel" aria-label="データの保存とバックアップ">
+  <h2>7. 学習履歴の保存・制約・バックアップ</h2>
+  <p>このサイトはGitHub Pages上の静的サイトで、サーバーに学習データを送信しません。すべての履歴はこの端末のブラウザ内（<code>localStorage</code>）に保存されます。</p>
+  <ul>
+    <li><strong>保存容量の目安</strong>：ブラウザごとに通常 5MB 程度が上限です（本教材の学習履歴は通常数十KB以内です）。</li>
+    <li><strong>ブラウザ・端末変更時の制約</strong>：別のブラウザや別PCには自動同期されません。また、ブラウザの「サイトデータを消去」を行うと履歴も消えます。</li>
+    <li><strong>バックアップ</strong>：下のボタンで学習履歴をJSONファイルとして保存・復元できます。</li>
+  </ul>
+  <div class="backup-actions">
+    <button type="button" class="btn primary" id="export-history">学習履歴をJSONで保存</button>
+    <label class="btn" for="import-history">JSONから復元<input type="file" id="import-history" accept="application/json" hidden></label>
+    <button type="button" class="btn ghost-danger" id="reset-history">学習履歴をリセット</button>
+  </div>
+  <p id="backup-status" class="muted-note" aria-live="polite"></p>
+</section>
+</article>'''
+    return page("学習状況・復習", body, "review", "", "確認問題・7段階の習得状況・間隔復習のダッシュボード")
+
+
 # ---------------------------------------------------------------- main
 def main():
+    load_exercises()
     if OUT.exists():
         for p in OUT.iterdir():
             if p.is_dir():
@@ -654,13 +880,16 @@ def main():
     NB_OUT.mkdir(parents=True, exist_ok=True)
     pages = {}
     order = CHAPTER_ORDER
-    # First pass collects math; render twice so cached math is substituted.
+    ex_index = None
+    # First pass collects math (including math inside exercises); second pass substitutes cached KaTeX HTML.
     for _ in range(2):
         for i, slug in enumerate(order):
             pages[slug] = chapter_page(slug, order[i - 1] if i else None, order[i + 1] if i + 1 < len(order) else None)
         for slug in CUR["appendix"] + CUR.get("extra", []):
             pages[slug] = appendix_page(slug)
+        pages["review"] = review_page()
         pages["index"] = home_page()
+        ex_index = exercises_index_payload()
         flush_math()
     for slug, html in pages.items():
         (OUT / f"{slug}.html").write_text(restore_math(html), encoding="utf-8")
@@ -674,13 +903,14 @@ def main():
     if (ROOT / "code").exists():
         shutil.copytree(ROOT / "code", OUT / "code", dirs_exist_ok=True)
     (OUT / "search.json").write_text(json.dumps(search_records(), ensure_ascii=False), encoding="utf-8")
+    (OUT / "exercises-index.json").write_text(json.dumps(ex_index, ensure_ascii=False), encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     unused = set(math_cache) - math_used
     for key in unused:
         del math_cache[key]
     MATH_CACHE_PATH.write_text(json.dumps(math_cache, ensure_ascii=False, sort_keys=True, indent=0) + "\n", encoding="utf-8")
     print(json.dumps({"pages": len(pages), "chapters": len(order), "notebooks": len(list(NB_OUT.glob("*.ipynb"))),
-                      "math": len(math_used)}, ensure_ascii=False))
+                      "exercises": len(EXERCISES_BY_ID), "math": len(math_used)}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

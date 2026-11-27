@@ -1,0 +1,914 @@
+{
+  "chapter": "22-alignment",
+  "exercises": [
+    {
+      "id": "ch22-q01",
+      "chapter": "22-alignment",
+      "section": "好みのデータを見る",
+      "sectionAnchor": "#s1",
+      "concept": "sft-vs-preference-learning",
+      "conceptLabel": "SFT（お手本模倣）と好み学習（比較判定）の違い",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第18章：SFT（指示チューニング）"],
+      "variants": [
+        {
+          "prompt": "第18章のSFT（教師あり微調整）に加えて、第22章で「好みのペア（chosen / rejected）」による学習を行う最大の理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "100点のお手本をゼロから書くより、2つの答えを比べて「どちらが良いか」を判定するほうが作りやすく、避けるべき悪い答え（冷たい・誤り・危険）も明示的に教えられるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "SFTでは日本語のトークンを1文字も学習できないから",
+              "wrongReason": "第18章で見た通り、SFTだけでもボンゴ先生の日本語口調や対話形式は十分学習できます。問題は「悪い答えを明示的に押し下げる」ことがSFTだけでは難しい点です。"
+            },
+            {
+              "id": "c",
+              "text": "好みのペアを使うと、モデルのパラメータ数を半分に減らせるから",
+              "wrongReason": "好み学習（RLHFやDPO）はモデルの振る舞いを調整する手法であり、パラメータ圧縮（量子化や蒸留）とは別の仕組みです。"
+            },
+            {
+              "id": "d",
+              "text": "好み学習をすれば、事前学習（第13章）をまったく行わずにゼロからLLMを作れるから",
+              "wrongReason": "好み学習は、事前学習とSFTで基礎的な言語能力と対話形式を身につけたモデルに対して、仕上げとして性格・安全性を整える段階です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「完璧なラーメンを作る」のと「2杯食べ比べて美味しい方を選ぶ」のたとえを思い出しましょう。",
+          "reasoning": "SFTは「良い答えの確率を上げる」だけですが、好み学習では「良い答え（chosen）を上げ、悪い答え（rejected）を下げる」対比を学べるため、ニュアンス・丁寧さ・安全性の調整に非常に有効です。",
+          "steps": [
+            "SFT：質問と1つの正解（お手本）のペアを使う。何をしてはいけないかは直接教えにくい。",
+            "好みデータ：同じ質問に対する良い答え（chosen）と悪い答え（rejected）のペアを使う。",
+            "比較判定は人間にとって負担が小さく、モデルの細かい振る舞いの差を直接伝えられる。"
+          ],
+          "altExample": "文章の要約でも「理想の要約を書く」より「AIが書いた2つの要約のうち正確な方を選ぶ」ほうがずっと短時間で大量のデータを集められます。"
+        },
+        {
+          "prompt": "SFTのデータ1件と、DPOなどの好み学習のデータ1件を比べたとき、含まれる項目の違いとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "SFTは「質問＋1つの模範解答」だが、好み学習は「同じ質問＋選ばれた答え（chosen）＋選ばれなかった答え（rejected）」の3点セットである",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "SFTには質問が必要ないが、好み学習には質問だけが必要である",
+              "wrongReason": "どちらも「質問（prompt）」に対する応答を学習します。答えが1つか、比較用の2つかが違いです。"
+            },
+            {
+              "id": "c",
+              "text": "好み学習では悪い答え（rejected）だけを集め、良い答え（chosen）は使わない",
+              "wrongReason": "悪い答えだけを下げるだけでは、代わりにどんな良い答えを出せばよいかが分かりません。必ず良い答えとペアにして比べます。"
+            },
+            {
+              "id": "d",
+              "text": "SFTは必ず2つの答えを比べるが、好み学習は1つの答えだけを使う",
+              "wrongReason": "逆です。1つのお手本を使うのがSFT、2つの答えを比べるのが好み学習（RLHF/DPO）です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`bongo_prefs.jsonl` の1件に入っていたキー名（`question`, `chosen`, `rejected`）を思い出してください。",
+          "reasoning": "好み学習の最小単位は「同じ文脈（prompt）に対する、望ましい応答（chosen）と望ましくない応答（rejected）の対比」です。",
+          "steps": [
+            "SFT：`{\"question\": ..., \"answer\": ...}`（1つの模範解答）。",
+            "好みデータ：`{\"question\": ..., \"chosen\": ..., \"rejected\": ...}`（2つの応答の比較）。",
+            "同じ質問に対するペアだからこそ、「どこが良くてどこが悪いか」の差を学習できる。"
+          ],
+          "altExample": "安全性の学習では、危険な質問に対して「丁寧に断る答え」を `chosen`、「手順を答えてしまう答え」を `rejected` としてペアにします。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q02",
+      "chapter": "22-alignment",
+      "section": "好みのデータを見る",
+      "sectionAnchor": "#s1",
+      "concept": "preference-pair-design",
+      "conceptLabel": "chosen / rejected ペアに含まれる情報の読み取り",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "「勉強のやる気が出ません」という質問に対し、`chosen` が「まず5分だけコードを1行動かしてみよう…」、`rejected` が「やる気がないなら、やめればいいと思います。」のペアで学習させると、モデルにはどんな変化が期待されますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "学習前と比べて、励まして具体的な一歩を示す答えを出しやすくなり、突き放す冷たい答えを出しにくくなる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`chosen` の文章と1文字も違わない文字列しか出力できなくなる",
+              "wrongReason": "DPOは参照モデルからの変化を抑えつつ確率分布を調整するため、丸暗記ではなく傾向（親切で具体的な方向）を学びます。"
+            },
+            {
+              "id": "c",
+              "text": "`rejected` に含まれる単語（「やる気」など）を二度と使えなくなる",
+              "wrongReason": "特定の単語を禁止するのではなく、「質問に対して冷たく突き放す応答全体」の生成確率を下げます。"
+            },
+            {
+              "id": "d",
+              "text": "常に短い答えを出力するようになる",
+              "wrongReason": "この例では `chosen` のほうが長く `rejected` のほうが短いので、むしろ丁寧で詳しい答え寄りになります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "DPOは `chosen` を書きやすく、`rejected` を書きにくくするように重みを微調整します。",
+          "reasoning": "好みのペアを複数与えることで、モデルは「励ます・具体策を出す・親切」といった望ましい方針の確率を上げ、「突き放す・無責任」な方針の確率を下げていきます。",
+          "steps": [
+            "`chosen` の特徴：共感的・具体的・前向き。",
+            "`rejected` の特徴：冷たい・突き放す・役に立たない。",
+            "このペアの差を学ぶことで、似た質問に対しても前向きで具体的な応答を好むようになる。"
+          ],
+          "altExample": "事実誤認を減らすペアでは、正確な答えを `chosen`、もっともらしい嘘（ハルシネーション）を `rejected` にします。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q03",
+      "chapter": "22-alignment",
+      "section": "報酬モデルと、好みの確率",
+      "sectionAnchor": "#s2",
+      "concept": "bradley-terry-sigmoid",
+      "conceptLabel": "ブラッドリー・テリーモデルとシグモイド関数の手計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第3章：指数関数とsoftmax"],
+      "variants": [
+        {
+          "prompt": "ブラッドリー・テリーモデル $P(\\text{良い答えが選ばれる}) = \\sigma(r_c - r_r)$ を使います。良い答えの報酬が $r_c = 3$、悪い答えの報酬が $r_r = 1$ のとき、良い答えが選ばれる確率はおよそいくつですか？（$\\sigma(2) = \\frac{1}{1+e^{-2}} \\approx 0.881$、小数で回答、誤差 $\\pm 0.02$ まで正解）",
+          "answer": { "value": 0.881, "tolerance": 0.02 },
+          "unit": "",
+          "placeholder": "例：0.881",
+          "hint": "まず点数の差 $r_c - r_r = 3 - 1 = 2$ を求め、それをシグモイド関数 $\\sigma(2)$ に入れます。",
+          "reasoning": "ブラッドリー・テリーモデルでは報酬の絶対値ではなく「差」$r_c - r_r$ をシグモイド関数に通して勝率（選ばれる確率）を出します。",
+          "steps": [
+            "報酬の差を計算する：$r_c - r_r = 3 - 1 = 2$。",
+            "シグモイド関数に入れる：$\\sigma(2) = \\dfrac{1}{1 + e^{-2}}$。",
+            "$e^{-2} \\approx 0.135$ なので、$\\dfrac{1}{1 + 0.135} \\approx 0.881$（約88.1%）。"
+          ],
+          "altExample": "もし $r_c = 103, r_r = 101$ でも差は同じく $2$ なので、確率はまったく同じ $0.881$ になります（第3章のsoftmaxの平行移動不変性と同じ性質です）。"
+        },
+        {
+          "prompt": "ブラッドリー・テリーモデルで、良い答えの報酬 $r_c = 5$、悪い答えの報酬 $r_r = 5$（まったく同点）のとき、良い答えが選ばれる確率 $\\sigma(r_c - r_r)$ はいくつですか？",
+          "answer": { "value": 0.5, "tolerance": 0.01 },
+          "unit": "",
+          "placeholder": "例：0.5",
+          "hint": "差は $5 - 5 = 0$ です。$\\sigma(0) = \\dfrac{1}{1 + e^0}$ を計算しましょう（$e^0 = 1$）。",
+          "reasoning": "点数の差が $0$ のときはどちらが良いか区別がつかない五分五分の状態なので、$\\sigma(0) = \\frac{1}{1+1} = 0.5$ になります。",
+          "steps": [
+            "差を計算：$r_c - r_r = 5 - 5 = 0$。",
+            "$e^0 = 1$ を代入：$\\sigma(0) = \\dfrac{1}{1 + 1} = 0.5$。",
+            "ちょうど50%（五分五分）になる。"
+          ],
+          "altExample": "逆に $r_c = 1, r_r = 3$（差が $-2$）なら $\\sigma(-2) = 1 - \\sigma(2) \\approx 0.119$ になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q04",
+      "chapter": "22-alignment",
+      "section": "報酬モデルと、好みの確率",
+      "sectionAnchor": "#s2",
+      "concept": "reward-hacking-and-kl",
+      "conceptLabel": "報酬ハッキングとKLペナルティの役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "RLHFで、報酬モデルが「長い答えほど高い点数をつける」というクセを持っていたとします。KLペナルティなしで報酬だけを最大化すると何が起きやすく、それをどう防ぎますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "中身のない冗長な長文を書くようになる（報酬ハッキング）。元の参照モデルから離れすぎない罰（KLペナルティ）や報酬モデルの改善で防ぐ",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "答えが1文字だけになり学習が終了する。温度を0にすれば防げる",
+              "wrongReason": "長い答えに高得点がつくクセがあるなら、モデルは逆に答えを不自然に長く伸ばす方向へ偏ります。"
+            },
+            {
+              "id": "c",
+              "text": "モデルのパラメータがすべて0になる。学習率を100倍にすれば防げる",
+              "wrongReason": "報酬ハッキングは重みが0になる現象ではなく、人間の本来の意図とは無関係に「報酬モデルの採点クセ」だけを悪用する現象です。"
+            },
+            {
+              "id": "d",
+              "text": "学習時間が半分になって性能が上がるだけで、特に問題は起きない",
+              "wrongReason": "報酬スコアは上がっても人間にとっての実際の品質が下がる（グッドハートの法則）ため、RLHFにおける最も深刻な問題の1つです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "「報酬モデルの穴をつく」現象の名前と、目標式 $\\text{報酬} - \\beta \\times \\text{KL}$ の第2項の意味を思い出しましょう。",
+          "reasoning": "報酬モデルは人間の好みの近似にすぎないため、無制限に報酬を追うと抜け穴（長文・過剰な美辞麗句・同じ単語の繰り返しなど）を突く「報酬ハッキング」が起きます。KLペナルティは参照モデルという「常識の錨（いかり）」につなぎ止める役割を果たします。",
+          "steps": [
+            "報酬モデルのクセ（例：長さバイアス）を、強化学習が容赦なく利用してスコアを稼ぎ始める。",
+            "結果として、人間には読みにくい無意味な長文が増える（報酬ハッキング）。",
+            "対策：目標から $\\beta \\cdot \\mathrm{KL}(\\pi \\| \\pi_{\\text{ref}})$ を引いて元の分布から離れすぎないようにし、報酬データも改善する。"
+          ],
+          "altExample": "ゲームAIで「敵を倒すと+1点」の代わりに「コインを取ると+1点」にしたら、ゴールせず同じ場所をぐるぐる回ってコインだけ稼ぎ続けるのも有名な報酬ハッキングの例です。"
+        },
+        {
+          "prompt": "RLHFの目標式 $\\text{目標} = \\text{報酬} - \\beta \\times \\mathrm{KL}(\\pi \\| \\pi_{\\text{ref}})$ で、ハイパーパラメータ $\\beta$ を極端に小さく（ほぼ0に）すると、どのようなリスクが高まりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "参照モデルからのブレーキが効かなくなり、報酬ハッキングや日本語の崩壊が起きやすくなる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルが参照モデルからまったく変化できなくなる",
+              "wrongReason": "まったく変化できなくなるのは逆で、$\\beta$ を極端に**大きく**した場合です。"
+            },
+            {
+              "id": "c",
+              "text": "GPUメモリ使用量が100倍になる",
+              "wrongReason": "$\\beta$ は損失関数に掛けるただの定数（スカラー）なので、メモリ使用量は変わりません。"
+            },
+            {
+              "id": "d",
+              "text": "KLダイバージェンスが負の無限大になる",
+              "wrongReason": "KLダイバージェンスは常に0以上であり、$\\beta$ を変えても負にはなりません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "$\\beta$ は「元のモデルから離れることへの罰金の重さ」です。罰金が0円になったらどうなるでしょう？",
+          "reasoning": "$\\beta$ は「報酬を稼ぐアクセル」と「元の自然な文章を保つブレーキ」のバランス係数です。$\\beta$ が小さすぎるとブレーキが効かず、大きすぎるとアクセルが効かなくなります。",
+          "steps": [
+            "$\\beta \\to 0$：KLペナルティの項がほぼ消える。",
+            "モデルは元の言語モデルの自然な日本語を捨ててでも、報酬スコアだけを高くする壊れた出力に走れるようになる。",
+            "適切な $\\beta$（例：0.05〜0.2程度）を選ぶことで、自然さを保ちながら好みを反映できる。"
+          ],
+          "altExample": "DPOの損失式に入っている $\\beta$ も、まさにこのRLHFのKLペナルティ係数 $\\beta$ からそのまま受け継がれたものです。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q05",
+      "chapter": "22-alignment",
+      "section": "報酬モデルと、好みの確率",
+      "sectionAnchor": "#s2",
+      "concept": "kl-divergence-calculation",
+      "conceptLabel": "KLダイバージェンスの計算と基本性質",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第5章：対数と交差エントロピー"],
+      "variants": [
+        {
+          "prompt": "元のモデルの確率分布が $q = (0.5, 0.5)$、今のモデルが $p = (0.9, 0.1)$ のとき、KLダイバージェンス $\\mathrm{KL}(p \\| q) = \\sum_i p_i \\log\\frac{p_i}{q_i}$ はおよそいくつですか？（自然対数を使用。$\\log(1.8) \\approx 0.588$、$\\log(0.2) \\approx -1.609$、誤差 $\\pm 0.02$ まで正解）",
+          "answer": { "value": 0.368, "tolerance": 0.02 },
+          "unit": "",
+          "placeholder": "例：0.37",
+          "hint": "$0.9 \\times \\log(0.9 / 0.5) + 0.1 \\times \\log(0.1 / 0.5)$ を1項ずつ足し算しましょう。",
+          "reasoning": "KLダイバージェンスは「今の確率 $p_i$ で重みづけした $\\log(p_i / q_i)$ の平均」です。片方がマイナスになっても、合計すると必ず0以上になります。",
+          "steps": [
+            "1項目：$0.9 \\times \\log\\dfrac{0.9}{0.5} = 0.9 \\times \\log(1.8) \\approx 0.9 \\times 0.588 = 0.5292$。",
+            "2項目：$0.1 \\times \\log\\dfrac{0.1}{0.5} = 0.1 \\times \\log(0.2) \\approx 0.1 \\times (-1.609) = -0.1609$。",
+            "合計：$0.5292 - 0.1609 = 0.3683 \\approx 0.37$。"
+          ],
+          "altExample": "もし $p = (0.5, 0.5)$ で $q$ と完全に一致していれば、$0.5\\log 1 + 0.5\\log 1 = 0$ になります。"
+        },
+        {
+          "prompt": "今のモデル $p$ と元のモデル $q$ がまったく同じ確率分布 $p = q = (0.7, 0.2, 0.1)$ のとき、$\\mathrm{KL}(p \\| q)$ の正確な値はいくつですか？",
+          "answer": { "value": 0.0, "tolerance": 0.001 },
+          "unit": "",
+          "placeholder": "例：0",
+          "hint": "すべての要素で $p_i / q_i = 1$ になり、$\\log(1) = 0$ です。",
+          "reasoning": "2つの分布が完全に一致しているとき、どの項も $\\log(p_i / p_i) = \\log 1 = 0$ となるため、KLダイバージェンスはちょうど $0$ になります。",
+          "steps": [
+            "各要素について $p_i / q_i = 1$。",
+            "$\\log(1) = 0$ なので、$0.7\\times 0 + 0.2\\times 0 + 0.1\\times 0 = 0$。",
+            "逆に少しでもズレると必ず正（$> 0$）の値になる。"
+          ],
+          "altExample": "学習開始直後は $\\pi = \\pi_{\\text{ref}}$ なので、KLペナルティもちょうど0からスタートします。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q06",
+      "chapter": "22-alignment",
+      "section": "報酬モデルと、好みの確率",
+      "sectionAnchor": "#s2",
+      "concept": "impl-sigmoid-and-kl",
+      "conceptLabel": "【自力実装】シグモイド関数とKLダイバージェンス",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：Σとfor文", "第5章：math.log"],
+      "variants": [
+        {
+          "prompt": "標準ライブラリの `math` だけを使って、シグモイド関数 `sigmoid(x)` と KLダイバージェンス `kl_divergence(p, q)` を実装し、検算テストをすべて通してください（`p_i == 0` の項は `0.0` としてスキップします）。",
+          "starterCode": "import math\n\ndef sigmoid(x):\n    # 1 / (1 + math.exp(-x)) を返す\n    pass\n\ndef kl_divergence(p, q):\n    # sum(pi * math.log(pi / qi) for pi, qi in zip(p, q) if pi > 0)\n    pass",
+          "solutionCode": "import math\n\ndef sigmoid(x):\n    return 1.0 / (1.0 + math.exp(-x))\n\ndef kl_divergence(p, q):\n    total = 0.0\n    for pi, qi in zip(p, q):\n        if pi > 0:\n            total += pi * math.log(pi / qi)\n    return total",
+          "colabCheck": "assert abs(sigmoid(0.0) - 0.5) < 1e-9\nassert abs(sigmoid(2.0) - 0.8807970779778823) < 1e-6\nassert abs(sigmoid(3.0) + sigmoid(-3.0) - 1.0) < 1e-9\nassert abs(kl_divergence([0.5, 0.5], [0.5, 0.5]) - 0.0) < 1e-9\nassert abs(kl_divergence([0.9, 0.1], [0.5, 0.5]) - 0.3680642071684971) < 1e-6\nassert kl_divergence([0.9, 0.1], [0.5, 0.5]) != kl_divergence([0.5, 0.5], [0.9, 0.1])\nprint(\"ALL PASSED\")",
+          "hint": "`sigmoid(x)` は `1.0 / (1.0 + math.exp(-x))`、`kl_divergence(p, q)` は `zip(p, q)` で回し、`pi > 0` のときだけ `pi * math.log(pi / qi)` を足します。",
+          "reasoning": "シグモイドの対称性 $\\sigma(x) + \\sigma(-x) = 1$、KLの同一時ゼロ $\\mathrm{KL}(p\\|p)=0$、および非対称性 $\\mathrm{KL}(p\\|q) \\neq \\mathrm{KL}(q\\|p)$ をコードで直接確かめられました。",
+          "steps": [
+            "`sigmoid(x)`：`1.0 / (1.0 + math.exp(-x))`。",
+            "`kl_divergence(p, q)`：`total = 0.0` に対し `for pi, qi in zip(p, q):`。",
+            "`if pi > 0: total += pi * math.log(pi / qi)` として `0 * log(0)` エラーを防ぐ。"
+          ],
+          "altExample": "最後の `assert` が示す通り、$\\mathrm{KL}(p \\| q) \\approx 0.368$ なのに逆向きの $\\mathrm{KL}(q \\| p) \\approx 0.511$ となり、KLダイバージェンスは「距離」のように対称ではありません。",
+          "selfCheckCriteria": [
+            "`sigmoid` の対称性・値一致、および `kl_divergence` のゼロ一致・0.368一致・非対称性の全 `assert` が通った",
+            "`if pi > 0:` を入れる理由（`0 * log(0)` の数値エラー回避）と KL の非対称性を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch22-q07",
+      "chapter": "22-alignment",
+      "section": "DPO：報酬モデルなしで、好みを直接学ぶ",
+      "sectionAnchor": "#s3",
+      "concept": "dpo-symbols-reading",
+      "conceptLabel": "DPO目的関数の記号（π, π_ref, y_c, y_r, β）の正確な読み方",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "DPOの損失式 $L_{\\text{DPO}} = -\\log\\sigma\\Big(\\beta\\big[(\\log\\pi(y_c) - \\log\\pi_{\\text{ref}}(y_c)) - (\\log\\pi(y_r) - \\log\\pi_{\\text{ref}}(y_r))\\big]\\Big)$ に出てくる記号 $\\pi$ と $\\pi_{\\text{ref}}$ の意味として正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "$\\pi$ は学習中のモデル（方策、policy）、$\\pi_{\\text{ref}}$ は学習前の固定された参照モデル（reference）を表す",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "$\\pi$ は円周率 $3.14159\\dots$、$\\pi_{\\text{ref}}$ は円周率を丸めた $3.14$ を表す",
+              "wrongReason": "強化学習・LLMの文脈で $\\pi$ は円周率ではなく「方策（policy＝モデルが出す確率分布）」を表します！最も多い初見の誤解なので要注意です。"
+            },
+            {
+              "id": "c",
+              "text": "$\\pi$ は良い答えの文章、$\\pi_{\\text{ref}}$ は悪い答えの文章を表す",
+              "wrongReason": "良い答え・悪い答えの文章を表すのは $y_c$（chosen）と $y_r$（rejected）です。$\\pi$ はそれらに確率をつける「モデル」です。"
+            },
+            {
+              "id": "d",
+              "text": "$\\pi$ は学習率、$\\pi_{\\text{ref}}$ はバッチサイズを表す",
+              "wrongReason": "学習率やバッチサイズは最適化の設定であり、$\\pi(y_c)$ のように答え $y_c$ を引数にとる関数（確率分布）ではありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "強化学習では、モデル（行動の確率を決めるルール）のことを英語で **policy（方策）** と呼び、頭文字 p に対応するギリシャ文字 $\\pi$ を使います。",
+          "reasoning": "DPO式は見た目が長くて圧倒されがちですが、登場人物は「今のモデル $\\pi$」「元のモデル $\\pi_{\\text{ref}}$」「良い答え $y_c$」「悪い答え $y_r$」「ブレーキ係数 $\\beta$」の5つだけです。",
+          "steps": [
+            "$\\pi$：今から重みを更新していく学習中のLLM（方策）。",
+            "$\\pi_{\\text{ref}}$：学習開始時の重みを凍結した参照LLM（基準点）。",
+            "$\\log\\pi(y_c)$：学習中のLLMが、良い答え $y_c$ を生成する対数確率の合計。"
+          ],
+          "altExample": "強化学習の論文では、ほぼ例外なく $\\pi_\\theta(y \\mid x)$ と書かれ、「パラメータ $\\theta$ を持つモデルが質問 $x$ に対して答え $y$ を出す確率」を意味します。"
+        },
+        {
+          "prompt": "DPOの損失式の中の塊 $\\Delta_c = \\log\\pi(y_c) - \\log\\pi_{\\text{ref}}(y_c)$ は、日本語で何を表していますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "学習中のモデルが、元の参照モデルと比べて「良い答え $y_c$ をどれだけ書きやすくなったか（対数確率の増減）」",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "良い答え $y_c$ と悪い答え $y_r$ の文字数の差",
+              "wrongReason": "この項には $y_r$ は入っていません。同じ良い答え $y_c$ に対する「学習中」と「学習前」の対数確率の差です。"
+            },
+            {
+              "id": "c",
+              "text": "学習データ全体のペア数（今回は29）",
+              "wrongReason": "データ件数ではなく、1組のペアの中の `chosen` 応答に関する確率変化量です。"
+            },
+            {
+              "id": "d",
+              "text": "モデルのパラメータ数の増減",
+              "wrongReason": "学習中にパラメータ数自体は増減しません。変化するのは応答に対する出力確率です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "対数の引き算 $\\log A - \\log B = \\log(A/B)$ です。$\\pi(y_c)$ が $\\pi_{\\text{ref}}(y_c)$ より大きくなるとプラスになります。",
+          "reasoning": "$\\Delta_c > 0$ なら良い答えを元より出しやすくなった、$\\Delta_c < 0$ なら出しにくくなった、$\\Delta_c = 0$ なら変化なしを意味します。",
+          "steps": [
+            "対数確率は大きい（0に近い）ほど「書きやすい」。",
+            "$\\log\\pi(y_c) - \\log\\pi_{\\text{ref}}(y_c) = \\log\\dfrac{\\pi(y_c)}{\\pi_{\\text{ref}}(y_c)}$。",
+            "これに $\\beta$ を掛けた $\\beta\\Delta_c$ が、TRLログの `rewards/chosen`（暗黙の報酬）そのもの。"
+          ],
+          "altExample": "元の対数確率が `-60`、学習後が `-50` なら、$\\Delta_c = -50 - (-60) = +10$（大幅に書きやすくなった！）です。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q08",
+      "chapter": "22-alignment",
+      "section": "DPO：報酬モデルなしで、好みを直接学ぶ",
+      "sectionAnchor": "#s3",
+      "concept": "dpo-initial-loss-log2",
+      "conceptLabel": "DPOの初期損失が必ず log 2 ≈ 0.693 になる理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：交差エントロピーと初期損失 log V"],
+      "variants": [
+        {
+          "prompt": "DPOの学習を正しく開始した瞬間（ステップ1の前）の損失が、データの中身や $\\beta$ の値に関係なく必ず $\\log 2 \\approx 0.693$ になるのはなぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "開始時は $\\pi = \\pi_{\\text{ref}}$ なので $\\Delta_c = 0, \\Delta_r = 0$ となり、マージンが $0$、$\\sigma(0) = 0.5$、損失が $-\\log(0.5) = \\log 2 \\approx 0.693$ になるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "語彙数 $V$ が2個しかないから",
+              "wrongReason": "語彙数 $V$ は15万以上あります。ここでの「2」は語彙数ではなく、「chosen と rejected の2択で五分五分（確率 1/2）」の 2 です！"
+            },
+            {
+              "id": "c",
+              "text": "ハイパーパラメータ $\\beta$ を `0.693` に固定しているから",
+              "wrongReason": "本文では $\\beta = 0.1$ ですが、カッコの中が $0$ なので $\\beta \\times 0 = 0$ となり、$\\beta$ が何であっても初期損失は $0.693$ です。"
+            },
+            {
+              "id": "d",
+              "text": "PyTorchの `F.logsigmoid` が最初の1回だけ常に `0.693` を返す仕様だから",
+              "wrongReason": "`F.logsigmoid(x)` は単純に $\\log\\sigma(x)$ を計算する関数です。入力が $0$ だから $-\\log\\sigma(0) = \\log 2$ になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "$\\pi = \\pi_{\\text{ref}}$ をDPOの式にそのまま代入して、内側のカッコから順に計算してみましょう。",
+          "reasoning": "第5章の言語モデル学習で「初期損失 $= \\log V$」が健全性チェックになったように、DPOでは「初期損失 $= \\log 2 \\approx 0.693$」が「方策と参照モデルが正しく同じ出発点に揃っている」黄金の検算サインです。",
+          "steps": [
+            "学習開始時は $\\pi = \\pi_{\\text{ref}}$ なので、$\\log\\pi(y_c) - \\log\\pi_{\\text{ref}}(y_c) = 0$、$\\log\\pi(y_r) - \\log\\pi_{\\text{ref}}(y_r) = 0$。",
+            "マージン $= \\beta(0 - 0) = 0$。",
+            "$\\sigma(0) = 0.5 = \\dfrac{1}{2}$。",
+            "損失 $= -\\log(1/2) = \\log 2 \\approx 0.6931$。"
+          ],
+          "altExample": "もしステップ1の損失が `0.693` から大きく外れていたら（例：`2.5` や `0.05`）、参照モデルの指定ミスやLoRA初期化ミスなどバグを疑うべきです。"
+        },
+        {
+          "prompt": "DPOの学習ログを確認したところ、ステップ1の開始直後から損失が `0.693` ではなく `1.85` になっていました（LoRAは未使用で、自分で2つのモデルを読み込んだ場合）。最も疑われる原因はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "学習中のモデル $\\pi$ と参照モデル $\\pi_{\\text{ref}}$ に、別の重み（別チェックポイントや別モデル）を読み込んでしまっている",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "バッチサイズを4にしたため、初期損失が4倍になった",
+              "wrongReason": "損失はバッチ内で平均をとるため、各ペアの初期損失が `0.693` ならバッチ平均も必ず `0.693` になります。"
+            },
+            {
+              "id": "c",
+              "text": "$\\beta$ を `0.1` から `0.2` に変えたせいである",
+              "wrongReason": "$\\pi = \\pi_{\\text{ref}}$ ならカッコの中が $0$ なので、$\\beta$ を変えても $0.2 \\times 0 = 0$ で初期損失は `0.693` のままです。"
+            },
+            {
+              "id": "d",
+              "text": "良い答えの文章が長すぎるから",
+              "wrongReason": "参照モデルが同じなら、どれだけ長い文章でも $\\log\\pi(y_c) - \\log\\pi_{\\text{ref}}(y_c) = 0$ で完全に打ち消されます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "初期損失が `0.693` からズレるということは、最初から $\\log\\pi \\neq \\log\\pi_{\\text{ref}}$ だということです。",
+          "reasoning": "同一の重みから始めていれば数学的に必ず初期損失は `0.693` になります。ズレたときは「参照モデルの読み込み違い」「量子化・精度の不一致」「eval/trainモード（dropout）の違い」などをチェックします。",
+          "steps": [
+            "初期損失 $\\neq 0.693 \\iff$ マージン $\\neq 0$。",
+            "マージン $\\neq 0 \\implies$ 同じ入力に対して $\\pi$ と $\\pi_{\\text{ref}}$ の出力が一致していない。",
+            "モデル名・チェックポイント・`dropout` の有無を確認する。"
+          ],
+          "altExample": "第5章の $\\log V$ チェックと同じく、理論値を知っているとバグを1秒で発見できます。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q09",
+      "chapter": "22-alignment",
+      "section": "DPO：報酬モデルなしで、好みを直接学ぶ",
+      "sectionAnchor": "#s3",
+      "concept": "dpo-why-subtract-ref",
+      "conceptLabel": "DPOで参照モデルの対数確率 log π_ref を引く2つの本質的理由",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第5章：対数の性質"],
+      "variants": [
+        {
+          "prompt": "もしDPOの式から参照モデル $\\pi_{\\text{ref}}$ を消して、単純に $-\\log\\sigma(\\beta(\\log\\pi(y_c) - \\log\\pi(y_r)))$ を最小化すると、どのような2つの大きな問題が起きますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "①元のモデルから離れすぎないブレーキ（暗黙のKLペナルティ）が消えて文章が壊れやすくなる、②出発点で「短い悪い答え」の対数確率が高いという長さバイアスを打ち消せなくなる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "①GPUが使えなくなる、②シグモイド関数の出力が100を超えるようになる",
+              "wrongReason": "GPU計算の可否にもシグモイドの値域 $(0, 1)$ にも関係しません。問題は「学習の安定性（KL制約）」と「長さバイアス」です。"
+            },
+            {
+              "id": "c",
+              "text": "①計算速度が10倍遅くなる、②対数確率が正の数になる",
+              "wrongReason": "参照モデルを消せば計算自体はむしろ軽くなりますが、品質と数学的根拠（RLHFとの等価性）が失われます。"
+            },
+            {
+              "id": "d",
+              "text": "①初期損失が必ず0になる、②良い答えを永遠に学習できなくなる",
+              "wrongReason": "初期損失は0ではなく、短い悪い答えのほうが確率が高いせいで非常に大きな損失（例：$-\\log\\sigma(-3.5) \\approx 3.53$）から始まってしまいます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "本文の具体例 `ref_c = -60.0`（長い良い答え）と `ref_r = -25.0`（短い悪い答え）を思い出してください。",
+          "reasoning": "$\\log\\pi_{\\text{ref}}$ を引くことは、単なる飾りではなく「①KLペナルティを暗黙に組み込む」「②長さや文体による初期対数確率の差をリセットして変化量だけを比べる」という2つの重要な役割を同時に担っています。",
+          "steps": [
+            "理由1（暗黙のKLペナルティ）：$\\log\\pi - \\log\\pi_{\\text{ref}} = \\log(\\pi/\\pi_{\\text{ref}})$ がRLHFのKL制約付き最適解から導かれた暗黙の報酬になっている。",
+            "理由2（出発点の公平化）：長い `chosen`（`-60`）と短い `rejected`（`-25`）を直接比べると最初から `-35` 点負けているが、参照値を引けばどちらも `0` から公平にスタートできる。",
+            "この2つにより、参照モデルの日本語力を保ちながら好みだけを安全に学習できる。"
+          ],
+          "altExample": "本文のQwen2.5-0.5Bでも、学習前の対数確率は良い答え `-142.3`、悪い答え `-21.7` と `120` 以上もの差がありました。参照値を引かなければ最初から巨大な誤差が出てしまいます。"
+        },
+        {
+          "prompt": "学習前のQwenで、長い良い答えの対数確率が `-142.3`、短い悪い答えの対数確率が `-21.7` になりました。悪い答えのほうが「対数確率が高い（0に近い）」主な理由はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "文章全体の対数確率は各トークンの負の対数確率の合計なので、トークン数が少ない短い文章ほど足し算の回数が少なく、絶対値が小さく（0に近く）なりやすいから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "Qwenはわざと意地悪な答えを最高評価するように事前学習されているから",
+              "wrongReason": "意地悪だからではなく、1未満の確率を何十回も掛け算（対数では負の数を何十回も足し算）すると、長い文ほど合計値が小さくなる数学的性質が大きな要因です。"
+            },
+            {
+              "id": "c",
+              "text": "良い答えには日本語しか含まれず、悪い答えには英語しか含まれないから",
+              "wrongReason": "どちらも日本語の文章です。トークン数（長さ）と表現の珍しさが主因です。"
+            },
+            {
+              "id": "d",
+              "text": "対数確率は大きいほど「書きにくい」という意味だから",
+              "wrongReason": "逆です。確率が1に近いほど $\\log p$ は $0$ に近く（大きく）、確率が小さいほど $\\log p$ は大きなマイナス（小さく）なります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "確率0.5のトークンが5個なら $5\\times\\log 0.5 \\approx -3.5$、50個なら $50\\times\\log 0.5 \\approx -34.7$ になります。",
+          "reasoning": "すべてのトークン確率は $0 < p \\le 1$ なので $\\log p \\le 0$ です。そのため長い文章ほど負の数がたくさん足され、合計の対数確率はどんどん小さくなります。",
+          "steps": [
+            "1トークンごとの対数確率は0以下の負の数。",
+            "短い悪い答え（約15トークン）→ 負の数を15回足す → `-21.7`。",
+            "長い良い答え（約70トークン）→ 負の数を70回足す → `-142.3`。",
+            "だからこそDPOでは生の対数確率ではなく「参照モデルからの変化量」を比べる。"
+          ],
+          "altExample": "第20章の4択クイズ評価でも、長い選択肢が不利にならないよう「文字数やトークン数で割る（長さ正規化）」工夫をすることがあります。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q10",
+      "chapter": "22-alignment",
+      "section": "DPO：報酬モデルなしで、好みを直接学ぶ",
+      "sectionAnchor": "#s3",
+      "concept": "dpo-margin-and-loss-handcalc",
+      "conceptLabel": "DPOのマージンと損失の手計算",
+      "level": 3,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第5章：自然対数"],
+      "variants": [
+        {
+          "prompt": "$\\beta = 0.1$ とします。学習前の対数確率が $\\log\\pi_{\\text{ref}}(y_c) = -60$、$\\log\\pi_{\\text{ref}}(y_r) = -25$ でした。学習が進んで $\\log\\pi(y_c) = -50$（$+10$ 改善）、$\\log\\pi(y_r) = -35$（$-10$ 抑制）になったとき、シグモイドの中に入る**マージン** $m = \\beta\\big[(\\log\\pi(y_c)-\\log\\pi_{\\text{ref}}(y_c)) - (\\log\\pi(y_r)-\\log\\pi_{\\text{ref}}(y_r))\\big]$ はいくつになりますか？",
+          "answer": { "value": 2.0, "tolerance": 0.01 },
+          "unit": "",
+          "placeholder": "例：2.0",
+          "hint": "$\\Delta_c = -50 - (-60) = +10$、$\\Delta_r = -35 - (-25) = -10$。引き算の符号（$10 - (-10)$）に注意！",
+          "reasoning": "良い答えが $+10$ 書きやすくなり、悪い答えが $-10$ 書きにくくなると、差は $10 - (-10) = 20$ に広がり、$\\beta = 0.1$ を掛けてマージン $2.0$ になります（損失は $-\\log\\sigma(2.0) \\approx 0.127$ まで低下！）。",
+          "steps": [
+            "$\\Delta_c = (-50) - (-60) = +10$。",
+            "$\\Delta_r = (-35) - (-25) = -10$。",
+            "差：$\\Delta_c - \\Delta_r = 10 - (-10) = 20$。",
+            "マージン：$m = 0.1 \\times 20 = 2.0$。"
+          ],
+          "altExample": "このとき暗黙の報酬は `rewards/chosen` $= 0.1 \\times 10 = +1.0$、`rewards/rejected` $= 0.1 \\times (-10) = -1.0$、その差 `rewards/margins` $= 2.0$ になります。"
+        },
+        {
+          "prompt": "$\\beta = 0.2$ とします。学習後に良い答えの対数確率変化が $\\Delta_c = +5$、悪い答えの変化が $\\Delta_r = -5$ になったとき、マージン $m = \\beta(\\Delta_c - \\Delta_r)$ はいくつですか？",
+          "answer": { "value": 2.0, "tolerance": 0.01 },
+          "unit": "",
+          "placeholder": "例：2.0",
+          "hint": "$\\Delta_c - \\Delta_r = 5 - (-5) = 10$ に $\\beta = 0.2$ を掛けます。",
+          "reasoning": "$\\beta$ が2倍の `0.2` なので、変化量が半分（$+5$ と $-5$）でも同じマージン `2.0` に到達します。つまり $\\beta$ が大きいほど、少ない確率変化で早く損失が下がり、参照モデルから離れにくくなります！",
+          "steps": [
+            "$\\Delta_c - \\Delta_r = 5 - (-5) = 10$。",
+            "$m = \\beta(\\Delta_c - \\Delta_r) = 0.2 \\times 10 = 2.0$。",
+            "損失 $-\\log\\sigma(2.0) \\approx 0.127$。"
+          ],
+          "altExample": "逆に、悪い方向へ学習してしまい $\\Delta_c = -5, \\Delta_r = +5$ になると、マージンは $-2.0$、損失は $-\\log\\sigma(-2.0) \\approx 2.127$ と大きく跳ね上がります。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q11",
+      "chapter": "22-alignment",
+      "section": "DPO：報酬モデルなしで、好みを直接学ぶ",
+      "sectionAnchor": "#s3",
+      "concept": "impl-dpo-loss-pure-python",
+      "conceptLabel": "【自力実装】純粋PythonでDPO損失を実装し初期値と単調性を検証する",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第22章：シグモイド関数とDPO目的関数"],
+      "variants": [
+        {
+          "prompt": "PyTorchを使わず標準ライブラリの `math` だけで、DPOの損失関数 `dpo_loss_py(pi_c, pi_r, ref_c, ref_r, beta=0.1)` を実装し、①学習前（$\\pi = \\pi_{\\text{ref}}$）の損失が $\\log 2 \\approx 0.693147$ になること、②良い答えが書きやすくなるほど損失が減ること（単調性）、③悪い答えが書きにくくなるほど損失が減ること、のすべてを検算テストで確認してください。",
+          "starterCode": "import math\n\ndef dpo_loss_py(pi_c, pi_r, ref_c, ref_r, beta=0.1):\n    # 1. margin = beta * ((pi_c - ref_c) - (pi_r - ref_r))\n    # 2. prob = 1.0 / (1.0 + math.exp(-margin))\n    # 3. return -math.log(prob)\n    pass",
+          "solutionCode": "import math\n\ndef dpo_loss_py(pi_c, pi_r, ref_c, ref_r, beta=0.1):\n    margin = beta * ((pi_c - ref_c) - (pi_r - ref_r))\n    if margin >= 0:\n        return math.log1p(math.exp(-margin))\n    return -margin + math.log1p(math.exp(margin))",
+          "colabCheck": "ref_c, ref_r = -60.0, -25.0\nl0 = dpo_loss_py(ref_c, ref_r, ref_c, ref_r, beta=0.1)\nassert abs(l0 - math.log(2)) < 1e-9\nl_good = dpo_loss_py(ref_c + 10.0, ref_r, ref_c, ref_r, beta=0.1)\nl_rej = dpo_loss_py(ref_c, ref_r - 10.0, ref_c, ref_r, beta=0.1)\nl_both = dpo_loss_py(ref_c + 10.0, ref_r - 10.0, ref_c, ref_r, beta=0.1)\nl_bad = dpo_loss_py(ref_c - 10.0, ref_r, ref_c, ref_r, beta=0.1)\nassert abs(l_good - l_rej) < 1e-9\nassert l_both < l_good < l0 < l_bad\nassert abs(l_both - 0.1269280110429726) < 1e-6\nprint(\"ALL PASSED\")",
+          "hint": "`margin = beta * ((pi_c - ref_c) - (pi_r - ref_r))` を計算し、`-math.log(1.0 / (1.0 + math.exp(-margin)))`（またはオーバーフロー安全な `math.log1p(math.exp(-margin))`）を返します。",
+          "reasoning": "実は $-\\log\\sigma(m) = -\\log\\frac{1}{1+e^{-m}} = \\log(1 + e^{-m})$（softplus関数）と完全に同じです！PyTorchの `-F.logsigmoid(margin)` も内部でこの数値安定版を計算しています。",
+          "steps": [
+            "`margin = beta * ((pi_c - ref_c) - (pi_r - ref_r))`。",
+            "$-\\log\\sigma(m) = \\log(1 + e^{-m})$ を計算（`m < 0` のときは $-m + \\log(1 + e^{m})$ とすると極端な負値でもオーバーフローしない）。",
+            "`l_both < l_good < l0 < l_bad` により、望ましい更新で必ず損失が下がることが確認できる。"
+          ],
+          "altExample": "数式を10行足らずの純粋Pythonで実装し、PyTorch版・TRL版の数値（0.693, 0.313, 0.127）と小数第6位まで一致することを確認できれば、DPOは完全に自分の道具になっています。",
+          "selfCheckCriteria": [
+            "初期損失 `l0 == math.log(2)` と単調性 `l_both < l_good < l0 < l_bad` の `assert` がすべて通った",
+            "なぜ `l_good` と `l_rej` が一致するのかをマージンの式から説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch22-q12",
+      "chapter": "22-alignment",
+      "section": "モデルの対数確率を計算する",
+      "sectionAnchor": "#s4",
+      "concept": "answer-logprob-masking",
+      "conceptLabel": "answer_logprob で質問部分を除き答えトークンだけを足す理由",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第18章：損失マスク（-100）", "第20章：4択の対数確率計算"],
+      "variants": [
+        {
+          "prompt": "`answer_logprob` 関数では、`logprobs[len(p) - 1:]` のように**質問（プロンプト）部分を除いて、答えのトークンだけの対数確率**を合計しています。なぜ質問部分を含めないのですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "求めたいのは条件付き確率 $\\log\\pi(y \\mid x)$（質問 $x$ の後に答え $y$ を出す確率）であり、質問自体はモデルが生成する対象ではないから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "質問トークンはモデルに入力するとエラーになるから",
+              "wrongReason": "質問トークン `p` は `ids = torch.tensor([p + a])` としてモデルに入力しています。答えの確率を測るための条件（文脈）として必要だからです。"
+            },
+            {
+              "id": "c",
+              "text": "質問トークンの対数確率は常にプラスになるから",
+              "wrongReason": "どのトークンでも確率は1以下なので対数確率は常に0以下です。"
+            },
+            {
+              "id": "d",
+              "text": "`len(p) - 1` は答えの最後の1文字だけを取り出す記法だから",
+              "wrongReason": "`len(p) - 1` から末尾まで `:` でスライスしているため、答えの1トークン目から `<|im_end|>` までの全答えトークンを合計しています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第18章のSFTで質問部分に `-100` を入れて損失から除外した理由と同じ発想です。また「1つずらし」の添字 `len(p) - 1` にも注目しましょう。",
+          "reasoning": "モデルが位置 `len(p) - 1`（質問の末尾）で出力するロジットが「答えの1トークン目（添字 `len(p)`）」の予測になっています。そのため `logprobs[len(p) - 1:]` と `ids[0, len(p):]` がちょうど1対1に対応します。",
+          "steps": [
+            "入力列は `p + a`（質問のあとに答えをつなげた列）。",
+            "位置 `t` の出力ロジットは位置 `t + 1` のトークンを予測する（1つずらし）。",
+            "よって答えの開始 `ids[len(p)]` に対応する予測は `logprobs[len(p) - 1]` から始まる。",
+            "答え部分だけを合計することで $\\log\\pi(y \\mid x)$（`<|im_end|>` 含む）が得られる。"
+          ],
+          "altExample": "もし `<|im_end|>` を付け忘れると、答えを言い切ったあとにダラダラ続ける確率との違いが反映されなくなるため、終了トークンまで含めて計算するのが標準です。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q13",
+      "chapter": "22-alignment",
+      "section": "TRLのDPOTrainerで学習する",
+      "sectionAnchor": "#s5",
+      "concept": "lora-dpo-and-log-reading",
+      "conceptLabel": "LoRA併用DPOの省メモリ仕組みと学習ログの読み方",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第19章：LoRA（低ランク適応）"],
+      "variants": [
+        {
+          "prompt": "通常DPOは「学習モデル $\\pi$」と「参照モデル $\\pi_{\\text{ref}}$」の2つを必要としますが、`DPOTrainer` に `peft_config=LoraConfig(...)` を渡すとモデルを1つしか読み込まずに済みます。なぜですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "元の重みを凍結してLoRAの付せんだけを学習するため、付せんをオンにすれば $\\pi$、一時的にオフにすれば元のままの $\\pi_{\\text{ref}}$ として1つのモデルで兼用できるから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "LoRAを使うと参照モデル $\\pi_{\\text{ref}}$ の計算そのものを省略するから",
+              "wrongReason": "参照モデルの対数確率はきちんと計算しています。LoRAアダプタを無効化して順伝播することで参照モデルの出力を得ています。"
+            },
+            {
+              "id": "c",
+              "text": "LoRAを使うと `rejected` データを読み込まなくてよくなるから",
+              "wrongReason": "DPOでは `chosen` と `rejected` の両方が必須です。"
+            },
+            {
+              "id": "d",
+              "text": "LoRAがモデルの層数を自動で半分に削るから",
+              "wrongReason": "LoRAは元の層数を削らず、各線形層に小さな低ランク行列 $A, B$ を横付けする仕組みです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第19章の「教科書に付せんを貼る」たとえを思い出しましょう。付せんをはがしたら何に戻りますか？",
+          "reasoning": "フルパラメータ学習では元の重み自体が書き換わるため参照モデルの丸ごとコピー（VRAM 2倍）が必要ですが、LoRAならベース重みが無傷のまま残るため、アダプタのON/OFFだけで2役をこなせます。",
+          "steps": [
+            "LoRA ON：ベース重み $W + \\Delta W$ ＝ 学習中のモデル $\\pi$。",
+            "LoRA OFF：ベース重み $W$ ＝ 学習前の参照モデル $\\pi_{\\text{ref}}$。",
+            "モデルのコピーが不要になり、無料Colab（T4）でもDPOが実行できる。"
+          ],
+          "altExample": "QLoRA（4ビット量子化＋LoRA）とDPOを組み合わせれば、7Bクラスのモデルでも1枚のGPUで好み学習が可能です。"
+        },
+        {
+          "prompt": "TRLの `DPOTrainer` のログで、`rewards/chosen` が `+1.40`、`rewards/rejected` が `-1.02` でした。このとき `rewards/margins` はいくつになり、どう解釈できますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`+2.42`（`1.40 - (-1.02)`）。良い答えが書きやすくなり、悪い答えが書きにくくなって、順調に好みの差が広がっている",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`+0.38`（`1.40 + (-1.02)`）。差が小さいので学習に失敗している",
+              "wrongReason": "マージンは和ではなく**差**（`chosen - rejected`）です。負の数を引くので足し算になり `+2.42` になります。"
+            },
+            {
+              "id": "c",
+              "text": "`-2.42`。悪い答えを好むようになってしまった",
+              "wrongReason": "引き算の向きは `chosen - rejected` です。良い答えのほうが大きいのでプラスです。"
+            },
+            {
+              "id": "d",
+              "text": "`0.693`。まだまったく学習が進んでいない",
+              "wrongReason": "`0.693` はマージンが `0.00` のときの**損失**の値です。マージン `+2.42` のとき損失は `0.40` 付近まで下がっています。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`rewards/margins = rewards/chosen - rewards/rejected` です。",
+          "reasoning": "理想的なDPO学習では `rewards/chosen` が上昇、`rewards/rejected` が下降し、その差 `rewards/margins` が正の方向に広がって `rewards/accuracies` が 1.0 に近づきます。",
+          "steps": [
+            "`rewards/chosen` $= +1.40$（良い答えの暗黙報酬がプラス）。",
+            "`rewards/rejected` $= -1.02$（悪い答えの暗黙報酬がマイナス）。",
+            "`rewards/margins` $= 1.40 - (-1.02) = +2.42$。"
+          ],
+          "altExample": "本文の実行例でも、ステップ13で `良い 1.40`、`悪い -1.02`、`差 2.42`、`損失 0.401`、`正解率 1.00` となっています。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q14",
+      "chapter": "22-alignment",
+      "section": "TRLのDPOTrainerで学習する",
+      "sectionAnchor": "#s5",
+      "concept": "dpo-chosen-collapse-diagnosis",
+      "conceptLabel": "DPOの弱点：rewards/chosen も下がる現象の診断と対策",
+      "level": 4,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第10章：学習率と過学習"],
+      "variants": [
+        {
+          "prompt": "あるDPO学習のログを見ると、`loss` は順調に下がり `rewards/margins` も `+3.0` まで増えましたが、`rewards/chosen` が `-2.5`、`rewards/rejected` が `-5.5` と**両方とも大きくマイナス**になり、生成される文章がおかしくなりました。何が起きており、どう対策すべきですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "差（マージン）さえ広げれば損失が下がるため、良い答えの確率まで一緒に下がってしまった（DPO特有の確率低下現象）。学習率を下げる・エポック数を減らす・SFT損失を少し混ぜるなどで対策する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`rewards/margins` がプラスなので問題はなく、さらに100エポック学習を続ければ文章は自然に直る",
+              "wrongReason": "学習を続けるほど良い答えの確率低下と分布の崩れが悪化します。損失やマージンだけを見て安心しないのがDPO運用の鉄則です。"
+            },
+            {
+              "id": "c",
+              "text": "データの中の `chosen` と `rejected` が逆に入っているのが唯一の原因である",
+              "wrongReason": "逆に入っていれば `chosen` のほうが `rejected` より低くなり、マージン自体がマイナスか不安定になります。ここでは差は `+3.0` あります。"
+            },
+            {
+              "id": "d",
+              "text": "GPUの故障なのでコンピュータを買い替えるしかない",
+              "wrongReason": "ハードウェア故障ではなく、DPO損失が「差（$\\Delta_c - \\Delta_r$）」だけを見ていることに由来するよく知られた現象です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "DPOの式では「$\\Delta_c = +1, \\Delta_r = -2$」も「$\\Delta_c = -2.5, \\Delta_r = -5.5$」も、差は同じ $+3.0$ になります！",
+          "reasoning": "DPOの目的関数は相対差 $\\Delta_c - \\Delta_r$ しか評価しないため、良い答えの確率まで下げつつ悪い答えをそれ以上に下げることでも損失を最小化できてしまいます。そのため `rewards/chosen` の推移と実際の生成文を必ず確認します。",
+          "steps": [
+            "`-2.5 - (-5.5) = +3.0` なので、マージン上は成功しているように見える。",
+            "しかし `rewards/chosen = -2.5 < 0` は「良い答えすら元のモデルより書きにくくなった」ことを意味する。",
+            "対策：学習率を小さくする（$10^{-6}$〜$10^{-5}$台）、エポック数を抑える、あるいはCPO/ORPO/SFT項併用などを検討する。"
+          ],
+          "altExample": "これは研究論文でも「likelihood displacement（尤度の押し下げ）」として知られており、第22章で `rewards/chosen` と `rewards/rejected` を別々に表示した最大の理由でもあります。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q15",
+      "chapter": "22-alignment",
+      "section": "アラインメントと安全性",
+      "sectionAnchor": "#s6",
+      "concept": "alignment-safety-and-rlvr",
+      "conceptLabel": "アラインメントの3原則・RLAIF・ジェイルブレイク・RLVR（推論モデル）",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "最近の「長く考えてから答える」推論モデル（reasoning model）を作る際に使われる **RLVR（検証可能な報酬による強化学習）** と、従来のRLHFの違いとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "RLHFは人間の主観的な好み（や報酬モデル）を報酬にするが、RLVRは数学の正解一致やプログラムのテスト通過のように自動で正誤を判定できる「検証可能な報酬（1または0）」を使う",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "RLVRは人間の好みのペアを必ず1億件以上手で書かなければ実行できない",
+              "wrongReason": "むしろ逆で、プログラムや自動採点機で正誤を検証できるため、人手の好みラベルなしで大規模な強化学習を回せるのがRLVRの強みです。"
+            },
+            {
+              "id": "c",
+              "text": "RLVRを使うとモデルは考える過程（思考トークン）を一切出力しなくなる",
+              "wrongReason": "正解にたどり着くため、モデルは逆に自分で段階的に考える過程（Chain-of-Thought）を長く出力することを学習します。"
+            },
+            {
+              "id": "d",
+              "text": "RLVRは安全性のためのジェイルブレイク攻撃手法の名前である",
+              "wrongReason": "ジェイルブレイクは安全の仕組みをすり抜ける攻撃であり、RLVR（Reinforcement Learning with Verifiable Rewards）は推論能力を鍛える学習手法です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "数学やプログラミングの問題は、人間の主観がなくても「答えが合っているか」を機械的に採点できます。",
+          "reasoning": "RLVRでは自動検証できる報酬を使うことで、報酬ハッキングが起きにくく、モデルが試行錯誤を通じて自己検証や長い思考手順を自発的に獲得できることが分かりました（第25章のGRPOにつながります）。",
+          "steps": [
+            "アラインメントの3目標：Helpful（役に立つ）・Honest（正直）・Harmless（無害）。",
+            "RLHF / RLAIF / DPO：丁寧さや安全性など「主観的な良さ」を好みデータから学ぶ。",
+            "RLVR（GRPOなど）：数学・コードなど「自動採点できる正誤」を報酬にして推論力を伸ばす。"
+          ],
+          "altExample": "たとえば「Pythonコードを書いてユニットテストが全件通ったら報酬1、落ちたら0」という環境でGRPOを回すと、デバッグしながら考えるモデルが育ちます。"
+        }
+      ]
+    },
+    {
+      "id": "ch22-q16",
+      "chapter": "22-alignment",
+      "section": "アラインメントと安全性",
+      "sectionAnchor": "#s6",
+      "concept": "rlhf-to-dpo-and-method-selection",
+      "conceptLabel": "【総合】RLHF→DPOの導出の肝と、SFT・DPO・RLVRの使い分け",
+      "level": 5,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第18章：SFT", "第22章：RLHFとDPO"],
+      "variants": [
+        {
+          "prompt": "① RLHFのKL制約付き報酬最大化から、報酬モデルを消去してDPOの損失関数を導ける数学的なカギ（仮定・簡略化を含む）を自分の言葉で説明してください。② さらに「口調や出力形式を教える」「冷たい・危険な応答を減らす」「数学の計算手順を強くする」の3タスクそれぞれに、SFT・DPO・RLVRのどれを主軸に選ぶべきか理由とともに答えてください。",
+          "modelAnswer": "① RLHFのKL制約付き最適化問題の厳密な最適方策が $\\pi^*(y|x) = \\frac{1}{Z(x)}\\pi_{\\text{ref}}(y|x)\\exp(r(x,y)/\\beta)$ という解析解（閉じた形）で書けることを使い、逆に報酬を $r(x,y) = \\beta\\log(\\pi^*/\\pi_{\\text{ref}}) + \\beta\\log Z(x)$ と表せる点がカギです。これをブラッドリー・テリーモデルの差 $r_c - r_r$ に代入すると、計算できない正規化定数 $\\beta\\log Z(x)$ が相殺されて消えるため、報酬モデルなしで直接 $\\pi$ を最適化できます（ただし、好みがブラッドリー・テリーモデルに従い、オフラインの固定データ上で最適方策と報酬が1対1対応するという仮定・簡略化の上での導出です）。② 口調や出力形式の習得にはお手本を直接模倣するSFT、冷たい・危険な応答を抑えて好みに沿わせるには良い答えと悪い答えを対比できるDPO、数学の推論力強化には正誤を自動検証できるRLVR（GRPOなど）を主軸にするのが適切です。",
+          "hint": "①は「KL制約付き最適解の逆算」「正規化定数 $Z(x)$ の相殺」「前提となる仮定」の3点、②は3タスクと3手法の対応理由を整理しましょう。",
+          "reasoning": "現代のLLMの事後学習（Post-training）は、SFTで基礎作法を入れ、DPO/RLHFで好みと安全性を整え、RLVRで推論力を磨くという多段階パイプラインになっています。",
+          "steps": [
+            "KL制約付きRLHFの最適解から報酬を $\\beta\\log(\\pi/\\pi_{\\text{ref}}) + \\beta\\log Z(x)$ と逆算する。",
+            "ブラッドリー・テリーモデルの差 $r_c - r_r$ に入れると、厄介な $\\beta\\log Z(x)$ が消えてDPO損失になる。",
+            "SFT（模倣）・DPO（比較の好み・安全）・RLVR（自動検証できる推論）をタスクの性質で使い分ける。"
+          ],
+          "altExample": "実際の最新オープンモデル（QwenやDeepSeekなど）の論文でも、まさに「事前学習 → SFT → RLVR/DPO」の順で事後学習が組まれています。",
+          "selfCheckCriteria": [
+            "KL制約付き最適方策から報酬を逆算し、差をとることで正規化定数 $Z(x)$ が消える仕組みに触れた",
+            "ブラッドリー・テリーモデルの仮定やオフライン固定データの簡略化にも一言触れられた",
+            "SFT・DPO・RLVRの3つを、それぞれのタスクの特徴（お手本・比較好み・自動検証）と結びつけて使い分けられた"
+          ]
+        }
+      ]
+    }
+  ]
+}
