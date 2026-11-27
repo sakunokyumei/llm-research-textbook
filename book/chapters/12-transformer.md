@@ -29,9 +29,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -293,6 +297,8 @@ class GPT(nn.Module):
 
     @torch.no_grad()
     def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
+        if temperature <= 0:
+            raise ValueError("temperature must be positive")
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -self.block_size:]          # 窓に入る分だけ
             logits, _ = self(idx_cond)

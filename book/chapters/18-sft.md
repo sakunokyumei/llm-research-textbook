@@ -22,12 +22,23 @@
 
 ## 準備：GPUとデータ
 
+:::tip 実行環境とリソースの目安（GPU推奨・CPU時の代替手順つき）
+- **環境**：無料GPU（Colab T4 / Kaggle T4）推奨です。0.5Bモデルの全パラメータ学習にVRAM約10〜12GBを使います（第15章の「16バイト × パラメータ数」＋活性化）。
+- **ダウンロードと保存容量**：初回に `Qwen2.5-0.5B`（約1GB）と教材JSONL（数十KB）を取得します。学習後のモデルをfloat32でGoogleドライブへ保存すると約2GB必要です。
+- **所要時間**：T4 GPUなら自作ループ・TRL版とも各1分未満です。
+- **GPUが使えない日／セッション切断対策**：CPUで全60問×3エポックを回すと数十分以上かかるため、CPU環境では `train_rows[:12]`・`epochs=1` に縮小して損失マスクと1周の動きだけ確かめるか、Kaggleの無料GPU（[付録A](a-setup.html)）や次章（第19章のLoRA）へ進んでください。学習直後にドライブへ保存する順番にしてあるので、切断時も成果を守れます。
+- **ライブラリ互換性**：`dtype=` は `transformers >= 4.56`（5系含む）対応です（推奨環境は `requirements-book.txt` を参照）。
+:::
+
 GPUのランタイム（T4）で実行してください。0.5Bのモデルの**全パラメータ**を学習させるので、メモリを10GBほど使います（第15章の「16バイト × パラメータ数」の計算を思い出してください）。
 
 ```python
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl
-import json
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl
+import json, os
+for fname in ("bongo_sft.jsonl", "bongo_test.jsonl"):
+    if not os.path.exists(fname):
+        raise RuntimeError(f"{fname} のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 train_rows = [json.loads(line) for line in open("bongo_sft.jsonl", encoding="utf-8")]
 test_rows = [json.loads(line) for line in open("bongo_test.jsonl", encoding="utf-8")]
 print("学習用：", len(train_rows), "問 / 評価用：", len(test_rows), "問")
@@ -219,6 +230,7 @@ def train_sft(model, examples, epochs=3, lr=1e-5, batch_size=4, seed=0):
         order = list(range(len(examples)))
         random.shuffle(order)                        # 毎エポック、順番を混ぜる
         total = 0.0
+        n_steps = 0
         for i in range(0, len(order), batch_size):
             batch = collate([examples[j] for j in order[i:i + batch_size]])
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=use_amp):
@@ -230,7 +242,8 @@ def train_sft(model, examples, epochs=3, lr=1e-5, batch_size=4, seed=0):
             scaler.step(opt)
             scaler.update()
             total += loss.item()
-        print(f"エポック {epoch + 1}：平均損失 {total / (len(order) / batch_size):.3f}")
+            n_steps += 1
+        print(f"エポック {epoch + 1}：平均損失 {total / n_steps:.3f}")
     model.zero_grad(set_to_none=True)   # 最後の勾配を捨てて、GPUのメモリを空ける
     model.eval()
 
@@ -344,7 +357,14 @@ config = SFTConfig(output_dir="sft-bongo", num_train_epochs=3, per_device_train_
                    bf16=False, fp16=torch.cuda.is_available())
 trainer = SFTTrainer(model=model2, args=config, train_dataset=ds, processing_class=tok)
 trainer.train()
-print("学習した部分のトークン数（1件目）：", sum(l != -100 for l in trainer.train_dataset[0]["labels"]))
+sample = trainer.train_dataset[0]
+if "labels" in sample:
+    n_train_tokens = sum(l != -100 for l in sample["labels"])
+elif "completion_mask" in sample:
+    n_train_tokens = sum(sample["completion_mask"])
+else:
+    n_train_tokens = len(sample["input_ids"])
+print("学習した部分のトークン数（1件目）：", n_train_tokens)
 ```
 
 ```output-example

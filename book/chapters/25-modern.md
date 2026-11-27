@@ -22,20 +22,34 @@
 
 ## 準備と、比べる相手（ベースライン）
 
+:::tip 実行環境とリソースの目安
+- **環境**：CPUで完走できます（GPU不要）。
+- **ダウンロードとメモリ**：初回に `minigpt.py`（約4KB）と青空文庫『こころ』（約350KB）を取得します。必要RAMは約1GBです。
+- **所要時間**：1500ステップの学習1回あたりCPUで2〜5分（ベースライン2シード＋現代版2シードの計4回で合計10〜20分、GPUなら合計1分未満）。時間がないときは `steps=500`・`seed in [0]` で動作確認してから本実験へ進めます。推奨ライブラリは `requirements-book.txt` を参照してください。
+:::
+
 第12章と同じ小さな設定（2層・幅64・窓64・1500ステップ）を使います。CPUでも1回数分で終わるので、何度も実験できます。
 
 ```python
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py
-import re, math, urllib.request
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py
+import os, re, math, urllib.request
+if not os.path.exists("minigpt.py"):
+    raise RuntimeError("minigpt.py のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from minigpt import GPT
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/"
+           "0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        text = urllib.request.urlopen(url, timeout=30).read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(
+            f"青空文庫の取得に失敗しました（{e}）。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。"
+        ) from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)

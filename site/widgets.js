@@ -3,7 +3,9 @@
   const h = (tag, attrs = {}, ...kids) => {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) {
-      if (k === "class") el.className = v; else if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v);
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) el.setAttribute(k, v === true ? "" : v);
     }
     for (const kid of kids) el.append(kid);
     return el;
@@ -49,11 +51,11 @@
     const P = h("input", { type: "range", min: "0.1", max: "1", step: "0.05", value: "1", "aria-label": "top-p" });
     const kLabel = h("span"), pLabel = h("span");
     const bars = h("div", { class: "bars" });
-    const result = h("p", { class: "note" });
+    const result = h("p", { class: "note", "aria-live": "polite" });
     const editors = h("div", { class: "chips" });
     const inputs = logits.map((v, i) => {
       const el = h("input", { type: "number", step: "0.1", value: String(v), style: "width:5.2em", "aria-label": words[i] + "のロジット" });
-      el.addEventListener("input", draw);
+      el.addEventListener("input", () => draw());
       editors.append(h("label", { class: "chip" }, words[i] + " ", el));
       return el;
     });
@@ -64,7 +66,7 @@
         const order = p.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]);
         const keep = new Set(); let acc = 0;
         for (const [v, i] of order) {
-          if (keep.size >= parseInt(K.value)) break;
+          if (keep.size >= parseInt(K.value, 10)) break;
           if (acc >= parseFloat(P.value) && keep.size > 0) break;
           keep.add(i); acc += v;
         }
@@ -127,11 +129,28 @@
     }
     const step = () => { if (!hist.length) hist.push(w); w = w - parseFloat(lr.value) * df(w); w = Math.max(-50, Math.min(50, w)); hist.push(w); draw(); };
     let timer = null;
-    const run = () => { if (timer) { clearInterval(timer); timer = null; return; } let n = 0; timer = setInterval(() => { step(); if (++n >= 30) { clearInterval(timer); timer = null; } }, 120); };
-    const reset = () => { w = -1.5 + Math.random() * 9; hist = []; draw(); };
+    let runBtn = null;
+    const stopTimer = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      if (runBtn) runBtn.textContent = "30歩まとめて";
+    };
+    const run = () => {
+      if (timer) { stopTimer(); return; }
+      let n = 0;
+      if (runBtn) runBtn.textContent = "停止";
+      timer = setInterval(() => {
+        step();
+        if (++n >= 30) stopTimer();
+      }, 120);
+    };
+    const reset = () => { stopTimer(); w = -1.5 + Math.random() * 9; hist = []; draw(); };
+    runBtn = h("button", { type: "button", onclick: run }, "30歩まとめて");
     lr.addEventListener("input", draw);
     root.append(h("p", { class: "w-title" }, "ボールを坂の一番下へ：勾配降下法"), canvas, h("label", {}, lrLabel, lr),
-      h("button", { type: "button", onclick: step }, "1歩進む"), h("button", { type: "button", onclick: run }, "30歩まとめて"),
+      h("button", { type: "button", onclick: step }, "1歩進む"), runBtn,
       h("button", { type: "button", class: "ghost", onclick: reset }, "別の場所から"), info,
       h("p", { class: "note" }, "点線は「いまの場所の傾き」。傾きと逆向きに、学習率ぶん進みます。学習率を2近くにすると…？"));
     draw();
@@ -146,6 +165,7 @@
     const mask = h("input", { type: "checkbox", checked: "" });
     const scale = h("input", { type: "range", min: "0.2", max: "5", step: "0.1", value: "1.7", "aria-label": "鋭さ" });
     const sLabel = h("span"); const table = h("table", { class: "att" }); const note = h("p", { class: "note" });
+    const tableWrap = h("div", { class: "table-wrap" }, table);
     function draw() {
       sLabel.textContent = ` 鋭さ（スコアに掛ける数）= ${fmt(scale.value, 1)}`;
       table.innerHTML = "";
@@ -166,7 +186,7 @@
     }
     [mask, scale].forEach((el) => el.addEventListener("input", draw));
     root.append(h("p", { class: "w-title" }, "Attentionの重み（各行が「誰にどれだけ注目するか」）"),
-      h("label", {}, mask, " 未来を隠すマスク（causal mask）"), h("label", {}, sLabel, scale), table, note);
+      h("label", {}, mask, " 未来を隠すマスク（causal mask）"), h("label", {}, sLabel, scale), tableWrap, note);
     draw();
   };
 
@@ -198,26 +218,164 @@
     reset();
   };
 
-  // ---- the tiny Soseki GPT running in this browser
+  // ---- the tiny Soseki GPT running in this browser (lazy-loaded, cancellable, resilient)
   W.minigpt = (root) => {
     const seed = h("input", { type: "text", value: "吾輩は", "aria-label": "書き出し" });
     const temp = h("input", { type: "range", min: "0.2", max: "1.5", step: "0.05", value: "0.8", "aria-label": "温度" });
-    const tl = h("span"); const out = h("div", { class: "gen", "aria-live": "polite" }); const note = h("p", { class: "note" });
+    const tl = h("span");
+    const out = h("div", { class: "gen" }); // aria-live なし（1文字ごとの読み上げスパムを防止）
+    const status = h("p", { class: "note gpt-status", "aria-live": "polite", "aria-atomic": "true" });
+    const warn = h("p", { class: "note gpt-warn", role: "status" });
+    warn.hidden = true;
+    const note = h("p", { class: "note" });
+
     const btn = h("button", { type: "button" }, "続きを書かせる");
-    root.append(h("p", { class: "w-title" }, root.dataset.title || "このページで動くミニ漱石GPT"), h("label", {}, "書き出し", seed),
-      h("label", {}, tl, temp), btn, out, note);
-    const showT = () => (tl.textContent = ` 温度 = ${fmt(temp.value, 2)}`); temp.addEventListener("input", showT); showT();
+    const stopBtn = h("button", { type: "button", class: "ghost" }, "生成を停止");
+    stopBtn.hidden = true;
+    const retryBtn = h("button", { type: "button", class: "ghost" }, "モデルを再読み込み");
+    retryBtn.hidden = true;
+    const controls = h("div", { class: "gpt-controls" }, btn, stopBtn, retryBtn);
+
+    root.append(
+      h("p", { class: "w-title" }, root.dataset.title || "このページで動くミニ漱石GPT"),
+      h("label", {}, "書き出し", seed),
+      h("label", {}, tl, temp),
+      controls,
+      out,
+      warn,
+      status,
+      note
+    );
+
+    const showT = () => (tl.textContent = ` 温度 = ${fmt(temp.value, 2)}`);
+    temp.addEventListener("input", showT);
+    showT();
+
     let model = null;
-    note.textContent = "モデルを読み込み中…";
-    import("./minigpt.js").then((m) => m.load("model/soseki-gpt.json")).then((m) => {
-      model = m; note.textContent = `パラメータ ${m.nParams.toLocaleString()} 個・語彙 ${m.vocab.length} 文字の小さなGPT（第13章のコードでCPU学習→第24章の方法でブラウザへ）。`;
-    }).catch(() => { note.textContent = "モデルを読み込めませんでした（オフライン表示では動きません）。"; });
+    let loadPromise = null;
+    let generating = false;
+    let abortCtrl = null;
+
+    note.textContent = "パラメータ約175万個・語彙3,665文字の小さなGPT。「続きを書かせる」を押すと初回のみモデル（約2.5MB）を読み込んでブラウザ内で動かします。";
+
+    async function ensureModel() {
+      if (model) return model;
+      if (loadPromise) return loadPromise;
+
+      btn.disabled = true;
+      retryBtn.hidden = true;
+      status.textContent = "モデルを読み込み中…（初回のみ約2.5MB）";
+
+      loadPromise = import("./minigpt.js")
+        .then((mod) => mod.load("model/soseki-gpt.json"))
+        .then((loaded) => {
+          model = loaded;
+          note.textContent = `パラメータ ${loaded.nParams.toLocaleString()} 個・語彙 ${loaded.vocab.length} 文字の小さなGPT（第13章のコードでCPU学習→第24章の方法でブラウザへ）。`;
+          status.textContent = "モデルの読み込みが完了しました。";
+          retryBtn.hidden = true;
+          return loaded;
+        })
+        .catch((err) => {
+          loadPromise = null;
+          const detail = err && err.message ? err.message : "通信または読み込みエラー";
+          const hint = location.protocol === "file:" ? "（ローカルの file:// 表示ではブラウザの制限で読み込めません。ローカルサーバー経由で開いてください）" : "";
+          status.textContent = `モデルの読み込みに失敗しました：${detail}${hint}`;
+          btn.disabled = true;
+          retryBtn.hidden = false;
+          throw err;
+        });
+
+      return loadPromise;
+    }
+
+    retryBtn.addEventListener("click", async () => {
+      try {
+        await ensureModel();
+        btn.disabled = false;
+      } catch (e) {
+        // status と retryBtn は ensureModel 側で更新済み
+      }
+    });
+
+    stopBtn.addEventListener("click", () => {
+      if (abortCtrl) abortCtrl.abort();
+    });
+
     btn.addEventListener("click", async () => {
-      if (!model) return;
-      btn.disabled = true; out.innerHTML = "";
-      const s = h("span", { class: "seed" }, seed.value); const rest = h("span"); out.append(s, rest);
-      await model.generate(seed.value, 120, parseFloat(temp.value), (ch) => { rest.textContent += ch; });
-      btn.disabled = false;
+      if (generating) return;
+      generating = true;
+      btn.disabled = true;
+      retryBtn.hidden = true;
+      warn.hidden = true;
+      warn.textContent = "";
+
+      let loadedModel = null;
+      try {
+        loadedModel = await ensureModel();
+      } catch (e) {
+        generating = false;
+        // 読み込み失敗時は再読み込みボタンを有効にし、生成ボタンは無効のまま維持
+        return;
+      }
+
+      abortCtrl = new AbortController();
+      stopBtn.hidden = false;
+      stopBtn.disabled = false;
+      out.innerHTML = "";
+      status.textContent = "文章を生成しています…";
+
+      let generatedCount = 0;
+      try {
+        const info = typeof loadedModel.analyzeInput === "function" ? loadedModel.analyzeInput(seed.value) : null;
+        if (info && (info.droppedChars.length > 0 || info.usedFallback || info.truncated)) {
+          const msgs = [];
+          if (info.droppedChars.length > 0) {
+            const uniq = Array.from(new Set(info.droppedChars)).slice(0, 12);
+            const more = new Set(info.droppedChars).size > 12 ? " など" : "";
+            msgs.push(`語彙にない文字（${uniq.map((c) => `「${c}」`).join("")}${more}）はスキップされました。`);
+          }
+          if (info.usedFallback) {
+            msgs.push(`有効な入力文字がなかったため、「${info.fallbackChar}」を起点に生成しています。`);
+          }
+          if (info.truncated) {
+            msgs.push(`書き出しが長いため末尾 ${loadedModel.config.block_size} 文字を使用しています。`);
+          }
+          warn.textContent = msgs.join(" ");
+          warn.hidden = false;
+        }
+
+        const displaySeed = info && info.keptChars.length > 0 ? info.keptChars.join("") : (info ? info.fallbackChar : seed.value);
+        const s = h("span", { class: "seed" }, displaySeed);
+        const rest = h("span");
+        out.append(s, rest);
+
+        await loadedModel.generate(
+          seed.value,
+          120,
+          parseFloat(temp.value),
+          (ch) => {
+            rest.textContent += ch;
+            generatedCount += 1;
+          },
+          Math.random,
+          { signal: abortCtrl.signal }
+        );
+
+        if (abortCtrl.signal.aborted) {
+          status.textContent = `生成を停止しました（${generatedCount}文字）。`;
+        } else {
+          status.textContent = `生成が完了しました（${generatedCount}文字）。`;
+        }
+      } catch (err) {
+        const msg = err && err.message ? err.message : "不明なエラー";
+        status.textContent = `文章の生成中にエラーが発生しました：${msg}`;
+      } finally {
+        generating = false;
+        abortCtrl = null;
+        stopBtn.hidden = true;
+        stopBtn.disabled = true;
+        if (model) btn.disabled = false;
+      }
     });
   };
 

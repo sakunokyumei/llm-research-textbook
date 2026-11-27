@@ -14,7 +14,7 @@ import torch
 
 def quantize_rows(w):
     """2次元の重みを、行ごとの縮尺つき int8 にする。1次元（バイアスなど）は float32 のまま。"""
-    w = w.float()
+    w = w.detach().cpu().float()
     if w.dim() == 1:
         return {"shape": list(w.shape), "f32": base64.b64encode(w.numpy().tobytes()).decode()}
     scale = w.abs().amax(dim=1).clamp(min=1e-8) / 127
@@ -25,7 +25,7 @@ def quantize_rows(w):
 
 
 def export(checkpoint_path, out_path):
-    ck = torch.load(checkpoint_path, map_location="cpu")
+    ck = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
     weights = {name: quantize_rows(t) for name, t in ck["model"].items() if not name.endswith("tril")}
     data = {"config": ck["config"], "chars": ck["chars"], "weights": weights}
     with open(out_path, "w", encoding="utf-8") as f:

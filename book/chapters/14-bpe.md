@@ -37,15 +37,28 @@
 
 ## 準備：文章をバイトにする
 
+:::tip 実行環境とリソースの目安
+- **環境**：CPUで完走できます（GPU不要）。
+- **ダウンロードとメモリ**：初回に青空文庫『こころ』（約350KB）と教材コード `minigpt.py`（約4KB）を取得します。必要RAMは約1GBです。
+- **所要時間**：自作BPEの300マージはCPUで1〜2分、`tokenizers` 版は数秒、章末のBPE版ミニGPT学習（1500ステップ）はCPUで3〜6分（GPUなら十数秒）です。時間を短縮したいときは `range(1501)` を `range(501)` にしても傾向を確認できます。
+- **ライブラリ**：推奨バージョンはリポジトリの `requirements-book.txt` を参照してください。
+:::
+
 本物のBPEは、文字ではなく **UTF-8のバイト**（0〜255の数）から始めます（第2章）。こうすると、どんな文字でも最初から表せるので、「辞書にない文字」が存在しなくなります。
 
 ```python
 import re, urllib.request
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/"
+           "0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        text = urllib.request.urlopen(url, timeout=30).read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(
+            f"青空文庫の取得に失敗しました（{e}）。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。"
+        ) from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -336,9 +349,11 @@ BPEのような**サブワード**（単語の断片）トークナイザーは�
 最後に、第12章のGPTを、文字ではなくBPEのトークンで学習させてみましょう。語彙は少し小さめの2000にします。
 
 ```python
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py
-import math
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py
+import os, math
 import torch
+if not os.path.exists("minigpt.py"):
+    raise RuntimeError("minigpt.py のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 from minigpt import GPT
 
 trainer = trainers.BpeTrainer(vocab_size=2000, initial_alphabet=pre_tokenizers.ByteLevel.alphabet())

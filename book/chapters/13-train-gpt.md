@@ -39,6 +39,12 @@ Tesla T4
 
 `cpu` と出た人も、この章のコードはそのまま動きます。ただし学習に1時間以上かかるので、GPUが使えるタイミング（混んでいない夜や早朝など）を狙うか、[付録A](a-setup.html)のKaggleを使うのがおすすめです。
 
+:::tip 環境・リソースとチェックポイントの目安
+- **推奨環境**：Colab無料 T4 GPU または Kaggle GPU（実験1＋実験2合わせて **約5〜10分**）。CPUでも実行可能ですが完全版は **1時間以上** かかります（CPU短縮版 `max_iters=1000` なら約15分）。
+- **メモリ・ダウンロード量**：VRAM は混合精度で約 1〜2 GB、ダウンロードは青空文庫7作品＋`minigpt.py` の計約 2.5 MB。
+- **途中切断への備え**：無料Colabは長時間の放置や上限で切断されることがあるため、学習後はすぐ下の節でGoogleドライブへチェックポイント（`soseki_gpt.pt`）を保存します。
+:::
+
 :::tip この章の出力について
 この章に載せている学習の出力は、教科書の検証用に**CPUで実際に実行した結果**です。GPUで実行すると、計算の順番や数の細かさ（後で説明する混合精度）の違いで、数値が少し変わります。小数点以下2桁目くらいまで似ていれば、正常です。
 :::
@@ -51,7 +57,11 @@ Tesla T4
 第12章で一行ずつ書いたGPTのコードは、教科書のリポジトリに `minigpt.py` というファイルで置いてあります（中身は第12章のコードとまったく同じです）。`wget` というLinuxのコマンドでダウンロードして、`import` します。
 
 ```python
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py
+!wget -nv -O minigpt.py https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/minigpt.py
+import os
+assert os.path.exists("minigpt.py") and os.path.getsize("minigpt.py") > 0, (
+    "minigpt.py の取得に失敗しました。ネット接続を確認して再実行するか、付録Eを参照してください。"
+)
 from minigpt import GPT
 print("ミニGPTの設計図を読み込みました")
 ```
@@ -72,9 +82,13 @@ print("ミニGPTの設計図を読み込みました")
 import re, math, urllib.request
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -363,7 +377,7 @@ Kaggleには `google.colab` がないので、`drive.mount` のセルは飛ば�
 
 ```python
 save_dir = "/content/drive/MyDrive/tsukuru-llm"
-ckpt = torch.load(f"{save_dir}/soseki_gpt.pt", map_location=device)
+ckpt = torch.load(f"{save_dir}/soseki_gpt.pt", map_location=device, weights_only=True)
 model_all = GPT(**ckpt["config"]).to(device)     # 保存した設定で、同じ形のGPTを作る
 model_all.load_state_dict(ckpt["model"])         # 学習した中身を流し込む
 print("読み込みました。語彙は同じ？", ckpt["chars"] == chars)
@@ -384,7 +398,7 @@ print("読み込みました。語彙は同じ？", ckpt["chars"] == chars)
 2. **`"config": {...}`**：復元時にまったく同じ形の箱 `GPT(**ckpt["config"])` を作るための設計寸法
 3. **`"chars": chars`**：文字とトークンIDの対応表（これが1文字でもずれると生成結果が文字化けする）
 
-さらに読み込み時に `map_location=device` を指定しておけば、「T4 GPU で保存した重みを、別の日に CPU 環境で読み込む」ときもデバイス不一致エラーを防げます。
+さらに読み込み時に `map_location=device` を指定しておけば、「T4 GPU で保存した重みを、別の日に CPU 環境で読み込む」ときもデバイス不一致エラーを防げます。また `weights_only=True` を付けておくと、重み・基本データ型以外の任意コードが実行されるのを防げて安全です（PyTorch 2.6以降の推奨・既定設定）。
 :::
 
 :::exercise ch13-q11
@@ -570,7 +584,7 @@ model_big = train_big(all_train, max_iters=5000)
 :::warn よくあるつまずき
 - **`RuntimeError: Expected all tensors to be on the same device`**：モデルとデータの片方だけがGPUにいます。`model.to(device)` と、`get_batch` の中の `.to(device)` を確認しましょう。
 - **`CUDA out of memory`**：GPUのメモリが足りません。`batch_size` や `block_size` を半分にしてみましょう。それでもダメなら、「ランタイム」→「セッションを再起動する」でメモリを空にしてから、上から実行し直します。
-- **`No such file or directory: 'minigpt.py'`** / **`ModuleNotFoundError: No module named 'minigpt'`**：`wget` のセルを実行し忘れているか、ダウンロードに失敗しています。そのセルをもう一度実行しましょう。それでも同じなら、`!wget` の行から `-q`（静かに実行する指定）を消して実行すると、失敗の理由（`ERROR 404` など）が表示されます。どうしてもダウンロードできないときは、第12章の5つのクラス（`Head` から `GPT` まで）のセルをこのノートブックに貼って実行し、`from minigpt import GPT` の行を消せば、同じように動きます。
+- **`No such file or directory: 'minigpt.py'`** / **`AssertionError: minigpt.py の取得に失敗しました`** / **`ModuleNotFoundError: No module named 'minigpt'`**：`wget` のセルを実行し忘れているか、ダウンロードに失敗しています。表示されたエラー内容（`ERROR 404` など）を確認して再実行してください。どうしてもダウンロードできないときは、第12章の5つのクラス（`Head` から `GPT` まで）のセルをこのノートブックに貼って実行し、`from minigpt import GPT` の行を消せば、同じように動きます。
 - **学習の途中で切断された**：無料のColabではよくあります。チェックポイントの節を参考に、途中経過を保存するようにしましょう。
 :::
 

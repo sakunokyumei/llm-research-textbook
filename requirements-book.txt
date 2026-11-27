@@ -1,0 +1,16 @@
+# Tested compatible library ranges for running chapter code locally or on Colab/Kaggle.
+# Note: `dtype=` in `from_pretrained()` / `pipeline()` requires `transformers>=4.56`.
+# For GPU-accelerated PyTorch on a local PC, install the CUDA build from https://pytorch.org/get-started/locally/
+torch>=2.4,<3.0
+transformers>=4.56,<6.0
+accelerate>=1.0,<2.0
+datasets>=2.20,<5.0
+tokenizers>=0.20,<1.0
+peft>=0.13,<1.0
+trl>=0.12,<1.0
+bitsandbytes>=0.43,<1.0
+sentence-transformers>=3.0,<6.0
+gradio>=5.0,<7.0
+matplotlib>=3.8,<4.0
+matplotlib-fontja>=1.0,<2.0
+jupyter>=1.0,<2.0

@@ -291,7 +291,7 @@
   "reading": "こうさえんとろぴー",
   "en": "cross-entropy",
   "chapter": "05-loss",
-  "def": "softmaxして正解の確率の −log を平均したもの。言語モデルの標準的な損失。"
+  "def": "真の分布 $P$ と予測分布 $Q$ のズレを測る指標 $H(P, Q) = -\\sum_x P(x)\\log Q(x)$。正解が1つだけのとき $-\\log Q(\\text{正解})$ になり、PyTorchの `F.cross_entropy` は `softmax` とこの損失計算をまとめて行う。"
  },
  {
   "term": "スムージング",
@@ -312,7 +312,7 @@
   "reading": "ぱーぷれきしてぃ",
   "en": "perplexity",
   "chapter": "05-loss",
-  "def": "$e^{損失}$。モデルが何択くらいで迷っているか。"
+  "def": "$e^{\\text{損失}}$。モデルが実質何択くらいで迷っているかの幾何平均の目安（異なるトークナイザーや評価データ間では直接比較できない）。"
  },
  {
   "term": "テンソル",
@@ -598,8 +598,8 @@
   "term": "チェックポイント",
   "reading": "ちぇっくぽいんと",
   "en": "checkpoint",
-  "chapter": "10-training-tips",
-  "def": "学習の途中のモデルを保存したもの。"
+  "chapter": "13-train-gpt",
+  "def": "学習の途中のモデル・語彙・設定を保存したもの。"
  },
  {
   "term": "Attention",

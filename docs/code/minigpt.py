@@ -108,6 +108,8 @@ class GPT(nn.Module):
 
     @torch.no_grad()
     def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
+        if temperature <= 0:
+            raise ValueError("temperature must be positive")
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -self.block_size:]          # 窓に入る分だけ
             logits, _ = self(idx_cond)

@@ -1,91 +1,425 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>参考文献 | つくってわかるLLM</title><meta name="description" content="この教科書のもとになった論文・講義・データ・道具">
+<title>参考文献 | つくってわかるLLM</title><meta name="description" content="この教科書のもとになった論文・講義・データ・道具（一次リンク・書誌情報・ライセンスつき）">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
 <script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t;const c=localStorage.getItem("tsukuru-llm-course")||"thorough";document.documentElement.dataset.course=c;}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
 <script src="app.js" defer></script><script src="study.js" defer></script></head>
 <body data-page="j-references"><a class="skip" href="#main">本文へ移動</a>
-<header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
+<header class="topbar"><button type="button" class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
 <nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
-<div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="layout"><aside id="sidebar" class="sidebar" aria-label="目次"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
 <div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html" aria-current="page"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録J</p><h1>参考文献</h1><p class="sub">この教科書のもとになった論文・講義・データ・道具</p></header><p>この教科書の内容は、多くの研究者・教育者・開発者の公開した成果の上に成り立っています。気になったものから、ぜひ原典に当たってみてください。論文の多くは arXiv（<a href="https://arxiv.org/">https://arxiv.org/</a>）で無料で読めます。</p>
-<h2 id="s1">論文</h2>
-<table>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録J</p><h1>参考文献</h1><p class="sub">この教科書のもとになった論文・講義・データ・道具（一次リンク・書誌情報・ライセンスつき）</p></header><p>この教科書の内容は、多くの研究者・教育者・開発者の公開した成果の上に成り立っています。気になったものから、ぜひ原典に当たってみてください。リンク切れに備えて著者・年・タイトル・識別子（arXiv ID / DOI）を併記しています。論文の多くは arXiv（<a href="https://arxiv.org/">https://arxiv.org/</a>）で無料で読めます。</p>
+<h2 id="s1">論文・仕様書</h2>
+<div class="table-wrap"><table>
 <thead>
-<tr><th>論文</th><th>著者（代表）</th><th>年</th><th>関係する章</th></tr>
+<tr>
+<th>論文・仕様書</th>
+<th>著者（代表）</th>
+<th>年</th>
+<th>一次リンク</th>
+<th>関係する章</th>
+</tr>
 </thead>
 <tbody>
-<tr><td>A Mathematical Theory of Communication</td><td>C. E. Shannon</td><td>1948</td><td>5</td></tr>
-<tr><td>A New Algorithm for Data Compression（BPEの元になった圧縮法）</td><td>P. Gage</td><td>1994</td><td>14</td></tr>
-<tr><td>A Neural Probabilistic Language Model</td><td>Y. Bengio ほか</td><td>2003</td><td>9</td></tr>
-<tr><td>Adam: A Method for Stochastic Optimization</td><td>D. P. Kingma, J. Ba</td><td>2014</td><td>10</td></tr>
-<tr><td>Dropout: A Simple Way to Prevent Neural Networks from Overfitting</td><td>N. Srivastava ほか</td><td>2014</td><td>10</td></tr>
-<tr><td>Deep Residual Learning for Image Recognition（ResNet）</td><td>K. He ほか</td><td>2015</td><td>12</td></tr>
-<tr><td>Neural Machine Translation of Rare Words with Subword Units</td><td>R. Sennrich ほか</td><td>2016</td><td>14</td></tr>
-<tr><td>Layer Normalization</td><td>J. L. Ba ほか</td><td>2016</td><td>10</td></tr>
-<tr><td>Attention Is All You Need</td><td>A. Vaswani ほか</td><td>2017</td><td>11, 12</td></tr>
-<tr><td>Decoupled Weight Decay Regularization（AdamW）</td><td>I. Loshchilov, F. Hutter</td><td>2017</td><td>10</td></tr>
-<tr><td>Language Models are Unsupervised Multitask Learners（GPT-2）</td><td>A. Radford ほか</td><td>2019</td><td>13, 15</td></tr>
-<tr><td>The Curious Case of Neural Text Degeneration（top-p）</td><td>A. Holtzman ほか</td><td>2019</td><td>16</td></tr>
-<tr><td>Scaling Laws for Neural Language Models</td><td>J. Kaplan ほか</td><td>2020</td><td>15</td></tr>
-<tr><td>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</td><td>P. Lewis ほか</td><td>2020</td><td>21</td></tr>
-<tr><td>GLU Variants Improve Transformer（SwiGLU）</td><td>N. Shazeer</td><td>2020</td><td>25</td></tr>
-<tr><td>RoFormer: Enhanced Transformer with Rotary Position Embedding</td><td>J. Su ほか</td><td>2021</td><td>25</td></tr>
-<tr><td>LoRA: Low-Rank Adaptation of Large Language Models</td><td>E. J. Hu ほか</td><td>2021</td><td>19</td></tr>
-<tr><td>Training Compute-Optimal Large Language Models（Chinchilla）</td><td>J. Hoffmann ほか</td><td>2022</td><td>15</td></tr>
-<tr><td>Training language models to follow instructions with human feedback</td><td>L. Ouyang ほか</td><td>2022</td><td>17, 18, 22</td></tr>
-<tr><td>FlashAttention</td><td>T. Dao ほか</td><td>2022</td><td>16</td></tr>
-<tr><td>ReAct: Synergizing Reasoning and Acting in Language Models</td><td>S. Yao ほか</td><td>2022</td><td>23</td></tr>
-<tr><td>Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</td><td>J. Wei ほか</td><td>2022</td><td>17</td></tr>
-<tr><td>Constitutional AI: Harmlessness from AI Feedback</td><td>Y. Bai ほか</td><td>2022</td><td>22</td></tr>
-<tr><td>GQA: Training Generalized Multi-Query Transformer Models</td><td>J. Ainslie ほか</td><td>2023</td><td>16</td></tr>
-<tr><td>Direct Preference Optimization</td><td>R. Rafailov ほか</td><td>2023</td><td>22</td></tr>
-<tr><td>QLoRA: Efficient Finetuning of Quantized LLMs</td><td>T. Dettmers ほか</td><td>2023</td><td>19</td></tr>
-<tr><td>LIMA: Less Is More for Alignment</td><td>C. Zhou ほか</td><td>2023</td><td>18</td></tr>
-<tr><td>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</td><td>L. Zheng ほか</td><td>2023</td><td>20</td></tr>
-<tr><td>Root Mean Square Layer Normalization（RMSNorm）</td><td>B. Zhang, R. Sennrich</td><td>2019</td><td>25</td></tr>
-<tr><td>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</td><td>A. Gu, T. Dao</td><td>2023</td><td>25</td></tr>
-<tr><td>DeepSeekMath（GRPOを提案）</td><td>Z. Shao ほか</td><td>2024</td><td>22, 25</td></tr>
-<tr><td>Qwen2.5 Technical Report</td><td>Qwen Team</td><td>2024</td><td>1, 17</td></tr>
+<tr>
+<td>A Mathematical Theory of Communication（情報理論・エントロピー）</td>
+<td>C. E. Shannon</td>
+<td>1948</td>
+<td><a href="https://doi.org/10.1002/j.1538-7305.1948.tb01338.x">DOI</a></td>
+<td>5</td>
+</tr>
+<tr>
+<td>Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons（ブラッドリー・テリーモデル）</td>
+<td>R. A. Bradley, M. E. Terry</td>
+<td>1952</td>
+<td><a href="https://doi.org/10.1093/biomet/39.3-4.324">DOI</a></td>
+<td>22</td>
+</tr>
+<tr>
+<td>A New Algorithm for Data Compression（BPEの元になった圧縮法）</td>
+<td>P. Gage</td>
+<td>1994</td>
+<td><a href="https://dl.acm.org/doi/10.5555/177910.177914">ACM DL</a></td>
+<td>14</td>
+</tr>
+<tr>
+<td>A Neural Probabilistic Language Model</td>
+<td>Y. Bengio ほか</td>
+<td>2003</td>
+<td><a href="https://jmlr.org/papers/v3/bengio03a.html">JMLR</a></td>
+<td>9</td>
+</tr>
+<tr>
+<td>Adam: A Method for Stochastic Optimization</td>
+<td>D. P. Kingma, J. Ba</td>
+<td>2014</td>
+<td><a href="https://arxiv.org/abs/1412.6980">arXiv:1412.6980</a></td>
+<td>10</td>
+</tr>
+<tr>
+<td>Dropout: A Simple Way to Prevent Neural Networks from Overfitting</td>
+<td>N. Srivastava ほか</td>
+<td>2014</td>
+<td><a href="https://jmlr.org/papers/v15/srivastava14a.html">JMLR</a></td>
+<td>10</td>
+</tr>
+<tr>
+<td>Deep Residual Learning for Image Recognition（ResNet）</td>
+<td>K. He ほか</td>
+<td>2015</td>
+<td><a href="https://arxiv.org/abs/1512.03385">arXiv:1512.03385</a></td>
+<td>12</td>
+</tr>
+<tr>
+<td>Neural Machine Translation of Rare Words with Subword Units（BPEのNLP応用）</td>
+<td>R. Sennrich ほか</td>
+<td>2016</td>
+<td><a href="https://arxiv.org/abs/1508.07909">arXiv:1508.07909</a></td>
+<td>14</td>
+</tr>
+<tr>
+<td>Layer Normalization</td>
+<td>J. L. Ba ほか</td>
+<td>2016</td>
+<td><a href="https://arxiv.org/abs/1607.06450">arXiv:1607.06450</a></td>
+<td>10</td>
+</tr>
+<tr>
+<td>Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer（MoE）</td>
+<td>N. Shazeer ほか</td>
+<td>2017</td>
+<td><a href="https://arxiv.org/abs/1701.06538">arXiv:1701.06538</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>Attention Is All You Need（Transformer）</td>
+<td>A. Vaswani ほか</td>
+<td>2017</td>
+<td><a href="https://arxiv.org/abs/1706.03762">arXiv:1706.03762</a></td>
+<td>11, 12</td>
+</tr>
+<tr>
+<td>Decoupled Weight Decay Regularization（AdamW）</td>
+<td>I. Loshchilov, F. Hutter</td>
+<td>2017</td>
+<td><a href="https://arxiv.org/abs/1711.05101">arXiv:1711.05101</a></td>
+<td>10</td>
+</tr>
+<tr>
+<td>SentencePiece: A simple and language independent subword tokenizer and detokenizer</td>
+<td>T. Kudo, J. Richardson</td>
+<td>2018</td>
+<td><a href="https://arxiv.org/abs/1808.06226">arXiv:1808.06226</a></td>
+<td>14</td>
+</tr>
+<tr>
+<td>Language Models are Unsupervised Multitask Learners（GPT-2）</td>
+<td>A. Radford ほか</td>
+<td>2019</td>
+<td><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">OpenAI PDF</a></td>
+<td>13, 15</td>
+</tr>
+<tr>
+<td>The Curious Case of Neural Text Degeneration（top-p）</td>
+<td>A. Holtzman ほか</td>
+<td>2019</td>
+<td><a href="https://arxiv.org/abs/1904.09751">arXiv:1904.09751</a></td>
+<td>16</td>
+</tr>
+<tr>
+<td>Root Mean Square Layer Normalization（RMSNorm）</td>
+<td>B. Zhang, R. Sennrich</td>
+<td>2019</td>
+<td><a href="https://arxiv.org/abs/1910.07467">arXiv:1910.07467</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>ZeRO: Memory Optimizations Toward Training Trillion Parameter Models</td>
+<td>S. Rajbhandari ほか</td>
+<td>2020</td>
+<td><a href="https://arxiv.org/abs/1910.02054">arXiv:1910.02054</a></td>
+<td>16</td>
+</tr>
+<tr>
+<td>Scaling Laws for Neural Language Models</td>
+<td>J. Kaplan ほか</td>
+<td>2020</td>
+<td><a href="https://arxiv.org/abs/2001.08361">arXiv:2001.08361</a></td>
+<td>15</td>
+</tr>
+<tr>
+<td>GLU Variants Improve Transformer（SwiGLU）</td>
+<td>N. Shazeer</td>
+<td>2020</td>
+<td><a href="https://arxiv.org/abs/2002.05202">arXiv:2002.05202</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks（RAG）</td>
+<td>P. Lewis ほか</td>
+<td>2020</td>
+<td><a href="https://arxiv.org/abs/2005.11401">arXiv:2005.11401</a></td>
+<td>21</td>
+</tr>
+<tr>
+<td>Measuring Massive Multitask Language Understanding（MMLU）</td>
+<td>D. Hendrycks ほか</td>
+<td>2020</td>
+<td><a href="https://arxiv.org/abs/2009.03300">arXiv:2009.03300</a></td>
+<td>20</td>
+</tr>
+<tr>
+<td>RoFormer: Enhanced Transformer with Rotary Position Embedding（RoPE）</td>
+<td>J. Su ほか</td>
+<td>2021</td>
+<td><a href="https://arxiv.org/abs/2104.09864">arXiv:2104.09864</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>LoRA: Low-Rank Adaptation of Large Language Models</td>
+<td>E. J. Hu ほか</td>
+<td>2021</td>
+<td><a href="https://arxiv.org/abs/2106.09685">arXiv:2106.09685</a></td>
+<td>19</td>
+</tr>
+<tr>
+<td>Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</td>
+<td>J. Wei ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2201.11903">arXiv:2201.11903</a></td>
+<td>17</td>
+</tr>
+<tr>
+<td>Training language models to follow instructions with human feedback（InstructGPT）</td>
+<td>L. Ouyang ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2203.02155">arXiv:2203.02155</a></td>
+<td>17, 18, 22</td>
+</tr>
+<tr>
+<td>Training Compute-Optimal Large Language Models（Chinchilla）</td>
+<td>J. Hoffmann ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2203.15556">arXiv:2203.15556</a></td>
+<td>15</td>
+</tr>
+<tr>
+<td>FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness</td>
+<td>T. Dao ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2205.14135">arXiv:2205.14135</a></td>
+<td>16</td>
+</tr>
+<tr>
+<td>LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale</td>
+<td>T. Dettmers ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2208.07339">arXiv:2208.07339</a></td>
+<td>19</td>
+</tr>
+<tr>
+<td>ReAct: Synergizing Reasoning and Acting in Language Models</td>
+<td>S. Yao ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2210.03629">arXiv:2210.03629</a></td>
+<td>23</td>
+</tr>
+<tr>
+<td>Constitutional AI: Harmlessness from AI Feedback</td>
+<td>Y. Bai ほか</td>
+<td>2022</td>
+<td><a href="https://arxiv.org/abs/2212.08073">arXiv:2212.08073</a></td>
+<td>22</td>
+</tr>
+<tr>
+<td>GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints</td>
+<td>J. Ainslie ほか</td>
+<td>2023</td>
+<td><a href="https://arxiv.org/abs/2305.13245">arXiv:2305.13245</a></td>
+<td>16</td>
+</tr>
+<tr>
+<td>LIMA: Less Is More for Alignment</td>
+<td>C. Zhou ほか</td>
+<td>2023</td>
+<td><a href="https://arxiv.org/abs/2305.11206">arXiv:2305.11206</a></td>
+<td>18</td>
+</tr>
+<tr>
+<td>QLoRA: Efficient Finetuning of Quantized LLMs</td>
+<td>T. Dettmers ほか</td>
+<td>2023</td>
+<td><a href="https://arxiv.org/abs/2305.14314">arXiv:2305.14314</a></td>
+<td>19</td>
+</tr>
+<tr>
+<td>Direct Preference Optimization: Your Language Model is Secretly a Reward Model（DPO）</td>
+<td>R. Rafailov ほか</td>
+<td>2023</td>
+<td><a href="https://arxiv.org/abs/2305.18290">arXiv:2305.18290</a></td>
+<td>22</td>
+</tr>
+<tr>
+<td>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</td>
+<td>L. Zheng ほか</td>
+<td>2023</td>
+<td><a href="https://arxiv.org/abs/2306.05685">arXiv:2306.05685</a></td>
+<td>20</td>
+</tr>
+<tr>
+<td>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</td>
+<td>A. Gu, T. Dao</td>
+<td>2023</td>
+<td><a href="https://arxiv.org/abs/2312.00752">arXiv:2312.00752</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>Mixtral of Experts（MoEの代表的オープンモデル）</td>
+<td>A. Q. Jiang ほか</td>
+<td>2024</td>
+<td><a href="https://arxiv.org/abs/2401.04088">arXiv:2401.04088</a></td>
+<td>25</td>
+</tr>
+<tr>
+<td>DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models（GRPO）</td>
+<td>Z. Shao ほか</td>
+<td>2024</td>
+<td><a href="https://arxiv.org/abs/2402.03300">arXiv:2402.03300</a></td>
+<td>22, 25</td>
+</tr>
+<tr>
+<td>Qwen2.5 Technical Report</td>
+<td>Qwen Team</td>
+<td>2024</td>
+<td><a href="https://arxiv.org/abs/2412.15115">arXiv:2412.15115</a></td>
+<td>1, 17</td>
+</tr>
+<tr>
+<td>Model Context Protocol（MCP）仕様</td>
+<td>Anthropic</td>
+<td>2024</td>
+<td><a href="https://modelcontextprotocol.io/">公式仕様</a></td>
+<td>23</td>
+</tr>
+<tr>
+<td>OWASP Top 10 for Large Language Model Applications（プロンプトインジェクション等）</td>
+<td>OWASP GenAI Security Project</td>
+<td>2024</td>
+<td><a href="https://genai.owasp.org/llm-top-10/">公式ガイド</a></td>
+<td>21, 23, 24</td>
+</tr>
+<tr>
+<td>DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning</td>
+<td>DeepSeek-AI</td>
+<td>2025</td>
+<td><a href="https://arxiv.org/abs/2501.12948">arXiv:2501.12948</a></td>
+<td>22, 25</td>
+</tr>
 </tbody>
-</table>
+</table></div>
 <h2 id="s2">講義・教材</h2>
 <ul>
 <li><strong>Stanford CS336: Language Modeling from Scratch</strong>（<a href="https://cs336.stanford.edu/">https://cs336.stanford.edu/</a>）：LLMをゼロから作る大学院の講義。この教科書の第2〜4部をもっと深く、大規模にやりたい人へ</li>
-<li><strong>Andrej Karpathy「Neural Networks: Zero to Hero」</strong>（YouTubeの動画シリーズ）と <strong>nanoGPT</strong>（<a href="https://github.com/karpathy/nanoGPT">https://github.com/karpathy/nanoGPT</a>）：bigramからGPTまでを一行ずつ作る。この教科書の第4〜13章の流れは、この講義のアプローチに大きな影響を受けています</li>
+<li><strong>Andrej Karpathy「Neural Networks: Zero to Hero」</strong>（<a href="https://karpathy.ai/zero-to-hero.html">https://karpathy.ai/zero-to-hero.html</a>）と <strong>nanoGPT</strong>（<a href="https://github.com/karpathy/nanoGPT">https://github.com/karpathy/nanoGPT</a>）：bigramからGPTまでを一行ずつ作る。この教科書の第4〜13章の流れは、この講義のアプローチに大きな影響を受けています</li>
 <li><strong>Hugging Face LLM Course</strong>（<a href="https://huggingface.co/learn">https://huggingface.co/learn</a>）：transformers・datasets・TRLなどの使い方</li>
 <li><strong>Dive into Deep Learning</strong>（<a href="https://d2l.ai/">https://d2l.ai/</a>）：深層学習の教科書。コード付きで無料公開</li>
-<li><strong>R. P. Feynman「Cargo Cult Science」</strong>（1974年のカリフォルニア工科大学の卒業式講演）：第20章・第26章の「自分をだまさない」の出典</li>
+<li><strong>R. P. Feynman「Cargo Cult Science」</strong>（1974年のカリフォルニア工科大学の卒業式講演、<a href="https://calteches.library.caltech.edu/51/2/CargoCult.htm">https://calteches.library.caltech.edu/51/2/CargoCult.htm</a>）：第20章・第26章の「自分をだまさない」の出典</li>
 <li>ファインマンの黒板の言葉 “What I cannot create, I do not understand.” は、1988年に亡くなったとき、カリフォルニア工科大学の黒板に残っていたものとして知られています</li>
 </ul>
 <h2 id="s3">データ</h2>
 <ul>
-<li><strong>青空文庫</strong>（<a href="https://www.aozora.gr.jp/">https://www.aozora.gr.jp/</a>）：著作権の切れた文学作品の電子図書館。この教科書では、夏目漱石の『こころ』『坊っちゃん』『吾輩は猫である』『三四郎』『草枕』『夢十夜』『それから』のテキストを、GitHub上の <code>aozorahack/aozorabunko_text</code> から取得しています。入力・校正をしたボランティアの皆さんに感謝します</li>
-<li><strong>ボンゴ先生のデータ</strong>（<code>code/bongo_sft.jsonl</code> ほか）、<strong>ボンゴ情報専門学校の資料</strong>（<code>code/rag_docs.jsonl</code>）、<strong>4択クイズ</strong>（<code>code/mini_quiz.jsonl</code>）は、この教科書のために作った架空・教材用のデータです</li>
+<li><strong>青空文庫</strong>（<a href="https://www.aozora.gr.jp/">https://www.aozora.gr.jp/</a>、著作権保護期間満了・パブリックドメイン）：著作権の切れた文学作品の電子図書館。この教科書では、夏目漱石の『こころ』『坊っちゃん』『吾輩は猫である』『三四郎』『草枕』『夢十夜』『それから』のテキストを、GitHub上の <code>aozorahack/aozorabunko_text</code>（<a href="https://github.com/aozorahack/aozorabunko_text">https://github.com/aozorahack/aozorabunko_text</a>、固定コミット <code>0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65</code>）から取得しています。入力・校正をしたボランティアの皆さんに感謝します</li>
+<li><strong>ボンゴ先生のデータ</strong>（<code>code/bongo_sft.jsonl</code>、<code>code/bongo_test.jsonl</code>、<code>code/bongo_prefs.jsonl</code>）、<strong>ボンゴ情報専門学校の資料</strong>（<code>code/rag_docs.jsonl</code>）、<strong>4択クイズ</strong>（<code>code/mini_quiz.jsonl</code>）は、この教科書のために作った架空・教材用のデータです</li>
 </ul>
 <h2 id="s4">モデル・ライブラリ</h2>
-<table>
+<div class="table-wrap"><table>
 <thead>
-<tr><th>名前</th><th>用途</th><th>章</th></tr>
+<tr>
+<th>名前</th>
+<th>用途</th>
+<th>ライセンス</th>
+<th>公式リンク</th>
+<th>章</th>
+</tr>
 </thead>
 <tbody>
-<tr><td>Qwen2.5（0.5B・1.5B、Instruct・ベース）</td><td>事前学習済みモデル（Apache 2.0）</td><td>1〜3, 17〜24</td></tr>
-<tr><td>GPT-2（OpenAI）</td><td>重みの読み込み</td><td>15</td></tr>
-<tr><td>multilingual-e5-small</td><td>文の埋め込み</td><td>21</td></tr>
-<tr><td>PyTorch</td><td>テンソル・自動微分・学習</td><td>3〜</td></tr>
-<tr><td>Hugging Face transformers / tokenizers / datasets / peft / trl</td><td>モデル・学習</td><td>1〜, 14, 17〜23</td></tr>
-<tr><td>sentence-transformers</td><td>文の埋め込み</td><td>21</td></tr>
-<tr><td>bitsandbytes</td><td>4ビット量子化</td><td>19</td></tr>
-<tr><td>matplotlib / matplotlib-fontja</td><td>グラフと日本語表示</td><td>5〜</td></tr>
-<tr><td>Gradio</td><td>Webアプリの一時公開</td><td>24</td></tr>
-<tr><td>KaTeX</td><td>このサイトの数式表示</td><td>—</td></tr>
+<tr>
+<td>Qwen2.5（0.5B・1.5B、Instruct・ベース）</td>
+<td>事前学習済みモデル</td>
+<td>Apache 2.0</td>
+<td><a href="https://huggingface.co/Qwen">Hugging Face</a></td>
+<td>1〜3, 17〜24</td>
+</tr>
+<tr>
+<td>GPT-2（OpenAI）</td>
+<td>重みの読み込み</td>
+<td>MIT</td>
+<td><a href="https://huggingface.co/openai-community/gpt2">Hugging Face</a></td>
+<td>15</td>
+</tr>
+<tr>
+<td>intfloat/multilingual-e5-small</td>
+<td>文の埋め込み</td>
+<td>MIT</td>
+<td><a href="https://huggingface.co/intfloat/multilingual-e5-small">Hugging Face</a></td>
+<td>21</td>
+</tr>
+<tr>
+<td>PyTorch</td>
+<td>テンソル・自動微分・学習</td>
+<td>BSD-3-Clause</td>
+<td><a href="https://pytorch.org/">pytorch.org</a></td>
+<td>3〜</td>
+</tr>
+<tr>
+<td>Hugging Face transformers / tokenizers / datasets / peft / trl / accelerate</td>
+<td>モデル・データ・学習</td>
+<td>Apache 2.0</td>
+<td><a href="https://huggingface.co/docs">huggingface.co/docs</a></td>
+<td>1〜, 14, 17〜23</td>
+</tr>
+<tr>
+<td>sentence-transformers</td>
+<td>文の埋め込み</td>
+<td>Apache 2.0</td>
+<td><a href="https://www.sbert.net/">sbert.net</a></td>
+<td>21</td>
+</tr>
+<tr>
+<td>bitsandbytes</td>
+<td>4ビット量子化</td>
+<td>MIT</td>
+<td><a href="https://github.com/bitsandbytes-foundation/bitsandbytes">GitHub</a></td>
+<td>19</td>
+</tr>
+<tr>
+<td>matplotlib / matplotlib-fontja</td>
+<td>グラフと日本語表示</td>
+<td>PSF-based / MIT</td>
+<td><a href="https://matplotlib.org/">matplotlib.org</a></td>
+<td>5〜</td>
+</tr>
+<tr>
+<td>Gradio</td>
+<td>Webアプリの一時公開</td>
+<td>Apache 2.0</td>
+<td><a href="https://www.gradio.app/">gradio.app</a></td>
+<td>24</td>
+</tr>
+<tr>
+<td>KaTeX</td>
+<td>このサイトの数式表示</td>
+<td>MIT</td>
+<td><a href="https://katex.org/">katex.org</a></td>
+<td>—</td>
+</tr>
 </tbody>
-</table>
+</table></div>
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">論文</a><a href="#s2">講義・教材</a><a href="#s3">データ</a><a href="#s4">モデル・ライブラリ</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">論文・仕様書</a><a href="#s2">講義・教材</a><a href="#s3">データ</a><a href="#s4">モデル・ライブラリ</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

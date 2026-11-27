@@ -180,6 +180,13 @@ GPUを使う？ True
 
 モデル名の `Qwen/Qwen2.5-0.5B-Instruct` は、Alibaba社のチームが公開したモデルで、`Qwen`（チェン）がシリーズ名、`2.5` が世代、`0.5B` がパラメータ数（約5億個）、`Instruct` は「指示や会話に従う追加学習済み」の意味です（商用も可能なApache 2.0ライセンス）。
 
+:::tip 環境・リソースとライブラリ版の目安
+- **実行環境**：Colab無料 T4 GPU を推奨（約10〜30秒で読み込み、応答は数秒）。CPUでも実行可能（読み込み約1分、応答は十数秒〜数十秒）。
+- **ダウンロードとメモリ**：初回のみモデル重み約 1 GB をダウンロード。VRAM（またはRAM）は `float16` で約 1〜2 GB、`float32`（CPU）で約 2〜3 GB 使用します。
+- **Colab切断**：放置で切断されてもコードは残るため、再接続して上から再実行すれば復旧できます。
+- **ライブラリ版**：上の `dtype=` 引数は `transformers >= 4.56`（5.x含む、Colab標準）で対応しています。手元PCなどで古い版を使い `TypeError: unexpected keyword argument 'dtype'` が出た場合は、`!pip install -U transformers` で更新するか `torch_dtype=` に読み替えてください（動作確認済みの版一覧はリポジトリの `requirements-book.txt` と[付録A](a-setup.html)を参照）。
+:::
+
 :::warn 赤や黄色の文字が出ても、まず落ち着く
 `The secret HF_TOKEN does not exist in your Colab secrets.` という黄色い警告が出ることがありますが、公開モデルなのでログインなしで問題ありません。最後の行に `GPUを使う？ True`（または `False`）が出ていれば成功です。
 :::

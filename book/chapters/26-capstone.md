@@ -1,10 +1,10 @@
 {"title": "卒業制作と、2030年への地図", "short": "卒業制作と2030年への地図", "subtitle": "自分の問いを立て、実験し、誠実に報告する。そして、その先へ", "time": "数週間（自分のペースで）", "env": "any", "level": 4, "builds": "自分で決めたテーマの卒業制作（問い・実験・結果・考察・公開）と、2030年の卒業までの学びの計画", "theory": ["研究の進め方（問い→仮説→実験計画→記録→結論）", "再現性（シード・版・設定の記録）", "論文の読み方（3回読み）と、読む順番", "AIを作る人の倫理"], "python": ["`importlib.metadata` で道具の版を記録する", "`json` で実験の設定を保存する"]}
 
 :::goal
-ここまでの26章で、あなたはLLMを動かし、ゼロから作り、鍛え、測り、システムにして、公開しました。最後の章では、**自分で問いを立てて、自分の答えを出す**卒業制作に取り組みます。そして、2030年の卒業までの4年間を、どう使うかの地図を描きます。
+ここまでの第0〜25章（全26章）で、あなたはLLMを動かし、ゼロから作り、鍛え、測り、システムにして、公開しました。最後の章では、**自分で問いを立てて、自分の答えを出す**卒業制作に取り組みます。そして、2030年の卒業までの4年間を、どう使うかの地図を描きます。
 :::
 
-:::review-bridge 第1部〜第7部の総まとめ：25章分の知識がつながる地図
+:::review-bridge 第1部〜第7部の総まとめ：第1〜25章の知識がつながる地図
 ここまで積み上げてきた7つの部は、すべて1本の線でつながっています。卒業制作では、自分の「問い」に合わせてこの道具箱から必要な部品を自由に組み合わせます。
 
 - **第1部（推論の仕組み）**：トークンID → ロジット → 温度つき softmax → 自己回帰生成
@@ -66,7 +66,7 @@
 科学的な仮説の条件は、**「もし間違っていたら、実験データによってはっきり『違った！』と否定（反証）できること」**です。
 
 - × **悪い例（曖昧な願望）**：「いろいろ工夫してRAGをいい感じに賢くする」→ どんな結果が出ても「賢くなった気がする」と言えてしまい検証できない。
-- ○ **良い例（反証可能な仮説）**：「授業ノートRAGでチャンク長を100文字から300文字に変えると、独立したテスト質問30問における正解資料の検索ヒット率（Recall@2）が10ポイント以上上がる（理由：文脈の途中で途切れにくくなるため）」→ 結果が+3ポイントや低下なら明確に仮説が棄却され、次の深い考察へ進めます！
+- ○ **良い例（反証可能な仮説）**：「授業ノートRAGでチャンク長を100文字から300文字に変えると、独立したテスト質問30問における正解資料の検索ヒット率（Hit@2；正解資料が1件のとき Recall@2 と同じ）が10ポイント以上上がる（理由：文脈の途中で途切れにくくなるため）」→ 結果が+3ポイントや低下なら明確に仮説が棄却され、次の深い考察へ進めます！
 :::
 
 :::exercise ch26-q02 ch26-q03
@@ -173,20 +173,20 @@ print(json.dumps(record["versions"], ensure_ascii=False))
 
 この教科書の各章は、次の論文とつながっています。読む順番の目安として、上から順におすすめします。
 
-| 論文（発表年） | 内容 | 関係する章 |
-|---|---|---|
-| Attention Is All You Need（2017） | Transformerの提案 | 11〜12 |
-| Language Models are Unsupervised Multitask Learners（2019, GPT-2） | 大規模な事前学習 | 13, 15 |
-| Scaling Laws for Neural Language Models（2020） | スケーリング則 | 15 |
-| LoRA: Low-Rank Adaptation of Large Language Models（2021） | LoRA | 19 |
-| Training Compute-Optimal Large Language Models（2022, Chinchilla） | データとモデルの釣り合い | 15 |
-| Training language models to follow instructions with human feedback（2022, InstructGPT） | SFTとRLHF | 18, 22 |
-| ReAct（2022） | 考える＋行動するエージェント | 23 |
-| FlashAttention（2022） | 速いAttention | 16 |
-| Direct Preference Optimization（2023, DPO） | 報酬モデルなしの好みの学習 | 22 |
-| QLoRA（2023） | 4ビット＋LoRA | 19 |
-| RoFormer（2021, RoPE） | 回転位置埋め込み | 25 |
-| Retrieval-Augmented Generation（2020） | RAG | 21 |
+| 論文（発表年） | 内容 | 一次リンク | 関係する章 |
+|---|---|---|---|
+| Attention Is All You Need（2017） | Transformerの提案 | [arXiv:1706.03762](https://arxiv.org/abs/1706.03762) | 11〜12 |
+| Language Models are Unsupervised Multitask Learners（2019, GPT-2） | 大規模な事前学習 | [OpenAI PDF](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) | 13, 15 |
+| Scaling Laws for Neural Language Models（2020） | スケーリング則 | [arXiv:2001.08361](https://arxiv.org/abs/2001.08361) | 15 |
+| LoRA: Low-Rank Adaptation of Large Language Models（2021） | LoRA | [arXiv:2106.09685](https://arxiv.org/abs/2106.09685) | 19 |
+| Training Compute-Optimal Large Language Models（2022, Chinchilla） | データとモデルの釣り合い | [arXiv:2203.15556](https://arxiv.org/abs/2203.15556) | 15 |
+| Training language models to follow instructions with human feedback（2022, InstructGPT） | SFTとRLHF | [arXiv:2203.02155](https://arxiv.org/abs/2203.02155) | 18, 22 |
+| ReAct（2022） | 考える＋行動するエージェント | [arXiv:2210.03629](https://arxiv.org/abs/2210.03629) | 23 |
+| FlashAttention（2022） | 速いAttention | [arXiv:2205.14135](https://arxiv.org/abs/2205.14135) | 16 |
+| Direct Preference Optimization（2023, DPO） | 報酬モデルなしの好みの学習 | [arXiv:2305.18290](https://arxiv.org/abs/2305.18290) | 22 |
+| QLoRA（2023） | 4ビット＋LoRA | [arXiv:2305.14314](https://arxiv.org/abs/2305.14314) | 19 |
+| RoFormer（2021, RoPE） | 回転位置埋め込み | [arXiv:2104.09864](https://arxiv.org/abs/2104.09864) | 25 |
+| Retrieval-Augmented Generation（2020） | RAG | [arXiv:2005.11401](https://arxiv.org/abs/2005.11401) | 21 |
 
 詳しい出典は[付録J 参考文献](j-references.html)にまとめてあります。
 

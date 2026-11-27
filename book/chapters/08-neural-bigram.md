@@ -30,9 +30,13 @@ import torch
 import torch.nn.functional as F
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -74,6 +78,15 @@ print("文字で見ると：", [itos[i] for i in xs[:8].tolist()], "→", [itos[
 ```
 
 入力と正解が、1文字ずつずれて並んでいます。「`上` の次は `　`（全角空白）」「`先` の次は `生`」……。これが、言語モデルの **教師データ** です。問題（入力）と答え（正解）の組が14万個以上あります。
+
+:::theory ラベルシフトと「教師強制（teacher forcing）」
+`xs = train_data[:-1]`、`ys = train_data[1:]` のように、同じ文章を1文字だけ右にずらして入力と正解の組を作る手法を **ラベルシフト** と呼びます。そして学習時に、モデル自身の前の予測結果ではなく**毎回「本当の正解の文字」を入力として与えて次を予測させる**方法を **教師強制**（teacher forcing）と呼びます。
+
+- **なぜ教師強制を使うのか？**：学習初期のモデルはでたらめな文字ばかり出すため、自分の出力を次の入力にすると連鎖的に崩壊して学習が進みません。正解を毎回教えながら練習させることで、全位置の損失を安定かつ並列に計算できます。
+- **生成（推論）との違い**：第3章の自己回帰生成では正解が存在しないため、モデル自身の予測を次の入力へ戻します。この「学習時は正解入力、本番は自己出力」というズレは研究でも重要なテーマです（第11章の複数位置同時学習でもそのまま使います）。
+
+※ なお、ここでは第5章と同様に簡潔さのため全テキスト `text` から語彙 `chars` を作っていますが、実務・研究では検証データからの情報漏れを防ぐため訓練データのみで語彙を構築します。
+:::
 
 :::exercise ch08-q01
 :::

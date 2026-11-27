@@ -2,6 +2,7 @@
 what they would meet before it was taught, plus per-chapter load metrics.
 
     python tools/persona.py            # prints a report, writes verification/persona-metrics.json
+    python tools/persona.py --check    # read-only check (does not write files; exits 1 on issues)
 
 The learner (see PERSONA) starts with what a first-year vocational student
 in an AI engineering course knows: HTML/CSS, the very basics of Python, a
@@ -10,13 +11,14 @@ This is a mechanical check, not a substitute for a real reader; the
 qualitative walk-through is recorded in book/appendix/i-simulation.md.
 """
 from pathlib import Path
+import argparse
 import ast
 import json
 import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent))
-from bookparse import BOOK, ROOT, cells, chapter_paths, read_source  # noqa: E402
+from bookparse import BOOK, ROOT, cells, chapter_paths, extract_exercise_refs, read_source  # noqa: E402
 
 PERSONA = {
     "name": "専門学校1年・AIエンジニア専攻（2026年入学）",
@@ -35,9 +37,9 @@ PY_INTRO = {
     "import": "01-first-llm", "list": "01-first-llm", "dict": "01-first-llm",
     "for": "02-tokens", "listcomp": "02-tokens", "set": "02-tokens", "join": "02-tokens",
     "with": "03-next-token", "starkwargs": "03-next-token",
-    "slice": "04-bigram", "open": "04-bigram",
+    "slice": "04-bigram", "open": "04-bigram", "try": "04-bigram",
     "dictcomp": "06-tensors", "class": "09-mlp", "decorator": "09-mlp", "lambda": "14-bpe",
-    "assert": "15-gpt2", "while": "14-bpe", "modulo": "07-gradient", "try": "23-agents",
+    "assert": "13-train-gpt", "while": "14-bpe", "modulo": "07-gradient",
     "isinstance": "12-transformer", "augassign": "03-next-token", "zip": "03-next-token",
     "enumerate": "02-tokens", "sorted": "02-tokens", "gather": "20-evaluation",
 }
@@ -79,6 +81,11 @@ def strip_for_terms(body):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--check", action="store_true",
+                    help="Read-only check: do not write verification/persona-metrics.json; exit 1 if issues found")
+    a = ap.parse_args()
+
     glossary = json.loads((BOOK / "glossary.json").read_text(encoding="utf-8"))
     order = [slug for slug, _ in chapter_paths()]
     rank = {s: i for i, s in enumerate(order)}
@@ -94,6 +101,8 @@ def main():
         if slug != "00-welcome":
             for t in glossary:
                 if t["term"] in KNOWN_OR_GENERIC:
+                    continue
+                if t["term"] == "連鎖律" and "確率の連鎖律" in scan:
                     continue
                 intro = t.get("chapter")
                 if intro in rank and rank[intro] > here and t["term"] in scan:
@@ -113,7 +122,7 @@ def main():
         n_cells = len(cells(body))
         code_lines = sum(len(c["code"].split("\n")) for c in cells(body))
         talks = body.count(":::sensei") + body.count(":::minato")
-        ex_refs = sum(len(m.split()) for m in re.findall(r"(?m)^:::exercise\s+(.+)$", body))
+        ex_refs = len(extract_exercise_refs(body))
         quizzes = body.count(":::quiz") + ex_refs
         outputs = body.count("```output")
         figures = body.count("](img/")
@@ -140,9 +149,10 @@ def main():
             report["issues"].append(f"{slug}: 未説明のPython構文 {e}")
         if longest > 2500:
             report["issues"].append(f"{slug}: 会話・コードのない地の文が {longest} 字続く")
-    out = ROOT / "verification" / "persona-metrics.json"
-    out.parent.mkdir(exist_ok=True)
-    out.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    if not a.check:
+        out = ROOT / "verification" / "persona-metrics.json"
+        out.parent.mkdir(exist_ok=True)
+        out.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     print(f"{'章':16s} 難 新用語 新Py セル 行  会話 クイズ 出力 図 最長地文 目安分 リスク")
     for r in report["chapters"]:
         print(f"{r['slug']:16s} {r['level']}  {r['new_terms']:4d} {len(r['new_python']):4d} {r['cells']:4d} {r['code_lines']:4d}"
@@ -150,6 +160,8 @@ def main():
     print(f"\n{len(report['issues'])} issue(s)")
     for i in report["issues"]:
         print(" -", i)
+    if a.check and report["issues"]:
+        sys.exit(1)
     return report
 
 

@@ -20,11 +20,20 @@ LLMが電卓を使うって、どうやって？ LLMには手がないですよ�
 
 ## 準備：少し大きめのモデル
 
+:::tip 実行環境とリソースの目安
+- **環境**：無料GPU（Colab T4）推奨です。`Qwen2.5-1.5B-Instruct` をfloat16で読み込むためVRAM約3.5GBを使い、各ステップの生成は数秒で終わります。
+- **ダウンロード**：初回にモデル（約3.1GB）と学校資料 `rag_docs.jsonl`（数KB）を取得します。
+- **GPUが使えない日の代替**：CPUでは1.5B（float32）がRAM約6GB以上・生成に数十秒〜数分かかります。GPUが借りられない日は、電卓・検索・`parse_tool_calls` の単体テストまではCPUで即実行でき、LLM部分は `name = "Qwen/Qwen2.5-0.5B-Instruct"`（約1GB）に軽くすると流れを確かめられます（ツール呼び出しの成功率は1.5Bより下がります）。
+- **ライブラリ互換性**：`dtype=` は `transformers >= 4.56` 対応（推奨環境は `requirements-book.txt` を参照）。
+:::
+
 道具を使うには、指示を正確に守る力が必要なので、0.5Bより一回り大きい **Qwen2.5-1.5B-Instruct**（float16で約3GB）を使います。GPUのランタイムで実行してください。
 
 ```python
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/rag_docs.jsonl
-import ast, json, operator, re, datetime
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/rag_docs.jsonl
+import ast, json, operator, os, re, datetime
+if not os.path.exists("rag_docs.jsonl"):
+    raise RuntimeError("rag_docs.jsonl のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
@@ -54,10 +63,14 @@ def calculator(expression: str) -> str:
         expression: 計算したい式。例：'123*456' や '(3+4)/2'
     """
     def ev(node):
-        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
             return node.value
         if isinstance(node, ast.BinOp) and type(node.op) in OPS:
-            return OPS[type(node.op)](ev(node.left), ev(node.right))
+            left, right = ev(node.left), ev(node.right)
+            if isinstance(node.op, ast.Pow):
+                if abs(right) > 1000 or (abs(left) > 1e6 and abs(right) > 10):
+                    raise ValueError("べき乗の指数が大きすぎます（計算量の上限を超過）")
+            return OPS[type(node.op)](left, right)
         if isinstance(node, ast.UnaryOp) and type(node.op) in OPS:
             return OPS[type(node.op)](ev(node.operand))
         raise ValueError("数字と + - * / ** ( ) 以外は使えません")
@@ -98,7 +111,7 @@ print(calculator("123*456"), calculator("(3+4)/2"), calculator("__import__('os')
 :::
 
 :::warn eval を使わない理由
-Pythonには、文字列をそのままプログラムとして実行する `eval` という関数があります。電卓なら `eval("123*456")` で済みそうですが、**LLMの出力を `eval` してはいけません**。LLMが（あるいは、LLMをだました誰かが）`__import__('os').system('…')` のような文字列を書けば、あなたのコンピュータで好きな命令が実行されてしまいます。上の `calculator` は、式を構文の木（`ast`）に分解し、数字と四則演算だけを許可しているので、そうした攻撃を受け付けません。**道具は、できることを最小限にして作る**。これがエージェントの安全の基本です。
+Pythonには、文字列をそのままプログラムとして実行する `eval` という関数があります。電卓なら `eval("123*456")` で済みそうですが、**LLMの出力を `eval` してはいけません**。LLMが（あるいは、LLMをだました誰かが）`__import__('os').system('…')` のような文字列を書けば、あなたのコンピュータで好きな命令が実行されてしまいます。上の `calculator` は、式を構文の木（`ast`）に分解し、数字と四則演算だけを許可しているので、そうした攻撃を受け付けません。さらに `9**9**9` のような巨大なべき乗でCPUやメモリを食いつぶす攻撃（サービス妨害／DoS）を防ぐため、指数の大きさにも上限を設けています。**道具は、できることを最小限にして作る**。これがエージェントの安全の基本です。
 :::
 
 :::fe 構文解析
@@ -244,14 +257,18 @@ def run_agent(question, max_steps=5, verbose=True):
         messages.append({"role": "assistant", "content": "",
                          "tool_calls": [{"type": "function", "function": c} for c in calls]})
         for c in calls:
-            fn = tools.get(c.get("name"))
-            try:                                            # 引数がおかしくても止まらないように
-                result = fn(**c.get("arguments", {})) if fn else f"そんな道具はありません：{c.get('name')}"
+            name = c.get("name") if isinstance(c, dict) else None
+            args = c.get("arguments", {}) if isinstance(c, dict) else {}
+            try:                                            # 形式や引数がおかしくても止まらないように
+                if not isinstance(c, dict) or not isinstance(args, dict):
+                    raise ValueError("ツール呼び出しのJSON形式が正しくありません")
+                fn = tools.get(name)
+                result = fn(**args) if fn else f"そんな道具はありません：{name}"
             except Exception as e:
                 result = f"エラー：{e}"                     # エラーの内容をLLMに返して、やり直させる
             if verbose:
-                print(f"  🔧 {c.get('name')}({c.get('arguments')}) → {result[:60]}")
-            messages.append({"role": "tool", "name": c.get("name"), "content": result})
+                print(f"  🔧 {name}({args}) → {result[:60]}")
+            messages.append({"role": "tool", "name": name or "unknown", "content": result})
     return "（上限の回数に達しました）"
 
 print(run_agent("123×456はいくつ？"))

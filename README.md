@@ -5,7 +5,7 @@
 公開サイト：https://sakunokyumei.github.io/llm-research-textbook/
 
 - 全27章と付録10本。各章に、Google Colabでそのまま開けるノートブックがあります
-- 費用は0円です。Google Colabの無料GPU（T4）で動き、Colabが使えない日はKaggleやCPUで進められます
+- 基本的に0円で始められます。Google Colabの無料GPU（T4）で動き、混雑や無料枠の変動で使えない日はKaggle（電話番号確認が必要）やCPU短縮手順で進められます（無料枠の上限・仕様はサービス側の変更で変動するため、最新条件は各公式案内を確認してください）
 - 第1章の45〜60分で本物のLLMと会話し、第4章で自分の言語モデルが夏目漱石風の文章を書きます
 - 第13章で学習させた漱石GPTは、サイトのトップページでブラウザだけで動きます
 
@@ -30,25 +30,32 @@
 
 ## サイトの生成
 
-PythonとNode.jsを使います（数式をKaTeXで生成するため）。`markdown-it-py` が入っていないオフライン環境でも、`tools/mdfallback.py` により自動で生成できます。数式が変わっていなければ、Node.jsがなくても `book/.mathcache.json` を使って生成できます。
+PythonとNode.jsを使います（数式をKaTeXで生成するため）。ビルド・テスト用の依存は `requirements-dev.txt`、各章のPythonコードをローカルで実行するための推奨バージョン範囲は `requirements-book.txt` にまとめています。`markdown-it-py` が入っていないオフライン環境でも、`tools/mdfallback.py` により自動で生成できます。数式が変わっていなければ、Node.jsがなくても `book/.mathcache.json` を使って生成できます。
 
 ```sh
-python tools/build.py                       # docs/ と notebooks/ を生成
-python -m http.server 8765 --directory docs # http://localhost:8765 で確認
+pip install -r requirements-dev.txt          # ビルド・検証用（markdown-it-py, nbformat, playwright）
+python tools/build.py                        # docs/ と notebooks/ を生成
+python -m http.server 8765 --directory docs  # http://localhost:8765 で確認
 ```
 
 原稿は `book/` にあります。`docs/` と `notebooks/` は直接編集せず、`tools/build.py` で作り直してください。
 
-## 検証
+## 検証とCI
+
+GitHub Actions（`.github/workflows/ci.yml`）では、`main` へのpushおよびPull Request時に以下を自動実行します（GPU専用セルの実機実行はCPUランナーでは行わず、検証範囲を明示しています）。
 
 ```sh
-python tools/test_exercises.py              # 全章の演習JSON・自動採点・純Pythonコード・アンカー検証
-python tools/test_site_e2e.py               # PlaywrightによるPC/スマホ・自動採点・復習・互換性E2E検証
-python tools/verify.py --links-only         # リンク切れ・未展開マーカー・minigpt整合性の検証
-python tools/persona.py                     # 学習者シミュレーション（補助的な機械チェック）
-# （PyTorch/Transformers導入環境での全コード実行検証）
-python tools/testkit/make_fakes.py          # 小さな模擬モデルを .cache/fakes/ に作成
-python tools/verify.py                      # 全章のコードを実行し、リンクも確認
+node --check site/*.js                       # JavaScript構文チェック
+python tools/build.py                        # docs/・notebooks/ 再生成（差分チェック）
+python tools/test_exercises.py --self-test   # 検証スクリプト自体の異常系自己テスト
+python tools/test_exercises.py               # 全章の演習JSON・自動採点・純Pythonコード・アンカー検証
+python tools/test_notebooks_and_code.py      # 全章コード構文・純Python実行・ノートブック整合性・nbformat 4.5検証
+python tools/verify.py --links-only --check  # リンク切れ・未展開数式/Markdown・minigpt整合性の読み取り専用検証
+python tools/persona.py --check              # 学習者シミュレーション（読み取り専用チェック）
+python tools/test_site_e2e.py                # Playwrightによる全40ページPC/スマホ・自動採点・検索・復習・互換性E2E検証
+# （PyTorch/Transformers導入環境での全コード実行検証：pip install -r requirements-book.txt）
+python tools/testkit/make_fakes.py           # 小さな模擬モデルを .cache/fakes/ に作成
+python tools/verify.py                       # 全章のコードを実行し、リンクも確認
 ```
 
 各章は、新しいColabのセッションと同じように、空のフォルダで上から順に実行します。GPUが必要なセル（4ビット量子化など）とオンライン専用のセル（ログイン、公開リンク）は飛ばし、そのことを記録します。
@@ -73,3 +80,13 @@ python tools/verify.py                      # 全章のコードを実行し、�
 ## プライバシー
 
 サイトに、アクセス解析・広告・入力の送信はありません。読了の印・チェックリスト・確認問題の解答履歴・復習予定・コース設定・表示の明るさ・最後に開いたページは、あなたのブラウザの中（`localStorage`）だけに保存されます。バックアップや端末移行には「学習・復習」ページのJSONエクスポート／インポートを使えます。
+
+## ライセンスと権利表示
+
+- **本教材の本文・独自コード・演習・独自データセット・図版**：ライセンスは著者による正式選定・明記を待っている状態です（現時点ではリポジトリ直下に `LICENSE` ファイルは置いていません。再利用・転載の可否は著者の正式な案内を確認してください）。
+- **同梱・参照している第三者アセットのライセンス**：
+  - **KaTeX**（`tools/katex/`・`site/katex/`・`docs/katex/`）：MIT License（各フォルダに `LICENSE` を同梱）
+  - **青空文庫（夏目漱石作品）**：パブリックドメイン（著作権保護期間満了、`aozorahack/aozorabunko_text` 経由で取得）
+  - **事前学習済みモデル**：Qwen2.5（Apache License 2.0）、GPT-2（MIT License）、`intfloat/multilingual-e5-small`（MIT License）
+  - **チャットテンプレート検証用ファイル**（`tools/testkit/qwen_chat_template.jinja`）：Qwen2.5由来（Apache License 2.0）
+  - **参考実装の着想**：Andrej Karpathy 氏 `nanoGPT`（MIT License）ほか（詳細は `book/appendix/j-references.md`）

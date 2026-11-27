@@ -1,9 +1,9 @@
-"""Verify the book: run every chapter's code, compare outputs, check links.
+"""Verify the book: run every chapter's code, compare outputs, check links & rendered HTML quality.
 
-    python tools/verify.py                  # everything
-    python tools/verify.py --only 04-bigram # one chapter (comma separated)
-    python tools/verify.py --update         # write real outputs into ```output blocks
-    python tools/verify.py --links-only     # only check links in docs/
+    python tools/verify.py                        # everything
+    python tools/verify.py --only 04-bigram       # one chapter (comma separated)
+    python tools/verify.py --update               # write real outputs into ```output blocks
+    python tools/verify.py --links-only --check   # read-only check of docs/ links, math, JSON, JS, minigpt
 
 Each chapter runs in a fresh folder, like a new Colab session. Hugging Face
 model names are swapped for tiny local stand-ins (tools/testkit/make_fakes.py)
@@ -61,8 +61,9 @@ def run_chapter(slug, path, timeout, full=False):
     if work.exists():
         shutil.rmtree(work)
     work.mkdir(parents=True)
-    # each chapter starts with the Google Drive a learner would have at that point (see fake drive.mount)
-    shutil.rmtree("/content/drive", ignore_errors=True)
+    # Clean simulated Google Drive mount on POSIX hosts (avoid C:\content\drive issues on Windows)
+    if os.name != "nt":
+        shutil.rmtree("/content/drive", ignore_errors=True)
     (work / "cells.json").write_text(json.dumps([prepare(c, full) for c in cs], ensure_ascii=False), encoding="utf-8")
     try:
         proc = subprocess.run([sys.executable, str(ROOT / "tools/testkit/runner.py"), "cells.json", "result.json"],
@@ -77,10 +78,13 @@ def run_chapter(slug, path, timeout, full=False):
     if not result_file.exists():
         failures.append("runner crashed: " + stderr[-1500:])
     diverged = False   # after a shrunken (test:) cell, later outputs legitimately differ
+    non_comparable = 0
     for r in results:
         if cs[r["index"]]["subs"] and not full:
             diverged = True
         r["comparable"] = not diverged and not r.get("skipped")
+        if diverged and not r.get("skipped"):
+            non_comparable += 1
         if r.get("error"):
             failures.append(f"cell {r['index']} raised:\n{r['error'][-1500:]}\n--- code ---\n{cs[r['index']]['code'][:600]}")
         elif r["comparable"] and cs[r["index"]]["expected"] is not None:
@@ -90,12 +94,12 @@ def run_chapter(slug, path, timeout, full=False):
     if len(results) < len(cs) and not failures:
         failures.append(f"only {len(results)} of {len(cs)} cells ran")
     return {"slug": slug, "cells": len(cs), "skipped": sum(1 for r in results if r.get("skipped")),
+            "non_comparable_after_test_sub": non_comparable,
             "seconds": round(sum(r.get("seconds", 0) for r in results), 1), "failures": failures, "results": results}
 
 
 def update_outputs(path, results):
     """Replace ```output blocks after each python cell with the real stdout."""
-    meta_line, _, _ = path.read_text(encoding="utf-8").partition("\n")
     lines = path.read_text(encoding="utf-8").split("\n")
     by_index = {r["index"]: r for r in results}
     i, cell_no, last_cell = 0, -1, None
@@ -157,14 +161,57 @@ class Links(HTMLParser):
                 self.links.append(a[k])
 
 
+def _strip_rendered_safe_regions(html_text):
+    """Remove <script>, <pre>, <code>, and rendered KaTeX spans before scanning for unrendered markup."""
+    s = re.sub(r"<script\b[^>]*>.*?</script>", "", html_text, flags=re.S)
+    s = re.sub(r"<pre\b[^>]*>.*?</pre>", "", s, flags=re.S)
+    s = re.sub(r"<code\b[^>]*>.*?</code>", "", s, flags=re.S)
+    s = re.sub(r'<span class="katex">.*?</span></span>', "", s, flags=re.S)
+    return s
+
+
 def check_links(site):
+    site = Path(site)
     pages, failures = {}, []
-    for f in site.glob("*.html"):
+    if not site.exists():
+        return 0, [f"site directory missing: {site}"]
+    html_files = sorted(site.glob("*.html"))
+    if not html_files:
+        return 0, [f"no HTML files found in {site}"]
+
+    for f in html_files:
+        txt = f.read_text(encoding="utf-8")
         p = Links()
-        p.feed(f.read_text(encoding="utf-8"))
+        p.feed(txt)
         pages[f.resolve()] = p
-        if re.search(r"(?m)^:::|BLOCKPH\d|MATHPH[0-9a-f]{16}X", f.read_text(encoding="utf-8")):
-            failures.append(f"unrendered marker in {f.name}")
+
+        # Check placeholders, raw directives, and KaTeX fallback markers
+        if re.search(r"(?m)^:::|BLOCKPH\d|MATHPH[0-9a-f]{16}X|DOLLARPHX|math-raw", txt):
+            failures.append(f"unrendered marker/math-raw in {f.name}")
+
+        # Check raw TeX ($...$), literal bold (**...**), and raw backticks in titles/summaries/body
+        clean = _strip_rendered_safe_regions(txt)
+        m_bold = re.search(r"\*\*[^*\n<]{1,80}\*\*", clean)
+        if m_bold:
+            failures.append(f"unrendered bold {m_bold.group(0)!r} in {f.name}")
+        m_math = re.search(r"(?<![\w\$\\])\$[^$\n<]{1,80}\$(?![\w\$])", clean)
+        if m_math:
+            failures.append(f"unrendered math {m_math.group(0)!r} in {f.name}")
+
+        for pat, label in (
+            (r'<p class="box-title">(.*?)</p>', "box-title"),
+            (r"<summary>(.*?)</summary>", "summary"),
+            (r'<p class="quiz-label">(.*?)</p>', "quiz-label"),
+        ):
+            for m in re.finditer(pat, txt):
+                t = _strip_rendered_safe_regions(m.group(1))
+                if "`" in t or "$" in t:
+                    failures.append(f"unrendered token in {label} of {f.name}: {t[:80]!r}")
+
+        for m in re.finditer(r'data-tip="([^"]*)"', txt):
+            if "$" in m.group(1) or "`" in m.group(1):
+                failures.append(f"raw markdown/math in data-tip of {f.name}: {m.group(1)[:60]!r}")
+
     for f, p in pages.items():
         for link in p.links:
             u = urlsplit(link)
@@ -175,7 +222,62 @@ def check_links(site):
                 failures.append(f"broken link {f.name} -> {link}")
             elif u.fragment and target in pages and u.fragment not in pages[target].ids:
                 failures.append(f"missing anchor {f.name} -> {link}")
+
+    # Check generated JSON data assets (exercises-meta.json & search.json)
+    meta_path = site / "exercises-meta.json"
+    if not meta_path.exists():
+        failures.append(f"missing {meta_path.name}")
+    else:
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            if not isinstance(meta.get("ids"), list) or meta.get("total") != len(meta["ids"]) or meta["total"] == 0:
+                failures.append("exercises-meta.json invalid total/ids")
+            if not isinstance(meta.get("bySlug"), dict) or not meta["bySlug"]:
+                failures.append("exercises-meta.json missing bySlug")
+        except Exception as e:
+            failures.append(f"exercises-meta.json invalid JSON: {e}")
+
+    search_path = site / "search.json"
+    if not search_path.exists():
+        failures.append(f"missing {search_path.name}")
+    else:
+        try:
+            sdata = json.loads(search_path.read_text(encoding="utf-8"))
+            if not isinstance(sdata, list) or not sdata:
+                failures.append("search.json empty or invalid")
+            else:
+                ch22 = next((r for r in sdata if r.get("slug") == "22-alignment"), None)
+                if not ch22 or len(ch22.get("text", "")) <= 4000:
+                    failures.append("search.json appears truncated (22-alignment <= 4000 chars)")
+                if ch22 and not ch22.get("sections"):
+                    failures.append("search.json missing section-level index")
+                # Validate every section anchor in search.json exists on its HTML page
+                for rec in sdata:
+                    slug = rec.get("slug", "")
+                    if not slug or ".html" in slug:
+                        continue
+                    target_html = (site / f"{slug}.html").resolve()
+                    if target_html in pages:
+                        for sec in rec.get("sections", []):
+                            if sec.get("id") not in pages[target_html].ids:
+                                failures.append(f"search.json section anchor #{sec.get('id')} missing in {slug}.html")
+        except Exception as e:
+            failures.append(f"search.json invalid JSON: {e}")
+
     return len(pages), failures
+
+
+def check_js_syntax(site_dir):
+    """Run `node --check` on JS files in site/ and built docs/ when Node.js is available."""
+    failures = []
+    if shutil.which("node") is None:
+        return failures
+    js_files = sorted((ROOT / "site").glob("*.js")) + sorted(Path(site_dir).glob("*.js"))
+    for jf in js_files:
+        r = subprocess.run(["node", "--check", str(jf)], capture_output=True, text=True, encoding="utf-8")
+        if r.returncode != 0:
+            failures.append(f"JS syntax error in {jf}: {r.stderr.strip()[:300]}")
+    return failures
 
 
 def main():
@@ -183,9 +285,13 @@ def main():
     ap.add_argument("--only")
     ap.add_argument("--update", action="store_true")
     ap.add_argument("--links-only", action="store_true")
+    ap.add_argument("--check", action="store_true",
+                    help="Read-only verification mode: never mutate verification/code-report.json or site/img/figs/")
+    ap.add_argument("--docs-dir", default=str(ROOT / "docs"))
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--full", action="store_true", help="ignore test: substitutions (slow, real outputs)")
     a = ap.parse_args()
+    docs_dir = Path(a.docs_dir)
     report = {"date": datetime.date.today().isoformat(), "python": sys.version.split()[0], "chapters": [], "link_failures": []}
     try:
         import torch, transformers  # noqa: E401
@@ -205,11 +311,10 @@ def main():
             print(f"{status:4} {slug}: {r['cells']} cells, {r.get('skipped', 0)} skipped (gpu-only), {r.get('seconds', 0)}s", flush=True)
             for f in r["failures"]:
                 print("    " + f.replace("\n", "\n    "))
-            if a.update and r["results"]:
+            if a.update and not a.check and r["results"]:
                 update_outputs(path, r["results"])
             figs = ROOT / ".verify" / slug / "figs"
-            if figs.exists() and not r["failures"]:
-                # figures from cells after a shrunken (test:) cell show the short run, not the real one: keep the old ones
+            if figs.exists() and not r["failures"] and not a.check:
                 dest = ROOT / "site" / "img" / "figs" / slug
                 real = {x["index"] for x in r["results"] if x.get("comparable")}
                 if len(real) == len(r["results"]) and dest.exists():
@@ -224,19 +329,24 @@ def main():
     for f in consistency:
         print("CODE " + f)
     all_failures += consistency
-    n, link_failures = check_links(ROOT / "docs")
+    n, link_failures = check_links(docs_dir)
     report["html_pages"], report["link_failures"] = n, link_failures
     for f in link_failures:
         print("LINK " + f)
     all_failures += link_failures
+    js_failures = check_js_syntax(docs_dir)
+    for f in js_failures:
+        print("JS   " + f)
+    all_failures += js_failures
     report_path = ROOT / "verification" / "code-report.json"
-    if not a.only and not a.links_only:
-        report_path.parent.mkdir(exist_ok=True)
-        report_path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    elif a.links_only and report_path.exists():   # keep the chapter results, refresh the link check
-        old = json.loads(report_path.read_text(encoding="utf-8"))
-        old["html_pages"], old["link_failures"] = n, link_failures
-        report_path.write_text(json.dumps(old, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    if not a.check:
+        if not a.only and not a.links_only:
+            report_path.parent.mkdir(exist_ok=True)
+            report_path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        elif a.links_only and report_path.exists():
+            old = json.loads(report_path.read_text(encoding="utf-8"))
+            old["html_pages"], old["link_failures"] = n, link_failures
+            report_path.write_text(json.dumps(old, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("ALL OK" if not all_failures else f"{len(all_failures)} problem(s)")
     sys.exit(1 if all_failures else 0)
 

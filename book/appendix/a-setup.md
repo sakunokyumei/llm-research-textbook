@@ -167,8 +167,16 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ### 手順3：道具を入れる
 
+リポジトリには動作確認済みのライブラリ版レンジをまとめた **`requirements-book.txt`**（本編実行用）と `requirements-dev.txt`（サイト生成・検証用）を用意しています。手元PCでは次のように一括導入できます。
+
 ```bash
-pip install torch transformers datasets tokenizers peft trl sentence-transformers matplotlib matplotlib-fontja jupyter
+pip install -r requirements-book.txt
+```
+
+直接指定する場合は次のとおりです（`dtype=` 引数を使うコードは **`transformers >= 4.56`**（5.x 含む）が必要です。古い版で `unexpected keyword argument 'dtype'` が出た場合は `pip install -U transformers` するか `torch_dtype=` に読み替えてください）。
+
+```bash
+pip install torch "transformers>=4.56" accelerate datasets tokenizers peft trl sentence-transformers matplotlib matplotlib-fontja jupyter
 ```
 
 数分かかります。NVIDIAのGPUを持っている人は、<https://pytorch.org/get-started/locally/> で自分の環境を選ぶと、GPU版のPyTorchを入れるコマンドが表示されます。
