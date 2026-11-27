@@ -1,0 +1,878 @@
+{
+  "chapter": "03-next-token",
+  "exercises": [
+    {
+      "id": "ch03-q01",
+      "chapter": "03-next-token",
+      "section": "モデルを直接読み込み、入力と出力の形を見る",
+      "sectionAnchor": "#s2",
+      "concept": "py-kwargs-unpacking",
+      "conceptLabel": "辞書のアンパック **inputs の意味",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": ["第1章：キーワード引数"],
+      "variants": [
+        {
+          "prompt": "`model(**inputs)` の `**`（辞書アンパック）の動きを確認します。次のコードを実行すると何が表示されますか？",
+          "code": "def add_info(a, b):\n    return a * 10 + b\n\ndata = {\"a\": 3, \"b\": 7}\nprint(add_info(**data))",
+          "accept": ["37"],
+          "placeholder": "表示される整数を入力",
+          "hint": "`add_info(**data)` は `add_info(a=3, b=7)` とまったく同じ呼び出し方になります。",
+          "reasoning": "関数呼び出しの `**辞書` は、辞書のキーを引数名、値を引数の値として展開して渡す記法です。",
+          "steps": [
+            "`data = {\"a\": 3, \"b\": 7}`。",
+            "`add_info(**data)` は `add_info(a=3, b=7)` に展開される。",
+            "`3 * 10 + 7 = 37` が出力される。"
+          ],
+          "altExample": "`inputs` が `{\"input_ids\": ..., \"attention_mask\": ...}` のとき、`model(**inputs)` は `model(input_ids=..., attention_mask=...)` を短く書いたものです。"
+        },
+        {
+          "prompt": "次のコードの出力を予測してください。",
+          "code": "def show(x, y):\n    return f\"{x}-{y}\"\n\nargs = {\"y\": 2, \"x\": 9}\nprint(show(**args))",
+          "accept": ["9-2"],
+          "placeholder": "表示される文字列を入力",
+          "hint": "キーワード引数なので、辞書に書いた順番ではなくキー名 `x` と `y` で対応づきます。",
+          "reasoning": "`**args` は名前付き引数 `y=2, x=9` として渡されるため、`x=9, y=2` に対応します。",
+          "steps": [
+            "`show(**args)` → `show(y=2, x=9)`。",
+            "`x` に `9`、`y` に `2` が入る。",
+            "`f\"{x}-{y}\"` → `9-2`。"
+          ],
+          "altExample": "引数の順番を間違えにくいため、`transformers` のモデル呼び出しで `model(**inputs)` が標準的に使われます。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q02",
+      "chapter": "03-next-token",
+      "section": "モデルを直接読み込み、入力と出力の形を見る",
+      "sectionAnchor": "#s2",
+      "concept": "logits-3d-shape-indexing",
+      "conceptLabel": "出力テンソル [1, T, V] と [0, -1] の意味",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第2章：トークンIDと語彙数"],
+      "variants": [
+        {
+          "prompt": "トークン数6個の文章を1件だけモデルに入力すると、`out.logits.shape` は `torch.Size([1, 6, 151936])` になります。そこから `out.logits[0, -1]` を取り出すと、何が得られますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "0番目の文章の「最後のトークン（6番目）の次に来るトークン」に対する、全151,936語ぶんの生の点数（形 `[151936]`）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "1個だけの小数（1位の確率）",
+              "wrongReason": "3次元のうち前の2次元 `[0, -1]` を指定したので、残る3次元目（長さ 151,936 の1次元テンソル）全体が取り出されます。"
+            },
+            {
+              "id": "c",
+              "text": "入力した文章の1文字目のトークンID",
+              "wrongReason": "`out.logits` はトークンIDではなく、各語彙に対する「次に来そうな生の点数（ロジット）」の表です。"
+            },
+            {
+              "id": "d",
+              "text": "全6位置の合計スコア",
+              "wrongReason": "`-1` は合計ではなく「後ろから1番目（末尾の位置）」を選ぶインデックスです。"
+            }
+          ],
+          "answer": "a",
+          "hint": "3つの軸は `[文章の個数(バッチ), トークンの位置, 語彙の点数]` です。`[0, -1]` は前の2つの軸を1点に固定しています。",
+          "reasoning": "LLMは入力の各位置それぞれについて「その次のトークンの点数」を一度に出力します。文章の続きを予測したいので、一番最後の位置 `-1` を取り出します。",
+          "steps": [
+            "軸0（長さ1）：文章の番号 → `0` で1件目の文章を選ぶ。",
+            "軸1（長さ6）：トークンの位置（0〜5）→ `-1` で最後の位置（5番目＝「は」）を選ぶ。",
+            "軸2（長さ151,936）：全語彙それぞれの生の点数 → 全部残るので形は `[151936]`。"
+          ],
+          "altExample": "もし `[0, 0]` を取り出すと「1個目のトークン（吾）の次」の予測点数（長さ151,936）になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q03",
+      "chapter": "03-next-token",
+      "section": "モデルを直接読み込み、入力と出力の形を見る",
+      "sectionAnchor": "#s2",
+      "concept": "no-grad-and-device",
+      "conceptLabel": "torch.no_grad() と .to(model.device) の役割",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：GPUとVRAM"],
+      "variants": [
+        {
+          "prompt": "推論（文章生成）のときに `with torch.no_grad():` を使う理由と、`.to(model.device)` を付ける理由の組み合わせとして正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`no_grad()` は学習用の途中メモ（勾配計算グラフ）を省いて速く省メモリにするため、`.to(model.device)` は入力データをモデルと同じ置き場所（GPUまたはCPU）にそろえるため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`no_grad()` はモデルを削除するため、`.to(model.device)` は日本語を英語に翻訳するため",
+              "wrongReason": "どちらも誤りです。`no_grad()` は勾配記録のオフ、`.to(...)` はテンソルの配置先（CPU/GPU）の移動です。"
+            },
+            {
+              "id": "c",
+              "text": "`no_grad()` はGPUを強制オフにするため、`.to(model.device)` は温度を設定するため",
+              "wrongReason": "`no_grad()` を付けてもGPUはそのまま使われます。温度はsoftmax前の割り算で指定します。"
+            },
+            {
+              "id": "d",
+              "text": "両方とも飾りであり、消しても絶対にエラーやメモリ増加は起きない",
+              "wrongReason": "`.to(model.device)` を忘れるとGPU環境で `RuntimeError: Expected all tensors to be on the same device` になり、`no_grad()` を忘れると不要なメモリを大量消費します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "モデルがGPU（`cuda:0`）にいるのに、入力テンソルがCPUにあると計算できません。",
+          "reasoning": "PyTorchでは「計算するテンソル同士は同じデバイス上に置く」「推論時は勾配の記録を切る」の2つが鉄則です。",
+          "steps": [
+            "`tok(text, return_tensors=\"pt\")` はまずCPU上にテンソルを作る。",
+            "`.to(model.device)` でモデルと同じ場所（GPUなら `cuda:0`）へ送る。",
+            "`with torch.no_grad():` ブロック内では逆伝播用の途中記録を作らないため、推論が軽く速くなる。"
+          ],
+          "altExample": "机（GPU）に教科書（モデル）があるのに、ノート（入力）を別室（CPU）に置いたままだと書き込めないので、同じ机へ運ぶのが `.to(model.device)` です。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q04",
+      "chapter": "03-next-token",
+      "section": "Σ（シグマ）記号を普通の足し算から理解する",
+      "sectionAnchor": "#s3",
+      "concept": "sigma-anatomy",
+      "conceptLabel": "Σ記号の読み方と各部分の意味",
+      "level": 1,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "数式 $\\sum_{j=1}^{4} (2j)$ の値を手計算で求めてください。",
+          "answer": { "value": 20, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "$j$ を `1, 2, 3, 4` と変えながら $2j$ を計算し、全部足します。",
+          "reasoning": "$\\sum_{j=1}^{4} (2j)$ は「$j$ を1から4まで1ずつ増やしながら $2j$ をすべて足す」という意味です。",
+          "steps": [
+            "$j=1$：$2 \\times 1 = 2$",
+            "$j=2$：$2 \\times 2 = 4$",
+            "$j=3$：$2 \\times 3 = 6$",
+            "$j=4$：$2 \\times 4 = 8$",
+            "合計：$2 + 4 + 6 + 8 = 20$"
+          ],
+          "altExample": "Pythonで書くと `total = 0; for j in range(1, 5): total += 2 * j` となり、同じく `20` です。"
+        },
+        {
+          "prompt": "数式 $\\sum_{j=1}^{3} j^2$ の値を手計算で求めてください。",
+          "answer": { "value": 14, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "$j=1, 2, 3$ について $1^2 + 2^2 + 3^2$ を計算します。",
+          "reasoning": "$j$ を1から3まで動かし、それぞれの2乗を足し合わせます。",
+          "steps": [
+            "$j=1$：$1^2 = 1$",
+            "$j=2$：$2^2 = 4$",
+            "$j=3$：$3^2 = 9$",
+            "合計：$1 + 4 + 9 = 14$"
+          ],
+          "altExample": "Pythonでは `sum(j ** 2 for j in range(1, 4))` が `14` になります。"
+        },
+        {
+          "prompt": "数列 $z = [4, 1, 5, 2]$（$z_1=4, z_2=1, z_3=5, z_4=2$）のとき、$\\sum_{j=1}^{4} z_j$ の値はいくつですか？",
+          "answer": { "value": 12, "tolerance": 0 },
+          "placeholder": "整数で入力",
+          "hint": "$z_1 + z_2 + z_3 + z_4$ を計算します。",
+          "reasoning": "添字 $j$ は「何番目の要素か」を指すインデックスです。",
+          "steps": [
+            "$z_1 + z_2 + z_3 + z_4 = 4 + 1 + 5 + 2 = 12$"
+          ],
+          "altExample": "Pythonではリストは0始まりなので `sum(z)` または `for x in z: total += x` に対応します。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q05",
+      "chapter": "03-next-token",
+      "section": "Σ（シグマ）記号を普通の足し算から理解する",
+      "sectionAnchor": "#s3",
+      "concept": "sigma-to-python",
+      "conceptLabel": "Σ記号とPythonのfor文の対応",
+      "level": 2,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "数式 $\\sum_{j=1}^{4} (j + 1)$ をPythonの `for` 文で書いた次のコードの出力を予測してください。",
+          "code": "total = 0\nfor j in range(1, 5):\n    total += j + 1\nprint(total)",
+          "accept": ["14"],
+          "placeholder": "表示される整数を入力",
+          "hint": "`range(1, 5)` は `1, 2, 3, 4`（5は含まない）です。それぞれに `+ 1` した `2, 3, 4, 5` を足します。",
+          "reasoning": "数学の $\\sum_{j=1}^{N}$ は「$N$ を含む」のに対し、Pythonの `range(1, N + 1)` は終了値を含まない点に注意して対応づけます。",
+          "steps": [
+            "`j = 1` → `total = 0 + 2 = 2`",
+            "`j = 2` → `total = 2 + 3 = 5`",
+            "`j = 3` → `total = 5 + 4 = 9`",
+            "`j = 4` → `total = 9 + 5 = 14`"
+          ],
+          "altExample": "もし `range(1, 4)` と書くと `j = 1, 2, 3` しか回らず、$\\sum_{j=1}^{3}$ になってしまいます。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q06",
+      "chapter": "03-next-token",
+      "section": "なぜ素朴な割り算ではダメなのか？指数関数とsoftmaxの理由",
+      "sectionAnchor": "#s4",
+      "concept": "why-not-naive-prob",
+      "conceptLabel": "素朴な割り算や2乗では確率に変換できない理由",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "ロジット（生の点数）`[3.0, 1.0, -4.0]` を確率に変えるとき、「全部を2乗してから合計で割る」方法では**うまくいかない決定的な理由**はどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`-4.0` を2乗すると `+16.0` になり、最も低い点数だったはずの候補が一番高い確率になって順位が逆転してしまうから",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "2乗すると合計が必ずマイナスになるから",
+              "wrongReason": "実数の2乗は0以上なので合計はプラスになります。本当の問題は「マイナスの大きな点数が巨大なプラスに化けて順位が壊れること」です。"
+            },
+            {
+              "id": "c",
+              "text": "Pythonでは小数の2乗を計算できないから",
+              "wrongReason": "PythonでもPyTorchでも `x ** 2` は簡単に計算できます。数学的な性質として不適切なのが理由です。"
+            },
+            {
+              "id": "d",
+              "text": "2乗してから合計で割ると、確率の合計が1にならないから",
+              "wrongReason": "非負の数の合計で割れば合計は1になります。しかし `-4.0`（2乗すると16）が `+3.0`（2乗すると9）より高確率になってしまうのが致命的です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`3.0 ** 2 = 9` と `(-4.0) ** 2 = 16` を比べてみましょう！",
+          "reasoning": "点数を確率に変える変換には「① 全部プラス（0以上）」「② 合計1」「③ 点数の大小順位を保つ（単調増加）」の3条件が必須です。2乗は③を破ります。",
+          "steps": [
+            "元の点数：`3.0`（1位） > `1.0`（2位） > `-4.0`（最下位）。",
+            "2乗すると：`9.0`, `1.0`, `16.0` → 最下位だった `-4.0` が1位になってしまう！",
+            "一方、$e^z$ なら $e^{3.0} \\approx 20.09 > e^{1.0} \\approx 2.72 > e^{-4.0} \\approx 0.018 > 0$ となり、全条件を満たす。"
+          ],
+          "altExample": "そのまま合計で割る方法だと `3.0 + 1.0 + (-4.0) = 0.0` でゼロ除算エラーになり、マイナスの確率も出てしまいます。"
+        },
+        {
+          "prompt": "ロジットを確率に変えるとき、**指数関数 $e^z$ を使う3つの大きな利点**として正しい組み合わせはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "①どんな実数 $z$ でも必ず正の数になる ②大きい $z$ ほど大きく順位を保つ ③全ロジットに同じ定数を足しても確率が変わらない（差だけが効く）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "①マイナスの $z$ はすべてちょうど0になる ②合計が常に10になる ③整数しか扱えない",
+              "wrongReason": "$e^z$ はどんな負の数でも0より大きい正の数になり（例：$e^{-1} \\approx 0.37$）、実数すべてを扱えます。"
+            },
+            {
+              "id": "c",
+              "text": "①大きい $z$ ほど値が小さくなる ②確率の合計が自動的に1になる（割り算不要） ③必ず1以下になる",
+              "wrongReason": "$e^z$ は単調増加で、$z > 0$ なら1より大きくなります（$e^3 \\approx 20.09$）。合計を1にするには総和 $\\sum_j e^{z_j}$ で割る必要があります。"
+            },
+            {
+              "id": "d",
+              "text": "① $e=10$ なので暗算しやすい ②計算が常に引き算だけになる ③温度パラメータが使えなくなる",
+              "wrongReason": "ネイピア数 $e \\approx 2.718$ であり、温度 $T$ も $e^{z_i/T}$ として自然に組み込めます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "正の数・順位保存・平行移動しても変わらない（差→倍率）の3点を確認しましょう。",
+          "reasoning": "指数法則 $e^{a+b} = e^a \\cdot e^b$ のおかげで、点数の「足し算の差」が確率の「掛け算の倍率」に変わり、全体の底上げをしても比率が変わりません。",
+          "steps": [
+            "正値性：どんな実数 $z$ でも $e^z > 0$。",
+            "単調性：$z_1 > z_2 \\implies e^{z_1} > e^{z_2}$。",
+            "平行移動不変性：全要素に $+c$ しても $\\frac{e^{z_i+c}}{\\sum_j e^{z_j+c}} = \\frac{e^c e^{z_i}}{e^c \\sum_j e^{z_j}} = \\frac{e^{z_i}}{\\sum_j e^{z_j}}$。"
+          ],
+          "altExample": "`[2, 1, 0]` のsoftmax結果と、`[102, 101, 100]` のsoftmax結果は数学的に完全に一致します！"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q07",
+      "chapter": "03-next-token",
+      "section": "なぜ素朴な割り算ではダメなのか？指数関数とsoftmaxの理由",
+      "sectionAnchor": "#s4",
+      "concept": "exp-basic-values",
+      "conceptLabel": "指数関数 e^z の具体的な値（z=0, 1, -1）",
+      "level": 1,
+      "type": "numeric",
+      "course": "thorough",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "$e^0$（$e$ の0乗）の値はいくつですか？",
+          "answer": { "value": 1, "tolerance": 0.001 },
+          "placeholder": "数値を入力",
+          "hint": "0以外のどんな数も、0乗すると同じ決まった数になります。",
+          "reasoning": "指数法則 $e^1 \\div e^1 = e^{1-1} = e^0 = 1$ より、$e^0 = 1$ です。これがロジット `0.0` のときの基準値 `1.0` になります。",
+          "steps": [
+            "$e^2 = e \\times e \\approx 7.39$",
+            "$e^1 = e \\approx 2.72$",
+            "1つ下がるごとに $e$ で割るので、$e^0 = e \\div e = 1$",
+            "さらに下がると $e^{-1} = 1 \\div e \\approx 0.37$"
+          ],
+          "altExample": "`math.exp(0)` をPythonで実行すると `1.0` が返ります。"
+        },
+        {
+          "prompt": "$e \\approx 2.718$ のとき、$e^{-1}$ を小数第2位までで答えてください（誤差 $\\pm 0.02$ まで正解）。",
+          "answer": { "value": 0.37, "tolerance": 0.02 },
+          "placeholder": "小数で入力（例：0.37）",
+          "hint": "$e^{-1} = 1 \\div e \\approx 1 \\div 2.718$ です。",
+          "reasoning": "マイナスの指数は「マイナスになる」のではなく「逆数（1をそれで割った数）」なので、必ず0より大きい正の小数になります。",
+          "steps": [
+            "$e^{-1} = \\frac{1}{e} \\approx \\frac{1}{2.718} \\approx 0.3678\\dots$",
+            "小数第2位に丸めると `0.37`。"
+          ],
+          "altExample": "ロジットが `-1.0` でも $e^{-1} \\approx 0.37 > 0$ となるため、負の確率にはなりません。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q08",
+      "chapter": "03-next-token",
+      "section": "なぜ素朴な割り算ではダメなのか？指数関数とsoftmaxの理由",
+      "sectionAnchor": "#s4",
+      "concept": "softmax-hand-calc",
+      "conceptLabel": "小さな数字でのsoftmax手計算",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "3つの候補のロジットが $z = [1.0, 0.0, 0.0]$ とします。$e^1 \\approx 2.72$, $e^0 = 1.00$ を使って、**1つ目の候補（点数 1.0）のsoftmax確率**を小数第2位まで計算してください（誤差 $\\pm 0.02$ まで正解）。",
+          "answer": { "value": 0.58, "tolerance": 0.02 },
+          "placeholder": "小数で入力（例：0.58）",
+          "hint": "分子は $e^1 \\approx 2.72$、分母は $e^1 + e^0 + e^0 \\approx 2.72 + 1 + 1 = 4.72$ です。",
+          "reasoning": "softmaxは「自分の $e^{z_i}$ ÷ 全員の $e^{z_j}$ の合計」です。",
+          "steps": [
+            "各要素の $e^z$：$[e^1, e^0, e^0] \\approx [2.72, 1.00, 1.00]$。",
+            "分母の合計 $\\sum_j e^{z_j} \\approx 2.72 + 1.00 + 1.00 = 4.72$。",
+            "1つ目の確率：$2.72 \\div 4.72 \\approx 0.576 \\approx 0.58$（約58%）。"
+          ],
+          "altExample": "残り2つはそれぞれ $1.00 \\div 4.72 \\approx 0.212$（約21%）で、合計 $0.576 + 0.212 + 0.212 = 1.000$ になります。"
+        },
+        {
+          "prompt": "2つの候補のロジットがまったく同じ $z = [5.0, 5.0]$ のとき、1つ目の候補のsoftmax確率はいくつですか？",
+          "answer": { "value": 0.5, "tolerance": 0.001 },
+          "placeholder": "小数で入力（例：0.5）",
+          "hint": "$e^5$ の具体的な値が分からなくても、$\\dfrac{e^5}{e^5 + e^5}$ を約分できます！",
+          "reasoning": "すべての候補のロジットが等しいとき、softmaxは一様分布（全員同じ確率 $1/N$）になります。",
+          "steps": [
+            "$p_1 = \\frac{e^5}{e^5 + e^5} = \\frac{e^5}{2 e^5} = \\frac{1}{2} = 0.5$。"
+          ],
+          "altExample": "もし候補が4つですべて同じ点数 `[0, 0, 0, 0]` なら、全員 $1/4 = 0.25$ になります（第5章の「学習前のモデルの初期損失」でもそのまま使います！）。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q09",
+      "chapter": "03-next-token",
+      "section": "なぜ素朴な割り算ではダメなのか？指数関数とsoftmaxの理由",
+      "sectionAnchor": "#s4",
+      "concept": "softmax-shift-invariance",
+      "conceptLabel": "【応用】softmaxの平行移動不変性とオーバーフロー対策",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "ロジット `[2.0, 1.0, 0.0]` のすべてに `+1000` を足した `[1002.0, 1001.0, 1000.0]` を考えます。数学上のsoftmax確率と、Pythonの `math.exp(1002)` をそのまま計算したときの結果について正しいものはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "数学上は `[2.0, 1.0, 0.0]` と完全に同じ確率になるが、コンピュータで `math.exp(1002)` をそのまま計算すると数が大きすぎてオーバーフローエラーになるため、実務では最大値を引いてから `exp` する",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "全要素に `+1000` を足すと、1位の確率が1000倍に増える",
+              "wrongReason": "指数法則により分子と分母の両方に $e^{1000}$ が掛かって約分されるため、数学的な確率は一切変わりません。"
+            },
+            {
+              "id": "c",
+              "text": "全要素に `+1000` を足すと、すべての確率が0になる",
+              "wrongReason": "数学的には比率が保たれるため、`[0.665, 0.245, 0.090]` のまま変わりません。"
+            },
+            {
+              "id": "d",
+              "text": "`math.exp(1002)` はとても小さい数なのでアンダーフローする",
+              "wrongReason": "$e^{1002} \\approx 10^{435}$ は浮動小数点数（最大約 $10^{308}$）を超える巨大な数なので、アンダーフローではなく**オーバーフロー**になります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "全要素から最大値 `m = max(z)` を引いて `z - m` にしても、平行移動なので確率は変わりません！",
+          "reasoning": "「全ロジットから最大値 `m` を引いてもsoftmaxの値は変わらない」という数学的性質は、実際のPyTorch実装でオーバーフロー（`inf` / `nan`）を防ぐための最重要テクニックです。",
+          "steps": [
+            "数学的には $\\frac{e^{z_i - m}}{\\sum_j e^{z_j - m}} = \\frac{e^{-m} e^{z_i}}{e^{-m} \\sum_j e^{z_j}} = \\frac{e^{z_i}}{\\sum_j e^{z_j}}$。",
+            "最大値 `m = 1002` を引くと `[0.0, -1.0, -2.0]` になる。",
+            "これなら $e^0 = 1$ 以下に収まり、絶対にオーバーフローしない！"
+          ],
+          "altExample": "本サイトの動くデモ `site/widgets.js` の `softmax` 関数の中でも、実際に `const m = Math.max(...s); Math.exp(v - m)` と書いて安全化しています。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q10",
+      "chapter": "03-next-token",
+      "section": "なぜ素朴な割り算ではダメなのか？指数関数とsoftmaxの理由",
+      "sectionAnchor": "#s4",
+      "concept": "pytorch-dim-and-float",
+      "conceptLabel": "torch.softmax(logits.float(), dim=-1) の .float() と dim=-1",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "2行3列の表（形 `[2, 3]`）に対して `torch.softmax(x, dim=-1)` を実行すると、どの方向の合計が `1.0` になりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "最後の軸（横方向＝各行の3要素）の合計がそれぞれ `1.0` になる",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "縦方向（各列の2要素）の合計が `1.0` になる",
+              "wrongReason": "縦方向（軸0）に沿って計算するのは `dim=0` です。`dim=-1` は「一番後ろの軸」（2次元なら軸1＝横方向）を指します。"
+            },
+            {
+              "id": "c",
+              "text": "6マス全部を足して1つの `1.0` にする",
+              "wrongReason": "`dim=-1` は最後の軸ごとに独立にsoftmaxを行うため、2行それぞれで合計が `1.0`（計2つの確率分布）になります。"
+            },
+            {
+              "id": "d",
+              "text": "`dim=-1` はエラーになる",
+              "wrongReason": "Pythonのリストと同じく、`-1` は「一番最後の軸」を指定する便利な書き方で、1次元でも2次元でも3次元でも動きます。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`shape = [2, 3]` の最後の軸は長さ `3`（横方向＝行の中身）です。",
+          "reasoning": "LLMのロジットは形が `[V]`（1次元）のことも `[B, T, V]`（3次元）のこともありますが、語彙の軸は常に一番最後にあるため、`dim=-1` と書けば形が変わっても必ず「語彙方向」にsoftmaxできます。",
+          "steps": [
+            "形 `[2, 3]` では、軸0が長さ2（行の数）、軸1（＝軸 `-1`）が長さ3（各行の列の数）。",
+            "`dim=-1` は各行の3つの要素ごとに合計1.0になるようsoftmaxを適用する。",
+            "さらに `.float()` を付けるのは、`float16` のままだと `exp` の計算で桁あふれや丸め誤差が起きやすいため、精度の高い `float32` に直してから計算する安全策。"
+          ],
+          "altExample": "第11章のSelf-Attentionでも、重みの表 `[B, T, T]` の各行を合計1にするために `F.softmax(scores, dim=-1)` を使います。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q11",
+      "chapter": "03-next-token",
+      "section": "サイコロを振る：サンプリングと乱数シード",
+      "sectionAnchor": "#s5",
+      "concept": "sampling-cumulative-trace",
+      "conceptLabel": "累積和によるサンプリングのトレース",
+      "level": 3,
+      "type": "predict",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "確率が `猫: 0.60`, `犬: 0.25`, `机: 0.15` のとき、0〜1の乱数 `r` が **`0.72`** だったとします。次のサンプリング関数が返す単語を答えてください。",
+          "code": "words = [\"猫\", \"犬\", \"机\"]\nprobs = [0.60, 0.25, 0.15]\nr = 0.72\ntotal = 0.0\nfor w, p in zip(words, probs):\n    total += p\n    if r < total:\n        print(w)\n        break",
+          "accept": ["犬"],
+          "placeholder": "出力される単語を入力",
+          "hint": "累積和 `total` は 1周目 `0.60`、2周目 `0.85`、3周目 `1.00` です。`0.72 < total` が最初に成り立つのは？",
+          "reasoning": "0〜1の線分を `[0, 0.60)`＝猫、`[0.60, 0.85)`＝犬、`[0.85, 1.00]`＝机 に区切ったとき、`0.72` は犬の区間に落ちます。",
+          "steps": [
+            "1周目（猫）：`total = 0.60`。`0.72 < 0.60` は `False`。",
+            "2周目（犬）：`total = 0.60 + 0.25 = 0.85`。`0.72 < 0.85` は `True` → `犬` を出力して終了！"
+          ],
+          "altExample": "`r = 0.55` なら1周目で `猫`、`r = 0.90` なら3周目で `机` が選ばれます。"
+        },
+        {
+          "prompt": "確率が `A: 0.20`, `B: 0.50`, `C: 0.30` で、乱数 `r = 0.85` のとき、どの文字が出力されますか？",
+          "code": "words = [\"A\", \"B\", \"C\"]\nprobs = [0.20, 0.50, 0.30]\nr = 0.85\ntotal = 0.0\nfor w, p in zip(words, probs):\n    total += p\n    if r < total:\n        print(w)\n        break",
+          "accept": ["C"],
+          "placeholder": "出力される文字を入力",
+          "hint": "`total` は `0.20` → `0.70` → `1.00` と増えます。",
+          "reasoning": "`0.85` は `0.70` 以上 `1.00` 未満なので `C` の区間です。",
+          "steps": [
+            "1周目（A）：`total = 0.20`（`0.85 < 0.20` は `False`）。",
+            "2周目（B）：`total = 0.70`（`0.85 < 0.70` は `False`）。",
+            "3周目（C）：`total = 1.00`（`0.85 < 1.00` は `True`）→ `C`。"
+          ],
+          "altExample": "区間の幅が確率そのものなので、0〜1の一様乱数を落とすと確率どおりの頻度で選ばれます。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q12",
+      "chapter": "03-next-token",
+      "section": "サイコロを振る：サンプリングと乱数シード",
+      "sectionAnchor": "#s5",
+      "concept": "random-seed-reproducibility",
+      "conceptLabel": "乱数シードを固定する理由",
+      "level": 1,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "実験や研究で `random.seed(0)` や `torch.manual_seed(42)` のように**シード（種）を固定して記録する**一番の目的は何ですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "乱数を使う実験でも同じ結果を再現できるようにし、設定変更の効果を正しく比較できるようにするため",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "モデルのパラメータ数を42倍に増やすため",
+              "wrongReason": "シードの数値（0や42）は乱数生成器への初期値であり、モデルの大きさや性能を直接良くする魔法の数ではありません。"
+            },
+            {
+              "id": "c",
+              "text": "必ず確率1位のトークンだけを選ぶ（greedyにする）ため",
+              "wrongReason": "シードを固定してもサンプリング自体は確率どおりに行われます。「毎回同じ乱数列が出る」だけです。"
+            },
+            {
+              "id": "d",
+              "text": "GPUの電力を節約するため",
+              "wrongReason": "消費電力とは無関係で、実験の再現性確保が目的です。"
+            }
+          ],
+          "answer": "a",
+          "hint": "温度を変えた実験で、シードを固定しないと「温度のせい」か「たまたま引いた乱数のせい」か区別できなくなります。",
+          "reasoning": "コンピュータの乱数は計算式で作る擬似乱数なので、同じシードを与えれば同じ乱数列が再現されます。",
+          "steps": [
+            "シードなし：実行のたびに違う乱数列 → 比較実験でブレる。",
+            "シード固定：同じ条件なら同じ結果が再現できる。",
+            "論文や研究では複数シードで試して平均とばらつきを確認するのも重要（第20章）。"
+          ],
+          "altExample": "温度 `0.1 / 0.7 / 1.5` の書き比べセルでも、各ループの先頭で `torch.manual_seed(0)` を入れ直して公平に比較しています。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q13",
+      "chapter": "03-next-token",
+      "section": "温度：LLMの「はっちゃけ度」",
+      "sectionAnchor": "#s6",
+      "concept": "temperature-math-effect",
+      "conceptLabel": "温度 T でロジットを割ると確率分布がどう変わるか",
+      "level": 2,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "2つの候補のロジットが `3.0` と `1.0`（差は `2.0`）です。温度を **`T = 0.5`** にしたとき、温度で割ったあとの2つの点数の**差**はいくつになりますか？",
+          "answer": { "value": 4.0, "tolerance": 0.001 },
+          "placeholder": "数値を入力（例：4.0）",
+          "hint": "それぞれ `0.5` で割ると `3.0 / 0.5 = 6.0`、`1.0 / 0.5 = 2.0` です。その差は？",
+          "reasoning": "1より小さい数 $T = 0.5$ で割ることは「2倍する」のと同じなので、点数の差が2倍に拡大し、$e^{\text{差}}$ の倍率が急激に広がって1位に確率が集中します。",
+          "steps": [
+            "割る前：$3.0 - 1.0 = 2.0$（倍率 $e^2 \\approx 7.39$ 倍）。",
+            "$T = 0.5$ で割る：$3.0 / 0.5 = 6.0$、$1.0 / 0.5 = 2.0$。",
+            "割った後の差：$6.0 - 2.0 = 4.0$（倍率 $e^4 \\approx 54.6$ 倍！）。"
+          ],
+          "altExample": "逆に $T = 2.0$ で割ると $1.5$ と $0.5$ で差は $1.0$ に縮み、倍率は $e^1 \\approx 2.72$ 倍までなだらかになります。"
+        },
+        {
+          "prompt": "ロジット `5.0` と `1.0`（差は `4.0`）を、温度 **`T = 2.0`** で割ったあとの点数の**差**はいくつになりますか？",
+          "answer": { "value": 2.0, "tolerance": 0.001 },
+          "placeholder": "数値を入力",
+          "hint": "`5.0 / 2.0 = 2.5`、`1.0 / 2.0 = 0.5` です。",
+          "reasoning": "温度 $T > 1$ で割ると点数の差が $1/T$ 倍に縮み、確率分布が平らになって珍しい候補も選ばれやすくなります。",
+          "steps": [
+            "$5.0 / 2.0 = 2.5$、$1.0 / 2.0 = 0.5$。",
+            "差：$2.5 - 0.5 = 2.0$（元の半分に縮小）。"
+          ],
+          "altExample": "さらに $T = 100$ のように極端に大きくすると差がほぼ0になり、どのトークンもほぼ均等な確率（完全ランダム）に近づきます。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q14",
+      "chapter": "03-next-token",
+      "section": "温度：LLMの「はっちゃけ度」",
+      "sectionAnchor": "#s6",
+      "concept": "temperature-zero-and-greedy",
+      "conceptLabel": "温度 T=0 でエラーになる理由と greedy の関係",
+      "level": 2,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：do_sample=False"],
+      "variants": [
+        {
+          "prompt": "自作の `softmax_t(logits, T)` にそのまま `T = 0` を渡すとエラーになる理由と、温度→0の極限と同じ結果を得る正しい方法の組み合わせはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`z / T` で0による割り算（ゼロ除算）が起きてエラー（または `inf/nan`）になる。同じ結果（greedy）を得るには `argmax`（最大点数のIDを直接選ぶ）を使う",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`T = 0` では確率がすべて等しくなりすぎるため、`T = 100` を使えばgreedyになる",
+              "wrongReason": "逆です。`T` を大きくするとランダム（平ら）になり、小さくするほど1位集中（greedy）に近づきます。"
+            },
+            {
+              "id": "c",
+              "text": "`e^0` が定義できないためエラーになる",
+              "wrongReason": "$e^0 = 1$ で問題なく計算できます。エラーの原因は `z / 0` のゼロ除算です。"
+            },
+            {
+              "id": "d",
+              "text": "`T = 0` は問題なく動き、常に空文字を返す",
+              "wrongReason": "Pythonでは `ZeroDivisionError`、PyTorchでは `inf`/`nan` によるランタイムエラーになります。"
+            }
+          ],
+          "answer": "a",
+          "hint": "式 $p_i = e^{z_i / T} / \\sum_j e^{z_j / T}$ の分母に $T$ がある点に注目！",
+          "reasoning": "数式上は $T \\to 0^+$ の極限が「最大値1位を確率1で選ぶ（argmax / greedy）」に対応しますが、プログラムでは `T == 0` を直接割れないため分岐処理で `argmax` を呼びます。",
+          "steps": [
+            "`z / 0` はゼロ除算になる。",
+            "数学的には $T$ を0に近づけるほど1位の確率が1.0に近づく。",
+            "コードでは `if temperature == 0: next_id = torch.argmax(logits)` と書く（第1章の `do_sample=False` と同じ考え方）。"
+          ],
+          "altExample": "OpenAIや各種LLMのAPIで `temperature=0` と指定できるのは、裏側で `if T == 0: argmax` の分岐を入れているからです。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q15",
+      "chapter": "03-next-token",
+      "section": "なぜ素朴な割り算ではダメなのか？指数関数とsoftmaxの理由",
+      "sectionAnchor": "#s4",
+      "concept": "impl-safe-softmax",
+      "conceptLabel": "【自力実装】オーバーフロー安全な温度つきsoftmax関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": ["第3章：Σとfor文", "第3章：平行移動不変性"],
+      "variants": [
+        {
+          "prompt": "巨大なロジット（例：`[1000.0, 1001.0]`）が入ってもオーバーフローせず、温度 `T` にも対応する関数 `safe_softmax(logits, T=1.0)` を標準ライブラリの `math` だけで自力実装し、Colabで検算テストを通してください。",
+          "starterCode": "import math\n\ndef safe_softmax(logits, T=1.0):\n    # 1. 各要素を T で割ったリスト scaled を作る\n    # 2. 最大値 m = max(scaled) を求める（オーバーフロー防止）\n    # 3. exps = [math.exp(x - m) for x in scaled]\n    # 4. total = sum(exps) で各要素を割って返す\n    pass",
+          "solutionCode": "import math\n\ndef safe_softmax(logits, T=1.0):\n    scaled = [z / T for z in logits]\n    m = max(scaled)\n    exps = [math.exp(x - m) for x in scaled]\n    total = sum(exps)\n    return [e / total for e in exps]",
+          "colabCheck": "p1 = safe_softmax([2.0, 1.0, 0.0], T=1.0)\nassert abs(sum(p1) - 1.0) < 1e-9\nassert p1[0] > p1[1] > p1[2] > 0\np2 = safe_softmax([1002.0, 1001.0, 1000.0], T=1.0)\nassert all(abs(a - b) < 1e-9 for a, b in zip(p1, p2))\np_cold = safe_softmax([2.0, 1.0, 0.0], T=0.2)\nassert p_cold[0] > 0.99\np_hot = safe_softmax([2.0, 1.0, 0.0], T=10.0)\nassert abs(p_hot[0] - p_hot[2]) < 0.1\nprint(\"ALL PASSED\")",
+          "hint": "`scaled = [z / T for z in logits]` のあと、`m = max(scaled)` を引いてから `math.exp(...)` を計算します。",
+          "reasoning": "平行移動不変性を使って `m = max(scaled)` を引くことで、どんな大きなロジットでも `x - m <= 0` になり、安全かつ正確にsoftmaxを計算できます。",
+          "steps": [
+            "温度で割る：`scaled = [z / T for z in logits]`。",
+            "最大値を引く：`m = max(scaled)`、`exps = [math.exp(x - m) for x in scaled]`。",
+            "合計で割る：`total = sum(exps)`、`[e / total for e in exps]`。"
+          ],
+          "altExample": "この関数はそのまま第8章・第11章・第24章（ブラウザ版GPT）のsoftmaxと完全に同じ数学的原理です。",
+          "selfCheckCriteria": [
+            "合計1・順位保存・`[1002, 1001, 1000]` の一致・低温／高温のすべての `assert` が通った",
+            "なぜ `m = max(scaled)` を引いても答えが変わらないのかを指数法則で説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch03-q16",
+      "chapter": "03-next-token",
+      "section": "自分で文章を生成する",
+      "sectionAnchor": "#s7",
+      "concept": "generate-shape-trace",
+      "conceptLabel": "自作 generate ループのテンソル shape 変化の追跡",
+      "level": 3,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "自作 `generate` 関数で、最初の入力トークン列 `ids` の形が `[1, 6]`（1文章 × 6トークン）でした。ループを **1回** 回して `ids = torch.cat([ids, next_id.view(1, 1)], dim=1)` を実行した直後、`ids.shape` は何になりますか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "`[1, 7]`（末尾に新しいトークンIDが1個連結されて長さ7になる）",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "`[2, 6]`（文章の数が増える）",
+              "wrongReason": "`dim=1` は「トークン列の長さの方向（横方向）」につなぐ指定なので、増えるのは軸0ではなく軸1（6→7）です。"
+            },
+            {
+              "id": "c",
+              "text": "`[1, 6]`（形は変わらない）",
+              "wrongReason": "`torch.cat` は後ろに新しいトークンを付け足すため、ループごとに長さが1ずつ伸びます。"
+            },
+            {
+              "id": "d",
+              "text": "`[1, 151936]`（語彙数になる）",
+              "wrongReason": "`next_id` は15万個から選んだ**1個のトークンID**なので、`view(1, 1)` で形 `[1, 1]` にして連結します。"
+            }
+          ],
+          "answer": "a",
+          "hint": "`[1, 6]` と `[1, 1]` を `dim=1`（2つ目の軸）に沿って連結すると、`[1, 6 + 1]` になります。",
+          "reasoning": "自己回帰生成では、1ステップごとに選んだ1トークンを形 `[1, 1]` に整えて `dim=1` で連結し、`[1, 6] → [1, 7] → [1, 8] ...` と文章を伸ばしていきます。",
+          "steps": [
+            "`ids`：`[1, 6]`（1文章、6トークン）。",
+            "`next_id`：`[1]` → `.view(1, 1)` で2次元の `[1, 1]` に形を合わせる（`cat` は次元数が同じでないと連結できない）。",
+            "`torch.cat([ids, next_id.view(1, 1)], dim=1)` → `[1, 7]`。"
+          ],
+          "altExample": "`n_tokens=40` 回ループが終わると、`ids.shape` は `[1, 46]` になります。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q17",
+      "chapter": "03-next-token",
+      "section": "自分で文章を生成する",
+      "sectionAnchor": "#s7",
+      "concept": "autoregressive-and-kv-preview",
+      "conceptLabel": "自己回帰生成の意味と長文で遅くなる理由",
+      "level": 2,
+      "type": "explain",
+      "course": "all",
+      "reviewOf": ["第1章：次トークン予測"],
+      "variants": [
+        {
+          "prompt": "自作した `generate` ループの方式は「自己回帰（autoregressive）生成」と呼ばれます。なぜそう呼ばれるのか、また文章が長くなるほど1トークンあたりの計算が重くなるのはなぜか説明してください。",
+          "modelAnswer": "モデル自身が予測して出力したトークンを、次のステップの入力の末尾に付け足して再びモデルへ入力する（自分の出力が次の自分の入力になる）ため「自己回帰」と呼びます。素朴なループでは1トークン増えるたびに先頭からの文章全体を毎回モデルに通し直すため、文章が長くなるほど計算量が増えて遅くなります。",
+          "hint": "「自分の出力を次の入力に使う」＋「毎回最初から全部通している」の2点を書きましょう。",
+          "reasoning": "この「毎回先頭から再計算してしまう無駄」をなくすための高速化技術が、第16章で自作する **KVキャッシュ** です。",
+          "steps": [
+            "ステップ1：長さ6の文をモデルに通す → 7個目を得る。",
+            "ステップ2：長さ7の文（自分の出力込み）をモデルに通す → 8個目を得る。",
+            "毎回先頭から計算し直すため、長くなるほど重くなる。"
+          ],
+          "altExample": "1000トークン生成するとき、素朴なループでは長さ1, 2, 3, ..., 1000の文を1000回モデルに通すことになります。",
+          "selfCheckCriteria": [
+            "「自分の出力を次の入力の末尾に付け足して繰り返す」仕組みを説明できた",
+            "「毎回それまでの文章全体を計算し直すため長文ほど遅くなる」点に触れた"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch03-q18",
+      "chapter": "03-next-token",
+      "section": "サイコロを振る：サンプリングと乱数シード",
+      "sectionAnchor": "#s5",
+      "concept": "impl-sample-function",
+      "conceptLabel": "【自力実装】乱数 r を受け取る決定的なサンプリング関数",
+      "level": 4,
+      "type": "code",
+      "course": "all",
+      "reviewOf": [],
+      "variants": [
+        {
+          "prompt": "候補リスト `words`、確率リスト `probs`、0以上1未満の数 `r` を受け取り、累積和の区間から対応する単語を返す関数 `pick_by_r(words, probs, r)` を自力実装し、検算テストを通してください。",
+          "starterCode": "def pick_by_r(words, probs, r):\n    # total = 0.0 から始めて、zip(words, probs) を回し\n    # total += p のあと r < total なら w を返す\n    # ループを抜けたら浮動小数点誤差対策として words[-1] を返す\n    pass",
+          "solutionCode": "def pick_by_r(words, probs, r):\n    total = 0.0\n    for w, p in zip(words, probs):\n        total += p\n        if r < total:\n            return w\n    return words[-1]",
+          "colabCheck": "words = [\"猫\", \"犬\", \"机\"]\nprobs = [0.6, 0.3, 0.1]\nassert pick_by_r(words, probs, 0.0) == \"猫\"\nassert pick_by_r(words, probs, 0.59) == \"猫\"\nassert pick_by_r(words, probs, 0.60) == \"犬\"\nassert pick_by_r(words, probs, 0.89) == \"犬\"\nassert pick_by_r(words, probs, 0.95) == \"机\"\nassert pick_by_r(words, probs, 0.9999999) == \"机\"\nprint(\"ALL PASSED\")",
+          "hint": "浮動小数点数の丸め誤差で `total` が `0.9999999999` になった場合に備えて、最後に `return words[-1]` を書くのが実務のポイントです。",
+          "reasoning": "乱数生成部分（`random.random()`）と区間判定部分（`pick_by_r`）を分離すると、境界値（`0.0`, `0.59`, `0.60`, `0.9999999`）を100%確実に自動テストできます！",
+          "steps": [
+            "`total = 0.0` で累積確率を管理する。",
+            "`for w, p in zip(words, probs):` で1組ずつ取り出し `total += p`。",
+            "`if r < total: return w`。",
+            "丸め誤差でどれも返らなかった場合は末尾 `words[-1]` を返す。"
+          ],
+          "altExample": "このように「ランダムな部分を外から引数で渡せる形」にすると、バグのないテストしやすいAIコードが書けるようになります。",
+          "selfCheckCriteria": [
+            "6つの境界値 `assert` がすべてColabで通った",
+            "最後に `return words[-1]` を置く理由（浮動小数点数の丸め誤差）を説明できる"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch03-q19",
+      "chapter": "03-next-token",
+      "section": "温度：LLMの「はっちゃけ度」",
+      "sectionAnchor": "#s6",
+      "concept": "softmax-ratio-from-diff",
+      "conceptLabel": "【発展】ロジットの差から確率の倍率を予測する",
+      "level": 5,
+      "type": "numeric",
+      "course": "all",
+      "reviewOf": ["第3章：指数関数 e^z"],
+      "variants": [
+        {
+          "prompt": "ある2つのトークンAとBのロジットがそれぞれ `z_A = 10.0`, `z_B = 8.0`（差は `2.0`）です。温度 $T = 1.0$ でsoftmaxしたとき、**Aの確率はBの確率の約何倍**になりますか？（$e^2 \\approx 7.39$、誤差 $\\pm 0.2$ まで正解。なお他の15万語のロジットが何であっても倍率は同じです！）",
+          "answer": { "value": 7.39, "tolerance": 0.2 },
+          "unit": "倍",
+          "placeholder": "小数で入力（例：7.39）",
+          "hint": "$\\dfrac{p_A}{p_B} = \\dfrac{e^{z_A} / S}{e^{z_B} / S} = \\dfrac{e^{z_A}}{e^{z_B}} = e^{z_A - z_B}$ となり、分母の合計 $S$ が消えます！",
+          "reasoning": "softmax後の2つの候補の確率比は、他の全候補に関係なく $e^{(z_A - z_B)/T}$ だけで決まります。これが「ロジットの差＝対数オッズ比」と呼ばれる深い性質です。",
+          "steps": [
+            "$p_A = e^{10}/S$、$p_B = e^{8}/S$（$S = \\sum_j e^{z_j}$）。",
+            "比をとると $S$ が約分される：$p_A / p_B = e^{10} / e^{8} = e^{10 - 8} = e^2$。",
+            "$e^2 \\approx 2.718 \\times 2.718 \\approx 7.39$ 倍。"
+          ],
+          "altExample": "もし温度を $T = 2.0$ にすると、倍率は $e^{(10-8)/2} = e^1 \\approx 2.72$ 倍に縮みます。"
+        }
+      ]
+    },
+    {
+      "id": "ch03-q20",
+      "chapter": "03-next-token",
+      "section": "自分で文章を生成する",
+      "sectionAnchor": "#s7",
+      "concept": "part1-comprehensive-review",
+      "conceptLabel": "【第1部総合復習】第1〜3章の全体接続",
+      "level": 5,
+      "type": "choice",
+      "course": "all",
+      "reviewOf": ["第1章：pipelineと次トークン予測", "第2章：トークンID"],
+      "variants": [
+        {
+          "prompt": "【第1部の総まとめ】第1章の `chat(messages)` が1トークンを生成する内部処理で、各ステップの「データ」と「役割」の対応として**正しい**流れはどれですか？",
+          "options": [
+            {
+              "id": "a",
+              "text": "①文字列 → `tok` でID列 `[1, T]` → ② `model` でロジット `[1, T, V]` → ③末尾 `[0, -1]` を温度で割り `softmax` で確率分布 `[V]` → ④サンプリングで次IDを1個選び末尾に連結 → ⑤ `<|im_end|>` か上限まで繰り返し `decode`",
+              "wrongReason": ""
+            },
+            {
+              "id": "b",
+              "text": "①文字列 → `softmax` で確率に変換 → ② `tok` でID列に変換 → ③ `model` で1文字だけ出力して終了",
+              "wrongReason": "`softmax` は文字列には適用できません。モデルが出した生の点数（ロジット）を確率に変えるステップです。"
+            },
+            {
+              "id": "c",
+              "text": "①文字列 → `decode` でID列 → ② `model` で確率を直接出力 → ③ `exp` で合計を100にして `encode`",
+              "wrongReason": "`encode`/`decode` の向きが逆で、モデルの生の出力は確率ではなくロジット（マイナスも含む実数）です。"
+            },
+            {
+              "id": "d",
+              "text": "①文字列 → 全パラメータを足し算 → ②その合計をトークンIDとして表示",
+              "wrongReason": "パラメータ数の合計はモデルの大きさの確認（約5億個）であり、文章生成のアルゴリズムではありません。"
+            }
+          ],
+          "answer": "a",
+          "hint": "第1章（台本・次予測）→ 第2章（encode/decode）→ 第3章（ロジット・softmax・温度・サンプリング・自己回帰）を一直線につなぎましょう。",
+          "reasoning": "ここまでで「既存のLLMが文章を生む仕組み」のブラックボックスをすべて開けました。残る最大の謎は「ではモデルはどうやって賢いロジットを計算できるよう学習するのか？」であり、それが第2部（第4章〜）のテーマです。",
+          "steps": [
+            "入力：`messages` → 台本文字列 → `encode` で `[1, T]`。",
+            "モデル順伝播：`model(ids)` → ロジット `[1, T, V]` → 末尾 `[0, -1]` で `[V]`。",
+            "確率化と選択：`softmax(logits / T)` → サンプリング → `cat` で `[1, T+1]`。",
+            "終了条件：`<|im_end|>` が出るか `max_new_tokens` に達したら `decode`。"
+          ],
+          "altExample": "第4章からは、このステップ②（ロジットや確率を出すモデル本体）を、まず「数えるだけのモデル」から自分の手で作り始めます！"
+        }
+      ]
+    }
+  ]
+}

@@ -2,15 +2,16 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Python最短ルート | つくってわかるLLM</title><meta name="description" content="この教科書で使うPythonだけを、使う順に。困ったときの早見表">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
-<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t;const c=localStorage.getItem("tsukuru-llm-course")||"thorough";document.documentElement.dataset.course=c;}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script></head>
+<script src="app.js" defer></script><script src="study.js" defer></script></head>
 <body data-page="b-python"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
-<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html" aria-current="page"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
 <main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero appendix"><p class="kicker">付録B</p><h1>Python最短ルート</h1><p class="sub">この教科書で使うPythonだけを、使う順に。困ったときの早見表</p></header><p>この教科書は、Pythonを「<code>print</code> くらい」しか知らなくても進めるように、新しい書き方が出てくるたびに「Pythonの道具箱」で説明しています。この付録は、それらを1か所にまとめた早見表です。順番に読んでも、困ったところだけ引いても使えます。</p>
 <aside class="box box-tip"><p class="box-title">コツ：一番の勉強法</p><p>読むだけより、<strong>Colabで実際に打って、少し変えて、壊してみる</strong>ことです。エラーが出たら、それは「Pythonが教えてくれている」サインです。</p>
@@ -25,33 +26,13 @@ ok = <span class="kw">True</span>          <span class="cm"># 真偽値（bool�
 <p><code>=</code> は「右の値を、左の名前の箱に入れる」。数学の「等しい」ではありません。等しいかどうかを調べるのは <code>==</code> です。</p>
 <table>
 <thead>
-<tr>
-<th>計算</th>
-<th>意味</th>
-<th>例</th>
-</tr>
+<tr><th>計算</th><th>意味</th><th>例</th></tr>
 </thead>
 <tbody>
-<tr>
-<td><code>+ - * /</code></td>
-<td>足す・引く・掛ける・割る</td>
-<td><code>7 / 2</code> → <code>3.5</code></td>
-</tr>
-<tr>
-<td><code>//</code></td>
-<td>割り算の商（切り捨て）</td>
-<td><code>7 // 2</code> → <code>3</code></td>
-</tr>
-<tr>
-<td><code>%</code></td>
-<td>割り算の余り</td>
-<td><code>7 % 2</code> → <code>1</code></td>
-</tr>
-<tr>
-<td><code>**</code></td>
-<td>べき乗</td>
-<td><code>2 ** 10</code> → <code>1024</code></td>
-</tr>
+<tr><td><code>+ - * /</code></td><td>足す・引く・掛ける・割る</td><td><code>7 / 2</code> → <code>3.5</code></td></tr>
+<tr><td><code>//</code></td><td>割り算の商（切り捨て）</td><td><code>7 // 2</code> → <code>3</code></td></tr>
+<tr><td><code>%</code></td><td>割り算の余り</td><td><code>7 % 2</code> → <code>1</code></td></tr>
+<tr><td><code>**</code></td><td>べき乗</td><td><code>2 ** 10</code> → <code>1024</code></td></tr>
 </tbody>
 </table>
 <h2 id="s2">文字列（第1〜2章）</h2>
@@ -164,53 +145,21 @@ c.up(); c.up()
     print(stoi[&quot;魚&quot;])
 KeyError: &#x27;魚&#x27;</code></pre></div>
 <ul>
-<li><code>KeyError: '魚'</code>：辞書に「魚」というキーがない</li>
+<li><code>KeyError: &#x27;魚&#x27;</code>：辞書に「魚」というキーがない</li>
 <li><code>line 3</code>：3行目で起きた</li>
 </ul>
 <table>
 <thead>
-<tr>
-<th>よくあるエラー</th>
-<th>意味</th>
-<th>よくある原因</th>
-</tr>
+<tr><th>よくあるエラー</th><th>意味</th><th>よくある原因</th></tr>
 </thead>
 <tbody>
-<tr>
-<td><code>NameError</code></td>
-<td>その名前の変数・関数がない</td>
-<td>上のセルを実行していない、つづり間違い</td>
-</tr>
-<tr>
-<td><code>SyntaxError</code></td>
-<td>文法の間違い</td>
-<td>かっこや <code>:</code> の付け忘れ、全角の記号</td>
-</tr>
-<tr>
-<td><code>IndentationError</code></td>
-<td>字下げの間違い</td>
-<td>スペースとタブが混ざっている</td>
-</tr>
-<tr>
-<td><code>TypeError</code></td>
-<td>型が合わない</td>
-<td>文字列と数字を <code>+</code> した、引数の数が違う</td>
-</tr>
-<tr>
-<td><code>KeyError</code></td>
-<td>辞書にキーがない</td>
-<td>辞書にない文字を引いた</td>
-</tr>
-<tr>
-<td><code>IndexError</code></td>
-<td>リストの範囲外</td>
-<td>長さ3のリストの <code>[5]</code></td>
-</tr>
-<tr>
-<td><code>ModuleNotFoundError</code></td>
-<td>道具箱が入っていない</td>
-<td><code>pip install</code> していない</td>
-</tr>
+<tr><td><code>NameError</code></td><td>その名前の変数・関数がない</td><td>上のセルを実行していない、つづり間違い</td></tr>
+<tr><td><code>SyntaxError</code></td><td>文法の間違い</td><td>かっこや <code>:</code> の付け忘れ、全角の記号</td></tr>
+<tr><td><code>IndentationError</code></td><td>字下げの間違い</td><td>スペースとタブが混ざっている</td></tr>
+<tr><td><code>TypeError</code></td><td>型が合わない</td><td>文字列と数字を <code>+</code> した、引数の数が違う</td></tr>
+<tr><td><code>KeyError</code></td><td>辞書にキーがない</td><td>辞書にない文字を引いた</td></tr>
+<tr><td><code>IndexError</code></td><td>リストの範囲外</td><td>長さ3のリストの <code>[5]</code></td></tr>
+<tr><td><code>ModuleNotFoundError</code></td><td>道具箱が入っていない</td><td><code>pip install</code> していない</td></tr>
 </tbody>
 </table>
 <p>PyTorchやLLMに特有のエラーは、<a href="e-errors.html">付録E エラー辞典</a>を見てください。</p>
@@ -228,4 +177,4 @@ KeyError: &#x27;魚&#x27;</code></pre></div>
 
 </article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">値と変数（第1章）</a><a href="#s2">文字列（第1〜2章）</a><a href="#s3">リスト（第1章〜）</a><a href="#s4">辞書（第1〜2章）</a><a href="#s5">集合（第2章）</a><a href="#s6">条件分岐 if（全体）</a><a href="#s7">くり返し for / while（第2章〜）</a><a href="#s8">関数 def（第1章〜）</a><a href="#s9">内包表記（第2章〜）</a><a href="#s10">import（第1章〜）</a><a href="#s11">ファイルの読み書き（第4章）</a><a href="#s12">クラス（第9章〜）</a><a href="#s13">エラーへの備え try / except</a><a href="#s14">エラーメッセージの読み方</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">値と変数（第1章）</a><a href="#s2">文字列（第1〜2章）</a><a href="#s3">リスト（第1章〜）</a><a href="#s4">辞書（第1〜2章）</a><a href="#s5">集合（第2章）</a><a href="#s6">条件分岐 if（全体）</a><a href="#s7">くり返し for / while（第2章〜）</a><a href="#s8">関数 def（第1章〜）</a><a href="#s9">内包表記（第2章〜）</a><a href="#s10">import（第1章〜）</a><a href="#s11">ファイルの読み書き（第4章）</a><a href="#s12">クラス（第9章〜）</a><a href="#s13">エラーへの備え try / except</a><a href="#s14">エラーメッセージの読み方</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

@@ -2,17 +2,18 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ミニGPTを鍛える：GPUで本格学習 | つくってわかるLLM</title><meta name="description" content="漱石の小説7冊、100万字で、自分のGPTを育てる">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
-<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t;const c=localStorage.getItem("tsukuru-llm-course")||"thorough";document.documentElement.dataset.course=c;}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script></head>
+<script src="app.js" defer></script><script src="study.js" defer></script></head>
 <body data-page="13-train-gpt"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
-<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" open><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" aria-current="page" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第3部 Transformerを組み立てる · 第13章</p><h1>ミニGPTを鍛える：GPUで本格学習</h1><p class="sub">漱石の小説7冊、100万字で、自分のGPTを育てる</p><dl class="meta"><div><dt>目安</dt><dd>2〜3時間（学習の待ち時間を含む）</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/13-train-gpt.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/13-train-gpt.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>夏目漱石の7作品（約100万字）で学習した、あなただけの「漱石GPT」。トップページで動いているのと同じ設定です</p></div><div><h3>ついでに身につく理論</h3><ul><li>データを増やすと過学習が減る（データの大切さ）</li><li>GPUへの転送と混合精度（float16・autocast）</li><li>チェックポイント（学習途中の保存）</li><li>学習曲線で2つの実験を比べる</li><li>マルチヘッドAttentionの役割分担</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>!wget</code> でファイルを取ってくる</li><li>自作モジュールの <code>import</code></li><li><code>torch.autocast</code> と <code>GradScaler</code></li><li>辞書で設定をまとめて保存</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>いよいよ、第12章で組み立てたGPTを本格的に学習させます。データは『こころ』だけでなく、漱石の7作品・約100万字。無料の<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>（T4）なら数分で学習が終わり、あなたのGPTが「吾輩は」に続けて、漱石風の文章を書き始めます。記録表の検証損失も、ここで大きく更新されます。</p>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第3部 Transformerを組み立てる · 第13章</p><h1>ミニGPTを鍛える：GPUで本格学習</h1><p class="sub">漱石の小説7冊、100万字で、自分のGPTを育てる</p><dl class="meta"><div><dt>目安</dt><dd>2〜3時間（学習の待ち時間を含む）</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div><div><dt>確認問題</dt><dd>0問</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/13-train-gpt.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/13-train-gpt.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>夏目漱石の7作品（約100万字）で学習した、あなただけの「漱石GPT」。トップページで動いているのと同じ設定です</p></div><div><h3>身につく数学・理論</h3><ul><li>データを増やすと過学習が減る（データの大切さ）</li><li>GPUへの転送と混合精度（float16・autocast）</li><li>チェックポイント（学習途中の保存）</li><li>学習曲線で2つの実験を比べる</li><li>マルチヘッドAttentionの役割分担</li></ul></div><div><h3>新しく使うPython・PyTorch</h3><ul><li><code>!wget</code> でファイルを取ってくる</li><li>自作モジュールの <code>import</code></li><li><code>torch.autocast</code> と <code>GradScaler</code></li><li>辞書で設定をまとめて保存</li></ul></div></section><section class="mastery-strip" data-mastery-chapter="13-train-gpt" data-exercise-count="0" aria-label="この章の学習状況"><div class="ms-row"><span class="ms-stage" data-ms-stage>未学習</span><span class="ms-detail" data-ms-detail>演習 0 問 · 途中の確認問題と復習で定着を確かめられます</span><a class="ms-link" href="review.html">学習状況・復習へ →</a></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>いよいよ、第12章で組み立てたGPTを本格的に学習させます。データは『こころ』だけでなく、漱石の7作品・約100万字。無料の<a class="term" href="f-glossary.html#t-a6a63185" data-tip="単純な計算を大量に同時にこなすのが得意な部品。行列の計算が速い。">GPU</a>（T4）なら数分で学習が終わり、あなたのGPTが「吾輩は」に続けて、漱石風の文章を書き始めます。記録表の検証損失も、ここで大きく更新されます。</p>
 </aside>
 
 <div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>ついに来ましたね、GPT！ 第1章のQwenと比べると、どれくらいの大きさなんですか？</p>
@@ -162,32 +163,12 @@ batch_size = <span class="nu">32</span>     <span class="cm"># 1回に何個の�
 <aside class="box box-theory"><p class="box-title">理論の小部屋：混合精度：数の細かさを半分にして速くする</p><p>コンピュータの小数（浮動小数点数）には、使うビット数によって種類があります。</p>
 <table>
 <thead>
-<tr>
-<th><a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>式</th>
-<th>ビット数</th>
-<th>1個の<a class="term" href="f-glossary.html#t-ce82a962" data-tip="8ビットの数。0〜255の値をとる。">バイト</a>数</th>
-<th>特徴</th>
-</tr>
+<tr><th><a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>式</th><th>ビット数</th><th>1個の<a class="term" href="f-glossary.html#t-ce82a962" data-tip="8ビットの数。0〜255の値をとる。">バイト</a>数</th><th>特徴</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>float32（単精度）</td>
-<td>32</td>
-<td>4</td>
-<td>PyTorchの標準。正確</td>
-</tr>
-<tr>
-<td>float16（半精度）</td>
-<td>16</td>
-<td>2</td>
-<td>メモリ半分。T4などのGPUで特に速い。表せる範囲が狭い</td>
-</tr>
-<tr>
-<td>bfloat16</td>
-<td>16</td>
-<td>2</td>
-<td>表せる範囲はfloat32並み、細かさは粗い。新しいGPU向け</td>
-</tr>
+<tr><td>float32（単精度）</td><td>32</td><td>4</td><td>PyTorchの標準。正確</td></tr>
+<tr><td>float16（半精度）</td><td>16</td><td>2</td><td>メモリ半分。T4などのGPUで特に速い。表せる範囲が狭い</td></tr>
+<tr><td>bfloat16</td><td>16</td><td>2</td><td>表せる範囲はfloat32並み、細かさは粗い。新しいGPU向け</td></tr>
 </tbody>
 </table>
 <p><code>torch.autocast(…, dtype=torch.float16)</code> の中では、行列の掛け算などの重い計算を、自動的にfloat16で行います。パラメータそのもの（マスターウェイト）や、細かさが大事な計算（<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a>の合計など）はfloat32のまま。2つの精度を混ぜて使うので <strong>混合精度</strong>（mixed precision）と呼びます。T4ではfloat32の何倍も速く計算できます。</p>
@@ -278,7 +259,7 @@ plt.xlabel(<span class="st">&quot;ステップ&quot;</span>); plt.ylabel(<span c
 plt.ylim(<span class="nu">2.4</span>, <span class="nu">4.5</span>)
 plt.legend(); plt.title(<span class="st">&quot;データを増やすと、同じモデルがもっと賢くなる&quot;</span>)
 plt.show()</code></pre></div>
-<p><img src="img/figs/13-train-gpt/cell12_0.png" alt="2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける" /></p>
+<p><img src="img/figs/13-train-gpt/cell12_0.png" alt="2つの実験の検証損失の比較。7作品で学習したほうが、最後まで検証損失が下がり続ける"></p>
 <aside class="box box-theory"><p class="box-title">理論の小部屋：結局、データがいちばん効く</p><p>第10章では、過学習を抑えるために<a class="term" href="f-glossary.html#t-8eed8985" data-tip="学習中にニューロンの一部をランダムに休ませ、過学習を防ぐ方法。">ドロップアウト</a>や重み減衰を使いました。でも、最も強力な治療法は <strong>データを増やすこと</strong> です。</p>
 <ul>
 <li>『こころ』だけ：14.6万字を何十周もするので、途中から丸暗記が始まる</li>
@@ -322,57 +303,15 @@ plt.show()</code></pre></div>
 <h2 id="s11">記録表</h2>
 <table>
 <thead>
-<tr>
-<th>モデル</th>
-<th>章</th>
-<th>パラメータ</th>
-<th>学習データ</th>
-<th>検証データの損失</th>
-</tr>
+<tr><th>モデル</th><th>章</th><th>パラメータ</th><th>学習データ</th><th>検証データの損失</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>でたらめ</td>
-<td>5</td>
-<td>—</td>
-<td>—</td>
-<td>7.631</td>
-</tr>
-<tr>
-<td><a class="term" href="f-glossary.html#t-e383e21d" data-tip="直前の1文字（1トークン）だけを見て次を予測するモデル。">bigram</a>（数える）</td>
-<td>5</td>
-<td>—</td>
-<td>こころ</td>
-<td>3.581</td>
-</tr>
-<tr>
-<td><a class="term" href="f-glossary.html#t-e726a1b3" data-tip="全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。">MLP</a>（全部の治療）</td>
-<td>10</td>
-<td>66万</td>
-<td>こころ</td>
-<td>3.177</td>
-</tr>
-<tr>
-<td><a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a> 1ヘッド</td>
-<td>11</td>
-<td>28万</td>
-<td>こころ</td>
-<td>3.31</td>
-</tr>
-<tr>
-<td><strong>ミニGPT（4層・4ヘッド）</strong></td>
-<td><strong>13</strong></td>
-<td><strong>約175万</strong></td>
-<td><strong>こころ</strong></td>
-<td><strong>3.075</strong>（1500〜2000ステップ）</td>
-</tr>
-<tr>
-<td><strong>ミニGPT（4層・4ヘッド）</strong></td>
-<td><strong>13</strong></td>
-<td><strong>約175万</strong></td>
-<td><strong>漱石7作品</strong></td>
-<td><strong>2.635</strong>（5000ステップ）</td>
-</tr>
+<tr><td>でたらめ</td><td>5</td><td>—</td><td>—</td><td>7.631</td></tr>
+<tr><td><a class="term" href="f-glossary.html#t-e383e21d" data-tip="直前の1文字（1トークン）だけを見て次を予測するモデル。">bigram</a>（数える）</td><td>5</td><td>—</td><td>こころ</td><td>3.581</td></tr>
+<tr><td><a class="term" href="f-glossary.html#t-e726a1b3" data-tip="全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。">MLP</a>（全部の治療）</td><td>10</td><td>66万</td><td>こころ</td><td>3.177</td></tr>
+<tr><td><a class="term" href="f-glossary.html#t-74e0b9c8" data-tip="どの位置の情報をどれだけ集めるかを、内容に応じて決める仕組み。">Attention</a> 1ヘッド</td><td>11</td><td>28万</td><td>こころ</td><td>3.31</td></tr>
+<tr><td><strong>ミニGPT（4層・4ヘッド）</strong></td><td><strong>13</strong></td><td><strong>約175万</strong></td><td><strong>こころ</strong></td><td><strong>3.075</strong>（1500〜2000ステップ）</td></tr>
+<tr><td><strong>ミニGPT（4層・4ヘッド）</strong></td><td><strong>13</strong></td><td><strong>約175万</strong></td><td><strong>漱石7作品</strong></td><td><strong>2.635</strong>（5000ステップ）</td></tr>
 </tbody>
 </table>
 <p>※ 第13章のモデルは語彙が3,665文字に増えているので、厳密には少しだけ不利な条件での比較です。数値は教科書の検証環境（CPU）での実測値です。GPUで実行したあなたの数値も、ぜひ表に書き足してください。</p>
@@ -397,7 +336,7 @@ heads = model_all.blocks[-<span class="nu">1</span>].attn.heads          <span c
     ax.set_title(<span class="st">f&quot;ヘッド {h}&quot;</span>)
 plt.tight_layout()
 plt.show()</code></pre></div>
-<p><img src="img/figs/13-train-gpt/cell14_0.png" alt="最後の層の4つのヘッドの注目の仕方。ヘッド0は文の頭の「先」を、ヘッド1と2は「先生は」の「は」をよく見て、ヘッド3は自分の近くの文字に広く注目している" /></p>
+<p><img src="img/figs/13-train-gpt/cell14_0.png" alt="最後の層の4つのヘッドの注目の仕方。ヘッド0は文の頭の「先」を、ヘッド1と2は「先生は」の「は」をよく見て、ヘッド3は自分の近くの文字に広く注目している"></p>
 <p>ヘッドによって、注目の仕方が違います。上の図では、ヘッド0は文の頭の「先」を、ヘッド1と2は「先生は」の「は」（主語の区切り）をよく見ています。ヘッド3は、自分の近くの文字に広く注目しています。誰も役割を割り振っていないのに、学習の中で<strong>自然に分業</strong>が生まれているのです。あなたのモデルの図は、これとは違う分業になっているかもしれません。どのヘッドがどこを見ているか、観察してみましょう。</p>
 <aside class="box box-try"><p class="box-title">やってみよう：GPUがあるなら、もっと大きく</p><p>GPUが使えるなら、モデルを大きくしてみましょう。<code>train</code> 関数はそのままで、次のセルを実行するだけです（大きなモデル用の <code>train_big</code> を新しく作ります）。このセルは <code>block_size</code> と <code>batch_size</code> を書き換えるので、必ず<strong>上の保存が終わってから</strong>試しましょう。後で保存のセルを実行し直すと、設定の記録がずれて、第24章で読み込めなくなります。</p>
 <div class="codeblock code lang-python"><div class="code-head"><span>Python（GPUのランタイムで実行）</span><button type="button" class="copy" aria-label="コードをコピー">コピー</button></div><pre><code>block_size = <span class="nu">256</span>
@@ -433,7 +372,7 @@ model_big = train_big(all_train, max_iters=<span class="nu">5000</span>)</code><
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
 <li><strong><code>RuntimeError: Expected all tensors to be on the same device</code></strong>：モデルとデータの片方だけがGPUにいます。<code>model.to(device)</code> と、<code>get_batch</code> の中の <code>.to(device)</code> を確認しましょう。</li>
 <li><strong><code>CUDA out of memory</code></strong>：GPUのメモリが足りません。<code>batch_size</code> や <code>block_size</code> を半分にしてみましょう。それでもダメなら、「ランタイム」→「セッションを再起動する」でメモリを空にしてから、上から実行し直します。</li>
-<li><strong><code>No such file or directory: 'minigpt.py'</code></strong> / <strong><code>ModuleNotFoundError: No module named 'minigpt'</code></strong>：<code>wget</code> のセルを実行し忘れているか、ダウンロードに失敗しています。そのセルをもう一度実行しましょう。それでも同じなら、<code>!wget</code> の行から <code>-q</code>（静かに実行する指定）を消して実行すると、失敗の理由（<code>ERROR 404</code> など）が表示されます。どうしてもダウンロードできないときは、第12章の5つの<a class="term" href="f-glossary.html#t-8b27332e" data-tip="Pythonの設計図。PyTorchのモデルは `nn.Module` のクラスで書く。">クラス</a>（<code>Head</code> から <code>GPT</code> まで）のセルをこのノートブックに貼って実行し、<code>from minigpt import GPT</code> の行を消せば、同じように動きます。</li>
+<li><strong><code>No such file or directory: &#x27;minigpt.py&#x27;</code></strong> / <strong><code>ModuleNotFoundError: No module named &#x27;minigpt&#x27;</code></strong>：<code>wget</code> のセルを実行し忘れているか、ダウンロードに失敗しています。そのセルをもう一度実行しましょう。それでも同じなら、<code>!wget</code> の行から <code>-q</code>（静かに実行する指定）を消して実行すると、失敗の理由（<code>ERROR 404</code> など）が表示されます。どうしてもダウンロードできないときは、第12章の5つの<a class="term" href="f-glossary.html#t-8b27332e" data-tip="Pythonの設計図。PyTorchのモデルは `nn.Module` のクラスで書く。">クラス</a>（<code>Head</code> から <code>GPT</code> まで）のセルをこのノートブックに貼って実行し、<code>from minigpt import GPT</code> の行を消せば、同じように動きます。</li>
 <li><strong>学習の途中で切断された</strong>：無料のColabではよくあります。チェックポイントの節を参考に、途中経過を保存するようにしましょう。</li>
 </ul>
 </aside>
@@ -460,6 +399,6 @@ model_big = train_big(all_train, max_iters=<span class="nu">5000</span>)</code><
 <div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>第3部、完走おめでとう！ キミはもう「GPTをゼロから作って学習させたことがある人」だ。世界中を探しても、そう多くはない。次の第4部では、自作GPTを「本物」に近づける。まずは<a class="term" href="f-glossary.html#t-d2490995" data-tip="文章とトークンIDを相互に変換する係。">トークナイザー</a>。いまは1文字＝1トークンだけど、本物のLLMはBPEを使っていた（第2章）。それを自分で作るところからだ。</p>
 </div></div>
 
-<section class="chapter-done"><button type="button" class="btn primary" data-done="13-train-gpt">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="12-transformer.html"><small>← 前の章</small>部品を組み立てる：Transformer</a><a class="next" href="14-bpe.html"><small>次の章 →</small>トークナイザーを自作する：BPE</a></nav></article>
+<section class="chapter-done"><button type="button" class="btn primary" data-done="13-train-gpt">この章の説明を読み終えた！</button><p>説明の読了チェックです（ブラウザ内にのみ保存）。「理解・定着」は途中の確認問題・自力実装・間隔復習の結果と合わせて記録されます。</p></section><nav class="pager" aria-label="前後の章"><a href="12-transformer.html"><small>← 前の章</small>部品を組み立てる：Transformer</a><a class="next" href="14-bpe.html"><small>次の章 →</small>トークナイザーを自作する：BPE</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：GPUのランタイムにする</a><a href="#s2">第12章のGPTを取ってくる</a><a href="#s3">漱石の7作品を読み込む</a><a href="#s4">学習の道具をそろえる</a><a href="#s5">学習ループ（GPU対応版）</a><a href="#s6">実験1：『こころ』だけで学習</a><a href="#s7">実験2：7作品で学習</a><a href="#s8">大事なモデルを保存する</a><a href="#s9">2つの実験を比べる</a><a href="#s10">書かせてみる</a><a href="#s11">記録表</a><a href="#s12">ヘッドたちの役割分担を見る</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備：GPUのランタイムにする</a><a href="#s2">第12章のGPTを取ってくる</a><a href="#s3">漱石の7作品を読み込む</a><a href="#s4">学習の道具をそろえる</a><a href="#s5">学習ループ（GPU対応版）</a><a href="#s6">実験1：『こころ』だけで学習</a><a href="#s7">実験2：7作品で学習</a><a href="#s8">大事なモデルを保存する</a><a href="#s9">2つの実験を比べる</a><a href="#s10">書かせてみる</a><a href="#s11">記録表</a><a href="#s12">ヘッドたちの役割分担を見る</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

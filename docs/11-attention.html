@@ -2,17 +2,18 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>注目する仕組み：Self-Attention | つくってわかるLLM</title><meta name="description" content="どの文字に注目するかを、文字どうしが話し合って決める">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
-<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t;const c=localStorage.getItem("tsukuru-llm-course")||"thorough";document.documentElement.dataset.course=c;}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script><script src="widgets.js" defer></script></head>
+<script src="app.js" defer></script><script src="study.js" defer></script><script src="widgets.js" defer></script></head>
 <body data-page="11-attention"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
-<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" open><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" aria-current="page" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" ><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第3部 Transformerを組み立てる · 第11章</p><h1>注目する仕組み：Self-Attention</h1><p class="sub">どの文字に注目するかを、文字どうしが話し合って決める</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/11-attention.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/11-attention.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>GPTの心臓部 <strong>Self-Attention</strong> を一行ずつ自作し、それだけで動く小さな言語モデルを学習させる</p></div><div><h3>ついでに身につく理論</h3><ul><li>全位置で同時に「次」を予測する学習</li><li>過去の平均を行列の掛け算で一気に計算</li><li>マスク付きsoftmax（未来を見ない）</li><li>内積＝似ている度</li><li>Query・Key・Value</li><li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第3部 Transformerを組み立てる · 第11章</p><h1>注目する仕組み：Self-Attention</h1><p class="sub">どの文字に注目するかを、文字どうしが話し合って決める</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（CPUでOK）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div><div><dt>確認問題</dt><dd>0問</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/11-attention.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/11-attention.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>GPTの心臓部 <strong>Self-Attention</strong> を一行ずつ自作し、それだけで動く小さな言語モデルを学習させる</p></div><div><h3>身につく数学・理論</h3><ul><li>全位置で同時に「次」を予測する学習</li><li>過去の平均を行列の掛け算で一気に計算</li><li>マスク付きsoftmax（未来を見ない）</li><li>内積＝似ている度</li><li>Query・Key・Value</li><li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msqrt><mi>d</mi></msqrt></mrow><annotation encoding="application/x-tex">\sqrt{d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.04em;vertical-align:-0.1078em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal">d</span></span></span><span style="top:-2.8922em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
 c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
 c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
 c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
@@ -23,7 +24,7 @@ c5.3,-9.3,12,-14,20,-14
 H400000v40H845.2724
 s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
 c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
-M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割る理由（分散の話）</li><li>位置埋め込み（Attentionは順番を知らない）</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>torch.tril</code> と <code>masked_fill</code></li><li><code>transpose</code> で行列の向きを変える</li><li><code>register_buffer</code></li><li>ブロードキャストつきの <code>@</code></li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第9章のMLPは「直前8文字を横一列に並べて」見ていました。でも、この方法では窓を広げるほど<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>が増え、しかも「どの文字が大事か」を場面ごとに変えられません。この章では、<strong>場面に応じて、どの過去の文字に注目するかを自分で決める</strong>仕組み <strong>Self-Attention</strong> を、ゼロから組み立てます。2017年の論文「Attention Is All You Need」で提案され、GPTを含む現代のほぼすべての<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の心臓部になっている仕組みです。</p>
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1078em;"><span></span></span></span></span></span></span></span></span> で割る理由（分散の話）</li><li>位置埋め込み（Attentionは順番を知らない）</li></ul></div><div><h3>新しく使うPython・PyTorch</h3><ul><li><code>torch.tril</code> と <code>masked_fill</code></li><li><code>transpose</code> で行列の向きを変える</li><li><code>register_buffer</code></li><li>ブロードキャストつきの <code>@</code></li></ul></div></section><section class="mastery-strip" data-mastery-chapter="11-attention" data-exercise-count="0" aria-label="この章の学習状況"><div class="ms-row"><span class="ms-stage" data-ms-stage>未学習</span><span class="ms-detail" data-ms-detail>演習 0 問 · 途中の確認問題と復習で定着を確かめられます</span><a class="ms-link" href="review.html">学習状況・復習へ →</a></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第9章のMLPは「直前8文字を横一列に並べて」見ていました。でも、この方法では窓を広げるほど<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>が増え、しかも「どの文字が大事か」を場面ごとに変えられません。この章では、<strong>場面に応じて、どの過去の文字に注目するかを自分で決める</strong>仕組み <strong>Self-Attention</strong> を、ゼロから組み立てます。2017年の論文「Attention Is All You Need」で提案され、GPTを含む現代のほぼすべての<a class="term" href="f-glossary.html#t-370515d5" data-tip="大規模言語モデル。大量の文章で「次のトークン」を予測する練習をした、パラメータの多いモデル。">LLM</a>の心臓部になっている仕組みです。</p>
 </aside>
 
 <div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>「注目する」って、人間みたいなことをするんですね。</p>
@@ -74,38 +75,14 @@ x, y = get_batch(train_data, <span class="nu">1</span>, <span class="nu">8</span
 <p>第9章までと違うところに気づきましたか？ 今回は <strong>正解も8文字</strong> です。入力の8文字それぞれについて、「その次の文字」を予測させます。</p>
 <table>
 <thead>
-<tr>
-<th>位置</th>
-<th>見てよい文字</th>
-<th>予測する文字</th>
-</tr>
+<tr><th>位置</th><th>見てよい文字</th><th>予測する文字</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>0</td>
-<td>私</td>
-<td>の</td>
-</tr>
-<tr>
-<td>1</td>
-<td>私の</td>
-<td>注</td>
-</tr>
-<tr>
-<td>2</td>
-<td>私の注</td>
-<td>意</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-<tr>
-<td>7</td>
-<td>私の注意を母より</td>
-<td>は</td>
-</tr>
+<tr><td>0</td><td>私</td><td>の</td></tr>
+<tr><td>1</td><td>私の</td><td>注</td></tr>
+<tr><td>2</td><td>私の注</td><td>意</td></tr>
+<tr><td>…</td><td>…</td><td>…</td></tr>
+<tr><td>7</td><td>私の注意を母より</td><td>は</td></tr>
 </tbody>
 </table>
 <p>1つの窓から8問作れるので、効率がいいのです。ただし大事なルールがあります。<strong>位置 t の予測には、位置 t までの文字しか使ってはいけない</strong>。位置2で「意」を予測するときに、位置3にある「意」そのものを見たら、それはカンニングです。</p>
@@ -233,46 +210,20 @@ tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
 <aside class="box box-tip"><p class="box-title">コツ：<a class="term" href="f-glossary.html#t-08cc91b9" data-tip="テンソルの各方向の長さ。`[2, 3]` なら2行3列。">形</a>の早見表（迷ったらここに戻る）</p><p>Attentionで一番迷子になりやすいのは「形」です。B＝文章の数、T＝文字数、C＝<a class="term" href="f-glossary.html#t-696af080" data-tip="トークンごとに割り当てた、学習可能な数の組（ベクトル）。">埋め込み</a>の大きさ、hs＝ヘッドの大きさ、として、</p>
 <table>
 <thead>
-<tr>
-<th>もの</th>
-<th>形</th>
-<th>ひとこと</th>
-</tr>
+<tr><th>もの</th><th>形</th><th>ひとこと</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>入力 <code>x</code></td>
-<td><code>[B, T, C]</code></td>
-<td>文章ごと・文字ごとのベクトル</td>
-</tr>
-<tr>
-<td><code>q</code>, <code>k</code>, <code>v</code></td>
-<td><code>[B, T, hs]</code></td>
-<td><a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>で小さくした「質問・ラベル・中身」</td>
-</tr>
-<tr>
-<td><code>k.transpose(-2, -1)</code></td>
-<td><code>[B, hs, T]</code></td>
-<td>掛け算のために向きを変えたラベル</td>
-</tr>
-<tr>
-<td><code>scores</code>, <code>wei</code></td>
-<td><code>[B, T, T]</code></td>
-<td>行＝注目する文字、列＝注目される文字</td>
-</tr>
-<tr>
-<td>出力 <code>wei @ v</code></td>
-<td><code>[B, T, hs]</code></td>
-<td>各文字が集めてきた情報</td>
-</tr>
+<tr><td>入力 <code>x</code></td><td><code>[B, T, C]</code></td><td>文章ごと・文字ごとのベクトル</td></tr>
+<tr><td><code>q</code>, <code>k</code>, <code>v</code></td><td><code>[B, T, hs]</code></td><td><a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>で小さくした「質問・ラベル・中身」</td></tr>
+<tr><td><code>k.transpose(-2, -1)</code></td><td><code>[B, hs, T]</code></td><td>掛け算のために向きを変えたラベル</td></tr>
+<tr><td><code>scores</code>, <code>wei</code></td><td><code>[B, T, T]</code></td><td>行＝注目する文字、列＝注目される文字</td></tr>
+<tr><td>出力 <code>wei @ v</code></td><td><code>[B, T, hs]</code></td><td>各文字が集めてきた情報</td></tr>
 </tbody>
 </table>
 <p>コードの途中で <code>print(〇〇.shape)</code> を入れて、この表と見比べると、どこで何が起きているかが分かります。</p>
 </aside>
 
-<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：transpose</p><p><code>k.transpose(-2, -1)</code> は、最後の2つの軸を入れ替えます。<code>[B, T, 16]</code> が <code>[B, 16, T]</code> になり、<code>q @ k.transpose(…)</code> で「全部のQueryと全部のKeyの内積」が <code>[B, T, T]</code> の表として一度に計算できます。行がQuery（注目する側）、列がKey（注目される側）です。<br>
-3次元の<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>どうしの <code>@</code> は、先頭の <code>B</code> の軸ごとに（4つの文章それぞれで）行列の掛け算をしてくれます。<br>
-<code>wei[0].detach()</code> の <code>.detach()</code> は「学習の記録から切り離したコピー」を作ります。<code>query</code> などの学習するパラメータから計算した結果には記録がついているので、表示するときにはずしています。</p>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：transpose</p><p><code>k.transpose(-2, -1)</code> は、最後の2つの軸を入れ替えます。<code>[B, T, 16]</code> が <code>[B, 16, T]</code> になり、<code>q @ k.transpose(…)</code> で「全部のQueryと全部のKeyの内積」が <code>[B, T, T]</code> の表として一度に計算できます。行がQuery（注目する側）、列がKey（注目される側）です。<br> 3次元の<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>どうしの <code>@</code> は、先頭の <code>B</code> の軸ごとに（4つの文章それぞれで）行列の掛け算をしてくれます。<br> <code>wei[0].detach()</code> の <code>.detach()</code> は「学習の記録から切り離したコピー」を作ります。<code>query</code> などの学習するパラメータから計算した結果には記録がついているので、表示するときにはずしています。</p>
 </aside>
 
 <div class="widget" data-widget="attention"><noscript>このデモはJavaScriptを有効にすると動きます。</noscript></div>
@@ -424,38 +375,13 @@ opt = torch.optim.AdamW(model.parameters(), lr=<span class="nu">3e-3</span>)
 <p>パラメータ28万個、Headたった1つで、検証<a class="term" href="f-glossary.html#t-71ea54bb" data-tip="モデルの外れ具合を表す数。小さいほど良い。言語モデルでは正解の確率の −log の平均。">損失</a> <strong>3.31前後</strong>。第9章の<a class="term" href="f-glossary.html#t-e726a1b3" data-tip="全結合層を、活性化関数を挟んで重ねたもの。多層パーセプトロン。">MLP</a>（66万個、3.395）より少ないパラメータで、良い成績です。しかもこのモデルは、<strong>64文字前まで</strong>見ることができます。窓を64に広げても、Attentionの部分のパラメータは1つも増えていません（位置の埋め込みが少し増えるだけ）。これがAttentionの強みです。</p>
 <table>
 <thead>
-<tr>
-<th>モデル</th>
-<th>章</th>
-<th>パラメータ</th>
-<th><a class="term" href="f-glossary.html#t-381b737d" data-tip="点数をつけるためだけに取っておくデータ。学習には使わない。">検証データ</a>の損失</th>
-</tr>
+<tr><th>モデル</th><th>章</th><th>パラメータ</th><th><a class="term" href="f-glossary.html#t-381b737d" data-tip="点数をつけるためだけに取っておくデータ。学習には使わない。">検証データ</a>の損失</th></tr>
 </thead>
 <tbody>
-<tr>
-<td><a class="term" href="f-glossary.html#t-e383e21d" data-tip="直前の1文字（1トークン）だけを見て次を予測するモデル。">bigram</a>（数える）</td>
-<td>5</td>
-<td>—</td>
-<td>3.581</td>
-</tr>
-<tr>
-<td>MLP（<a class="term" href="f-glossary.html#t-fa6f908d" data-tip="ミニバッチで勾配を計算して下る、確率的勾配降下法。">SGD</a>）</td>
-<td>9</td>
-<td>66万</td>
-<td>3.395</td>
-</tr>
-<tr>
-<td>MLP（全部の治療）</td>
-<td>10</td>
-<td>66万</td>
-<td>3.177</td>
-</tr>
-<tr>
-<td><strong>Attention 1ヘッド（2000ステップ）</strong></td>
-<td><strong>11</strong></td>
-<td><strong>28万</strong></td>
-<td><strong>3.31前後</strong></td>
-</tr>
+<tr><td><a class="term" href="f-glossary.html#t-e383e21d" data-tip="直前の1文字（1トークン）だけを見て次を予測するモデル。">bigram</a>（数える）</td><td>5</td><td>—</td><td>3.581</td></tr>
+<tr><td>MLP（<a class="term" href="f-glossary.html#t-fa6f908d" data-tip="ミニバッチで勾配を計算して下る、確率的勾配降下法。">SGD</a>）</td><td>9</td><td>66万</td><td>3.395</td></tr>
+<tr><td>MLP（全部の治療）</td><td>10</td><td>66万</td><td>3.177</td></tr>
+<tr><td><strong>Attention 1ヘッド（2000ステップ）</strong></td><td><strong>11</strong></td><td><strong>28万</strong></td><td><strong>3.31前後</strong></td></tr>
 </tbody>
 </table>
 <p>1ヘッドでは、まだ第10章の治療済みMLPには届きません。でも、ここに部品（複数のヘッド、MLP、正規化、残差接続、層の積み重ね）を足していくと……それが次の章のTransformerです。</p>
@@ -480,7 +406,7 @@ plt.xlabel(<span class="st">&quot;注目される文字（Key）&quot;</span>)
 plt.ylabel(<span class="st">&quot;注目する文字（Query）&quot;</span>)
 plt.title(<span class="st">&quot;学習したAttentionの重み&quot;</span>)
 plt.show()</code></pre></div>
-<p><img src="img/figs/11-attention/cell11_0.png" alt="学習したAttentionの重みのヒートマップ。各行で、自分自身や少し前の文字に重みが集中している" /></p>
+<p><img src="img/figs/11-attention/cell11_0.png" alt="学習したAttentionの重みのヒートマップ。各行で、自分自身や少し前の文字に重みが集中している"></p>
 <p>各行が「その文字が、どの文字にどれだけ注目したか」です。右上が真っ白なのは、マスクで未来を見ていないからです。このヘッドは、自分自身よりも<strong>少し前の特定の文字</strong>に強く注目しています。たとえば「常」「に」は「を」に、「で」は「呼」や「先」に注目しています。人間には意味の分かりにくい注目の仕方ですが、モデルは損失を下げるのに役立つ見方を、自分で見つけ出したのです。それでも、1つのヘッドにできることは限られています。次の章では、ヘッドをたくさん用意して、それぞれに違う役割（直前を見る係、文の主語を探す係……）を分担させます。</p>
 <aside class="box box-warn"><p class="box-title">つまずき注意：よくあるつまずき</p><ul>
 <li><strong><code>RuntimeError: The size of tensor a (8) must match the size of tensor b (64)</code></strong>：マスク <code>tril</code> の大きさと、入力の長さ <code>T</code> が合っていません。<code>self.tril[:T, :T]</code> のように、入力の長さに合わせて切り出しましょう。</li>
@@ -570,6 +496,6 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
 <div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>キミは今、2017年に世界を変えた式を、自分の手で書いて動かした。次の章では、このHeadを何個も並べ、MLPと正規化と残差接続でサンドイッチにして、何層も積み上げる。それが <strong>Transformer</strong>。GPTの「T」だ。</p>
 </div></div>
 
-<section class="chapter-done"><button type="button" class="btn primary" data-done="11-attention">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="10-training-tips.html"><small>← 前の章</small>学習のお医者さん：うまく学習させる技</a><a class="next" href="12-transformer.html"><small>次の章 →</small>部品を組み立てる：Transformer</a></nav></article>
+<section class="chapter-done"><button type="button" class="btn primary" data-done="11-attention">この章の説明を読み終えた！</button><p>説明の読了チェックです（ブラウザ内にのみ保存）。「理解・定着」は途中の確認問題・自力実装・間隔復習の結果と合わせて記録されます。</p></section><nav class="pager" aria-label="前後の章"><a href="10-training-tips.html"><small>← 前の章</small>学習のお医者さん：うまく学習させる技</a><a class="next" href="12-transformer.html"><small>次の章 →</small>部品を組み立てる：Transformer</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備と、新しい問題の出し方</a><a href="#s2">ステップ1：過去を「平均」してみる</a><a href="#s3">ステップ2：行列の掛け算で一気に</a><a href="#s4">ステップ3：softmaxで重みを作る</a><a href="#s5">内積：似ている度</a><a href="#s6">ステップ4：Query・Key・Value</a><a href="#s7">なぜ √d で割るのか</a><a href="#s8">部品にまとめる：Head クラス</a><a href="#s9">Attentionだけで言語モデルを作る</a><a href="#s10">注目の様子をのぞく</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">準備と、新しい問題の出し方</a><a href="#s2">ステップ1：過去を「平均」してみる</a><a href="#s3">ステップ2：行列の掛け算で一気に</a><a href="#s4">ステップ3：softmaxで重みを作る</a><a href="#s5">内積：似ている度</a><a href="#s6">ステップ4：Query・Key・Value</a><a href="#s7">なぜ √d で割るのか</a><a href="#s8">部品にまとめる：Head クラス</a><a href="#s9">Attentionだけで言語モデルを作る</a><a href="#s10">注目の様子をのぞく</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>

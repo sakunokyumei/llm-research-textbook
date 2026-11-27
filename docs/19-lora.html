@@ -2,17 +2,18 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>少ないメモリで鍛える：LoRAと量子化 | つくってわかるLLM</title><meta name="description" content="本体には指一本触れず、小さな「付せん」だけを学習する">
 <meta name="color-scheme" content="light dark"><meta name="theme-color" content="#23443b">
-<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{const t=localStorage.getItem("tsukuru-llm-theme");if(t)document.documentElement.dataset.theme=t;const c=localStorage.getItem("tsukuru-llm-course")||"thorough";document.documentElement.dataset.course=c;}catch(e){}</script>
 <link rel="icon" href="img/logo.svg" type="image/svg+xml"><link rel="stylesheet" href="katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script src="app.js" defer></script></head>
+<script src="app.js" defer></script><script src="study.js" defer></script></head>
 <body data-page="19-lora"><a class="skip" href="#main">本文へ移動</a>
 <header class="topbar"><button class="menu-btn" id="menu" aria-expanded="false" aria-controls="sidebar" aria-label="目次を開く"><span></span><span></span><span></span></button>
 <a class="brand" href="index.html"><img src="img/logo.svg" alt="" width="36" height="36"><span><b>つくってわかるLLM</b><small>ボンゴ先生のLLM教室</small></span></a>
-<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
+<nav class="topnav" aria-label="主なページ"><a href="index.html#map">目次</a><a href="review.html" class="nav-review">学習・復習<span class="due-badge" data-due-badge hidden>0</span></a><a href="a-setup.html">環境構築</a><a href="e-errors.html">エラー辞典</a><a href="f-glossary.html">用語集</a></nav>
 <button id="theme" class="icon-btn" type="button" aria-label="明るさを切り替える" title="明るさを切り替える">◐</button></header>
 <div class="layout"><aside id="sidebar" class="sidebar"><div class="search"><label for="search">教科書の中を探す</label><input id="search" type="search" placeholder="例：softmax、LoRA、GPU" autocomplete="off"><div id="results" aria-live="polite"></div></div>
+<div class="course-switch" role="group" aria-label="学習コースの切り替え"><span class="cs-label">学習コース</span><div class="cs-btns"><button type="button" data-set-course="thorough" aria-pressed="true">じっくり理解</button><button type="button" data-set-course="standard" aria-pressed="false">標準</button></div><a class="sidebar-review-link" href="review.html">📊 学習状況・今日の復習 <span class="due-badge" data-due-badge hidden>0</span></a></div>
 <div class="progress-box" data-progress hidden><span class="bar"><span></span></span><small></small></div><nav class="chapters" aria-label="全章の目次"><details class="nav-part" ><summary>ようこそ</summary><ol><li><a href="00-welcome.html" data-slug="00-welcome"><span class="num">0</span>この教室の歩き方</a></li></ol></details><details class="nav-part" ><summary>第1部 まず動かす</summary><ol><li><a href="01-first-llm.html" data-slug="01-first-llm"><span class="num">1</span>5分でLLMと話す</a></li><li><a href="02-tokens.html" data-slug="02-tokens"><span class="num">2</span>トークン</a></li><li><a href="03-next-token.html" data-slug="03-next-token"><span class="num">3</span>確率と温度</a></li></ol></details><details class="nav-part" ><summary>第2部 ゼロから作る</summary><ol><li><a href="04-bigram.html" data-slug="04-bigram"><span class="num">4</span>bigramモデル</a></li><li><a href="05-loss.html" data-slug="05-loss"><span class="num">5</span>損失とパープレキシティ</a></li><li><a href="06-tensors.html" data-slug="06-tensors"><span class="num">6</span>テンソル</a></li><li><a href="07-gradient.html" data-slug="07-gradient"><span class="num">7</span>微分と勾配降下法</a></li><li><a href="08-neural-bigram.html" data-slug="08-neural-bigram"><span class="num">8</span>ニューラルbigram</a></li><li><a href="09-mlp.html" data-slug="09-mlp"><span class="num">9</span>埋め込みとMLP</a></li><li><a href="10-training-tips.html" data-slug="10-training-tips"><span class="num">10</span>学習のお医者さん</a></li></ol></details><details class="nav-part" ><summary>第3部 Transformerを組み立てる</summary><ol><li><a href="11-attention.html" data-slug="11-attention"><span class="num">11</span>Self-Attention</a></li><li><a href="12-transformer.html" data-slug="12-transformer"><span class="num">12</span>Transformer</a></li><li><a href="13-train-gpt.html" data-slug="13-train-gpt"><span class="num">13</span>ミニGPTを鍛える</a></li></ol></details><details class="nav-part" ><summary>第4部 本物に近づける</summary><ol><li><a href="14-bpe.html" data-slug="14-bpe"><span class="num">14</span>BPE</a></li><li><a href="15-gpt2.html" data-slug="15-gpt2"><span class="num">15</span>本物のGPT-2を入れる</a></li><li><a href="16-scale.html" data-slug="16-scale"><span class="num">16</span>推論と学習の工学</a></li></ol></details><details class="nav-part" open><summary>第5部 既製モデルを鍛える</summary><ol><li><a href="17-hf-models.html" data-slug="17-hf-models"><span class="num">17</span>事前学習済みモデル</a></li><li><a href="18-sft.html" data-slug="18-sft"><span class="num">18</span>SFT</a></li><li><a href="19-lora.html" aria-current="page" data-slug="19-lora"><span class="num">19</span>LoRAと量子化</a></li><li><a href="20-evaluation.html" data-slug="20-evaluation"><span class="num">20</span>評価と統計</a></li></ol></details><details class="nav-part" ><summary>第6部 LLMをシステムにする</summary><ol><li><a href="21-rag.html" data-slug="21-rag"><span class="num">21</span>RAG</a></li><li><a href="22-alignment.html" data-slug="22-alignment"><span class="num">22</span>RLHFとDPO</a></li><li><a href="23-agents.html" data-slug="23-agents"><span class="num">23</span>エージェント</a></li><li><a href="24-deploy.html" data-slug="24-deploy"><span class="num">24</span>世界に公開する</a></li></ol></details><details class="nav-part" ><summary>第7部 研究の入口へ</summary><ol><li><a href="25-modern.html" data-slug="25-modern"><span class="num">25</span>最新の部品を移植</a></li><li><a href="26-capstone.html" data-slug="26-capstone"><span class="num">26</span>卒業制作と2030年への地図</a></li></ol></details><details class="nav-part" open><summary>付録</summary><ol><li><a href="a-setup.html"><span class="num">A</span>環境構築大全</a></li><li><a href="b-python.html"><span class="num">B</span>Python最短ルート</a></li><li><a href="c-terminal.html"><span class="num">C</span>ターミナル・Linux・Git</a></li><li><a href="d-math.html"><span class="num">D</span>数学の地図</a></li><li><a href="e-errors.html"><span class="num">E</span>エラー辞典</a></li><li><a href="f-glossary.html"><span class="num">F</span>用語集</a></li><li><a href="g-coverage.html"><span class="num">G</span>カバレッジ表</a></li><li><a href="h-plan.html"><span class="num">H</span>挫折しない作戦帳</a></li><li><a href="i-simulation.html"><span class="num">I</span>シミュレーション報告</a></li><li><a href="j-references.html"><span class="num">J</span>参考文献</a></li></ol></details></nav></aside>
-<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第5部 既製モデルを鍛える · 第19章</p><h1>少ないメモリで鍛える：LoRAと量子化</h1><p class="sub">本体には指一本触れず、小さな「付せん」だけを学習する</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/19-lora.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/19-lora.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>LoRA層をゼロから実装してQwenに取り付け、学習するパラメータを1%以下にしてボンゴ先生化する。さらにPEFTとQLoRA（4ビット量子化＋LoRA）で、無料GPUに大きめのモデルを載せる</p></div><div><h3>ついでに身につく理論</h3><ul><li>行列のランクと低ランク近似</li><li>LoRA：重みの変化を小さな2つの行列の積で表す</li><li>学習するパラメータ数とメモリの節約</li><li>量子化（absmax・int8・4ビット）と誤差</li><li>QLoRA：4ビットの本体＋LoRA</li><li>アダプタの保存・合体（マージ）</li></ul></div><div><h3>新しく使うPython</h3><ul><li><code>requires_grad_(False)</code> で凍結する</li><li>モジュールの差し替え（<code>attn.q_proj = …</code>）</li><li><code>peft</code> の <code>LoraConfig</code> と <code>PeftModel</code></li><li><code>BitsAndBytesConfig</code>（4ビット読み込み）</li></ul></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第18章では、0.5Bのモデルの全<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>を学習させるのに約10GBのメモリを使いました。この方法では、7Bのモデルは無料のGPUに乗りません。この章では、モデル本体の重みを<strong>凍結</strong>（変えない）したまま、ほんの少しの追加パラメータだけを学習する <strong>LoRA</strong> を、まず自分の手で実装します。さらに、モデル本体を4ビットに縮める <strong>量子化</strong> と組み合わせた <strong>QLoRA</strong> で、無料のT4でも大きめのモデルを鍛えられるようにします。</p>
+<main id="main" tabindex="-1"><article class="chapter"><header class="chapter-hero"><p class="kicker">第5部 既製モデルを鍛える · 第19章</p><h1>少ないメモリで鍛える：LoRAと量子化</h1><p class="sub">本体には指一本触れず、小さな「付せん」だけを学習する</p><dl class="meta"><div><dt>目安</dt><dd>2時間</dd></div><div><dt>環境</dt><dd>Google Colab（GPU：T4）</dd></div><div><dt>難しさ</dt><dd aria-label="5段階中4">★★★★☆</dd></div><div><dt>確認問題</dt><dd>0問</dd></div></dl><div class="chapter-actions"><a class="btn primary" href="https://colab.research.google.com/github/sakunokyumei/llm-research-textbook/blob/main/notebooks/19-lora.ipynb" target="_blank" rel="noopener">Colabで開く（完成ノート）</a><a class="btn" href="notebooks/19-lora.ipynb" download>ノートブックをダウンロード</a></div><p class="hint">おすすめは「ページを読みながら、コードを自分のノートブックに1セルずつ貼って実行」。完成ノートは困ったときの答え合わせ用です。</p></header><section class="learn-grid"><div><h3>つくるもの</h3><p>LoRA層をゼロから実装してQwenに取り付け、学習するパラメータを1%以下にしてボンゴ先生化する。さらにPEFTとQLoRA（4ビット量子化＋LoRA）で、無料GPUに大きめのモデルを載せる</p></div><div><h3>身につく数学・理論</h3><ul><li>行列のランクと低ランク近似</li><li>LoRA：重みの変化を小さな2つの行列の積で表す</li><li>学習するパラメータ数とメモリの節約</li><li>量子化（absmax・int8・4ビット）と誤差</li><li>QLoRA：4ビットの本体＋LoRA</li><li>アダプタの保存・合体（マージ）</li></ul></div><div><h3>新しく使うPython・PyTorch</h3><ul><li><code>requires_grad_(False)</code> で凍結する</li><li>モジュールの差し替え（<code>attn.q_proj = …</code>）</li><li><code>peft</code> の <code>LoraConfig</code> と <code>PeftModel</code></li><li><code>BitsAndBytesConfig</code>（4ビット読み込み）</li></ul></div></section><section class="mastery-strip" data-mastery-chapter="19-lora" data-exercise-count="0" aria-label="この章の学習状況"><div class="ms-row"><span class="ms-stage" data-ms-stage>未学習</span><span class="ms-detail" data-ms-detail>演習 0 問 · 途中の確認問題と復習で定着を確かめられます</span><a class="ms-link" href="review.html">学習状況・復習へ →</a></div></section><aside class="box box-goal"><p class="box-title">この章でつくるもの</p><p>第18章では、0.5Bのモデルの全<a class="term" href="f-glossary.html#t-3cf594bd" data-tip="モデルの中の、学習で調整される数。音楽のミキサーのつまみのようなもの。">パラメータ</a>を学習させるのに約10GBのメモリを使いました。この方法では、7Bのモデルは無料のGPUに乗りません。この章では、モデル本体の重みを<strong>凍結</strong>（変えない）したまま、ほんの少しの追加パラメータだけを学習する <strong>LoRA</strong> を、まず自分の手で実装します。さらに、モデル本体を4ビットに縮める <strong>量子化</strong> と組み合わせた <strong>QLoRA</strong> で、無料のT4でも大きめのモデルを鍛えられるようにします。</p>
 </aside>
 
 <div class="talk talk-minato"><img class="avatar" src="img/minato.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ミナト</p><p>本体を変えずに鍛えるって、どういうことですか？ 筋トレしないでマッチョになる、みたいな……？</p>
@@ -25,28 +26,12 @@
 <p>第15章で計算したとおり、<a class="term" href="f-glossary.html#t-f941e120" data-tip="慣性とパラメータごとの歩幅を使う、賢い勾配降下法。AdamWはその改良版。">Adam</a>Wで学習するときのメモリは、だいたい「16バイト × パラメータ数」でした。</p>
 <table>
 <thead>
-<tr>
-<th>モデル</th>
-<th>推論（<a class="term" href="f-glossary.html#t-7e8cc5ea" data-tip="16ビットの浮動小数点数。メモリは半分で、T4で速い。">float16</a>）</th>
-<th>全パラメータの学習</th>
-</tr>
+<tr><th>モデル</th><th>推論（<a class="term" href="f-glossary.html#t-7e8cc5ea" data-tip="16ビットの浮動小数点数。メモリは半分で、T4で速い。">float16</a>）</th><th>全パラメータの学習</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>0.5B</td>
-<td>約1GB</td>
-<td>約8GB</td>
-</tr>
-<tr>
-<td>1.5B</td>
-<td>約3GB</td>
-<td>約24GB（T4に乗らない）</td>
-</tr>
-<tr>
-<td>7B</td>
-<td>約14GB</td>
-<td>約112GB（T4が7枚以上）</td>
-</tr>
+<tr><td>0.5B</td><td>約1GB</td><td>約8GB</td></tr>
+<tr><td>1.5B</td><td>約3GB</td><td>約24GB（T4に乗らない）</td></tr>
+<tr><td>7B</td><td>約14GB</td><td>約112GB（T4が7枚以上）</td></tr>
 </tbody>
 </table>
 <p>学習のメモリの大半は、<strong><a class="term" href="f-glossary.html#t-ad0a65c8" data-tip="各パラメータの偏微分を並べたもの。最も急に上る方向を指す。">勾配</a></strong>と<strong>Adamの記録</strong>（慣性と歩幅）です。どちらも「学習するパラメータの数」に比例します。だったら、<strong>学習するパラメータを減らせば</strong>いいのです。</p>
@@ -98,9 +83,7 @@ trainable = <span class="bi">sum</span>(p.numel() <span class="kw">for</span> p 
 <span class="bi">print</span>(<span class="st">f&quot;学習するパラメータ：{trainable:,} / 元の層：{base.weight.numel() + base.bias.numel():,}&quot;</span>)</code></pre></div>
 <div class="codeblock output lang-output"><div class="code-head"><span>出力</span></div><pre><code>最初は元の層と同じ？ True
 学習するパラメータ：14,336 / 元の層：803,712</code></pre></div>
-<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：requires_grad_(False) と nn.Parameter</p><p><code>requires_grad_(False)</code> は「このパラメータの勾配は計算しなくていい（学習しない）」という設定です。勾配もAdamの記録も作られないので、メモリを食いません。これを <strong>凍結</strong>（freeze）と言います。<br>
-<code>nn.Parameter(テンソル)</code> は、その<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>を「このモデルの学習するパラメータ」として登録します。こうしておくと、<code>model.parameters()</code> に含まれ、オプティマイザが更新してくれます。<br>
-<code>def __init__(self, base: nn.Linear, …)</code> の <code>: nn.Linear</code> は <strong>型ヒント</strong>（「ここには<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>が入ります」というメモ）で、動きは変わりません。第23章でもう一度出てきます。</p>
+<aside class="box box-pybox"><p class="box-title">Pythonの道具箱：requires_grad_(False) と nn.Parameter</p><p><code>requires_grad_(False)</code> は「このパラメータの勾配は計算しなくていい（学習しない）」という設定です。勾配もAdamの記録も作られないので、メモリを食いません。これを <strong>凍結</strong>（freeze）と言います。<br> <code>nn.Parameter(テンソル)</code> は、その<a class="term" href="f-glossary.html#t-9d349eda" data-tip="数を並べた箱の総称。1次元がベクトル、2次元が行列。">テンソル</a>を「このモデルの学習するパラメータ」として登録します。こうしておくと、<code>model.parameters()</code> に含まれ、オプティマイザが更新してくれます。<br> <code>def __init__(self, base: nn.Linear, …)</code> の <code>: nn.Linear</code> は <strong>型ヒント</strong>（「ここには<a class="term" href="f-glossary.html#t-99a9e642" data-tip="$y = xW + b$ の層。入力の全部に重みを掛けて足す。">全結合層</a>が入ります」というメモ）で、動きは変わりません。第23章でもう一度出てきます。</p>
 </aside>
 
 <h2 id="s4">Qwenに付せんを貼る</h2>
@@ -280,28 +263,12 @@ trainer.train()
 <p>1.5Bのモデルを、4GB以下のメモリで学習できました。同じ方法で、7Bのモデル（4ビットで約4〜5GB）もT4で鍛えられます（時間はかかりますが）。</p>
 <table>
 <thead>
-<tr>
-<th>方法</th>
-<th>1.5Bの学習メモリの目安</th>
-<th>7Bの学習メモリの目安</th>
-</tr>
+<tr><th>方法</th><th>1.5Bの学習メモリの目安</th><th>7Bの学習メモリの目安</th></tr>
 </thead>
 <tbody>
-<tr>
-<td>全パラメータ（float32 ＋ AdamW）</td>
-<td>約24GB</td>
-<td>約112GB</td>
-</tr>
-<tr>
-<td>LoRA（本体はfloat16）</td>
-<td>約4〜5GB</td>
-<td>約16GB以上</td>
-</tr>
-<tr>
-<td>QLoRA（本体は4ビット）</td>
-<td>約3〜4GB</td>
-<td>約6〜10GB</td>
-</tr>
+<tr><td>全パラメータ（float32 ＋ AdamW）</td><td>約24GB</td><td>約112GB</td></tr>
+<tr><td>LoRA（本体はfloat16）</td><td>約4〜5GB</td><td>約16GB以上</td></tr>
+<tr><td>QLoRA（本体は4ビット）</td><td>約3〜4GB</td><td>約6〜10GB</td></tr>
 </tbody>
 </table>
 <p>（使う文章の長さやバッチの大きさで変わります。）</p>
@@ -345,6 +312,6 @@ trainer.train()
 <div class="talk talk-sensei"><img class="avatar" src="img/bongo.svg" alt="" width="56" height="56"><div class="bubble"><p class="who">ボンゴ先生</p><p>これで、キミはモデルを好きなように鍛えられるようになった。でも、ちょっと待ってほしい。「鍛えたら良くなった」と、どうやって言い切る？ 何問か試して「なんとなく良くなった」では、研究にならない。次の章は、多くの人がさぼりがちで、でも一番大事な <strong>評価</strong> の話だ。</p>
 </div></div>
 
-<section class="chapter-done"><button type="button" class="btn primary" data-done="19-lora">この章をクリアした！</button><p>押すと目次にチェックが付きます（この端末のブラウザにだけ保存）。</p></section><nav class="pager" aria-label="前後の章"><a href="18-sft.html"><small>← 前の章</small>指示に従わせる：SFT（教師ありファインチューニング）</a><a class="next" href="20-evaluation.html"><small>次の章 →</small>本当に良くなった？：評価と統計</a></nav></article>
+<section class="chapter-done"><button type="button" class="btn primary" data-done="19-lora">この章の説明を読み終えた！</button><p>説明の読了チェックです（ブラウザ内にのみ保存）。「理解・定着」は途中の確認問題・自力実装・間隔復習の結果と合わせて記録されます。</p></section><nav class="pager" aria-label="前後の章"><a href="18-sft.html"><small>← 前の章</small>指示に従わせる：SFT（教師ありファインチューニング）</a><a class="next" href="20-evaluation.html"><small>次の章 →</small>本当に良くなった？：評価と統計</a></nav></article>
 <footer class="site-footer"><p><b>つくってわかるLLM</b> ── “What I cannot create, I do not understand.”（作れないものは、理解していない）── R. P. Feynman</p>
-<p>本文・コード・サイトは学習者 sakunokyumei のためにAI（Claude Code）を用いて作成し、コードは自動検証しています。<a href="about.html">この教室について</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">なぜ全部を学習すると重いのか</a><a href="#s2">行列のランク：情報は意外と少ない</a><a href="#s3">LoRA層を自分で作る</a><a href="#s4">Qwenに付せんを貼る</a><a href="#s5">道具を使う：PEFT</a><a href="#s6">量子化：数を粗くして小さくする</a><a href="#s7">QLoRA：4ビットの本体 ＋ LoRA</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
+<p>本文・コード・サイトは学習者のためにAI支援で作成・改修し、検証範囲を明示しています。<a href="about.html">この教室について</a> · <a href="review.html">学習状況・復習</a> · <a href="j-references.html">参考文献</a> · <a href="https://github.com/sakunokyumei/llm-research-textbook">GitHub</a></p></footer></main><aside class="toc" aria-label="このページの見出し"><p>このページ</p><a href="#s1">なぜ全部を学習すると重いのか</a><a href="#s2">行列のランク：情報は意外と少ない</a><a href="#s3">LoRA層を自分で作る</a><a href="#s4">Qwenに付せんを貼る</a><a href="#s5">道具を使う：PEFT</a><a href="#s6">量子化：数を粗くして小さくする</a><a href="#s7">QLoRA：4ビットの本体 ＋ LoRA</a><a class="toc-top" href="#main">↑ 先頭へ</a></aside></div></body></html>
