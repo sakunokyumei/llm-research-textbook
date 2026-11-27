@@ -28,9 +28,13 @@
 ```python
 import urllib.request
 
-url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
        "cards/000148/files/773_ruby_5968/773_ruby_5968.txt")
-raw = urllib.request.urlopen(url).read()
+try:
+    with urllib.request.urlopen(url, timeout=30) as res:
+        raw = res.read()
+except Exception as e:
+    raise RuntimeError(f"青空文庫の取得に失敗しました（ネット接続を確認し再実行するか付録Eを参照）: {e}") from e
 print(type(raw), len(raw), "バイト")
 print(raw[:40])
 ```
@@ -470,8 +474,8 @@ print("2文字の組み合わせの種類：", len(following3))
 そうはいきません。見る文字数を増やすと、**組み合わせの数が爆発**します。語彙が2061文字なら、組み合わせの数は文字数に対して指数関数的に膨れ上がります。
 
 - 直前1文字（bigram）：$2061^2 \approx 425$万通り（『こころ』に出てくるのは約2万種類だけ）
-- 直前2文字（trigram）：$2061^3 \approx 87.6$億通り
-- 直前10文字（11-gram）：$2061^{11} \approx 2.5 \times 10^{36}$通り（宇宙全体の原子の数すら超える天文学的数字！）
+- 直前2文字（trigram）：$2061^3 \approx 87.5$億通り
+- 直前10文字（11-gram）：$2061^{11} \approx 2.85 \times 10^{36}$通り（地球上の砂粒の数 $\sim 10^{19}$〜$10^{20}$ を桁違いに上回る天文学的数字！ ちなみに観測可能な宇宙全体の原子数は約 $10^{80}$ 個で、さらに25-gramあたりでそれも超えます）
 
 『こころ』全体でもたった16万字しかありません。文字数を少し増やしただけで、組み合わせの大部分はデータの中に**一度も出てこなくなります**。
 

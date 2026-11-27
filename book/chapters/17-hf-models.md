@@ -46,6 +46,13 @@
 
 ## ベースモデルとチャットモデル
 
+:::tip 実行環境とリソースの目安（CPUでも実行可能）
+- **環境**：無料GPU（Colab T4）推奨ですが、0.5Bモデルのため**CPUでも実行できます**。
+- **ダウンロードとメモリ**：ベースモデルとチャットモデルの2つを合わせて初回約2GBをダウンロードします。必要メモリはGPU（float16）でVRAM約2〜3GB、CPU（float32）でRAM約4〜5GBです。
+- **所要時間と代替手順**：GPUなら各生成は数秒、CPUでは1回あたり十数秒〜数十秒（レビュー6問×2通りは数分）かかります。GPUが借りられない日やRAMが厳しいときは、ベースモデルの実験が終わった後に `del base` してからチャットモデルを読み込むと軽く動かせます。
+- **ライブラリ互換性**：`dtype=` 引数は `transformers >= 4.56`（5系含む）に対応しています（古い版では `torch_dtype=` に読み替えてください）。また `device_map="auto"` には `accelerate` パッケージが必要です（Colabには標準導入済み。ローカル環境はリポジトリの `requirements-book.txt` を参照）。
+:::
+
 Qwen2.5-0.5Bには、2つの版があります。`Qwen2.5-0.5B`（**ベースモデル**）と、`Qwen2.5-0.5B-Instruct`（**チャットモデル**、指示に従うモデル）です。同じ質問をして、違いを見てみましょう。GPUのランタイムで実行してください。
 
 ```python
@@ -303,16 +310,16 @@ def infer_gb(n_params_billion, bytes_per_param):
 
 print("        float16   8ビット   4ビット")
 for size in [0.5, 1.5, 3, 7, 14]:
-    print(f"{size:4}B  {infer_gb(size, 2):6.1f}GB {infer_gb(size, 1):6.1f}GB {infer_gb(size, 0.5):6.1f}GB")
+    print(f"{size:4}B  {infer_gb(size, 2):6.2f}GB {infer_gb(size, 1):6.2f}GB {infer_gb(size, 0.5):6.2f}GB")
 ```
 
 ```output
         float16   8ビット   4ビット
- 0.5B     1.0GB    0.5GB    0.2GB
- 1.5B     3.0GB    1.5GB    0.8GB
-   3B     6.0GB    3.0GB    1.5GB
-   7B    14.0GB    7.0GB    3.5GB
-  14B    28.0GB   14.0GB    7.0GB
+ 0.5B    1.00GB   0.50GB   0.25GB
+ 1.5B    3.00GB   1.50GB   0.75GB
+   3B    6.00GB   3.00GB   1.50GB
+   7B   14.00GB   7.00GB   3.50GB
+  14B   28.00GB  14.00GB   7.00GB
 ```
 
 T4（約15GB）なら、float16で3B程度まで余裕を持って動かせます。7Bはfloat16だとギリギリ（実際には計算用のメモリも必要なので厳しい）ですが、**4ビットに量子化**すれば3.5GBで動きます。量子化は第19章で学びます。

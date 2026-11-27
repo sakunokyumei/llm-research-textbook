@@ -23,10 +23,19 @@ SFTは「100点のお手本」をまねる方法だ。でも世の中、100点�
 
 ## 好みのデータを見る
 
+:::tip 実行環境とリソースの目安
+- **環境**：無料GPU（T4）推奨です。シグモイド・KL・DPO損失の検算セル（前半）は**CPUだけで数秒**で実行できます。後半の `DPOTrainer` 学習はT4でVRAM約5〜8GB・所要約1〜2分です。
+- **ダウンロード**：初回に `Qwen2.5-0.5B-Instruct`（約1GB）と好みデータ29組（数KB）を取得します。
+- **GPUが使えない日の代替**：CPUで全29組×3エポックのDPOを回すと数十分かかるため、GPUが借りられない日は前半の `dpo_loss` 検算までをCPUで確認し、後半は `prefs[:8]`・`num_train_epochs=1` に縮小するか、GPU確保後（またはKaggle T4）に実行してください。
+- **ライブラリ互換性**：`dtype=` は `transformers >= 4.56` 対応（推奨環境は `requirements-book.txt` を参照）。
+:::
+
 ```python
 !pip install -q trl peft
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_prefs.jsonl
-import json
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_prefs.jsonl
+import json, os
+if not os.path.exists("bongo_prefs.jsonl"):
+    raise RuntimeError("bongo_prefs.jsonl のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 prefs = [json.loads(l) for l in open("bongo_prefs.jsonl", encoding="utf-8")]
 print(len(prefs), "組")
 p = prefs[11]
@@ -154,7 +163,7 @@ print(round(kl, 3))   # 0.368
 
 **⑦ 絶対に押さえる2つの性質**：
 1. **必ず0以上**（$\mathrm{KL}(p\|q) \ge 0$）：各項にマイナスが出ても、合計すると必ず0以上になり、0になるのは $p = q$ のときだけ。
-2. **第5章の交差エントロピーの仲間**：$\sum p_i \log\frac{p_i}{q_i} = \big(-\sum p_i \log q_i\big) - \big(-\sum p_i \log p_i\big)$（交差エントロピー − エントロピー）。PyTorchでは `F.kl_div` で計算できます。
+2. **第5章の交差エントロピーの仲間**：$\sum p_i \log\frac{p_i}{q_i} = \big(-\sum p_i \log q_i\big) - \big(-\sum p_i \log p_i\big)$（交差エントロピー − エントロピー）。PyTorchでは `F.kl_div(log_q, p, reduction="batchmean")` で計算できます（第1引数に対数 $\log q$、第2引数に確率 $p$ を渡す逆順の仕様なので注意）。
 
 **⑧ $\beta$ の効き方**：RLHFの目標 $\mathbb{E}[r(x,y)] - \beta\,\mathrm{KL}(\pi \,\|\, \pi_{\text{ref}})$ で、$\beta$ が大きすぎるとモデルが元のまま動かなくなり、$\beta$ が小さすぎると報酬ハッキングで文章が壊れます。
 
@@ -329,6 +338,10 @@ from trl import DPOTrainer, DPOConfig
 ds = Dataset.from_list([{"prompt": [{"role": "user", "content": p["question"]}],
                          "chosen": [{"role": "assistant", "content": p["chosen"]}],
                          "rejected": [{"role": "assistant", "content": p["rejected"]}]} for p in prefs])
+# DPO学習中はLoRAをOFFにした状態を参照モデルとして自動利用するため、学習前の ref_model はCPUへ退避してVRAMを節約
+ref_model.to("cpu")
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
 policy = AutoModelForCausalLM.from_pretrained(name, dtype=torch.float32)
 config = DPOConfig(output_dir="dpo-bongo", beta=0.1, learning_rate=5e-5, num_train_epochs=3,
                    per_device_train_batch_size=4, logging_steps=1, report_to="none", save_strategy="no",
@@ -371,6 +384,7 @@ for h in trainer.state.log_history:
 学習後のモデルで、学習前に比べて、良い答えと悪い答えの書きやすさがどう変わったか見てみましょう。
 
 ```python
+ref_model.to(device)
 trainer.model.eval()
 for name_, m in [("学習前", ref_model), ("DPO後", trainer.model)]:
     lc = answer_logprob(m, p["question"], p["chosen"])

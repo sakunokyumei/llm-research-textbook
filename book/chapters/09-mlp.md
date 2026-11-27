@@ -29,9 +29,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -153,8 +157,8 @@ print(emb.shape, flat.shape, h.shape, logits.shape)
 torch.Size([4, 8, 32]) torch.Size([4, 256]) torch.Size([4, 256]) torch.Size([4, 2061])
 ```
 
-:::python .view で形を変える
-`emb.view(4, T * d)` は、中身の数はそのままで、形だけを `[4, 8, 32]` から `[4, 256]` に変えます。8文字ぶんの32個ずつを、横一列（256個）に並べ直すイメージです。`-1` を使うと「残りは自動で計算して」という意味になり、`emb.view(4, -1)` でも同じ結果になります。
+:::python .view と .reshape で形を変える
+`emb.view(4, T * d)` は、中身の数はそのままで、形だけを `[4, 8, 32]` から `[4, 256]` に変えます。8文字ぶんの32個ずつを、横一列（256個）に並べ直すイメージです。`-1` を使うと「残りは自動で計算して」という意味になり、`emb.view(4, -1)` でも同じ結果になります。なお、`transpose` 後などでメモリが不連続なテンソルでは `.view()` がエラーになるため、安全な `.reshape(4, -1)`（第6章・[付録B](b-python.html)）を使うこともよくあります。
 :::
 
 :::scaffold `.view(B, -1)` の形の算数と、MLP全体の shape パイプライン

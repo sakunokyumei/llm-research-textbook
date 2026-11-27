@@ -29,9 +29,13 @@ from collections import Counter
 import torch
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -193,6 +197,19 @@ t_flt = torch.tensor([1.0, 2.0, 3.0])    # dtype: torch.float32（確率・重�
 mask = (t_int > 1)                       # tensor([False, True, True]), dtype: torch.bool
 print(mask.sum(), mask.sum().item())     # tensor(2) 2
 ```
+
+また、テンソルの総要素数を保ったまま形を変える操作に **`.view(...)`** と **`.reshape(...)`** があります（第9章以降で多用します）。
+
+```python no-run
+x = torch.arange(6).reshape(2, 3)        # 形 [6] → [2, 3]
+xt = x.transpose(0, 1)                   # 軸を入れ替えて [3, 2]（メモリ上は不連続になる）
+# xt.view(6)                             # RuntimeError! メモリが不連続だと .view() は失敗する
+print(xt.reshape(6))                     # OK! 必要なら自動でコピーして [6] に変形
+print(xt.contiguous().view(6))           # OK! 連続化してから .view() しても同じ
+```
+
+- **`.view(...)`**：メモリをコピーせず高速に形だけ変えるが、メモリが連続（contiguous）でないとエラーになる。
+- **`.reshape(...)`**：連続なら `.view()` と同じ（コピーなし）、不連続なら自動でコピーして安全に変形してくれる。迷ったら `.reshape()` を使うと事故を防げます（[付録B](b-python.html)にも整理あり）。
 :::
 
 :::exercise ch06-q04

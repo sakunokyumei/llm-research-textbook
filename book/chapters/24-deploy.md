@@ -26,6 +26,12 @@ GPTの正体は、掛け算と足し算と、expと平方根の組み合わせ�
 
 ## 手順1：モデルをJSONに書き出す（Colab）
 
+:::tip 実行環境とリソースの目安
+- **環境**：手順1（量子化書き出し）〜手順4（GitHub Pages公開）は**CPUだけで完走できます**（GPU不要、必要RAM約1GB未満、書き出しは数秒）。
+- **ファイルサイズ**：書き出す `soseki-gpt.json` は約2.5MBです。
+- **後半のGradio節を試す場合**：初回に `Qwen2.5-0.5B-Instruct`（約1GB）を取得します。GPUなら数秒、CPUでも動作しますが1回の返答に十数秒〜数十秒かかり、`device_map="auto"` には `accelerate` パッケージが必要です（推奨環境は `requirements-book.txt` を参照）。
+:::
+
 Colabで新しいノートブックを作り、第13章でGoogleドライブに保存した `soseki_gpt.pt` を読み込みます。CPUのままで大丈夫です。
 
 ```python
@@ -63,7 +69,7 @@ def quantize_rows(w):
             "i8": base64.b64encode(q.numpy().tobytes()).decode(),
             "scale": base64.b64encode(scale.numpy().astype("float32").tobytes()).decode()}
 
-ck = torch.load(ckpt, map_location="cpu")
+ck = torch.load(ckpt, map_location="cpu", weights_only=True)   # 安全のためテンソルと基本データのみ読み込む（第17章）
 weights = {name: quantize_rows(t) for name, t in ck["model"].items() if not name.endswith("tril")}
 with open("soseki-gpt.json", "w", encoding="utf-8") as f:
     json.dump({"config": ck["config"], "chars": ck["chars"], "weights": weights}, f, ensure_ascii=False)
@@ -160,8 +166,13 @@ soseki-gpt/
       const start = document.getElementById("start").value;
       out.textContent = start;
       go.disabled = true;
-      await model.generate(start, 150, 0.8, (ch) => { out.textContent += ch; });
-      go.disabled = false;
+      try {
+        await model.generate(start, 150, 0.8, (ch) => { out.textContent += ch; });
+      } catch (e) {
+        out.textContent += "\n[エラー] 生成に失敗しました：" + e.message;
+      } finally {
+        go.disabled = false;
+      }
     });
   </script>
 </body>
@@ -203,7 +214,7 @@ HTMLとCSSは見慣れた姿だと思います。新しいのは最後の `<scri
 
 それに対して、この章で作る方式は**オンデバイス推論（エッジ推論）**です。Webブラウザがモデルファイル（2.5MB）を最初に1回だけダウンロードし、そのあとは**アクセスした人のスマホやPCの頭脳（CPU）だけで推論を完結**させます。これには絶大なメリットがあります。
 
-- **サーバー代がほぼ0円**：静的ファイルを配信するだけなので、GitHub Pagesなどの無料サーバーで何万人に見られても（個人の利用なら通常）料金はかかりません
+- **サーバー代がほぼ0円**：静的ファイルを配信するだけなので、GitHub Pagesなどの無料サーバーで通常は料金がかかりません（ただしGitHub Pagesには月100GB程度の通信量目安があり、2.5MBのモデルならキャッシュなしで約4万回アクセス相当が目安です）
 - **入力が外に出ない（完全なプライバシー）**：ユーザーが打ち込んだ文章は、手元のブラウザの中だけで処理され、どこかの外部サーバーに送信されることがありません
 - **オフラインでも動く**：一度読み込んでしまえば、飛行機の中や電波のない地下鉄でも文章を生成できます
 

@@ -54,7 +54,7 @@ torch.Size([6, 6]) のランク： 2
 Wの数の個数： 36  AとBの数の個数： 24
 ```
 
-:::math ランクとLoRA（$W' = W + \frac{\alpha}{r}BA$）：9ステップで理解する
+:::math ランクとLoRA（$W' = W + \frac{\alpha}{r}BA$）：7ステップで理解する
 **① 解決したい問題**：巨大な重み行列 $W$（たとえば 7B モデルにある $4096 \times 4096 = 1{,}677\text{万}$ 個の重み）を直接更新すると、勾配とAdamの記録だけでVRAMがパンクしてしまう。元の重み $W$ を凍結したまま、ほんのわずかなパラメータ数で表現力豊かな調整 $\Delta W$ を加えたい。
 
 **② 素朴な方法では困る理由**：全要素を直接学習すると 16バイト × パラメータ数でメモリ不足になる。かといって最後の1層だけを学習するだけでは、モデル全体の口調や推論パターンを十分に変えられない。
@@ -152,12 +152,22 @@ PyTorchの `nn.Linear(in_features, out_features)` は重みを `(out_features, i
 
 ## Qwenに付せんを貼る
 
+:::tip 実行環境とリソースの目安（後半のQLoRAはGPU必須）
+- **環境**：自作LoRAとPEFT節（0.5B）は無料GPU（T4）推奨（VRAM約3〜4GB、学習約1分）。後半の **QLoRA節（1.5B・4ビット量子化）は `bitsandbytes` がCUDAを必要とするためGPU必須**（T4でVRAM約4GB、約1〜2分）です。
+- **ダウンロードと保存**：0.5B（約1GB）＋QLoRA節で1.5B（約3.1GB）。保存するLoRAアダプタは約35MBで済みます。
+- **GPUが使えない日の代替**：行列のランク・自作 `LoRALinear`・absmax量子化の手計算セルは**CPUで数秒**で動きます。0.5Bの自作LoRA学習もCPUで `train_rows[:16]`・`epochs=1` に絞れば動作確認できます。QLoRA節だけはGPU確保後（またはKaggle T4）に実行してください。
+- **ライブラリ互換性**：`dtype=` は `transformers >= 4.56`、`device_map="auto"` には `accelerate` が必要です（推奨環境は `requirements-book.txt`）。
+:::
+
 自作のLoRA層を、Qwen2.5-0.5B-Instructの全Attentionの `q_proj` と `v_proj`（QueryとValueを作る全結合層）に取り付けます。
 
 ```python
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl
-import json
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl
+import json, os
+for fname in ("bongo_sft.jsonl", "bongo_test.jsonl"):
+    if not os.path.exists(fname):
+        raise RuntimeError(f"{fname} のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -213,6 +223,7 @@ model.train()
 for epoch in range(3):
     random.shuffle(examples)
     total = 0.0
+    n_steps = 0
     for i in range(0, len(examples), 4):
         with torch.autocast(device_type=device, dtype=torch.float16, enabled=(device == "cuda")):
             loss = model(**collate(examples[i:i + 4])).loss
@@ -221,7 +232,8 @@ for epoch in range(3):
         scaler.step(opt)
         scaler.update()
         total += loss.item()
-    print(f"エポック {epoch + 1}：平均損失 {total / 15:.3f}")
+        n_steps += 1
+    print(f"エポック {epoch + 1}：平均損失 {total / n_steps:.3f}")
 model.eval()
 ```
 
@@ -327,7 +339,7 @@ LoRAで、学習の**勾配とAdamの記録**は小さくなりました。残�
 
 一番シンプルな「対称absmax量子化」を、数式と手計算から確認してからコードで動かしましょう。
 
-:::math 対称absmax量子化と逆量子化誤差：9ステップで理解する
+:::math 対称absmax量子化と逆量子化誤差：7ステップで理解する
 **① 解決したい問題**：float32（4バイト）の重み $w$ を、int8（1バイト）や4ビット（0.5バイト）の小さな整数 $q$ に縮めてVRAMを4分の1〜8分の1にしたい。
 
 **② 素朴な方法の失敗**：そのまま小数点以下を切り捨てて整数にすると、LLMの重みのほとんどは `[-0.5, +0.5]` の小さな小数なので、全部 `0` になって情報が消えてしまう。
@@ -404,15 +416,22 @@ print("最大の誤差：", (w - w_back).abs().max().item())
 
 ## QLoRA：4ビットの本体 ＋ LoRA
 
-**QLoRA** は、モデル本体を4ビット（NF4）に量子化して凍結し、その上にLoRAの付せんを貼って学習する方法です。本体のメモリは約4分の1、学習するのは付せんだけ。この組み合わせで、無料のT4でも数Bのモデルを鍛えられます。
+**QLoRA** は、モデル本体を4ビット（NF4）に量子化して凍結し、その上にLoRAの付せんを貼って学習する方法です。本体のメモリはfloat16の約4分の1（float32比で約8分の1）、学習するのは付せんだけ。この組み合わせで、無料のT4でも数Bのモデルを鍛えられます。
 
 次のコードは、Qwen2.5-1.5B-Instructを4ビットで読み込んでLoRA学習する例です。4ビットの読み込みには `bitsandbytes` というライブラリを使い、**GPUが必要**です。
 
-このセルは、メニューの「ランタイム」→「セッションを再起動する」で**GPUのメモリを空にしてから**実行します。上の節のモデルがGPUに残っていると、メモリの使用量を正しく測れないうえ、メモリが足りなくなることもあるからです。再起動すると変数は消えますが、ダウンロードしたファイルは残っているので、このセルだけで動くように、必要なものを全部読み込み直しています。
+このセルは、メニューの「ランタイム」→「セッションを再起動する」で**GPUのメモリを空にしてから**実行します。上の節のモデルがGPUに残っていると、メモリの使用量を正しく測れないうえ、メモリが足りなくなることもあるからです。セッション切断でファイルが消えていても動くように、データが無ければ自動で再取得してから読み込み直します。
 
 ```python gpu-only
 !pip install -q bitsandbytes peft trl
-import json, torch
+import json, os, urllib.request, torch
+if not os.path.exists("bongo_sft.jsonl"):
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl",
+        "bongo_sft.jsonl",
+    )
+if not os.path.exists("bongo_sft.jsonl"):
+    raise RuntimeError("bongo_sft.jsonl のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import LoraConfig, prepare_model_for_kbit_training

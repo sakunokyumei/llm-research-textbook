@@ -22,6 +22,12 @@ GPTの「仕組み」は前の章で完成しました。この章は「**工学
 
 ## 準備：キャッシュ対応のGPT
 
+:::tip 実行環境とリソースの目安
+- **環境**：CPUで完走できます（GPU不要・外部ダウンロードなし）。
+- **メモリと所要時間**：必要RAMは1GB未満、すべての実験を合わせても数秒〜数十秒で終わります。
+- **GPUで試す場合**：下のコードは `device=x.device` / `device=idx.device` に対応しているため、`model.to("cuda")` してGPU上で速度差を測ることもできます。
+:::
+
 第15章のGPT-2形式のAttentionに、**KVキャッシュ**という仕組みを追加したものを用意します。重みはでたらめでかまいません（速さと正しさを確かめるだけなので）。
 
 :::tip この章のコードは「動かして、結果を見る」でOK
@@ -53,7 +59,7 @@ class CachedAttention(nn.Module):
             cache["k"], cache["v"] = k, v
         L = k.shape[2]                             # 過去も含めた長さ
         att = q @ k.transpose(-2, -1) / math.sqrt(hs)
-        mask = torch.tril(torch.ones(L, L))[L - T:]    # 新しいT個の行だけのマスク
+        mask = torch.tril(torch.ones(L, L, device=x.device))[L - T:]    # 新しいT個の行だけのマスク
         att = att.masked_fill(mask == 0, float("-inf"))
         y = F.softmax(att, dim=-1) @ v
         return self.c_proj(y.transpose(1, 2).contiguous().view(B, T, C))
@@ -70,7 +76,7 @@ class TinyGPT(nn.Module):
 
     def forward(self, idx, caches=None, start_pos=0):
         T = idx.shape[1]
-        x = self.wte(idx) + self.wpe(torch.arange(start_pos, start_pos + T))
+        x = self.wte(idx) + self.wpe(torch.arange(start_pos, start_pos + T, device=idx.device))
         for i in range(len(self.attn)):
             x = x + self.attn[i](self.ln1[i](x), None if caches is None else caches[i])
             x = x + self.mlp[i](self.ln2[i](x))

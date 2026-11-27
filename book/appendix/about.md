@@ -38,6 +38,18 @@
 
 このリポジトリには、以前の「理論を先に学ぶ」構成の教材（56章）が `legacy/` フォルダに保存されています。
 
+## ライセンスとサードパーティ素材の権利表記
+
+- **本教科書の本文・オリジナルコードのライセンス**：現時点では著者による正式なライセンス表記（リポジトリ直下の `LICENSE` ファイル）の選定・公開準備中です。利用・転載・二次利用の条件については、リポジトリ上の最新案内をご確認ください。
+- **本教科書で利用・参照している主な第三者素材とライセンス**（詳細は[付録J 参考文献](j-references.html)も参照）：
+  - **KaTeX**（数式組版）：MIT License
+  - **青空文庫**（夏目漱石作品テキスト）：著作権保護期間満了（パブリックドメイン）
+  - **Qwen2.5 シリーズ**（`Qwen/Qwen2.5-0.5B-Instruct` 等）：Apache License 2.0
+  - **GPT-2**（OpenAI）：MIT License
+  - **multilingual-e5-small**（intfloat）：MIT License
+  - **PyTorch**：BSD-3-Clause License
+  - **Transformers / PEFT / TRL / Datasets / Tokenizers / Gradio**：Apache License 2.0
+
 ## リポジトリ
 
 - ソースコード：<https://github.com/sakunokyumei/llm-research-textbook>

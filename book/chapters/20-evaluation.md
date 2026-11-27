@@ -20,14 +20,24 @@
 
 ## 準備：比べる2つのモデル
 
+:::tip 実行環境とリソースの目安
+- **環境**：無料GPU（T4）推奨です。ベースラインとボンゴLoRAの2モデルを扱うためVRAM約5〜7GBを使います。
+- **ダウンロードと所要時間**：初回に `Qwen2.5-0.5B-Instruct`（約1GB）と評価データ3件を取得します。GPUなら学習から4種類の評価完了まで約2〜3分です。
+- **GPUが使えない日の代替**：ブートストラップ統計と評価レポートのセルは**CPUだけで一瞬**で動きます。CPUのみで全セルを試す場合は、学習を1エポック・評価件数を `heldout_rows[:4]`、`test_questions[:4]`、`quiz[:5]` に絞ると待ち時間を減らせます。
+- **ライブラリ互換性**：`dtype=` は `transformers >= 4.56` 対応（推奨環境は `requirements-book.txt` を参照）。
+:::
+
 評価には「比べる相手」が必要です。元のQwen2.5-0.5B-Instruct（**ベースライン**）と、第19章と同じ方法で作るボンゴ先生LoRAを用意します。ただし今回は、データの**最後の12問を評価用に取り分けて**から学習させます。
 
 ```python
 !pip install -q peft trl
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/mini_quiz.jsonl
-import json, math, random
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_sft.jsonl
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/bongo_test.jsonl
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/mini_quiz.jsonl
+import json, math, os, random
+for fname in ("bongo_sft.jsonl", "bongo_test.jsonl", "mini_quiz.jsonl"):
+    if not os.path.exists(fname):
+        raise RuntimeError(f"{fname} のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import Dataset
@@ -77,17 +87,18 @@ print("準備完了")
 
 ```python
 @torch.no_grad()
-def answer_nll(model, question, answer):
+def answer_nll_sum(model, question, answer):
     prompt = tok.apply_chat_template([{"role": "user", "content": question}], add_generation_prompt=True, tokenize=False)
     p = tok(prompt, add_special_tokens=False)["input_ids"]
     a = tok(answer + "<|im_end|>", add_special_tokens=False)["input_ids"]
     ids = torch.tensor([p + a]).to(device)
     labels = torch.tensor([[-100] * len(p) + a]).to(device)
-    return model(input_ids=ids, labels=labels).loss.item()
+    mean_nll = model(input_ids=ids, labels=labels).loss.item()
+    return mean_nll * len(a), len(a)
 
 for label, m in [("ベースライン", baseline), ("ボンゴLoRA", bongo)]:
-    losses = [answer_nll(m, r["question"], r["answer"]) for r in heldout_rows]
-    mean = sum(losses) / len(losses)
+    pairs = [answer_nll_sum(m, r["question"], r["answer"]) for r in heldout_rows]
+    mean = sum(s for s, _ in pairs) / sum(n for _, n in pairs)   # 全答えトークン数で重みづけしたコーパス平均NLL
     print(f"{label}：損失 {mean:.3f}  パープレキシティ {math.exp(mean):.1f}")
 ```
 
@@ -96,10 +107,16 @@ for label, m in [("ベースライン", baseline), ("ボンゴLoRA", bongo)]:
 ボンゴLoRA：損失 2.214  パープレキシティ 9.2
 ```
 
-ボンゴLoRAのほうが、見たことのないボンゴ先生の答えを、ずっと「ありそう」だと予想できています。口調を学べた証拠です。
+ボンゴLoRAのほうが、見たことのないボンゴ先生の答えを、ずっと「ありそう」だと予想できています。口調を学べた証拠です。なお、答えの長さが問題ごとに違うため、1問ごとの平均をそのまま平均するのではなく、**全トークンの損失合計 ÷ 全トークン数**（トークン重みづけのコーパス平均NLL）からパープレキシティを求めています。
 
 :::theory 保留データ
 評価には、学習に**一度も使っていない**データ（**保留データ**、held-out data）を使います。学習に使ったデータで測ると、丸暗記しているだけでも良い数字が出てしまうからです（第5章の過去問の話）。今回は、データを作った段階で最後の12問を取り分けておきました。データを分けるのは、学習を始める**前**にやるのが鉄則です。
+:::
+
+:::warn パープレキシティを比べるときの3つの注意点
+1. **トークナイザーが違うモデル同士は直接比べられない**（第5章・第14章）：語彙サイズや1文字あたりのトークン数が違うと「1トークンを当てる難しさ」が別物になるため、そのままパープレキシティを並べて優劣をつけてはいけません（比較するには第14章の「1文字／1バイトあたりの損失」に換算します）。
+2. **評価データセットや前処理が違う数字は比べられない**：文章のジャンル・長さ・改行や記号の前処理が違うだけでパープレキシティは大きく変わるため、必ず**まったく同じ保留データと前処理**で比較します。
+3. **パープレキシティが低い ≠ 指示追従や安全性が高い**：パープレキシティは「お手本に似た文章を出す確率」しか測れません。事実の正確さ・指示の遵守・安全に断る力は、この先の自動チェック・選択式ベンチマーク・LLM審査・人間評価と組み合わせて確かめる必要があります。
 :::
 
 :::exercise ch20-q02
@@ -236,7 +253,7 @@ print(f"正答率の差：{diff:+.2f}  95%信頼区間：[{low:+.2f}, {high:+.2f
 この「同じ問題で両方のモデルを比べ、差をブートストラップする」方法を **対応のあるブートストラップ**（paired bootstrap）と言います。同じ問題で比べるので、問題の難しさのばらつきが打ち消され、少ない問題数でも差を検出しやすくなります。
 :::
 
-:::math 標準誤差・95%信頼区間・ブートストラップ：9ステップで理解する
+:::math 標準誤差・95%信頼区間・ブートストラップ：8ステップで理解する
 **① 解決したい問題**：20問のクイズでベースラインが 17/20（85%）、ボンゴLoRAが 16/20（80%）。この「1問（5%）の差」は本当に忘れたのか、それとも問題選びの偶然かを見分けたい。
 
 **② 素朴な比較が危険な理由**：正答率の数字だけを見ると「85% vs 80%」は、20問テストでも1,000問テストでも同じに見えてしまう。でも20問なら1問たまたま転ぶだけで±5%動く！

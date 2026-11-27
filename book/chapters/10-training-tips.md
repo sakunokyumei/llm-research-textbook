@@ -33,9 +33,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -230,8 +234,8 @@ print("重みの大きさ 1/√256：", stack_stats(1 / math.sqrt(256)))
 ```python
 h = torch.randn(2, 6) * 5 + 3      # 平均3、標準偏差5くらいの、暴れた数
 mean = h.mean(dim=1, keepdim=True)
-std = h.std(dim=1, keepdim=True, unbiased=False)   # unbiased=False：数式どおり N で割る
-h_hand = (h - mean) / (std + 1e-5)  # 平均を引いて、標準偏差で割る
+var = h.var(dim=1, keepdim=True, unbiased=False)   # unbiased=False：数式どおり N で割る
+h_hand = (h - mean) / torch.sqrt(var + 1e-5)       # 分散に ε=1e-5 を足してから平方根をとる
 
 ln = nn.LayerNorm(6, elementwise_affine=False)
 print(h_hand)
@@ -535,7 +539,7 @@ print("保存しました：", os.listdir(save_dir))
 
 ```python
 loaded = MLP(V, T, dropout=0.3)
-loaded.load_state_dict(torch.load(f"{save_dir}/mlp_kokoro.pt"))
+loaded.load_state_dict(torch.load(f"{save_dir}/mlp_kokoro.pt", weights_only=True))
 print("読み込んだモデルの検証損失：", round(val_loss(loaded), 3))
 ```
 

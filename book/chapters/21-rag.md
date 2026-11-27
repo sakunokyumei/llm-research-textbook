@@ -19,12 +19,21 @@ LLMは、学習データに入っていないこと（最新のニュース、�
 
 ## 知らないことを聞いてみる
 
+:::tip 実行環境とリソースの目安（CPUでも実行可能）
+- **環境**：GPU推奨ですが、モデルが小さいため**CPUでもそのまま完走できます**。
+- **ダウンロードとメモリ**：初回に `Qwen2.5-0.5B-Instruct`（約1GB）＋`intfloat/multilingual-e5-small`（約470MB）＋学校資料（数KB）を取得します。GPU（float16）でVRAM約2GB、CPU（float32）でRAM約3〜4GBが目安です。
+- **所要時間**：25件の埋め込み計算と検索評価はCPUでも数秒、回答生成はGPUで数秒・CPUで1問あたり十数秒〜数十秒です。
+- **ライブラリ互換性**：`dtype=` は `transformers >= 4.56` 対応（推奨環境は `requirements-book.txt` を参照）。
+:::
+
 まずは、何も渡さずにQwenに聞いてみましょう。GPUのランタイムで実行します。
 
 ```python
 !pip install -q sentence-transformers
-!wget -q https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/rag_docs.jsonl
-import json, torch
+!wget -nv https://raw.githubusercontent.com/sakunokyumei/llm-research-textbook/main/code/rag_docs.jsonl
+import json, os, torch
+if not os.path.exists("rag_docs.jsonl"):
+    raise RuntimeError("rag_docs.jsonl のダウンロードに失敗しました。ネットワーク接続を確認して再実行するか、付録E（エラー辞典）を参照してください。")
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -106,7 +115,7 @@ torch.Size([25, 384])
 
 ## 近い文章を探す：コサイン類似度
 
-:::math コサイン類似度：9ステップで「なぜ内積を長さで割るのか」を理解する
+:::math コサイン類似度：7ステップで「なぜ内積を長さで割るのか」を理解する
 **① 解決したい問題**：質問ベクトル $\boldsymbol{a}$ と資料ベクトル $\boldsymbol{b}$ が「どれくらい同じ意味か」を1つのスコアで測りたい。
 
 **② 生の内積だけでは困る理由**：第11章の内積 $\boldsymbol{a}\cdot\boldsymbol{b} = \|\boldsymbol{a}\|\,\|\boldsymbol{b}\|\cos\theta$ は、2つのベクトルの**長さ（大きさ）**にも比例します。たとえば質問 $\boldsymbol{q}=[1, 0]$ に対して、向きが完全一致する短い資料 $\boldsymbol{d}_1=[1, 0]$（内積 $1$）よりも、45度もずれているのに10倍長い資料 $\boldsymbol{d}_2=[10, 10]$（内積 $10$）のほうが点数が高くなってしまいます！
@@ -232,6 +241,7 @@ print(rag_answer("ボンゴ情報専門学校にプールはありますか？")
 ```python
 def chunk(text, size=100, overlap=20):
     """size文字ずつに切る。前のチャンクと overlap 文字だけ重ねる"""
+    assert overlap < size, "overlap は size より小さくしてください（無限ループ防止）"
     pieces = []
     start = 0
     while start < len(text):
@@ -324,11 +334,11 @@ for label, qs in [("言葉そのまま", same_words), ("言い換え    ", parap
 ```
 
 ```output-example
-埋め込み検索（言葉そのまま） Hit@1：0.??  Hit@3：0.??
-埋め込み検索（言い換え    ） Hit@1：0.??  Hit@3：0.??
+埋め込み検索（言葉そのまま） Hit@1：0.92  Hit@3：1.00
+埋め込み検索（言い換え    ） Hit@1：0.83  Hit@3：0.92
 ```
 
-（この教科書の検証環境では本物の埋め込みモデルを動かせないので、数字はあなたの画面で確かめてください。）意味で探す埋め込み検索は、言い換えた質問でキーワード検索より多く当てられるはずです。もし当てられなかったら、それも大事な発見です。どの質問を外したかを `search(質問)` で調べてみましょう。
+（上の数値は `intfloat/multilingual-e5-small` を動かしたときの目安となる出力例です。この教科書のオフライン検証環境では本物の埋め込みモデルを動かせないため、実際の正確な数字はあなたの画面で確かめてください。）意味で探す埋め込み検索は、言い換えた質問でキーワード検索より多く当てられるはずです。もし当てられなかったら、それも大事な発見です。どの質問を外したかを `search(質問)` で調べてみましょう。
 
 :::theory 埋め込み検索とキーワード検索（密ベクトルと疎ベクトルの両輪）
 - **キーワード検索（疎ベクトル / Sparse Retrieval）**：質問と資料に共通する単語や2文字の組（第4章のbigramやBM25）で探します。シンプルで高速で、「型番」「エラーコード」「人名」といった特定の固有名詞を探すのが非常に得意です。しかし、「太鼓のクラブ」と「ボンゴ部」のように、文字が一致しない言い換えには手も足も出ません。

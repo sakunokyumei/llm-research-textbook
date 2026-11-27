@@ -30,9 +30,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def load_soseki(file_id="773_ruby_5968"):
-    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/master/"
+    url = ("https://raw.githubusercontent.com/aozorahack/aozorabunko_text/0984f7dc18a2270bdfd2ff99bf14fd1b3ebb4f65/"
            f"cards/000148/files/{file_id}/{file_id}.txt")
-    text = urllib.request.urlopen(url).read().decode("cp932")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as res:
+            text = res.read().decode("cp932")
+    except Exception as e:
+        raise RuntimeError(f"青空文庫の取得に失敗しました（時間をおいて再実行するか付録Eを参照）: {e}") from e
     text = text.split("-------------------------------------------------------")[2]
     text = text.split("底本：")[0]
     text = re.sub(r"《.*?》", "", text)
@@ -94,6 +98,8 @@ y = text_ids[1:5]   # [20, 30, 40, 50]  正解（各位置の「次の文字」�
 ```
 
 位置 `t` の正解 `y[t]` は、入力 `x[t + 1]` とまったく同じ文字です。だからこそ「未来の位置 `t + 1` 以降を見ない」というルール（因果マスク）が絶対条件になります。
+
+なお、学習時にモデル自身の予測結果ではなく**正解のトークン列 `x` を全位置へ一気に与えて次トークンを同時に予測させる**この学習法を **教師強制（teacher forcing）** と呼びます（第8章の1文字ずらしの多位置版）。また、長さの異なる文をバッチにまとめる実務やチャット学習では、因果マスクに加えて「余白（パディング）を無視する **`attention_mask`**」と「質問部分の損失を除外する **損失マスク（`ignore_index=-100`）**」も併用します（第18章で実装します）。
 :::
 
 :::exercise ch11-q01
@@ -310,10 +316,11 @@ Attentionで一番迷子になりやすいのは「形」です。B＝文章の�
 コードの途中で `print(〇〇.shape)` を入れて、この表と見比べると、どこで何が起きているかが分かります。
 :::
 
-:::python transpose
+:::python transpose・reshape/view・detach
 `k.transpose(-2, -1)` は、最後の2つの軸を入れ替えます。`[B, T, 16]` が `[B, 16, T]` になり、`q @ k.transpose(…)` で「全部のQueryと全部のKeyの内積」が `[B, T, T]` の表として一度に計算できます。行がQuery（注目する側）、列がKey（注目される側）です。<br>
 3次元のテンソルどうしの `@` は、先頭の `B` の軸ごとに（4つの文章それぞれで）行列の掛け算をしてくれます。<br>
-`wei[0].detach()` の `.detach()` は「学習の記録から切り離したコピー」を作ります。`query` などの学習するパラメータから計算した結果には記録がついているので、表示するときにはずしています。
+**`.reshape` と `.view` の注意点**：`transpose` 直後のテンソルはメモリ上で不連続（non-contiguous）になるため、そのまま `.view(...)` を呼ぶと `RuntimeError` になります。形を変えたいときは `.reshape(...)`（または `.contiguous().view(...)`）を使うのが安全です（第6章・[付録B](b-python.html)）。<br>
+**`.detach()` と `no_grad()` の違い**：`wei[0].detach()` は「値・形はそのままに、このテンソル1個だけを計算グラフ（勾配の記録）から切り離す」操作です。ブロック全体の記録を止める `with torch.no_grad():`、要素1個をPython数値にする `.item()` と目的に応じて使い分けます。
 :::
 
 :::widget attention
@@ -389,8 +396,8 @@ d= 64：内積の分散   63.10   √dで割ると 0.99
 d=256：内積の分散  259.85   √dで割ると 1.02
 ```
 
-:::theory 点数が大きすぎると、softmaxが尖りすぎる（分散の計算）
-平均0・分散1の独立な数 $q_i, k_i$ を掛けると、積 $q_i k_i$ の分散は 1 になります。これを $d$ 個足すと（第10章で学んだ「和の分散」）、内積の分散はちょうど $d$ 倍に膨らみます。
+:::theory 点数が大きすぎると、softmaxが尖りすぎる（分散のスケーリング仮定）
+**理想的な初期化時の仮定**として、$q_i, k_i$ が互いに独立で平均0・分散1だとすると、積 $q_i k_i$ の分散は 1 になり、それを $d$ 個足した内積の分散はちょうど $d$ 倍に膨らみます（実際の学習済み重みでは厳密に独立・分散1ではないため、これは設計の根拠を与える**仮定つきのスケーリング則**です）。
 
 $$\mathrm{Var}\!\left(\sum_{i=1}^{d} q_i k_i\right) = d \quad \Longrightarrow \quad \mathrm{Var}\!\left(\frac{1}{\sqrt{d}}\sum_{i=1}^{d} q_i k_i\right) = \frac{d}{(\sqrt{d})^2} = 1$$
 

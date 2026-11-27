@@ -259,6 +259,22 @@ x = M.to(device)
 # 2. loss.backward()          （逆伝播で各パラメータの .grad を計算）
 # 3. with torch.no_grad():    （更新は記録せず w -= lr * w.grad）
 # 4. w.grad.zero_()           （.grad は累積するため必ず0に戻す！）
+
+# .view() vs .reshape()（第6・9・11章）
+x = torch.arange(6).reshape(2, 3)     # 形 [6] → [2, 3]
+xt = x.transpose(0, 1)                # 軸入替後はメモリ不連続 → xt.view(6) は RuntimeError
+safe = xt.reshape(6)                  # .reshape() は必要時だけ自動コピーして安全に変形
+
+# .detach() vs torch.no_grad() vs .item()（第7・11章）
+# - with torch.no_grad(): ブロック内の計算グラフ記録を丸ごと止める（推論・更新）
+# - t.detach():           テンソル1個だけ計算グラフから切り離す（可視化・重み観察）
+# - s.item():             要素1個のテンソルを Python の float/int にする（ログ保存）
+
+# 教師強制（teacher forcing）・ラベルシフト・各種マスク（第8・11・18章）
+# - ラベルシフト: 同じ列を1トークンずらして入力 x = ids[:-1]、正解 y = ids[1:] にする
+# - 教師強制:     学習時はモデル自身の予測ではなく正解トークン列を入力して並列学習する
+# - attention_mask: パディング（余白）や未来（因果マスク -inf）を見ないためのマスク
+# - 損失マスク:   F.cross_entropy(..., ignore_index=-100) で質問部分など -100 の位置を損失から除外（第18章）
 ```
 
 ## エラーへの備え try / except
