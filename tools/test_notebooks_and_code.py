@@ -26,8 +26,9 @@ except ImportError:
     nbformat = None
 
 EXTERNAL_OR_NET = (
-    "torch", "transformers", "trl", "peft", "datasets", "gradio", "matplotlib",
-    "numpy", "openai", "tiktoken", "sentence_transformers", "bitsandbytes",
+    "torch", "transformers", "tokenizers", "accelerate", "trl", "peft", "datasets",
+    "gradio", "matplotlib", "numpy", "scipy", "sklearn", "openai", "tiktoken",
+    "sentence_transformers", "bitsandbytes",
     "urllib", "requests", "google.colab", "huggingface_hub", "minigpt",
     "open(", "wget", "!pip", "!nvidia-smi", "drive.mount", "files.download",
 )
