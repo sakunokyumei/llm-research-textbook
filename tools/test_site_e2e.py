@@ -62,6 +62,9 @@ def run_tests(docs_dir):
         print(f"E2E FAILED: docs dir not found: {docs_dir}")
         return 1
 
+    ex_index = json.loads((docs_dir / "exercises-index.json").read_text(encoding="utf-8"))
+    ex_by_id = {ex["id"]: ex for ch in ex_index.get("chapters", []) for ex in ch.get("exercises", [])}
+
     srv, port = start_server(docs_dir)
     base = f"http://127.0.0.1:{port}"
     errors = []
@@ -133,9 +136,9 @@ def run_tests(docs_dir):
             assert scaffolds_closed_std, "Scaffolds should collapse in standard course"
             page.locator(".course-switch button[data-set-course='thorough']").click()
 
-            # 4. Test progressive hints + interactive choice exercise (read answer dynamically so option rebalancing never breaks test!)
+            # 4. Test progressive hints + interactive choice exercise (read answer dynamically from exercises-index.json)
             ex2 = page.locator("#ex-ch01-q02")
-            ex2_data = json.loads(ex2.locator("script.ex-data").inner_text())
+            ex2_data = ex_by_id["ch01-q02"]
             v0_ans = ex2_data["variants"][0]["answer"]
             wrong_opt = next(o["id"] for o in ex2_data["variants"][0]["options"] if o["id"] != v0_ans)
             # Open hint if hint button exists
@@ -163,7 +166,7 @@ def run_tests(docs_dir):
             # 5. Test numeric exercise with full-width digits on Ch 3 (read answer dynamically)
             page.goto(f"{base}/03-next-token.html", wait_until="networkidle")
             ex_sigma = page.locator("#ex-ch03-q04")
-            ex_sigma_data = json.loads(ex_sigma.locator("script.ex-data").inner_text())
+            ex_sigma_data = ex_by_id["ch03-q04"]
             num_ans = str(ex_sigma_data["variants"][0]["answer"]["value"])
             fw_ans = num_ans.translate(str.maketrans("0123456789.-", "０１２３４５６７８９．－"))
             ex_sigma.locator(".ex-input").fill(fw_ans)
@@ -172,7 +175,7 @@ def run_tests(docs_dir):
 
             # 6. Test code predict exercise (ch03-q01)
             ex_kw = page.locator("#ex-ch03-q01")
-            ex_kw_data = json.loads(ex_kw.locator("script.ex-data").inner_text())
+            ex_kw_data = ex_by_id["ch03-q01"]
             pred_ans = str(ex_kw_data["variants"][0]["accept"][0])
             ex_kw.locator(".ex-textarea").fill(pred_ans)
             ex_kw.locator(".ex-submit").click()
